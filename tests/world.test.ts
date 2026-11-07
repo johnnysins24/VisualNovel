@@ -331,6 +331,17 @@ describe('gold: costs and debt', () => {
   });
 });
 
+describe('event scene', () => {
+  const ev = (scene?: string) => ({ id: 'adult.s', stage: 'adult', text: 't', ...(scene ? { scene } : {}), choices: [{ id: 'a', label: 'a', text: 'x' }] });
+  it('accepts a known scene and leaves it out when unset', () => {
+    expect(ContentSchema.parse({ items: [], events: [ev('tavern')] }).events[0]!.scene).toBe('tavern');
+    expect(ContentSchema.parse({ items: [], events: [ev()] }).events[0]!.scene).toBeUndefined();
+  });
+  it('rejects a scene the art set does not have', () => {
+    expect(() => ContentSchema.parse({ items: [], events: [ev('spaceship')] })).toThrow();
+  });
+});
+
 describe('gender condition', () => {
   const ev = { id: 'adult.draft', stage: 'adult', weight: 10, once: true, when: { gender: 'm' }, text: 't', choices: [{ id: 'go', label: 'g' }] } as const;
   it('gates events and choices on the character gender', () => {

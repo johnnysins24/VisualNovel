@@ -101,11 +101,22 @@ export const ChoiceSchema = z.object({
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
 
+/**
+ * ฉากหลังของเหตุการณ์ (ภาพประกอบจาก thread ศิลป์) ไม่ใส่ = ใช้ภาพตาม location_tag
+ * home กับ market มีภาพแยกตามถิ่น ฉากอื่นใช้ภาพเดียวทุกถิ่น
+ */
+export const SCENES = [
+  'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop',
+  'ship_deck', 'mine', 'clan_hall', 'institute', 'belek_bank', 'star_hall',
+] as const;
+export type Scene = (typeof SCENES)[number];
+
 export const EventSchema = z.object({
   id: z.string().regex(/^[a-z_]+\.[a-z0-9_]+$/, 'id ต้องเป็น stage.name'),
   stage: StageSchema,
   weight: z.number().positive().default(10),
   once: z.boolean().default(true),
+  scene: z.enum(SCENES).optional(),
   when: z
     .object({
       age: z.tuple([z.number().int(), z.number().int()]).optional(),
