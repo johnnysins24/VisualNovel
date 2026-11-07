@@ -57,6 +57,7 @@ export function lintContent(c: Content): string[] {
           if (id && id !== 'none' && !(k === 'parents' && id === 'none') && !poolIds.has(id)) problems.push(`${cw}: name_pool.${k} "${id}" ไม่มีใน names.yaml`);
         }
         if (fx?.name_pool?.self === 'none') problems.push(`${cw}: name_pool.self ใช้ none ไม่ได้ (none ใช้กับ parents)`);
+        if (fx?.partner?.pool && !poolIds.has(fx.partner.pool)) problems.push(`${cw}: partner.pool "${fx.partner.pool}" ไม่มีใน names.yaml`);
       }
       for (const t of [ch.label, ch.text, ch.success?.text, ch.failure?.text]) {
         for (const ph of unknownPlaceholders(t ?? '')) problems.push(`${cw}: placeholder ไม่รู้จัก ${ph}`);

@@ -107,6 +107,7 @@ export function choiceAvailable(life: LifeState, choice: Choice): boolean {
   if (!r) return true;
   if (r.trait && !life.traits.includes(r.trait)) return false;
   if (r.flag && !life.flags.includes(r.flag)) return false;
+  if (r.not_flags?.some((f) => life.flags.includes(f))) return false;
   if (r.item && !life.inventory.includes(r.item)) return false;
   for (const [s, min] of Object.entries(r.min_stat ?? {})) {
     if (life.stats[s as keyof typeof life.stats] < (min ?? 0)) return false;
@@ -144,6 +145,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   }
   if (fx.god) next.god = fx.god;
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
+  if (fx.partner) next.partner = { name: '', gender: fx.partner.gender, pool: fx.partner.pool ?? defaultPartnerPool(next) };
   let classHp = 0;
   if (fx.class && !next.classId) {
     const def = CLASSES[fx.class as ClassId];
@@ -164,6 +166,13 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     next.endReason = 'death';
   }
   return next;
+}
+
+/** กลุ่มชื่อของคนรักเมื่อเนื้อหาไม่ระบุ: กลุ่มของพ่อแม่ ถ้าไม่มีพ่อแม่ใช้กลุ่มตามเผ่า ถ้ายังไม่มีใช้ human */
+function defaultPartnerPool(life: LifeState): string {
+  const parents = life.namePool.parents;
+  if (parents && parents !== 'none') return parents;
+  return life.raceApplied ?? 'human';
 }
 
 function pickName(pool: NamePool | undefined, gender: 'm' | 'f', rng: Rng, avoid: string[] = []): string | null {
@@ -202,6 +211,12 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
     }
     const sur = selfPool?.surname ?? [];
     if (sur.length) next.surname = sur[rng.int(0, sur.length - 1)]!;
+  }
+  if (next.partner && !next.partner.name) {
+    const avoid = [next.name, next.parents?.father ?? '', next.parents?.mother ?? ''];
+    const pool = game.names.get(next.partner.pool) ?? game.names.get('human');
+    const name = pickName(pool, next.partner.gender, rng, avoid);
+    if (name) next = { ...next, partner: { ...next.partner, name } };
   }
   const drifted = clericDrifted(next);
   const has = next.flags.includes(CLERIC_DRIFT_FLAG);

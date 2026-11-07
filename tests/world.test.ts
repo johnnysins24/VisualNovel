@@ -290,6 +290,50 @@ describe('child protection', () => {
   });
 });
 
+describe('requires.not_flags', () => {
+  const ch = { id: 'navy', label: 'n', text: 't', requires: { min_stat: { STR: 12 }, not_flags: ['race_tiefling'] } };
+  it('hides a choice when any listed flag is set', () => {
+    const l = { ...newLife(1), stats: { ...newLife(1).stats, STR: 14 } };
+    expect(choiceAvailable(l, ch)).toBe(true);
+    expect(choiceAvailable({ ...l, flags: ['race_tiefling'] }, ch)).toBe(false);
+    expect(choiceAvailable({ ...l, flags: ['race_human'] }, ch)).toBe(true);
+  });
+});
+
+describe('partner', () => {
+  const lover = (gender: 'm' | 'f', pool?: string) =>
+    settle(game, applyEffects(game, withFlags(['race_human']), { partner: pool ? { gender, pool } : { gender } }), new Rng(3));
+  it('gets a name of the asked gender from the pool', () => {
+    const p = lover('f', 'human')!.partner!;
+    expect(p.gender).toBe('f');
+    expect(game.names.get('human')!.female).toContain(p.name);
+    expect(game.names.get('human')!.male).toContain(lover('m', 'human').partner!.name);
+  });
+  it('defaults to the parents pool, then the race pool', () => {
+    expect(lover('m').partner!.pool).toBe('human');
+  });
+  it('never takes the player or parent names while the pool has others', () => {
+    const l = lover('m', 'human'); // ชุดทดสอบมีชื่อชาย 2 ชื่อ พ่อใช้ไปหนึ่ง
+    expect([l.name, l.parents?.mother, l.parents?.father]).not.toContain(l.partner!.name);
+  });
+  it('renders {partner} and {p:a|b}', () => {
+    const l = lover('m', 'human');
+    expect(render('{partner} {p:เขา|เธอ}', l)).toBe(`${l.partner!.name} เขา`);
+    expect(render('{partner} {p:เขา|เธอ}', newLife(1))).toBe('คนรัก เธอ');
+  });
+  it('lint knows the new placeholders and checks the pool', () => {
+    const bad = ContentSchema.parse({
+      items: [],
+      names: [{ race: 'human', male: ['ก'], female: ['ข'] }],
+      events: [{ id: 'adult.l', stage: 'adult', text: '{partner} {p:เขา|เธอ} {p:x}', choices: [{ id: 'a', label: 'a', effects: { partner: { gender: 'f', pool: 'ghost' } } }] }],
+    });
+    const p = lintContent(bad).join('\n');
+    expect(p).toContain('partner.pool "ghost"');
+    expect(p).toContain('{p:x}');
+    expect(p).not.toContain('{partner}');
+  });
+});
+
 describe('how a life ends', () => {
   it('a living life has no end reason', () => expect(newLife(1).endReason).toBeNull());
   it('hp loss and the die effect both end as death', () => {

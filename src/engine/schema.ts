@@ -45,6 +45,11 @@ export const EffectsSchema = z
     name_pool: z.object({ self: z.string().optional(), parents: z.string().optional() }).strict().optional(),
     /** ตั้งเทพที่นับถือ */
     god: GodSchema.optional(),
+    /**
+     * มีคนรัก (แทนคนเดิมถ้ามีอยู่แล้ว) ชื่อสุ่มจากกลุ่มชื่อ pool ตามเพศที่ระบุ ไม่ระบุ pool ใช้กลุ่มชื่อของพ่อแม่หรือเผ่า
+     * ใช้ในข้อความด้วย {partner} และ {p:เขา|เธอ}
+     */
+    partner: z.object({ gender: z.enum(['m', 'f']), pool: z.string().optional() }).strict().optional(),
   })
   .strict();
 export type Effects = z.infer<typeof EffectsSchema>;
@@ -76,6 +81,8 @@ export const ChoiceSchema = z.object({
     .object({
       trait: z.string().optional(),
       flag: z.string().optional(),
+      /** ตัวเลือกซ่อนถ้ามี flag ใดในนี้ (เช่น race_tiefling สำหรับงานที่ไม่รับคนมีเขา) */
+      not_flags: z.array(z.string()).optional(),
       item: z.string().optional(),
       min_stat: z.partialRecord(StatSchema, z.number().int()).optional(),
       ...StateConds,

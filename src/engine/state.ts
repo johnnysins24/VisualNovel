@@ -38,6 +38,8 @@ export interface LifeState {
   namePool: { self?: string; parents?: string };
   /** สุ่มชื่อแล้วหรือยัง */
   namesApplied: boolean;
+  /** คนรักหรือคู่ครอง ชื่อสุ่มจากกลุ่มชื่อ pool ตอน settle (L16: เพศใดก็ได้) */
+  partner: Partner | null;
   /** ซ่อนจากผู้เล่น */
   world: Record<WorldKey, number>;
   alignment: { law: number; moral: number };
@@ -52,6 +54,14 @@ export interface LifeState {
 }
 
 export type EndReason = 'death' | 'content_end' | null;
+
+export interface Partner {
+  /** ว่างจนกว่า settle จะสุ่มชื่อให้ */
+  name: string;
+  gender: Gender;
+  /** id กลุ่มชื่อใน names.yaml */
+  pool: string;
+}
 
 export interface LogEntry {
   age: number;
@@ -94,6 +104,7 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     surname: '',
     namePool: {},
     namesApplied: false,
+    partner: null,
     world: { gods: 0, demon: 0, star: 0 },
     alignment: { law: 0, moral: 0 },
     reputation: { ...(meta?.reputation ?? {}) },
