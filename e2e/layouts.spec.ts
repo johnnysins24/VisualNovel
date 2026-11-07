@@ -19,6 +19,19 @@ test('saves survive a reload', async ({ page }) => {
   await page.goto('/');
   await page.locator('.story .choices button').first().click();
   const age = await page.locator('.stats h2').innerText();
+  // saving is async: wait until the write has landed in IndexedDB before reloading
+  await page.waitForFunction(
+    () =>
+      new Promise<boolean>((resolve) => {
+        const open = indexedDB.open('visualnovel', 1);
+        open.onsuccess = () => {
+          const get = open.result.transaction('saves').objectStore('saves').get(0);
+          get.onsuccess = () => resolve((get.result?.age ?? 0) >= 1);
+          get.onerror = () => resolve(false);
+        };
+        open.onerror = () => resolve(false);
+      }),
+  );
   await page.reload();
   await expect(page.locator('.stats h2')).toHaveText(age);
 });
