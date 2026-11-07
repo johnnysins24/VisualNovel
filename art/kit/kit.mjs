@@ -104,23 +104,26 @@ export function bodyOf(kit, bodyKey) {
   return (kit.cache[key] = { layer, masks, marks: body.marks });
 }
 
+/** A shape's body / variant field: one name or a list of names. */
+const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
+
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).
- * Returns { id, z, cast, colors, layers: { main, back? } }.
+ * Returns { id, z, cast, colors, layers: { main, back?, front? } }.
  */
 export function buildPiece(kit, id, bodyKey, opts = {}) {
   if (id === 'body') return { id, z: 10, cast: false, colors: {}, layers: { main: bodyOf(kit, bodyKey).layer } };
   const spec = kit.pieces[id];
   if (!spec) throw new Error(`unknown piece "${id}"`);
   const { marks, masks } = bodyOf(kit, bodyKey);
-  const pick = s => (!s.body || s.body === bodyKey) && (!s.variant || s.variant === opts.variant);
+  const pick = s => (!s.body || has(s.body, bodyKey)) && (!s.variant || has(s.variant, opts.variant));
   const shapes = (spec.shapes ?? []).filter(pick);
   const layers = {};
   for (const name of new Set(shapes.map(s => s.layer ?? 'main'))) {
     layers[name] = buildSpec(kit, { shapes: shapes.filter(s => (s.layer ?? 'main') === name), legend: spec.legend },
       { bodyKey, marks, masks, seed: seedOf(`${id}:${name}`) });
   }
-  return { id, z: spec.z ?? 50, backZ: spec.back_z ?? 5, cast: spec.cast ?? true, colors: spec.colors ?? {}, layers };
+  return { id, z: spec.z ?? 50, backZ: spec.back_z ?? 5, frontZ: spec.front_z ?? 61, cast: spec.cast ?? true, colors: spec.colors ?? {}, layers };
 }
 
 function buildSpec(kit, spec, ctx) {
@@ -244,7 +247,7 @@ export function compose(kit, pieces, look = {}) {
   for (const pc of pieces) {
     for (const [name, L] of Object.entries(pc.layers)) {
       const ramps = kit.mats.map(m => (L.mat.includes(kit.matId[m]) ? rampFor(kit, pc, m, look) : null));
-      stack.push({ z: name === 'back' ? pc.backZ : pc.z, cast: pc.cast, L, ramps });
+      stack.push({ z: { back: pc.backZ, front: pc.frontZ }[name] ?? pc.z, cast: pc.cast, L, ramps });
     }
   }
   stack.sort((a, b) => a.z - b.z);
