@@ -1,0 +1,5 @@
+# กลุ่มชื่อตามเผ่า (thread เนื้อเรื่องเป็นคนเติม) รูปแบบ:
+# - race: human   # human | elf | dwarf | tiefling
+#   male: [...]
+#   female: [...]
+[]

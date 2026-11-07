@@ -1,6 +1,7 @@
 import type { Item, Passive, Stat } from './schema';
 import { STATS } from './schema';
 import type { LifeState } from './state';
+import { classMaxHpBonus } from './rules';
 
 export type ItemIndex = Map<string, Item>;
 
@@ -25,7 +26,7 @@ export function activePassives(life: LifeState, items: ItemIndex): Passive[] {
 
 export function maxHp(life: LifeState, items: ItemIndex): number {
   const bonus = activePassives(life, items).reduce((n, p) => n + (p.kind === 'max_hp' ? p.amount : 0), 0);
-  return life.baseMaxHp + bonus;
+  return life.baseMaxHp + bonus + classMaxHpBonus(life);
 }
 
 export function equip(life: LifeState, item: Item): LifeState {
