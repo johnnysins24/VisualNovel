@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, choiceAvailable, eligible, makeGame, resolveChoice, settle } from '../src/engine/engine';
-import { newLife } from '../src/engine/state';
+import { humanAge, newLife, yearsPerEvent } from '../src/engine/state';
 import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { alignmentCell, bucket, clericDrifted, godDistance, hasDemonMark, situationalBonus } from '../src/engine/rules';
@@ -271,5 +271,56 @@ describe('name pools', () => {
     expect(p).toContain('ghost');
     expect(p).toContain('self ใช้ none ไม่ได้');
     expect(p).not.toContain('{surname}');
+  });
+});
+
+describe('child protection', () => {
+  it('hp floors at 1 and die is ignored before age 12', () => {
+    for (const age of [0, 5, 11]) {
+      const l = applyEffects(game, { ...newLife(1), age }, { hp: -99, die: true });
+      expect(l.alive).toBe(true);
+      expect(l.hp).toBe(1);
+    }
+  });
+  it('death works from age 12 on', () => {
+    expect(applyEffects(game, { ...newLife(1), age: 12 }, { die: true }).alive).toBe(false);
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 }).alive).toBe(false);
+  });
+});
+
+describe('race ageing', () => {
+  const at = (race: string | null, age: number) => ({ ...newLife(1), raceApplied: race, age });
+  it('all races use human ages until 18', () => {
+    for (const r of ['human', 'elf', 'dwarf', 'tiefling']) expect(humanAge(at(r, 18))).toBe(18);
+    expect(yearsPerEvent(at('elf', 10))).toBe(1);
+    expect(yearsPerEvent(at('elf', 17))).toBe(1);
+  });
+  it('after 18 elves and dwarves stretch their stages', () => {
+    expect(yearsPerEvent(at('elf', 18))).toBe(10);
+    expect(yearsPerEvent(at('dwarf', 18))).toBe(5);
+    expect(yearsPerEvent(at('human', 40))).toBe(1);
+    expect(humanAge(at('elf', 118))).toBe(28); // 18 + 100/10
+    expect(humanAge(at('dwarf', 68))).toBe(28);
+    expect(humanAge(at(null, 40))).toBe(40);
+  });
+  it('when.age is read in human years, so an elf reaches the same stage at older real ages', () => {
+    const ev = ContentSchema.parse({ items: [], events: [{ id: 'adult.a', stage: 'adult', when: { age: [20, 30] }, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }] }).events[0]!;
+    expect(eligible(at('human', 25), ev)).toBe(true);
+    expect(eligible(at('elf', 25), ev)).toBe(false); // อายุจริง 25 = 18.7 แบบมนุษย์
+    expect(eligible(at('elf', 68), ev)).toBe(true); // 23 ปีแบบมนุษย์
+    expect(eligible(at('elf', 218), ev)).toBe(false); // 38 ปีแบบมนุษย์
+  });
+  it('an elf gets the same number of events per stage as a human but older numbers', () => {
+    const run = (race: string) => {
+      let l = { ...newLife(1), raceApplied: race, age: 18 };
+      let n = 0;
+      while (humanAge(l) <= 30) {
+        l = { ...l, age: l.age + yearsPerEvent(l) };
+        n++;
+      }
+      return { n, age: l.age };
+    };
+    expect(run('human').n).toBe(run('elf').n);
+    expect(run('elf').age).toBeGreaterThan(run('human').age);
   });
 });

@@ -1,7 +1,7 @@
 import type { Choice, Content, Effects, GameEvent, NamePool } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
-import { DEFAULT_NAME, type LifeState, type LogEntry, modifier, worldYear } from './state';
+import { DEFAULT_NAME, type LifeState, type LogEntry, humanAge, modifier, worldYear, yearsPerEvent } from './state';
 import type { ItemIndex } from './items';
 import { activePassives, effectiveStats, maxHp } from './items';
 import {
@@ -10,6 +10,7 @@ import {
   CLASS_PRIMARY_BONUS,
   CLASS_SECONDARY_BONUS,
   CLERIC_DRIFT_FLAG,
+  PROTECTED_AGE,
   RACES,
   REPUTATION_CAP,
   WORLD_CAP,
@@ -59,7 +60,10 @@ function stateConditionsMet(life: LifeState, c: StateConds): boolean {
 export function eligible(life: LifeState, ev: GameEvent): boolean {
   const w = ev.when;
   if (ev.once && life.seen.includes(ev.id)) return false;
-  if (w.age && (life.age < w.age[0] || life.age > w.age[1])) return false;
+  if (w.age) {
+    const a = humanAge(life);
+    if (a < w.age[0] || a > w.age[1]) return false;
+  }
   if (w.year) {
     const y = worldYear(life);
     if (y < w.year[0] || y > w.year[1]) return false;
@@ -149,7 +153,10 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   }
   const cap = maxHp(next, game.items);
   next.hp = Math.min(cap, next.hp + (fx.hp ?? 0) + classHp);
-  if (fx.die || next.hp <= 0) {
+  if (next.age < PROTECTED_AGE) {
+    // ผู้เล่นตายก่อนอายุ PROTECTED_AGE ไม่ได้ ไม่ว่าเนื้อหาจะเขียนอะไร
+    next.hp = Math.max(1, next.hp);
+  } else if (fx.die || next.hp <= 0) {
     next.hp = Math.max(0, next.hp);
     next.alive = false;
   }
@@ -241,7 +248,7 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
     ...next,
     rngState: rng.state,
     seen: next.seen.includes(ev.id) ? next.seen : [...next.seen, ev.id],
-    age: next.age + 1,
+    age: next.age + yearsPerEvent(next),
     currentEventId: null,
     log: [...next.log, entry],
   };
