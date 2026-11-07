@@ -4,7 +4,8 @@ import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
 import { STATS } from '../engine/schema';
 import { paragraphs, render } from '../engine/text';
 import type { LifeChanges, LogEntry } from '../engine/state';
-import { choose, currentEvent, game, life, sheetCollapsed, startLife } from '../store';
+import { choose, currentEvent, game, life, sheetCollapsed } from '../store';
+import { Ending } from './Endings';
 import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
 
@@ -103,18 +104,6 @@ export function StoryLog() {
       {!l.alive && <Ending />}
       <div ref={end} />
     </div>
-  );
-}
-
-function Ending() {
-  const l = life.value;
-  return (
-    <section class="ending">
-      <p>ชีวิตของ {l.name} จบลงที่อายุ <span class="num">{l.age}</span></p>
-      <button class="primary" onClick={() => startLife()}>
-        <Icon name="reborn" />เริ่มชีวิตใหม่
-      </button>
-    </section>
   );
 }
 

@@ -28,6 +28,8 @@ export function lintContent(c: Content): string[] {
     }
   }
   dupes.forEach((id) => problems.push(`id ซ้ำ: ${id}`));
+  const namedPeople = new Set<string>(['father', 'mother']);
+  for (const e of c.events) for (const ch of e.choices) for (const fx of [ch.effects, ch.success?.effects, ch.failure?.effects]) for (const pe of fx?.people ?? []) if (pe.name) namedPeople.add(pe.id);
   for (const f of setFlags) {
     if (f.startsWith('race_') && !(f.slice(5) in RACES)) problems.push(`flag ${f}: ไม่มีเผ่า "${f.slice(5)}" (มี ${Object.keys(RACES).join(', ')})`);
   }
@@ -55,6 +57,9 @@ export function lintContent(c: Content): string[] {
         checkItems(cw, fx);
         for (const [k, id] of Object.entries(fx?.name_pool ?? {})) {
           if (id && id !== 'none' && !(k === 'parents' && id === 'none') && !poolIds.has(id)) problems.push(`${cw}: name_pool.${k} "${id}" ไม่มีใน names.yaml`);
+        }
+        for (const pe of fx?.people ?? []) {
+          if (!pe.name && !namedPeople.has(pe.id)) problems.push(`${cw}: people "${pe.id}" ไม่มีชื่อและไม่เคยถูกตั้งชื่อที่ไหน`);
         }
         if (fx?.name_pool?.self === 'none') problems.push(`${cw}: name_pool.self ใช้ none ไม่ได้ (none ใช้กับ parents)`);
       }

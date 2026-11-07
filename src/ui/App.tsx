@@ -1,10 +1,13 @@
 import { useEffect } from 'preact/hooks';
-import { CharacterPanel, DebugPanel, Equipment, MorePanel, PeoplePanel, StatGrid, WorldPanel } from './Panels';
+import { CharacterPanel, DebugPanel, Equipment, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { CloseList, PeoplePage } from './People';
+import { RollDialog } from './Endings';
+import { Icon } from './icons';
 import { BottomNav, Scene, StatRow, TopBar } from './Hud';
 import { ChoiceSheet, StoryLog, playableChoices } from './Story';
-import { choose, tab } from '../store';
+import { choose, life, tab } from '../store';
 
-const PAGES = { character: CharacterPanel, people: PeoplePanel, world: WorldPanel, more: MorePanel } as const;
+const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
 
 /** ปุ่มลัดเดสก์ท็อป: เลข 1–9 เลือกตัวเลือก */
 function useHotkeys() {
@@ -44,6 +47,10 @@ export function App() {
           <h3>ค่าสถานะ</h3>
           <StatGrid />
         </section>
+        <section class="sec">
+          <h3>สวมใส่</h3>
+          <SlotGrid />
+        </section>
         <Equipment />
       </aside>
       <section class="read">
@@ -57,10 +64,14 @@ export function App() {
         )}
       </section>
       <aside class="side right" aria-label="ผู้คนและโลก">
-        <PeoplePanel />
-        <WorldPanel />
+        <CloseList />
+        <section class="sec">
+          <h3><Icon name="place" />ที่อยู่</h3>
+          <WorldMap here={life.value.locationTag} small />
+        </section>
       </aside>
       <BottomNav />
+      <RollDialog />
       {new URLSearchParams(location.search).has('debug') && <DebugPanel />}
     </main>
   );

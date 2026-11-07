@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Rng } from '../src/engine/rng';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
-import { applyEffects, checkChance, choiceLock, makeGame, pickEvent, resolveChoice } from '../src/engine/engine';
+import { applyEffects, applyPeople, checkChance, choiceLock, makeGame, pickEvent, resolveChoice, settle } from '../src/engine/engine';
 import { equip, effectiveStats, maxHp } from '../src/engine/items';
 import { newLife } from '../src/engine/state';
 import { exportCode, importCode } from '../src/engine/save';
@@ -146,5 +146,36 @@ describe('choice helpers for the HUD', () => {
       l = res.life;
     }
     expect(found).toBe(true);
+  });
+});
+
+describe('people and endings', () => {
+  it('applyPeople adds, updates by id, clamps closeness and records deaths', () => {
+    let ppl = applyPeople([], [{ id: 'rowen', name: 'โรวีน', bond: 'friend', closeness: 2 }], 15);
+    expect(ppl).toEqual([{ id: 'rowen', name: 'โรวีน', bond: 'friend', closeness: 2, alive: true, metAge: 15 }]);
+    ppl = applyPeople(ppl, [{ id: 'rowen', closeness: 9 }, { id: 'ghost', closeness: 1 }], 16);
+    expect(ppl).toHaveLength(1);
+    expect(ppl[0]!.closeness).toBe(5);
+    ppl = applyPeople(ppl, [{ id: 'rowen', dies: true }], 20);
+    expect(ppl[0]).toMatchObject({ alive: false, diedAge: 20 });
+  });
+  it('a die effect marks the life as a real death', () => {
+    const l = { ...newLife(5), age: 30 };
+    const dead = applyEffects(game, l, { die: true });
+    expect(dead.alive).toBe(false);
+    expect(dead.endReason).toBe('death');
+  });
+  it('lint flags a person who is never named', () => {
+    const bad = ContentSchema.parse({
+      items: [],
+      events: [{ id: 'youth.p', stage: 'youth', text: 'x', choices: [{ id: 'c', label: 'c', effects: { people: [{ id: 'nobody', closeness: 1 }] } }] }],
+    });
+    expect(lintContent(bad).join('\n')).toContain('nobody');
+  });
+  it('parents become people once names are drawn', () => {
+    const l = settle(game, applyEffects(game, newLife(9), { flags: ['race_human'] }), new Rng(1));
+    expect(l.parents).not.toBeNull();
+    expect(l.people.find((p) => p.id === 'father')?.name).toBe(l.parents!.father);
+    expect(l.people.find((p) => p.id === 'mother')?.kin).toBe('mother');
   });
 });

@@ -1,7 +1,7 @@
-import type { Choice, Content, Effects, GameEvent, NamePool, Stat } from './schema';
+import type { Choice, Content, Effects, GameEvent, NamePool, PersonEffect, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
-import { DEFAULT_NAME, type LifeChanges, type LifeState, type LogEntry, humanAge, modifier, worldYear, yearsPerEvent } from './state';
+import { DEFAULT_NAME, type LifeChanges, type LifeState, type LogEntry, type Person, humanAge, modifier, worldYear, yearsPerEvent } from './state';
 import type { ItemIndex } from './items';
 import { activePassives, effectiveStats, maxHp } from './items';
 import {
@@ -146,6 +146,33 @@ export function checkChance(game: Game, life: LifeState, check: NonNullable<Choi
   return reroll ? 1 - (1 - p) * (1 - p) : p;
 }
 
+export const CLOSENESS_CAP = 5;
+/** พ่อแม่เริ่มที่ความสนิทเท่านี้ */
+export const PARENT_CLOSENESS = 3;
+
+/** รวม effects.people เข้ากับรายชื่อเดิม (อ้างด้วย id) คนที่ไม่เคยมีและไม่มีชื่อจะถูกข้าม */
+export function applyPeople(people: Person[], fx: PersonEffect[], age: number): Person[] {
+  const out = people.map((p) => ({ ...p }));
+  for (const e of fx) {
+    let p = out.find((x) => x.id === e.id);
+    if (!p) {
+      if (!e.name) continue;
+      p = { id: e.id, name: e.name, closeness: 0, alive: true, metAge: age };
+      out.push(p);
+    }
+    if (e.name) p.name = e.name;
+    if (e.gender) p.gender = e.gender;
+    if (e.kin) p.kin = e.kin;
+    if (e.bond) p.bond = e.bond;
+    if (e.closeness) p.closeness = clamp(p.closeness + e.closeness, CLOSENESS_CAP);
+    if (e.dies && p.alive) {
+      p.alive = false;
+      p.diedAge = age;
+    }
+  }
+  return out;
+}
+
 function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined {
   const c: LifeChanges = {};
   for (const s of STATS) {
@@ -191,6 +218,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     next.reputation[f] = clamp((next.reputation[f] ?? 0) + (d ?? 0), REPUTATION_CAP);
   }
   if (fx.god) next.god = fx.god;
+  if (fx.people?.length) next.people = applyPeople(next.people ?? [], fx.people, next.age);
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
   let classHp = 0;
   if (fx.class && !next.classId) {
@@ -209,6 +237,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   } else if (fx.die || next.hp <= 0) {
     next.hp = Math.max(0, next.hp);
     next.alive = false;
+    next.endReason = 'death';
   }
   return next;
 }
@@ -242,7 +271,13 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
     next = { ...next, namesApplied: true };
     const mother = pickName(parentsPool, 'f', rng);
     const father = pickName(parentsPool, 'm', rng);
-    if (father && mother) next.parents = { father, mother };
+    if (father && mother) {
+      next.parents = { father, mother };
+      next.people = applyPeople(next.people ?? [], [
+        { id: 'father', name: father, gender: 'm', kin: 'father', bond: 'kin', closeness: PARENT_CLOSENESS },
+        { id: 'mother', name: mother, gender: 'f', kin: 'mother', bond: 'kin', closeness: PARENT_CLOSENESS },
+      ], next.age);
+    }
     if (next.name === DEFAULT_NAME) {
       const own = pickName(selfPool, next.gender, rng, [father ?? '', mother ?? '']);
       if (own) next.name = own;

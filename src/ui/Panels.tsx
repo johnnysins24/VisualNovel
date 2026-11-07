@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { STATS } from '../engine/schema';
+import { SLOTS, STATS, type Slot } from '../engine/schema';
 import { effectiveStats } from '../engine/items';
 import { modifier } from '../engine/state';
 import { GODS, REPUTATION_CAP, STAT_TH, type FactionId, type GodId } from '../engine/balance';
@@ -7,6 +7,7 @@ import { alignmentCell } from '../engine/rules';
 import { worldYear } from '../engine/state';
 import { equip, exportLife, game, importLife, life, meta, startLife, tab } from '../store';
 import { Icon, STAT_ICON } from './icons';
+import { SpriteView } from './SpriteView';
 import { PLACE_TH, signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 
@@ -64,10 +65,44 @@ export function Equipment() {
   );
 }
 
+const SLOT_TH: Record<Slot, string> = {
+  head: 'หัว', body: 'ตัว', hands: 'มือ', legs: 'ขา', feet: 'เท้า',
+  weapon: 'อาวุธ', offhand: 'มือรอง', cloak: 'ผ้าคลุม', accessory: 'เครื่องประดับ',
+};
+const LEFT: Slot[] = ['head', 'body', 'hands', 'legs', 'feet'];
+const RIGHT: Slot[] = ['weapon', 'offhand', 'cloak', 'accessory'];
+
+function SlotBox({ slot }: { slot: Slot }) {
+  const l = life.value;
+  const id = l.equipped[slot];
+  const it = id ? game.items.get(id) : undefined;
+  const label = `${SLOT_TH[slot]}: ${it?.name ?? 'ว่าง'}`;
+  return (
+    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img">
+      <Icon name={slot} />
+    </div>
+  );
+}
+
+/** ช่องสวมใส่ 9 ช่อง (ซ้าย 5 ขวา 4 รอบตัวละคร หรือเรียงแถวบนเดสก์ท็อป) */
+export function SlotGrid({ doll }: { doll?: boolean }) {
+  if (!doll) {
+    return <div class="slot-row">{SLOTS.map((s) => <SlotBox key={s} slot={s} />)}</div>;
+  }
+  return (
+    <div class="doll">
+      <div class="slots">{LEFT.map((s) => <SlotBox key={s} slot={s} />)}</div>
+      <SpriteView />
+      <div class="slots right">{RIGHT.map((s) => <SlotBox key={s} slot={s} />)}</div>
+    </div>
+  );
+}
+
 export function CharacterPanel() {
   const l = life.value;
   return (
     <div class="panel-page">
+      <SlotGrid doll />
       <section class="sec">
         <h3>ค่าสถานะ</h3>
         <StatGrid />
@@ -83,25 +118,6 @@ export function CharacterPanel() {
   );
 }
 
-export function PeoplePanel() {
-  const l = life.value;
-  return (
-    <div class="panel-page">
-      <section class="sec">
-        <h3><Icon name="people" />ครอบครัว</h3>
-        {l.parents ? (
-          <ul class="people">
-            <li><span class="avatar">{l.parents.father[0]}</span>{l.parents.father}<small>พ่อ</small></li>
-            <li><span class="avatar">{l.parents.mother[0]}</span>{l.parents.mother}<small>แม่</small></li>
-          </ul>
-        ) : (
-          <p class="muted">ยังไม่รู้จักใคร</p>
-        )}
-      </section>
-    </div>
-  );
-}
-
 export function WorldPanel() {
   const l = life.value;
   const reps = Object.entries(l.reputation).filter(([, v]) => v) as [FactionId, number][];
@@ -109,6 +125,7 @@ export function WorldPanel() {
     <div class="panel-page">
       <section class="sec">
         <h3><Icon name="place" />ที่อยู่</h3>
+        <WorldMap here={l.locationTag} />
         <p>{PLACE_TH[l.locationTag] ?? 'ยังไม่รู้'} · ปี <span class="num">{worldYear(l)}</span></p>
       </section>
       <section class="sec">
@@ -125,6 +142,37 @@ export function WorldPanel() {
           ))}
         </ul>
       </section>
+    </div>
+  );
+}
+
+/** แผนที่ลายเส้นเรียบของ 4 แคว้น (ตำแหน่งตามคัมภีร์โลก) จุดแดงคือที่อยู่ */
+const REGIONS = [
+  { id: 'ileth', th: 'ป่าไอเลธ', d: 'M30 40 Q70 10 130 30 Q150 70 120 100 Q60 110 30 80Z', tone: 'forest', at: [80, 62] },
+  { id: 'hordun', th: 'ฮอร์ดุน', d: 'M160 20 Q230 5 290 30 Q300 80 250 90 Q180 95 160 60Z', tone: 'stone', at: [225, 52] },
+  { id: 'arvel', th: 'อาร์เวล', d: 'M60 110 Q130 95 200 110 Q220 160 170 185 Q90 190 60 150Z', tone: 'field', at: [130, 145] },
+  { id: 'ashland', th: 'แดนเถ้า', d: 'M220 110 Q280 100 300 130 Q300 180 250 185 Q215 160 220 110Z', tone: 'ash', at: [260, 148] },
+] as const;
+const DOT: Record<string, [number, number]> = { arvel_village: [110, 160], ventras: [160, 172], ileth: [80, 75], hordun: [225, 65], ashland: [260, 160] };
+
+export function WorldMap({ here, small }: { here: string; small?: boolean }) {
+  const dot = DOT[here];
+  return (
+    <div class={`map ${small ? 'small' : ''}`}>
+      <svg viewBox="0 0 320 200" role="img" aria-label={`แผนที่ · ${PLACE_TH[here] ?? ''}`}>
+        {REGIONS.map((r) => (
+          <g key={r.id}>
+            <path class={`region ${r.tone}`} d={r.d} />
+            {!small && <text x={r.at[0]} y={r.at[1]}>{r.th}</text>}
+          </g>
+        ))}
+        {dot && (
+          <g class="here">
+            <circle cx={dot[0]} cy={dot[1]} r="10" class="halo" />
+            <circle cx={dot[0]} cy={dot[1]} r="5" />
+          </g>
+        )}
+      </svg>
     </div>
   );
 }
