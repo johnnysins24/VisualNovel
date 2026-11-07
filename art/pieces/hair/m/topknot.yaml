@@ -1,0 +1,24 @@
+# Top knot: all the hair drawn up smooth from the forehead and the sides and tied on the crown; the
+# tied end stands up short and splays like a brush. It rises above the head, so previews leave room.
+body: m
+z: 60
+shapes:
+  - at: [-6, head-6]
+    ascii: |
+      ....hh.hh....
+      .....hhh.....
+      .....hHh.....
+      .....ddd.....
+      ....HhhhH....
+      ...HhhhhhH...
+      ..HhHhhhHhH..
+      .HhhHhhhHhhH.
+      hhhhHhhhHhhhh
+      hhhHhhhhhHhhh
+      hhhd.....dhhh
+      hhd.......dhh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      .d.........d.

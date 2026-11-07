@@ -1,5 +1,6 @@
 # Long straight hair parted in the middle: curtains frame the face and fall over the shoulders to
 # the chest, in front of clothes. The back layer is the hair behind the neck; it shows beside it.
+body: f
 z: 60
 shapes:
   - at: [-8, head]

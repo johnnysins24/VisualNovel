@@ -15,7 +15,7 @@ const N4 = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 export const readYaml = rel => YAML.parse(readFileSync(join(ART, rel), 'utf8'));
 
-/** Palette, bodies and every piece under art/pieces (id = path without .yaml, e.g. "hair/short"). */
+/** Palette, bodies and every piece under art/pieces (id = path without .yaml, e.g. "hair/m/short"). */
 export function loadKit() {
   const pal = readYaml('palette.yaml');
   // YAML reads all-digit colours such as 303242 as numbers; turn them back into hex strings
@@ -71,6 +71,9 @@ function hash(x, y, s) {
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
 const seedOf = s => [...s].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) | 0, 7);
+// a piece's speckle comes from its name, not from the body folder it sits in: hair/m/short shades
+// exactly as hair/short did when the look was approved
+const seedName = (kit, id) => id.split('/').filter(s => !(s in kit.bodies)).join('/');
 
 // ---------- layers ----------
 
@@ -107,6 +110,9 @@ export function bodyOf(kit, bodyKey) {
 /** A shape's body / variant field: one name or a list of names. */
 const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
 
+/** A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short. */
+export const fitsBody = (spec, bodyKey) => !spec?.body || has(spec.body, bodyKey);
+
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).
  * Returns { id, z, cast, colors, layers: { main, back?, front? } }.
@@ -115,13 +121,14 @@ export function buildPiece(kit, id, bodyKey, opts = {}) {
   if (id === 'body') return { id, z: 10, cast: false, colors: {}, layers: { main: bodyOf(kit, bodyKey).layer } };
   const spec = kit.pieces[id];
   if (!spec) throw new Error(`unknown piece "${id}"`);
+  if (!fitsBody(spec, bodyKey)) throw new Error(`${id} is only for body ${[spec.body].flat().join(', ')}, not ${bodyKey}`);
   const { marks, masks } = bodyOf(kit, bodyKey);
   const pick = s => (!s.body || has(s.body, bodyKey)) && (!s.variant || has(s.variant, opts.variant));
   const shapes = (spec.shapes ?? []).filter(pick);
   const layers = {};
   for (const name of new Set(shapes.map(s => s.layer ?? 'main'))) {
     layers[name] = buildSpec(kit, { shapes: shapes.filter(s => (s.layer ?? 'main') === name), legend: spec.legend },
-      { bodyKey, marks, masks, seed: seedOf(`${id}:${name}`) });
+      { bodyKey, marks, masks, seed: seedOf(`${seedName(kit, id)}:${name}`) });
   }
   return { id, z: spec.z ?? 50, backZ: spec.back_z ?? 5, frontZ: spec.front_z ?? 61, cast: spec.cast ?? true, colors: spec.colors ?? {}, layers };
 }

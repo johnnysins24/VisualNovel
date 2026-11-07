@@ -1,0 +1,31 @@
+# Shoulder-length, warrior style: spikes swept back on top, the forehead open at an angle under one
+# loose lock, short at the cheeks. The length is a back layer: it shows behind the jaw and the neck
+# and ends in rough points on the shoulders, so nothing frames the face the way the women's long does.
+body: m
+z: 60
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      ......h..h.....
+      ....h.hh.hh....
+      ...hhhhhhhhhh..
+      ..HhhHhhhHhhhH.
+      .HhhHhhhHhhhhH.
+      .hhHhhhhHhhhhhh
+      .hhhhhhhhhhhhh.
+      .hhhd...hhdhhh.
+      .hhd.....d.dhh.
+      .hh.........hh.
+      .hh.........hh.
+      .dh.........hd.
+      ..d.........d..
+  - layer: back
+    at: [-8, head+11]
+    ascii: |
+      ..hhhhhhhhhhhhh..
+      ..hhhhhhhhhhhhh..
+      .hhhhhhhhhhhhhhh.
+      .hhhhhhhhhhhhhhh.
+      .hhhhhhhhhhhhhhh.
+      hhdhhhhhhhhhhhdhh
+      h.hdhh.....hhdh.h

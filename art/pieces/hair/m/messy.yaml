@@ -1,4 +1,5 @@
 # Messy: tufts sticking out every way, an uneven choppy fringe.
+body: m
 z: 60
 shapes:
   - at: [-7, head-2]

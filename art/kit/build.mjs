@@ -4,7 +4,8 @@
 //   node art/kit/build.mjs proof [-v]   write art/preview/proof.png (bodies and the three faces of
 //                                       the approved proof) and faces.png (all 17 expressions): the
 //                                       kit next to the locked look; -v prints rows that differ.
-//                                       Also hair.png (every hairstyle on both bodies) and
+//                                       Also hair.png (the men's hairstyles on the male body, the
+//                                       women's on the female body, in hair.yaml order) and
 //                                       colours.png (the skin, hair and eye choices)
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
@@ -18,8 +19,7 @@ import { rampLike, follow } from './colour.mjs';
 
 const BODY_BOX = { x: 12, y: 38, w: 40, h: 58 }; // the figure without the empty canvas above it
 const PROOF_FACES = ['smile', 'angry', 'surprised']; // the faces in the proof Phupha approved
-const HAIR_ORDER = ['short', 'bob', 'long', 'ponytail', 'braid', 'bun', 'slicked', 'messy']; // A11; others follow
-const hairBox = b => ({ x: 14, y: b === 'm' ? 37 : 39, w: 36, h: 42 }); // head to waist, room for tails and tufts
+const hairBox = b => ({ x: 14, y: b === 'm' ? 35 : 37, w: 36, h: 44 }); // head to waist, room for knots, tails and tufts
 const [cmd, ...args] = process.argv.slice(2);
 
 if (cmd === 'check') {
@@ -29,7 +29,7 @@ if (cmd === 'check') {
   console.log(errors.length ? `${errors.length} problem(s)` : 'all checks pass');
   process.exit(errors.length ? 1 : 0);
 } else if (cmd === 'proof') {
-  const kit = loadKit(), looks = readYaml('looks.yaml'), cls = classifier(kit);
+  const kit = loadKit(), looks = readYaml('looks.yaml'), hairList = readYaml('hair.yaml'), cls = classifier(kit);
   const row1 = [], pairs = { m: [], f: [] }, faceRows = [];
   for (const b of ['m', 'f']) {
     const img = renderLook(kit, { ...looks[`proof_${b}`], face: 'smile' });
@@ -45,12 +45,9 @@ if (cmd === 'check') {
     faceRows.push(lock, mine); // the locked faces, and the kit's right under them
     if (args.includes('-v')) for (const r of diffRows(cls, lockBare(b), img)) console.log(`${b} body ${r.y}\n lock ${r.a}\n kit  ${r.b}`);
   }
-  for (const b of ['m', 'f']) row1.push(crop(renderLook(kit, { ...looks[`swap_${b}`], face: 'smile' }), BODY_BOX));
-  // every hairstyle on both bodies in the locked colours
-  const hairs = Object.keys(kit.pieces).filter(id => id.startsWith('hair/')).map(id => id.slice(5));
-  hairs.sort((a, b) => (HAIR_ORDER.indexOf(a) + 1 || 99) - (HAIR_ORDER.indexOf(b) + 1 || 99));
+  // each body's own hairstyles (hair.yaml) in the locked colours: men's row, then women's row
   const wearing = b => looks[`proof_${b}`].pieces.filter(id => !id.startsWith('hair/'));
-  const hairRows = ['m', 'f'].map(b => hairs.map(h => crop(renderLook(kit, { body: b, pieces: [...wearing(b), `hair/${h}`], face: 'smile' }), hairBox(b))));
+  const hairRows = ['m', 'f'].map(b => Object.keys(hairList[b]).map(h => crop(renderLook(kit, { body: b, pieces: [...wearing(b), `hair/${b}/${h}`], face: 'smile' }), hairBox(b))));
   // colour choices: skin tones on both bodies, then hair and eye colours on the locked heads
   const ch = kit.pal.choices;
   const colourRows = ['m', 'f'].map(b => Object.keys(ch.skin).map(k => crop(renderLook(kit, { ...looks[`proof_${b}`], face: 'smile', choices: { skin: k } }), BODY_BOX)));

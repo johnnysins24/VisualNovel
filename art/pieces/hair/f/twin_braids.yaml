@@ -1,0 +1,37 @@
+# Twin braids: parted in the middle and drawn down smooth past the cheeks (clear of the blush); below
+# the jaw each side is braided and falls over the shoulder: braid, tie, then a tuft.
+body: f
+z: 60
+shapes:
+  - at: [-8, head]
+    ascii: |
+      .....HhhhhhH.....
+      ....HhhhhhhhH....
+      ...HhhhhdhhhhH...
+      ..hhhhhd.dhhhhh..
+      ..hhhhd...dhhhh..
+      ..hhhd.....dhhh..
+      ..hhd.......dhh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      .hhhh.......hhhh.
+      .hhhd.......dhhh.
+      ..dhh.......hhd..
+      ..hhd.......dhh..
+      ..dhh.......hhd..
+      ..hhd.......dhh..
+      ..dhh.......hhd..
+      ..hhd.......dhh..
+      ..dhh.......hhd..
+      ..ddd.......ddd..
+      .hhhh.......hhhh.
+      .hdhd.......dhdh.
+  - layer: back
+    at: [-3, head+13]
+    ascii: |
+      hhhhhhh
+      hhhhhhh
+      .hhhhh.

@@ -1,4 +1,5 @@
 # Short hair. Drawn from one row above the head mark; 13 px wide around the centre.
+body: m
 z: 60
 shapes:
   - at: [-6, head-1]

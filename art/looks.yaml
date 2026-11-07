@@ -1,21 +1,5 @@
-# Looks for previews and checks: a body, the pieces it wears, a face, optional colour overrides.
+# Looks for previews and checks: a body, the pieces it wears, a face, optional colour choices.
 # proof_m / proof_f must match the locked look (docs/ref/style-lock/) pixel class for pixel class;
-# npm test checks this.
-proof_m: { body: m, pieces: [face/basic, under/briefs, hair/short] }
-proof_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/bob] }
-# the same pieces swapped between bodies (nothing redrawn)
-swap_m: { body: m, pieces: [face/basic, under/briefs, hair/bob] }
-swap_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/short] }
-# the hairstyles Phupha chose (A11) on both bodies, each with other colour choices (A12-A14)
-long_m: { body: m, pieces: [face/basic, under/briefs, hair/long], choices: { skin: porcelain, hair: silver, eyes: violet } }
-long_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/long], choices: { skin: porcelain, hair: silver, eyes: violet } }
-ponytail_m: { body: m, pieces: [face/basic, under/briefs, hair/ponytail], choices: { skin: honey, hair: black, eyes: brown } }
-ponytail_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/ponytail], choices: { skin: honey, hair: black, eyes: brown } }
-braid_m: { body: m, pieces: [face/basic, under/briefs, hair/braid], choices: { skin: brown, hair: auburn, eyes: green } }
-braid_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/braid], choices: { skin: brown, hair: auburn, eyes: green } }
-bun_m: { body: m, pieces: [face/basic, under/briefs, hair/bun], choices: { skin: deep, hair: dark_brown, eyes: amber } }
-bun_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/bun], choices: { skin: deep, hair: dark_brown, eyes: amber } }
-slicked_m: { body: m, pieces: [face/basic, under/briefs, hair/slicked], choices: { skin: peach, hair: blonde, eyes: grey } }
-slicked_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/slicked], choices: { skin: peach, hair: blonde, eyes: grey } }
-messy_m: { body: m, pieces: [face/basic, under/briefs, hair/messy], choices: { skin: honey, hair: copper, eyes: blue } }
-messy_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/messy], choices: { skin: honey, hair: copper, eyes: blue } }
+# npm test checks this. Every hairstyle in hair.yaml is also checked on its own body (check.mjs).
+proof_m: { body: m, pieces: [face/basic, under/briefs, hair/m/short] }
+proof_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/f/bob] }

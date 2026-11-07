@@ -1,0 +1,45 @@
+# Wavy long: parted in the middle like the straight long, with more volume; the curtains swell and
+# narrow as they fall (dark wave lines run across them) and curl at the ends. The back layer is the
+# hair behind the neck and shoulders.
+body: f
+z: 60
+shapes:
+  - at: [-9, head]
+    ascii: |
+      ......HhhhhhH......
+      .....HhhhhhhhH.....
+      ....HhhhhdhhhhH....
+      ...hhhhhd.dhhhhh...
+      ...hhhhd...dhhhh...
+      ...hhhd.....dhhh...
+      ...hhd.......dhh...
+      ...hh.........hh...
+      ..hHh.........hHh..
+      ..hhH.........Hhh..
+      ...hh.........hh...
+      ...hH.........Hh...
+      ..hHh.........hHh..
+      ..hhHh.......hHhh..
+      ...hhHh.....hHhh...
+      ..hhhHh.....hHhhh..
+      .hhhHh.......hHhhh.
+      .hhHhh.......hhHhh.
+      ..hhHh.......hHhh..
+      ..hhhHh.....hHhhh..
+      .hhhHh.......hHhhh.
+      .hhHhh.......hhHhh.
+      ..hhHh.......hHhh..
+      ..hdhH.......Hhdh..
+      ...hd.........dh...
+      ...d...........d...
+  - layer: back
+    at: [-7, head+11]
+    ascii: |
+      ..hhhhhhhhhhh..
+      .hhhhhhhhhhhhh.
+      .hhhhhhhhhhhhh.
+      hhhhhhhhhhhhhhh
+      hhhhhhhhhhhhhhh
+      hhhhhhhhhhhhhhh
+      hhhhhhhhhhhhhhh
+      hhhhhhhhhhhhhhh
