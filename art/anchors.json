@@ -1,0 +1,72 @@
+{
+  "background": "#f3ead8",
+  "anchors": [
+    {
+      "id": "base",
+      "title": "ร่างฐานเปล่า",
+      "look": { "skin": "fair", "hair": "brown", "eyes": "blue" },
+      "parts": [
+        { "item": "body/base", "m1": "linen" },
+        { "item": "face/eyes_round" },
+        { "item": "face/brows_soft" },
+        { "item": "face/mouth_small" },
+        { "item": "hair/short" }
+      ]
+    },
+    {
+      "id": "warrior",
+      "title": "นักรบเกราะเหล็ก",
+      "look": { "skin": "tan", "hair": "black", "eyes": "brown" },
+      "parts": [
+        { "item": "body/base", "m1": "linen" },
+        { "item": "face/eyes_round" },
+        { "item": "face/brows_soft" },
+        { "item": "face/mouth_small" },
+        { "item": "hair/short" },
+        { "item": "cloak/cape", "m1": "red", "m3": "brass" },
+        { "item": "feet/boots", "m1": "leather", "m2": "leather" },
+        { "item": "torso/plate", "m1": "iron", "m2": "leather", "m3": "brass" },
+        { "item": "offhand/heater_shield", "m1": "blue", "m2": "iron", "m3": "brass" },
+        { "item": "head/burgonet", "m1": "iron", "m3": "brass" },
+        { "item": "mainhand/longsword", "m1": "iron", "m2": "leather", "m3": "brass" }
+      ]
+    },
+    {
+      "id": "wizard",
+      "title": "นักเวทในชุดคลุม",
+      "look": { "skin": "brown", "hair": "silver", "eyes": "violet" },
+      "parts": [
+        { "item": "body/base", "m1": "linen" },
+        { "item": "face/eyes_round" },
+        { "item": "face/brows_soft" },
+        { "item": "face/mouth_small" },
+        { "item": "hair/long" },
+        { "item": "feet/shoes", "m1": "leather" },
+        { "item": "torso/robe_coat", "m1": "blue", "m2": "gold", "m3": "brass" },
+        { "item": "head/wizard_hat", "m1": "blue", "m2": "gold", "m3": "brass" },
+        { "item": "mainhand/staff", "m1": "wood", "m2": "brass", "m3": "arcane" }
+      ]
+    }
+  ],
+  "layers": "warrior",
+  "swaps": [
+    [
+      { "from": "base", "look": { "skin": "fair", "hair": "blonde", "eyes": "green" }, "swap": { "hair/short": "hair/long" } },
+      { "from": "base", "look": { "skin": "brown", "hair": "black", "eyes": "brown" } },
+      { "from": "base", "look": { "skin": "deep", "hair": "silver", "eyes": "amber" }, "swap": { "hair/short": "hair/long" } },
+      { "from": "base", "look": { "skin": "tan", "hair": "red", "eyes": "blue" } }
+    ],
+    [
+      { "from": "warrior", "look": { "skin": "fair" }, "set": { "torso/plate": { "m1": "steel" }, "head/burgonet": { "m1": "steel" }, "cloak/cape": { "m1": "blue" }, "offhand/heater_shield": { "m1": "red", "m2": "steel" } } },
+      { "from": "warrior", "look": { "skin": "brown", "eyes": "green" }, "set": { "torso/plate": { "m1": "gold", "m3": "silver" }, "head/burgonet": { "m1": "gold", "m3": "silver" }, "cloak/cape": { "m1": "purple", "m3": "silver" }, "offhand/heater_shield": { "m1": "purple", "m2": "gold", "m3": "silver" }, "mainhand/longsword": { "m3": "silver" } } },
+      { "from": "warrior", "look": { "skin": "deep", "eyes": "amber" }, "set": { "torso/plate": { "m1": "blackened", "m3": "copper" }, "head/burgonet": { "m1": "blackened", "m3": "copper" }, "cloak/cape": { "m1": "black", "m3": "copper" }, "offhand/heater_shield": { "m1": "red", "m2": "blackened", "m3": "ember" }, "mainhand/longsword": { "m1": "blackened", "m3": "copper" } } },
+      { "from": "warrior", "look": { "skin": "fair", "eyes": "blue" }, "set": { "torso/plate": { "m1": "copper" }, "head/burgonet": { "m1": "copper" }, "cloak/cape": { "m1": "green" }, "offhand/heater_shield": { "m1": "green", "m2": "copper" } } }
+    ],
+    [
+      { "from": "wizard", "look": { "skin": "fair", "hair": "black", "eyes": "blue" }, "set": { "torso/robe_coat": { "m1": "purple" }, "head/wizard_hat": { "m1": "purple" } } },
+      { "from": "wizard", "look": { "skin": "tan", "hair": "red", "eyes": "green" }, "set": { "torso/robe_coat": { "m1": "green", "m2": "brass" }, "head/wizard_hat": { "m1": "green", "m2": "brass" } } },
+      { "from": "wizard", "look": { "skin": "fair", "hair": "blonde", "eyes": "amber" }, "set": { "torso/robe_coat": { "m1": "red" }, "head/wizard_hat": { "m1": "red" }, "mainhand/staff": { "m3": "ember" } } },
+      { "from": "wizard", "look": { "skin": "deep", "hair": "silver", "eyes": "grey" }, "set": { "torso/robe_coat": { "m1": "black", "m2": "silver", "m3": "silver" }, "head/wizard_hat": { "m1": "black", "m2": "silver", "m3": "silver" }, "mainhand/staff": { "m1": "black", "m2": "silver", "m3": "ember" } } }
+    ]
+  ]
+}
