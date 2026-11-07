@@ -223,18 +223,53 @@ describe('save migration', () => {
 });
 
 describe('linter for new fields', () => {
-  it('flags unknown placeholders, bad race flags and unknown name pools', () => {
+  it('flags unknown placeholders, bad race flags and duplicate name pools', () => {
     const bad = ContentSchema.parse({
       items: [],
       events: [{ id: 'youth.x', stage: 'youth', text: 'สวัสดี {nmae}', choices: [{ id: 'a', label: '{a|b|c}', effects: { flags: ['race_gnome'] } }] }],
-      names: [{ race: 'orc', male: ['x'] }],
+      names: [{ race: 'orc', male: ['x'] }, { race: 'orc', male: ['y'] }],
     });
     const p = lintContent(bad).join('\n');
     expect(p).toContain('{nmae}');
     expect(p).toContain('{a|b|c}');
     expect(p).toContain('race_gnome');
-    expect(p).toContain('orc');
+    expect(p).toContain('id กลุ่มชื่อซ้ำ');
   });
   it('fixtures lint clean', () => expect(lintContent(loadContent('tests/fixtures/content'))).toEqual([]));
   it('race table covers all four races', () => expect(Object.keys(RACES).sort()).toEqual(['dwarf', 'elf', 'human', 'tiefling']));
+});
+
+describe('name pools', () => {
+  const born = (fx: Record<string, unknown>, gender: 'm' | 'f' = 'm') =>
+    settle(game, applyEffects(game, { ...newLife(1), gender }, fx as never), new Rng(3));
+  it('name_pool overrides the race default, and parents none keeps the fallback', () => {
+    const l = born({ flags: ['race_tiefling'], name_pool: { self: 'temple_foundling', parents: 'none' } });
+    expect(l.name).toBe('[ทดสอบ]ฝนเช้า');
+    expect(l.parents).toBeNull();
+    expect(render('{father}', l)).toBe('พ่อ');
+    expect(l.stats.CHA).toBe(12); // โบนัสทีฟลิ่งยังใช้ตามเผ่า
+    expect(born({ flags: ['race_tiefling'], name_pool: { self: 'temple_foundling', parents: 'none' } }, 'f').name).toBe('[ทดสอบ]ระฆังสาม');
+  });
+  it('surname comes from the self pool and parents from the parents pool', () => {
+    const l = born({ flags: ['race_human'], name_pool: { self: 'noble_human', parents: 'noble_human' } });
+    expect(l.surname).toBe('[ทดสอบ]คอร์ดิส');
+    expect(l.parents?.father).toBe('[ทดสอบ]ม');
+    expect(render('{name} {surname}', l)).toContain('คอร์ดิส');
+    expect(render('{surname}', newLife(1))).toBe('');
+  });
+  it('names are drawn once only', () => {
+    const l = born({ flags: ['race_human'] });
+    const again = settle(game, applyEffects(game, l, { name_pool: { self: 'temple_foundling' } }), new Rng(9));
+    expect(again.name).toBe(l.name);
+  });
+  it('linter checks pool ids', () => {
+    const bad = ContentSchema.parse({
+      items: [],
+      events: [{ id: 'youth.n', stage: 'youth', text: '{surname}', choices: [{ id: 'a', label: 'a', effects: { name_pool: { self: 'ghost', parents: 'none' } } }, { id: 'b', label: 'b', effects: { name_pool: { self: 'none' } } }] }],
+    });
+    const p = lintContent(bad).join('\n');
+    expect(p).toContain('ghost');
+    expect(p).toContain('self ใช้ none ไม่ได้');
+    expect(p).not.toContain('{surname}');
+  });
 });

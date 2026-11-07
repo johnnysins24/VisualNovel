@@ -41,6 +41,8 @@ export const EffectsSchema = z
     reputation: RepMap.optional(),
     /** ตั้งอาชีพ (ครั้งแรกครั้งเดียว) */
     class: ClassSchema.optional(),
+    /** เปลี่ยนกลุ่มชื่อของตัวเอง/พ่อแม่จากค่าตามเผ่า parents: none = ไม่มีพ่อแม่ที่รู้จัก (ใช้ พ่อ แม่) */
+    name_pool: z.object({ self: z.string().optional(), parents: z.string().optional() }).strict().optional(),
     /** ตั้งเทพที่นับถือ */
     god: GodSchema.optional(),
   })
@@ -129,9 +131,12 @@ export type Item = z.infer<typeof ItemSchema>;
 
 /** กลุ่มชื่อสำหรับตั้งชื่อตัวละครและพ่อแม่ตามเผ่า (thread เนื้อเรื่องเป็นคนเติม) */
 export const NamePoolSchema = z.object({
+  /** id ของกลุ่มชื่อ ใช้เป็นกลุ่มปริยายของเผ่าที่มี id ตรงกัน หรือเลือกด้วย effects.name_pool */
   race: z.string(),
   male: z.array(z.string()).default([]),
   female: z.array(z.string()).default([]),
+  /** นามสกุล/ตระกูล ใช้กับ {surname} */
+  surname: z.array(z.string()).default([]),
 });
 export type NamePool = z.infer<typeof NamePoolSchema>;
 

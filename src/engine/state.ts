@@ -32,6 +32,12 @@ export interface LifeState {
   raceApplied: string | null;
   /** พ่อแม่ที่สุ่มจากกลุ่มชื่อของเผ่า null จนกว่าจะรู้เผ่า */
   parents: { father: string; mother: string } | null;
+  /** นามสกุล/ตระกูลจากกลุ่มชื่อ (ว่างได้) */
+  surname: string;
+  /** กลุ่มชื่อที่เลือกด้วย effects.name_pool (ทับค่าตามเผ่า) */
+  namePool: { self?: string; parents?: string };
+  /** สุ่มชื่อแล้วหรือยัง */
+  namesApplied: boolean;
   /** ซ่อนจากผู้เล่น */
   world: Record<WorldKey, number>;
   alignment: { law: number; moral: number };
@@ -81,6 +87,9 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     god: null,
     raceApplied: null,
     parents: null,
+    surname: '',
+    namePool: {},
+    namesApplied: false,
     world: { gods: 0, demon: 0, star: 0 },
     alignment: { law: 0, moral: 0 },
     reputation: { ...(meta?.reputation ?? {}) },

@@ -137,6 +137,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     next.reputation[f] = clamp((next.reputation[f] ?? 0) + (d ?? 0), REPUTATION_CAP);
   }
   if (fx.god) next.god = fx.god;
+  if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
   let classHp = 0;
   if (fx.class && !next.classId) {
     const def = CLASSES[fx.class as ClassId];
@@ -175,14 +176,22 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
     next = { ...next, stats: { ...next.stats }, traits: [...next.traits], raceApplied: race };
     for (const s of STATS) next.stats[s] += (def.bonus as Partial<Record<(typeof STATS)[number], number>>)[s] ?? 0;
     for (const t of def.traits) if (!next.traits.includes(t)) next.traits.push(t);
-    const pool = game.names.get(race);
-    const mother = pickName(pool, 'f', rng);
-    const father = pickName(pool, 'm', rng);
+  }
+  if (!next.namesApplied && (race || next.namePool.self || next.namePool.parents)) {
+    // กลุ่มชื่อ: effects.name_pool ทับค่าตามเผ่า parents: none = ไม่มีพ่อแม่ที่รู้จัก
+    const selfPool = game.names.get(next.namePool.self ?? race ?? '');
+    const parentsId = next.namePool.parents ?? race ?? '';
+    const parentsPool = parentsId === 'none' ? undefined : game.names.get(parentsId);
+    next = { ...next, namesApplied: true };
+    const mother = pickName(parentsPool, 'f', rng);
+    const father = pickName(parentsPool, 'm', rng);
     if (father && mother) next.parents = { father, mother };
     if (next.name === DEFAULT_NAME) {
-      const own = pickName(pool, next.gender, rng, [father ?? '', mother ?? '']);
+      const own = pickName(selfPool, next.gender, rng, [father ?? '', mother ?? '']);
       if (own) next.name = own;
     }
+    const sur = selfPool?.surname ?? [];
+    if (sur.length) next.surname = sur[rng.int(0, sur.length - 1)]!;
   }
   const drifted = clericDrifted(next);
   const has = next.flags.includes(CLERIC_DRIFT_FLAG);

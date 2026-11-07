@@ -31,8 +31,8 @@ export function lintContent(c: Content): string[] {
   for (const f of setFlags) {
     if (f.startsWith('race_') && !(f.slice(5) in RACES)) problems.push(`flag ${f}: ไม่มีเผ่า "${f.slice(5)}" (มี ${Object.keys(RACES).join(', ')})`);
   }
-  const racesWithPool = new Set(c.names.map((n) => n.race));
-  for (const r of racesWithPool) if (!(r in RACES)) problems.push(`names: ไม่มีเผ่า "${r}"`);
+  const poolIds = new Set(c.names.map((n) => n.race));
+  if (poolIds.size !== c.names.length) problems.push('names: id กลุ่มชื่อซ้ำ');
 
   for (const e of c.events) {
     const where = e.id;
@@ -51,7 +51,13 @@ export function lintContent(c: Content): string[] {
       if (ch.requires?.flag && !setFlags.has(ch.requires.flag)) problems.push(`${cw}: requires flag "${ch.requires.flag}" ที่ไม่เคยถูกตั้ง`);
       if (ch.requires?.trait && !setTraits.has(ch.requires.trait)) problems.push(`${cw}: requires trait "${ch.requires.trait}" ที่ไม่เคยถูกให้`);
       if (ch.requires?.item && !itemIds.has(ch.requires.item)) problems.push(`${cw}: requires ของ "${ch.requires.item}" ที่ไม่มี`);
-      for (const fx of [ch.effects, ch.success?.effects, ch.failure?.effects]) checkItems(cw, fx);
+      for (const fx of [ch.effects, ch.success?.effects, ch.failure?.effects]) {
+        checkItems(cw, fx);
+        for (const [k, id] of Object.entries(fx?.name_pool ?? {})) {
+          if (id && id !== 'none' && !(k === 'parents' && id === 'none') && !poolIds.has(id)) problems.push(`${cw}: name_pool.${k} "${id}" ไม่มีใน names.yaml`);
+        }
+        if (fx?.name_pool?.self === 'none') problems.push(`${cw}: name_pool.self ใช้ none ไม่ได้ (none ใช้กับ parents)`);
+      }
       for (const t of [ch.label, ch.text, ch.success?.text, ch.failure?.text]) {
         for (const ph of unknownPlaceholders(t ?? '')) problems.push(`${cw}: placeholder ไม่รู้จัก ${ph}`);
       }

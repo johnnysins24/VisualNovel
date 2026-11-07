@@ -5,3 +5,10 @@
 - race: elf
   male: ["[ทดสอบ]จ"]
   female: ["[ทดสอบ]ฉ"]
+- race: temple_foundling
+  male: ["[ทดสอบ]ฝนเช้า"]
+  female: ["[ทดสอบ]ระฆังสาม"]
+- race: noble_human
+  male: ["[ทดสอบ]ม"]
+  female: ["[ทดสอบ]น"]
+  surname: ["[ทดสอบ]คอร์ดิส"]

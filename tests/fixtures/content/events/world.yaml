@@ -70,3 +70,16 @@
       check: { stat: STR, dc: 14, foe: demon }
       success: { effects: { world: { demon: -1 }, reputation: { wardens: 1 } } }
       failure: { effects: { hp: -2, world: { demon: 1 } } }
+
+- id: infancy.test_foundling
+  stage: infancy
+  weight: 10
+  when: { age: [0, 0], not_flags: [test_born] }
+  text: "[ทดสอบ] {name} ถูกพบหน้าวิหาร ไม่มีใครรู้จัก {father}"
+  choices:
+    - id: foundling
+      label: "[ทดสอบ] เด็กวิหาร"
+      effects: { flags: [race_tiefling, test_born], name_pool: { self: temple_foundling, parents: none } }
+    - id: noble
+      label: "[ทดสอบ] ลูกขุนนาง"
+      effects: { flags: [race_human, test_born], name_pool: { self: noble_human, parents: noble_human } }
