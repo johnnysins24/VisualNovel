@@ -1,4 +1,4 @@
-import { EquipmentPanel, StatsPanel } from './Panels';
+import { DebugPanel, EquipmentPanel, StatsPanel } from './Panels';
 import { SpriteView } from './SpriteView';
 import { Story } from './Story';
 import { exportLife, importLife, menuOpen, startLife } from '../store';
@@ -19,7 +19,7 @@ export function App() {
   return (
     <main class="game">
       <header class="top">
-        <h1>VisualNovel</h1>
+        <h1>เถ้ากับดาว</h1>
         <button aria-label="เมนู" onClick={() => (menuOpen.value = !menuOpen.value)}>☰</button>
       </header>
       {menuOpen.value && <Menu />}
@@ -27,6 +27,7 @@ export function App() {
       <StatsPanel />
       <Story />
       <EquipmentPanel />
+      {new URLSearchParams(location.search).has('debug') && <DebugPanel />}
     </main>
   );
 }

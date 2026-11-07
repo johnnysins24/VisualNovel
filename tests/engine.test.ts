@@ -8,7 +8,7 @@ import { newLife } from '../src/engine/state';
 import { exportCode, importCode } from '../src/engine/save';
 import { ContentSchema } from '../src/engine/schema';
 
-const content = loadContent();
+const content = loadContent('tests/fixtures/content');
 const game = makeGame(content);
 
 describe('rng', () => {
@@ -61,7 +61,9 @@ describe('engine', () => {
   });
   it('respects age and flag conditions', () => {
     const life = newLife(1);
-    const ids = game.events.filter((e) => e.when.age && life.age >= e.when.age[0] && !e.when.flags).map((e) => e.id);
+    const ids = game.events
+      .filter((e) => e.when.age && life.age >= e.when.age[0] && life.age <= e.when.age[1] && !e.when.flags && !e.when.class && !e.when.year && !e.when.world)
+      .map((e) => e.id);
     for (let s = 0; s < 30; s++) {
       const p = pickEvent(game, { ...life, rngState: s });
       expect(ids).toContain(p.event!.id);
@@ -77,7 +79,7 @@ describe('engine', () => {
   it('natural 20 always succeeds', () => {
     // find a seed whose first d20 is 20, then check against an impossible DC
     let seed = 0;
-    while (new Rng(seed).d20() !== 20) seed++;
+    while (new Rng(newLife(seed).rngState).d20() !== 20) seed++;
     const g = makeGame(ContentSchema.parse({ items: [], events: [{ id: 'youth.t', stage: 'youth', text: 't', choices: [{ id: 'c', label: 'c', check: { stat: 'STR', dc: 30 }, success: { effects: { gold: 1 } }, failure: { effects: { gold: -1 } } }] }] }));
     const { entry } = resolveChoice(g, newLife(seed), 'youth.t', 'c');
     expect(entry.roll?.success).toBe(true);
@@ -101,7 +103,7 @@ describe('equipment', () => {
 
 describe('save code', () => {
   it('round-trips including Thai text', () => {
-    const life = { ...newLife(9, 'ผู้กล้า'), gold: 5 };
+    const life = { ...newLife(9), name: 'ผู้กล้า', gold: 5 };
     expect(importCode(exportCode(life))).toEqual(life);
   });
   it('rejects garbage', () => expect(() => importCode(btoa('{"a":1}'))).toThrow());

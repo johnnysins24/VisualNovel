@@ -1,0 +1,72 @@
+# เหตุการณ์ทดสอบระบบจากคัมภีร์โลก ข้อความไม่ใช่ lore
+- id: infancy.test_birth
+  stage: infancy
+  weight: 30
+  when: { age: [0, 0], not_flags: [test_born] }
+  text: |
+    [ทดสอบ] {name} ลืมตา
+
+    {father} กับ {mother} มอง{เขา|เธอ}อยู่
+  choices:
+    - id: human
+      label: "[ทดสอบ] เกิดเป็นมนุษย์"
+      text: "[ทดสอบ] {เขา|เธอ}ร้องไห้เสียงดัง"
+      effects: { flags: [race_human, test_born], location_tag: village }
+    - id: elf
+      label: "[ทดสอบ] เกิดเป็นเอลฟ์"
+      effects: { flags: [race_elf, test_born], location_tag: forest }
+    - id: tiefling
+      label: "[ทดสอบ] เกิดเป็นทีฟลิ่ง"
+      effects: { flags: [race_tiefling, test_born], location_tag: village }
+
+- id: youth.test_ceremony
+  stage: youth
+  weight: 40
+  when: { age: [13, 16], not_flags: [test_has_class] }
+  text: "[ทดสอบ] พิธีเลือกทาง"
+  choices:
+    - id: warrior
+      label: "[ทดสอบ] นักรบ"
+      effects: { class: warrior, flags: [test_has_class] }
+    - id: cleric_verus
+      label: "[ทดสอบ] นักบวชเวรัส"
+      effects: { class: cleric, god: verus, flags: [test_has_class], alignment: { law: 4, moral: 4 } }
+    - id: ranger
+      label: "[ทดสอบ] พราน"
+      effects: { class: ranger, flags: [test_has_class] }
+
+- id: youth.test_drift
+  stage: youth
+  weight: 30
+  once: false
+  when: { age: [17, 40], class: cleric }
+  text: "[ทดสอบ] ทางเลือกที่ชวนให้ห่างจากเทพ"
+  choices:
+    - id: lie
+      label: "[ทดสอบ] โกหกเพื่อเงิน"
+      effects: { alignment: { law: -5, moral: -5 }, gold: 5 }
+    - id: repent
+      label: "[ทดสอบ] ทำบุญ"
+      effects: { alignment: { law: 2, moral: 2 } }
+
+- id: youth.test_drifted
+  stage: youth
+  weight: 100
+  when: { age: [17, 40], flags: [cleric_drift] }
+  text: "[ทดสอบ] พลังเริ่มจางหาย"
+  choices:
+    - id: turn_back
+      label: "[ทดสอบ] กลับตัว"
+      effects: { alignment: { law: 6, moral: 6 } }
+
+- id: youth.test_hound
+  stage: youth
+  weight: 20
+  when: { age: [17, 40], year: [280, 400], world: { demon: [0, 20] } }
+  text: "[ทดสอบ] หมาเถ้าขวางทาง"
+  choices:
+    - id: fight
+      label: "[ทดสอบ] สู้"
+      check: { stat: STR, dc: 14, foe: demon }
+      success: { effects: { world: { demon: -1 }, reputation: { wardens: 1 } } }
+      failure: { effects: { hp: -2, world: { demon: 1 } } }

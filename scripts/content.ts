@@ -10,9 +10,19 @@ function loadDir(dir: string): unknown[] {
     .flatMap((f) => (parse(readFileSync(join(dir, f), 'utf8')) as unknown[]) ?? []);
 }
 
-export function loadContent(root = 'content'): Content {
+function loadNames(root: string): unknown[] {
+  try {
+    return (parse(readFileSync(join(root, 'names.yaml'), 'utf8')) as unknown[]) ?? [];
+  } catch {
+    return [];
+  }
+}
+
+/** โฟลเดอร์เนื้อหา ตั้ง CONTENT_DIR เพื่อใช้ชุดทดสอบ (เช่น ตอนถ่ายจอ) */
+export function loadContent(root = process.env.CONTENT_DIR ?? 'content'): Content {
   return ContentSchema.parse({
     events: loadDir(join(root, 'events')),
     items: loadDir(join(root, 'items')),
+    names: loadNames(root),
   });
 }

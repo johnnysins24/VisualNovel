@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:fixture": "CONTENT_DIR=tests/fixtures/content npm run content && vite",
     "build": "npm run content && tsc --noEmit && vite build",
     "content": "tsx scripts/build-content.ts",
     "validate": "tsx scripts/validate-content.ts",

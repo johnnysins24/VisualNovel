@@ -51,3 +51,8 @@ ul { list-style: none; margin: 0; padding: 0; }
   .game { grid-template-columns: 280px 1fr 300px; grid-template-areas: 'top top top' 'portrait story stats' 'equip story stats'; align-content: start; }
   .sprite { height: 288px; }
 }
+
+.text { margin: 0; }
+.aftermath { color: var(--muted); font-style: italic; }
+.debug { grid-column: 1 / -1; font-size: .75rem; }
+.debug pre { margin: 0; white-space: pre-wrap; }

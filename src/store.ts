@@ -5,10 +5,12 @@ import { makeGame, pickEvent, resolveChoice, type Game } from './engine/engine';
 import { newLife, type LifeState, type LogEntry } from './engine/state';
 import { newSeed } from './engine/rng';
 import { equip as equipItem } from './engine/items';
-import { exportCode, importCode, loadSlot, saveSlot } from './engine/save';
+import { exportCode, importCode, loadMeta, loadSlot, saveMeta, saveSlot } from './engine/save';
+import { commitLife, newMeta, type Meta } from './engine/meta';
 
 export const game: Game = makeGame(ContentSchema.parse(content));
 
+export const meta = signal<Meta>(newMeta());
 export const life = signal<LifeState>(newLife(newSeed()));
 export const slot = signal(0);
 export const lastEntry = signal<LogEntry | null>(null);
@@ -20,15 +22,25 @@ function persist() {
   saveSlot(slot.value, life.value).catch(() => {});
 }
 
+/** ชีวิตจบแล้วบันทึกชื่อเสียงลง meta ครั้งเดียว */
+function finishIfDead() {
+  if (life.value.alive || life.value.flags.includes('life_committed')) return;
+  life.value = { ...life.value, flags: [...life.value.flags, 'life_committed'] };
+  meta.value = commitLife(meta.value, life.value);
+  saveMeta(meta.value).catch(() => {});
+}
+
 function advance() {
-  if (!life.value.alive) return;
-  const { event, life: next } = pickEvent(game, life.value);
-  life.value = event ? next : { ...next, alive: false };
+  if (life.value.alive) {
+    const { event, life: next } = pickEvent(game, life.value);
+    life.value = event ? next : { ...next, alive: false };
+  }
+  finishIfDead();
 }
 
 export function startLife(seed = newSeed()) {
   lastEntry.value = null;
-  life.value = newLife(seed);
+  life.value = newLife(seed, meta.value);
   advance();
   persist();
 }
@@ -66,6 +78,7 @@ export function importLife(code: string) {
 
 export async function boot() {
   try {
+    meta.value = await loadMeta();
     const saved = await loadSlot(slot.value);
     if (saved) {
       life.value = saved;
