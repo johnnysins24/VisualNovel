@@ -3,7 +3,7 @@
 // placed at its joint.
 import { palette, SKIN, SKIN_SH, UNDER, UNDER_TR, MARK, MARK2, GLOW, GLOW2 } from './pal.mjs';
 import { getRace } from './appearance.mjs';
-import { makeBody, joints, VS } from './body.mjs';
+import { makeBody, joints, VS, VOXEL_REALM } from './body.mjs';
 import { dress } from './outfits.mjs';
 import { head, hair, horns, tail, accessories } from './head.mjs';
 
@@ -19,11 +19,13 @@ const UNDER_HEAD = new Set(['head', 'hair', 'horns', 'helm', 'acc']);
  * Builds every part of a character.
  * Returns { parts: [{ name, vd, anchor, joint: [x,y,z] in body voxels, scale }], S, look }.
  * Parts come in Voxel Realm's mesh creation order (body parts by first voxel, then head, hair, ...).
+ * style: the body style (body.mjs VOXEL_REALM, or vnStyle() from vn.mjs). A style with headScale keeps the head at
+ * that scale instead of the look's head size.
  */
-export function buildCharacter(a, { expr = '', blink = false, hide = [] } = {}) {
+export function buildCharacter(a, { expr = '', blink = false, hide = [], style = VOXEL_REALM } = {}) {
   const pal = palette(a);
   const ids = { skin: SKIN, skin_sh: SKIN_SH, under: UNDER, under_tr: UNDER_TR, mark: MARK, mark2: MARK2, glow: GLOW, glow2: GLOW2 };
-  const B = makeBody(a, ids);
+  const B = makeBody(a, ids, style);
   dress(B, a);
   const R = getRace(a.race);
   const parts = [];
@@ -54,7 +56,7 @@ export function buildCharacter(a, { expr = '', blink = false, hide = [] } = {}) 
     world[name] = w;
     return w;
   };
-  const headScale = a.head_size * R.head;
+  const headScale = style.headScale ?? a.head_size * R.head;
   for (const p of parts) {
     p.joint = pos(p.name);
     p.scale = UNDER_HEAD.has(p.name) ? headScale : 1;
@@ -63,7 +65,7 @@ export function buildCharacter(a, { expr = '', blink = false, hide = [] } = {}) 
     look: a, pal, S: B.S,
     parts: parts.filter(p => !hide.includes(p.name)),
     rigScale: a.height * R.scale,
-    pixel: VS * a.height * R.scale * a.head_size * R.head,
+    pixel: VS * a.height * R.scale * headScale,
   };
 }
 

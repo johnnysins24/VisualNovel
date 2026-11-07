@@ -23,14 +23,16 @@ export const M_ALL = 0x7fe;
 export const CAP = 0, ELL = 1, LOFT = 2;
 export const GX = 41, GY = 56, GZ = 29, OX = 20, OZ = 14;
 export const MARGIN = 2.6;
-/** Voxel Realm's look switches (all on there): a short neck, no small anatomy, the body at 1/16 m. */
-export const STYLE = { short_neck: true, simple: true, coarse: true };
+/** Voxel Realm's look switches (all on there): a short neck, no small anatomy, the body at 1/16 m. A style can also
+ *  bring its own proportions and shapes (spec, prims), as the VisualNovel body in vn.mjs does. */
+export const VOXEL_REALM = Object.freeze({ short_neck: true, simple: true, coarse: true });
+export const STYLE = VOXEL_REALM;
 const MIRROR = [0, HIPS, TORSO, ARM_R, FORE_R, ARM_L, FORE_L, THIGH_R, SHIN_R, THIGH_L, SHIN_L];
 
 // ------------------------------------------------------------------ proportions
 
 /** Landmarks and radii for a body, in voxels from the soles. */
-export function spec(a) {
+export function spec(a, style = VOXEL_REALM) {
   const fem = a.body === 1;
   const R = getRace(a.race);
   const mu = Math.max(clamp(a.muscle, 0, 1), R.muscle_min ?? 0);
@@ -89,7 +91,7 @@ export function spec(a) {
   s.glute = vscale(s.glute, 1.0 + 0.25 * hp);
   s.hipx = s.hipx * (1.0 + 0.1 * hp);
   applyRace(s, R);
-  if (STYLE.short_neck) s.neck = s.sh + (fem ? 2.2 : 2.5);
+  if (style.short_neck) s.neck = s.sh + (fem ? 2.2 : 2.5);
   s.arm_y = s.sh - 3.0;
   return s;
 }
@@ -278,7 +280,8 @@ function lowerBound(arr, v) {
 }
 
 export class Body {
-  constructor() {
+  constructor(style = VOXEL_REALM) {
+    this.style = style;
     this.S = {};
     this.dist = new Float32Array(GX * GY * GZ).fill(99.0);
     this.own = new Uint8Array(GX * GY * GZ);
@@ -553,7 +556,7 @@ export class Body {
       const pv = this.pivot(p);
       let anchor = v3(pv[0] + OX + 0.5 - a[0], pv[1] - a[1], pv[2] + OZ + 0.5 - a[2]);
       let vd;
-      if (STYLE.coarse) {
+      if (this.style.coarse) {
         vd = this.halvePart(p, a, b);
         anchor = vscale(anchor, 0.5);
       } else {
@@ -611,6 +614,7 @@ export class Body {
   bodyPrims() {
     const s = this.S;
     const fem = s.fem;
+    const simple = this.style.simple;
     const L = [];
     L.push(loft(HIPS, s.pelvis, 2.3));
     L.push(loft(TORSO, s.torso, 2.4));
@@ -622,7 +626,7 @@ export class Body {
     const pec = s.pec, bust = s.bust, chest = s.chest;
     const chestFront = loftFront(s.torso, chest);
     for (const sx of [-1.0, 1.0]) {
-      if (!visZero(pec) && !STYLE.simple) L.push(ell(TORSO, v3(sx * 3.0, chest + 0.6, chestFront + pec[2] * 0.55), pec));
+      if (!visZero(pec) && !simple) L.push(ell(TORSO, v3(sx * 3.0, chest + 0.6, chestFront + pec[2] * 0.55), pec));
       if (!visZero(bust)) L.push(ell(TORSO, v3(sx * 2.45, chest - 0.2, chestFront + bust[2] * 0.45), bust));
     }
     if (s.he > 0.45) {
@@ -639,9 +643,9 @@ export class Body {
       const wrist = elbow - fo + 2.2;
       L.push(ell(pa, v3(x + sx * 0.35, sh - 1.0, 0.0), delt));
       L.push(cap(pa, v3(x, sh - 1.5, 0), v3(x, elbow + 0.3, 0.2), ar[0], ar[1]));
-      if (!STYLE.simple) L.push(ell(pa, v3(x, sh - up * 0.45, -0.5), v3(ar[0] * 0.85, up * 0.32, ar[0] * (0.82 + 0.15 * mu))));
+      if (!simple) L.push(ell(pa, v3(x, sh - up * 0.45, -0.5), v3(ar[0] * 0.85, up * 0.32, ar[0] * (0.82 + 0.15 * mu))));
       L.push(cap(pf, v3(x, elbow, 0.2), v3(x, wrist, 0.0), ar[2], ar[3]));
-      if (!STYLE.simple) L.push(ell(pf, v3(x, elbow - 2.4, -0.1), v3(ar[2] * 1.05, fo * 0.3, ar[2] * 0.98)));
+      if (!simple) L.push(ell(pf, v3(x, elbow - 2.4, -0.1), v3(ar[2] * 1.05, fo * 0.3, ar[2] * 0.98)));
       const hy = elbow - fo;
       L.push(ell(pf, v3(x, hy + 0.2, -0.1), hand));
       L.push(cap(pf, v3(x - sx * 0.4, hy + 1.1, -0.9), v3(x - sx * 0.7, hy - 0.4, -1.6), 0.75, 0.6));
@@ -653,12 +657,12 @@ export class Body {
       const pt = side === 0 ? THIGH_L : THIGH_R;
       const ps = side === 0 ? SHIN_L : SHIN_R;
       L.push(cap(pt, v3(x + sx * 0.3, sock + 0.5, 0.0), v3(x, knee + 0.6, -0.2), tr[0], tr[1]));
-      if (!STYLE.simple) {
+      if (!simple) {
         L.push(ell(pt, v3(x + sx * 0.5, sock - 3.0, -0.6), v3(tr[0] * 0.95, 5.0, tr[0] * 0.92)));
         L.push(ell(ps, v3(x, knee - 0.2, -0.5), v3(tr[1] * 0.92, 1.6, tr[1] * 0.9)));
       }
       L.push(cap(ps, v3(x, knee, 0.0), v3(x, 2.4, 0.4), shr[0], shr[1]));
-      L.push(ell(ps, v3(x + sx * 0.15, knee - 4.0, 0.7), vscale(calf, STYLE.simple ? 0.85 : 1.0)));
+      L.push(ell(ps, v3(x + sx * 0.15, knee - 4.0, 0.7), vscale(calf, simple ? 0.85 : 1.0)));
       const fw = foot[0], fl = foot[1];
       L.push(cap(ps, v3(x, 1.2, 0.9), v3(x + sx * 0.3, 0.9, 0.9 - fl), fw, fw * 0.8));
     }
@@ -724,16 +728,18 @@ export class Body {
     const u = ids.under, ut = ids.under_tr;
     const S = this.S;
     const fem = S.fem;
-    const top = S.hip + (fem ? 0.4 : 0.8);
-    const legCut = S.sock - (fem ? 2.5 : 4.0);
+    // a shorter body (vn.mjs) scales the offsets: kT on the torso, kL on the legs (1 in Voxel Realm)
+    const kT = S.kT ?? 1, kL = S.kL ?? 1, kx = S.kx ?? 1;
+    const top = S.hip + (fem ? 0.4 : 0.8) * kT;
+    const legCut = S.sock - (fem ? 2.5 : 4.0) * kL;
     this.shell(M_HIPS | M_THIGH, legCut, top, 0.0, u);
     this.shell(M_HIPS | M_TORSO, top - 0.9, top + 0.1, 0.0, ut);
     if (fem) {
       const chest = S.chest;
-      this.shell(M_TORSO, chest - 2.6, chest + 2.0, 0.0, u);
-      this.shell(M_TORSO, chest - 2.6, chest - 1.6, 0.0, ut);
-      const sx = 3;
-      this.shell(M_TORSO, chest + 2.0, S.sh + 1.5, 0.0, u, x => Math.abs(x) === sx);
+      this.shell(M_TORSO, chest - 2.6 * kT, chest + 2.0 * kT, 0.0, u);
+      this.shell(M_TORSO, chest - 2.6 * kT, chest - (2.6 * kT - 1.0), 0.0, ut);
+      const sx = Math.round(3 * kx);
+      this.shell(M_TORSO, chest + 2.0 * kT, S.sh + 1.5, 0.0, u, x => Math.abs(x) === sx);
     }
   }
 }
@@ -756,10 +762,10 @@ export function loftFront(keys, y) {
 }
 
 /** Builds the bare body: skin, race marks, underwear. */
-export function makeBody(a, ids) {
-  const B = new Body();
-  B.S = spec(a);
-  B.sculpt(B.bodyPrims(), STYLE.simple ? 1.8 : 1.1);
+export function makeBody(a, ids, style = VOXEL_REALM) {
+  const B = new Body(style);
+  B.S = style.spec ? style.spec(a) : spec(a, style);
+  B.sculpt(style.prims ? style.prims(B) : B.bodyPrims(), style.blend ?? (style.simple ? 1.8 : 1.1));
   B.skin(ids.skin);
   B.skinMarks(a, ids);
   B.underwear(ids);

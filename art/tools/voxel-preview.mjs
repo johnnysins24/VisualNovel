@@ -5,11 +5,13 @@
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { fullBody, portrait, faceIcon } from '../voxel/sprite.mjs';
-import { sheet } from '../voxel/sheet.mjs';
+import { usedRect } from '../voxel/render.mjs';
+import { sheet, hstack } from '../voxel/sheet.mjs';
 import { encodePNG, decodePNG } from '../voxel/png.mjs';
 import { fromDict } from '../voxel/appearance.mjs';
 import { EXPRESSIONS } from '../voxel/head.mjs';
 import { piecesFor, slotOf, SLOTS } from '../voxel/outfits.mjs';
+import { vnStyle } from '../voxel/vn.mjs';
 
 const OUT = fileURLToPath(new URL('../preview/voxel/', import.meta.url));
 mkdirSync(OUT, { recursive: true });
@@ -44,6 +46,21 @@ save('steps_sorcerer.png', sheet([steps(BARE.f, 'sorcerer'), steps(BARE.m, 'sorc
 // every class's starter outfit on both bodies
 const CLS = ['warrior', 'sorcerer', 'ranger', 'cleric', 'rogue', 'bard'];
 save('classes.png', sheet(['m', 'f'].map(b => CLS.map(c => fullBody({ ...BARE[b], cls: c, outfit: {} }))), { trim: true }));
+
+// the VisualNovel body (vn.mjs), bigger heads and reworked anatomy, at the ratios Phupha is choosing between.
+// vn_proportions: Voxel Realm's body first, then each ratio, bare on top and dressed below, each group zoomed by
+// a whole number so all stand about as tall as they would on the game's screen.
+export const VN_RATIOS = [3.25, 3, 2.5];
+const vn = VN_RATIOS.map(r => vnStyle(r));
+const wear = (b, cls) => ({ ...BARE[b], cls, outfit: {} });
+save('vn_proportions.png', hstack([undefined, ...vn].map(style => {
+  const rows = [[BARE.m, BARE.f], [wear('m', 'warrior'), wear('f', 'cleric')]].map(r => r.map(d => fullBody(d, { style })));
+  const tall = Math.max(...rows[0].map(i => usedRect(i).h));
+  return sheet(rows, { trim: true, k: Math.round(240 / tall) });
+})));
+for (const style of vn) {
+  save(`vn_classes_${style.ratio}.png`, sheet(['m', 'f'].map(b => [...CLS.map(c => fullBody(wear(b, c), { style })), fullBody(BARE[b], { style })]), { trim: true }));
+}
 
 const dir = process.argv[2];
 if (dir && existsSync(dir)) {
