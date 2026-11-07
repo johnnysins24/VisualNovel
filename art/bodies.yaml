@@ -5,7 +5,9 @@
 # anatomy: hand touches painted over the skin (digits = skin shade level), no new part.
 
 m:
-  marks: { head: 44, brow: 50, mouth: 57, chin: 58, neck: 59, shoulder: 61, chest: 64, waist: 69, hip: 71, crotch: 76, knee: 84, ankle: 89, sole: 93 }
+  marks: { head: 44, brow: 50, mouth: 57, chin: 58, neck: 59, shoulder: 61, chest: 64, waist: 69, hip: 71, crotch: 76, knee: 84, ankle: 89, sole: 93, hand: 76 }
+  # weapon hand (picture left) and off hand (picture right): columns from 31, for ascii `at`
+  cols: { hand: -10, ohand: 10 }
   parts:
     skull: { sym: [[44, 3], [45, 4], [46, 5], [47, 6], [56, 6], [57, 5]] }
     face: { sym: [[49, 4], [57, 4], [58, 3]] }
@@ -16,7 +18,8 @@ m:
     anatomy: { paint: true, at: [-3, 63], ascii: "2222222\n.......\n.......\n.......\n.......\n..22222" }
 
 f:
-  marks: { head: 46, brow: 52, mouth: 58, chin: 60, neck: 61, shoulder: 63, chest: 66, waist: 70, hip: 72, crotch: 76, knee: 84, ankle: 89, sole: 93 }
+  marks: { head: 46, brow: 52, mouth: 58, chin: 60, neck: 61, shoulder: 63, chest: 66, waist: 70, hip: 72, crotch: 76, knee: 84, ankle: 89, sole: 93, hand: 76 }
+  cols: { hand: -9, ohand: 9 }
   parts:
     skull: { sym: [[46, 2], [47, 4], [48, 5], [49, 6], [56, 6], [57, 5]] }
     face: { sym: [[51, 4], [57, 4], [58, 3], [59, 3], [60, 2]] }
@@ -25,3 +28,31 @@ f:
     arm: { mirror: true, span: [[65, -8, -6], [71, -8, -6], [72, -8, -7], [73, -8, -7], [74, -8, -8], [75, -9, -8], [76, -10, -8], [77, -10, -8]] }
     leg: { mirror: true, span: [[76, -6, -1], [77, -6, -1], [78, -5, -1], [79, -5, -1], [80, -5, -2], [81, -4, -2], [88, -4, -2], [89, -3, -2], [90, -3, -2], [91, -4, -2], [92, -5, -2], [93, -5, -2]] }
     anatomy: { paint: true, at: [-4, 65], ascii: "..22222..\n.........\n.........\n.........\n11.....11" }
+
+# Child bodies (A19, Phupha 2026-11-07): the adult head on a short body, 2.3 heads, 35 px tall
+# (rows 59-93). `like` = the grown-up body whose head this is: pieces and face shapes for m fit cm,
+# those for f fit cf (hair, the 17 faces, ears, horns). The heads are the adult skull and face moved
+# down; the bodies are the same for boys and girls apart from the neck.
+cm:
+  like: m
+  marks: { head: 59, brow: 65, mouth: 72, chin: 73, neck: 74, shoulder: 75, chest: 77, waist: 79, hip: 82, crotch: 84, knee: 88, ankle: 91, sole: 93, hand: 83 }
+  cols: { hand: -8, ohand: 8 }
+  parts:
+    skull: { sym: [[59, 3], [60, 4], [61, 5], [62, 6], [71, 6], [72, 5]] }
+    face: { sym: [[64, 4], [72, 4], [73, 3]] }
+    neck: { sym: [[74, 2]] }
+    torso: { sym: [[75, 3], [76, 5], [77, 6], [78, 4], [81, 4], [82, 5], [84, 5]] }
+    arm: { mirror: true, span: [[77, -7, -5], [78, -8, -6], [81, -8, -6], [82, -9, -7], [84, -9, -7]] }
+    leg: { mirror: true, span: [[84, -5, -1], [85, -4, -1], [86, -4, -1], [87, -3, -1], [91, -3, -1], [92, -4, -1], [93, -4, -1]] }
+
+cf:
+  like: f
+  marks: { head: 59, brow: 65, mouth: 71, chin: 73, neck: 74, shoulder: 75, chest: 77, waist: 79, hip: 82, crotch: 84, knee: 88, ankle: 91, sole: 93, hand: 83 }
+  cols: { hand: -8, ohand: 8 }
+  parts:
+    skull: { sym: [[59, 2], [60, 4], [61, 5], [62, 6], [69, 6], [70, 5]] }
+    face: { sym: [[64, 4], [70, 4], [71, 3], [72, 3], [73, 2]] }
+    neck: { sym: [[74, 1]] }
+    torso: { sym: [[75, 3], [76, 5], [77, 6], [78, 4], [81, 4], [82, 5], [84, 5]] }
+    arm: { mirror: true, span: [[77, -7, -5], [78, -8, -6], [81, -8, -6], [82, -9, -7], [84, -9, -7]] }
+    leg: { mirror: true, span: [[84, -5, -1], [85, -4, -1], [86, -4, -1], [87, -3, -1], [91, -3, -1], [92, -4, -1], [93, -4, -1]] }

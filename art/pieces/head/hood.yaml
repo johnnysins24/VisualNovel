@@ -1,0 +1,29 @@
+# Hood (A22): covers the head and the sides of the face, the face open from the brows to the chin,
+# drooping onto the shoulders. Hides the hair and horns above the face opening.
+z: 65
+colors: { cloth: dye_earth }
+hides: { pieces: [hair, horns], above: head+4 }
+shapes:
+  - at: [-8, head-3]
+    ascii: |
+      ......ccccc......
+      ....ccccccccc....
+      ...ccccccccccc...
+      ..ccccccccccccc..
+      .ccccccccccccccc.
+      .ccccccccccccccc.
+      ccccccccccccccccc
+      ccccCCCCCCCCCcccc
+      cccC.........Cccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      cccc.........cccc
+      .cccc.......cccc.
+      ..cccc.....cccc..
+      ..ccccccccccccc..
+      ...ccccccccccc...

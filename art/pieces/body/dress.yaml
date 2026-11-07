@@ -1,0 +1,12 @@
+# Village dress: fitted bodice with a square neckline, long sleeves, full skirt to the ankle, a
+# sash at the waist in the second colour. Women's body only (A21).
+body: f
+ages: [adult]
+z: 30
+colors: { cloth: dye_moss, trim: dye_white }
+shapes:
+  - { mat: cloth, sym: [[waist, 4], [hip, 6], [crotch, 7], [ankle-1, 8]] }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder+1, waist] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: trim, region: { parts: [torso], rows: [waist, waist] } }
+  - { mat: cloth@1, sym: [[ankle-1, 8]] }

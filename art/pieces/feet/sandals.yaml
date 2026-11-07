@@ -1,0 +1,7 @@
+# Woven sandals: a sole and two straps over the bare foot (A22).
+z: 35
+colors: { leather: leather_brown }
+shapes:
+  - { mat: leather, region: { parts: [leg], rows: [ankle+1, ankle+1] } }
+  - { mat: leather@1, region: { parts: [leg], rows: [sole-1, sole-1] } }
+  - { mat: leather@0, region: { parts: [leg], rows: [sole, sole] } }

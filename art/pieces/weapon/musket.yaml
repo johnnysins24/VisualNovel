@@ -1,0 +1,40 @@
+# Black-powder long gun (A22): held upright, the iron barrel above the fist, the wooden stock
+# below it, a brass lock.
+z: 70
+colors: { metal: metal_iron, wood: wood, fitting: metal_brass }
+shapes:
+  - at: [hand-1, hand-25]
+    ascii: |
+      .G.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      fof
+      .o.
+      .of
+      .o.
+      .o.
+      ...
+      ...
+      ...
+      .o.
+      .oo
+      .oo
+      .oo
+      .oo
+      ..o

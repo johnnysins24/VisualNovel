@@ -1,0 +1,27 @@
+# Cleric's head cloth (A22): a band across the forehead in the god's colour (trim), the cloth
+# falling straight past the cheeks to the shoulders.
+z: 65
+colors: { cloth: dye_white, trim: dye_mustard }
+hides: { pieces: [hair, horns], above: head+5 }
+shapes:
+  - at: [-8, head-2]
+    ascii: |
+      .....ccccccc.....
+      ...ccccccccccc...
+      ..ccccccccccccc..
+      .ccccccccccccccc.
+      .ccccccccccccccc.
+      .cTTTTTTTTTTTTTc.
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      ccc...........ccc
+      cccc.........cccc
+      cccc.........cccc
+      ccccc.......ccccc
+      .cccc.......cccc.

@@ -1,0 +1,12 @@
+# Coin purse (A27): a leather pouch hanging from the belt on the left hip (picture right), a brass
+# clasp.
+z: 36
+colors: { leather: leather_brown, fitting: metal_brass }
+shapes:
+  - at: [3, waist+1]
+    ascii: |
+      .LL.
+      llll
+      lFll
+      llll
+      .ll.

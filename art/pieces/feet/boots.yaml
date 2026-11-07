@@ -1,0 +1,7 @@
+# Leather boots to mid-shin, a darker cuff at the top (A22).
+z: 35
+colors: { leather: leather_brown }
+shapes:
+  - { mat: leather, region: { parts: [leg], rows: [knee+2, sole] } }
+  - { mat: leather@1, region: { parts: [leg], rows: [knee+2, knee+2] } }
+  - { mat: leather@0, region: { parts: [leg], rows: [sole, sole] } }

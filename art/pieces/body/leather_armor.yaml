@@ -1,0 +1,13 @@
+# Leather armour: a laced leather jerkin with shoulder pads over a linen shirt, belt with a brass
+# buckle, trousers (A22).
+ages: [adult]
+z: 30
+colors: { cloth: dye_white, trim: dye_earth, leather: leather_brown }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: leather, region: { parts: [torso], rows: [shoulder, hip+1] } }
+  - { mat: leather, region: { parts: [arm], rows: [shoulder, shoulder+3], grow: 1 } }
+  - { mat: leather@0, region: { parts: [torso], rows: [waist, waist] } }
+  - { mat: leather@1, sym: [[shoulder+2, 0], [chest+3, 0]] }
+  - { at: [0, waist], ascii: "F" }

@@ -1,0 +1,14 @@
+# Elf ears (A15): long, angled up and out, the tip about 4 px past the side of the head. Drawn over
+# the hair (z above it), so every hairstyle shows them; the darker line is the inside of the ear.
+z: 62
+shapes:
+  - at: [-10, brow-2]
+    mirror: true
+    ascii: |
+      s....
+      ss...
+      s1s..
+      .s1s.
+      ..s1s
+      ...ss
+      ....s

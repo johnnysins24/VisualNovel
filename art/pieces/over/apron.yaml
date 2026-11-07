@@ -1,0 +1,10 @@
+# Smith's leather apron (A27): heavy leather from the chest to the knee on a neck strap, tied at the
+# waist, a pocket at the hip. Worn over any body piece.
+ages: [adult]
+z: 33
+colors: { leather: leather_brown }
+shapes:
+  - { mat: leather@0, span: [[neck, -3, -3], [shoulder+1, -4, -4]], mirror: true }
+  - { mat: leather, sym: [[chest-1, 3], [chest+1, 4], [waist, 4], [hip, 5], [knee-1, 5]] }
+  - { mat: leather@0, sym: [[waist, 5]] }
+  - { mat: leather@1, rect: [-3, hip+1, 3, 2] }

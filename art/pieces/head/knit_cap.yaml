@@ -1,0 +1,14 @@
+# Knit cap (dock rats, sailors, A27): a close round cap pulled down to the brows, a turned-up cuff.
+z: 65
+colors: { cloth: dye_grey }
+hides: { pieces: [hair, horns], above: head+4 }
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      ....ccccccc....
+      ..ccccccccccc..
+      .ccccccccccccc.
+      ccccccccccccccc
+      ccccccccccccccc
+      CcCcCcCcCcCcCcC
+      CCCCCCCCCCCCCCC

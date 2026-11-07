@@ -6,18 +6,25 @@
 //                                       kit next to the locked look; -v prints rows that differ.
 //                                       Also hair.png (the men's hairstyles on the male body, the
 //                                       women's on the female body, in hair.yaml order) and
-//                                       colours.png (the skin, hair and eye choices)
+//                                       colours.png (the skin, hair and eye choices) and races.png
+//                                       (race pieces from races.yaml on men, women and children) and
+//                                       outfits.png (outfits.yaml on every body, metals, dyes, headgear,
+//                                       cloaks, weapons, off-hand pieces and mechanical arms) and
+//                                       extras.png (elf outfit, tabard, apron, accessories, skin marks,
+//                                       moustaches) and npcs.png (eight of each NPC group in npcs.yaml)
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
 //                                                (for a skin ramp also the lips and blush that go with it)
 import { join } from 'node:path';
-import { loadKit, renderLook, readYaml, ART } from './kit.mjs';
+import { loadKit, renderLook, readYaml, fitsBody, ART } from './kit.mjs';
 import { sheet, crop, savePNG } from './sheet.mjs';
 import { lockBare, lockFace, faceBox } from './lock.mjs';
 import { runChecks, classifier, diffRows, FACES } from './check.mjs';
 import { rampLike, follow } from './colour.mjs';
+import { npcLook } from './npc.mjs';
 
 const BODY_BOX = { x: 12, y: 38, w: 40, h: 58 }; // the figure without the empty canvas above it
+const RACE_BOX = { x: 12, y: 34, w: 40, h: 62 }; // room for horns above the head
 const PROOF_FACES = ['smile', 'angry', 'surprised']; // the faces in the proof Phupha approved
 const hairBox = b => ({ x: 14, y: b === 'm' ? 35 : 37, w: 36, h: 44 }); // head to waist, room for knots, tails and tufts
 const [cmd, ...args] = process.argv.slice(2);
@@ -52,7 +59,54 @@ if (cmd === 'check') {
   const ch = kit.pal.choices;
   const colourRows = ['m', 'f'].map(b => Object.keys(ch.skin).map(k => crop(renderLook(kit, { ...looks[`proof_${b}`], face: 'smile', choices: { skin: k } }), BODY_BOX)));
   for (const g of ['hair', 'eyes']) colourRows.push(Object.keys(ch[g]).map((k, i) => { const b = i % 2 ? 'm' : 'f'; return crop(renderLook(kit, { ...looks[`proof_${b}`], face: 'neutral', choices: { [g]: k } }), faceBox(b)); }));
-  for (const [file, rows, opts] of [['proof.png', [row1, pairs.m, pairs.f]], ['faces.png', faceRows], ['hair.png', hairRows, { scale: 5 }], ['colours.png', colourRows]]) {
+  // race pieces (races.yaml): men, women, then the child bodies; each piece once, colours rotating
+  const races = readYaml('races.yaml'), under = { m: ['under/briefs'], f: ['under/bra', 'under/panties'], cm: ['under/briefs', 'under/vest'], cf: ['under/briefs', 'under/vest'] };
+  const hairOf = { m: ['short', 'long', 'messy', 'undercut', 'slicked', 'topknot', 'ponytail'], f: ['bob', 'long', 'braid', 'pixie', 'wavy', 'ponytail', 'twin_braids'] };
+  const raceRows = ['m', 'f', 'c'].map(g => {
+    const out = [];
+    for (const [race, r] of Object.entries(races)) {
+      const sets = race === 'human' ? (g === 'c' ? [[]] : []) : Object.entries(r).filter(([k]) => k !== 'name' && k !== 'always').flatMap(([, v]) => Object.keys(v).map(id => [id]));
+      for (const extra of sets.length ? sets : [[]]) {
+        if (extra.some(id => id.startsWith('beard/')) && g !== 'm') continue;
+        const bodies = g === 'c' ? ['cm', 'cf'] : [g];
+        for (const b of bodies) {
+          const i = out.length, hs = hairOf[kit.bodies[b].like ?? b];
+          const pieces = ['face/basic', ...under[b], `hair/${kit.bodies[b].like ?? b}/${hs[i % hs.length]}`, ...(r.always ?? []), ...extra];
+          const choices = { skin: Object.keys(ch.skin)[i % 5], hair: Object.keys(ch.hair)[(i * 3) % 7], eyes: race === 'tiefling' ? 'amber' : race === 'elf' ? 'violet' : Object.keys(ch.eyes)[i % 4] };
+          out.push(crop(renderLook(kit, { body: b, pieces, face: 'smile', choices }), RACE_BOX));
+        }
+      }
+    }
+    return out;
+  });
+  // outfits (outfits.yaml): men, women, boys, girls in each outfit with its feet; then one armour in
+  // every metal and one dress in every dye
+  const outfits = readYaml('outfits.yaml'), fits = (id, b) => fitsBody(kit.pieces[id], b, kit);
+  const feetOf = id => outfits.body[id]?.feet ?? outfits.child[id]?.feet;
+  const dressed = (b, ids, colors = {}) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${kit.bodies[b].like ?? b}/${hairOf[kit.bodies[b].like ?? b][0]}`, ...[ids].flat(), ...[ids].flat().map(feetOf).filter(Boolean)], face: 'smile', colors }), RACE_BOX);
+  const outfitRows = ['m', 'f', 'cm', 'cf'].map(b => Object.keys(b.startsWith('c') ? outfits.child : outfits.body).filter(id => fits(id, b)).map(id => dressed(b, id)));
+  const ramps = prefix => Object.keys(kit.pal.ramps).filter(r => r.startsWith(prefix));
+  outfitRows.push(ramps('metal_').map(r => dressed('m', 'body/halfplate', { metal: r })));
+  outfitRows.push(ramps('dye_').map(r => dressed('f', 'body/dress', { cloth: r })));
+  // headgear on the farmer's clothes, cloaks over leather armour, men's row then women's
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.head).map(id => dressed(b, ['body/farmer', id])));
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.cloak).map(id => dressed(b, ['body/longcoat', id], { 'body/longcoat.cloth': 'dye_grey' })));
+  // weapons and tools, then off-hand pieces and mechanical arms, on leather armour
+  const HAND_BOX = { x: 4, y: 34, w: 56, h: 62 };
+  const armed = (b, ids) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${b}/${hairOf[b][0]}`, 'body/leather_armor', 'feet/boots', ...ids], face: 'smile' }), HAND_BOX);
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.weapon).map(id => armed(b, [id])));
+  for (const b of ['m', 'f']) outfitRows.push([...Object.keys(outfits.offhand), ...Object.keys(outfits.arm)].map(id => armed(b, [id])));
+  // batch 5: the elf outfit, then over-pieces and accessories on the farmer's clothes (men, women),
+  // then skin marks, glasses, eyepatch and moustaches close up
+  const extra = (b, ids, colors) => dressed(b, ['body/farmer', ...ids], colors);
+  const accRows = ['m', 'f'].map(b => [dressed(b, 'body/elf'), ...[...Object.keys(outfits.over), ...Object.keys(outfits.acc)].map(id => extra(b, [id]))]);
+  const face = (b, ids, choices = {}) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${b}/${hairOf[b][0]}`, 'body/farmer', ...ids], face: 'smile', choices }), faceBox(b));
+  const markRows = ['m', 'f'].map(b => [...Object.keys(outfits.mark), 'acc/glasses', 'acc/eyepatch', ...(b === 'm' ? Object.keys(kit.pieces).filter(id => id.startsWith('beard/m/moustache')) : [])].map(id => face(b, [id], { skin: b === 'm' ? 'honey' : 'peach' })));
+  // NPCs (npcs.yaml): eight members of each group, a row per group, then the named characters
+  const npcs = readYaml('npcs.yaml');
+  const npcRows = Object.keys(npcs.groups).map(g => Array.from({ length: 8 }, (_, i) => crop(renderLook(kit, npcLook(kit, g, i)), HAND_BOX)));
+  npcRows.push(Object.values(npcs.named ?? {}).map(n => crop(renderLook(kit, { ...n.look, face: 'neutral' }), HAND_BOX)));
+  for (const [file, rows, opts] of [['proof.png', [row1, pairs.m, pairs.f]], ['faces.png', faceRows], ['hair.png', hairRows, { scale: 5 }], ['colours.png', colourRows], ['races.png', raceRows], ['outfits.png', outfitRows], ['extras.png', [...accRows, ...markRows], { scale: [4, 4, 6, 6] }], ['npcs.png', npcRows, { scale: 3 }]]) {
     const out = join(ART, 'preview', file);
     savePNG(out, sheet(rows, opts));
     console.log('wrote', out);

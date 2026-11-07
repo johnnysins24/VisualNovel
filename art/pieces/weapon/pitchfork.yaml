@@ -1,0 +1,34 @@
+# Pitchfork (A27): held upright, a long wooden shaft, three iron tines above the head.
+z: 70
+colors: { metal: metal_iron, wood: wood }
+shapes:
+  - at: [hand-2, hand-21]
+    ascii: |
+      G.G.G
+      g.g.g
+      g.g.g
+      ggggg
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      .....
+      .....
+      .....
+      ..o..
+      ..o..
+      ..o..
+      ..o..
+      ..o..

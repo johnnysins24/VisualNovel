@@ -1,0 +1,11 @@
+# Black-powder pistol (A22): a short iron barrel pointing out of the picture side, a wooden butt
+# in the off hand, a brass lock.
+z: 70
+colors: { metal: metal_black, fitting: metal_brass, wood: wood }
+shapes:
+  - at: [ohand-2, hand-2]
+    ascii: |
+      ....gggggG
+      ....ff....
+      ..........
+      o.........

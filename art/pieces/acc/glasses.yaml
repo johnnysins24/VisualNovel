@@ -1,0 +1,7 @@
+# Round glasses (A26): thin brass rims under and beside both eyes (the brows close the circle), a
+# bridge over the nose. The lenses are left open so the eyes show. The female eyes sit a row lower, so her rims are a row deeper.
+z: 58
+colors: { fitting: metal_brass }
+shapes:
+  - { body: m, at: [-5, brow+1], mirror: true, ascii: "f.....\nf....f\nf.....\n.ffff." }
+  - { body: f, at: [-5, brow+1], mirror: true, ascii: "f.....\nf....f\nf.....\nf.....\n.ffff." }

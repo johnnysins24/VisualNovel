@@ -1,0 +1,23 @@
+# Dwarf beard, long (A16): full from the sideburns, a short moustache over the mouth, and a long
+# tapering point down to the chest. Leaves the eyes, cheeks and every mouth of the 17 faces clear.
+# Hair colour, so it follows the hair choice.
+body: m
+ages: [adult]
+z: 60
+shapes:
+  - at: [-6, mouth-3]
+    ascii: |
+      hh.........hh
+      hh.........hh
+      hhh..hhh..hhh
+      hhh.......hhh
+      .hhh.....hhh.
+      .hhhhhhhhhhh.
+      .hhhdhhhdhhh.
+      ..hhhhdhhhh..
+      ..hdhhhhhdh..
+      ...hhhdhhh...
+      ...hhhhhhh...
+      ....hdhhh....
+      .....hhh.....
+      ......h......

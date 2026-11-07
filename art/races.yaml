@@ -1,0 +1,35 @@
+# Race pieces (Art decisions A15-A18, Phupha 2026-11-07). Every race uses the same bodies, skin,
+# hair and eye choices (palette.yaml); a race only adds these pieces. Thai names are what the player
+# sees. `always` = worn by everyone of the race; the other lists are choices, one of each.
+# Beards are for grown men only: the child bodies (cm, cf) never get one. The three moustaches (A26)
+# are for grown men of every race but dwarves, who have the beards.
+human:
+  name: มนุษย์
+  beard:
+    beard/m/moustache_thin: หนวดเส้นบาง
+    beard/m/moustache_handlebar: หนวดปลายงอน
+    beard/m/moustache_walrus: หนวดดกห้อย
+elf:
+  name: เอลฟ์
+  always: [ears/elf]
+  beard:
+    beard/m/moustache_thin: หนวดเส้นบาง
+    beard/m/moustache_handlebar: หนวดปลายงอน
+    beard/m/moustache_walrus: หนวดดกห้อย
+dwarf:
+  name: คนแคระ
+  beard:
+    beard/m/long: ยาวถึงอก
+    beard/m/braided: ถักเปีย
+    beard/m/boxed: สั้นเหลี่ยม
+tiefling:
+  name: ทีฟลิ่ง
+  always: [tail/tiefling]
+  beard:
+    beard/m/moustache_thin: หนวดเส้นบาง
+    beard/m/moustache_handlebar: หนวดปลายงอน
+    beard/m/moustache_walrus: หนวดดกห้อย
+  horns:
+    horns/stumps: ตอเขาที่ถูกเลื่อย
+    horns/small: เขาเล็ก
+    horns/curved: เขาโค้งไปข้างหลัง

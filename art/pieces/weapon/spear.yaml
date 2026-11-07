@@ -1,0 +1,38 @@
+# Spear (A22): held upright, the shaft through the fist from the shin to above the head, a leaf blade.
+z: 70
+colors: { metal: metal_iron, wood: wood }
+shapes:
+  - at: [hand-1, hand-26]
+    ascii: |
+      .G.
+      .g.
+      ggg
+      ggg
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      ...
+      ...
+      ...
+      .o.
+      .o.
+      .o.
+      .o.

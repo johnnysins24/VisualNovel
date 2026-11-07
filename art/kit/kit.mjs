@@ -42,7 +42,10 @@ export function loadKit() {
 
 // ---------- rows and landmarks ----------
 
-/** 57 | "chin" | "chin+2" | "hip-1" -> row number */
+/**
+ * 57 | "chin" | "chin+2" | "hip-1" -> row number. The same for columns of an ascii `at`, from a
+ * body's `cols` (e.g. "hand-2": two columns left of where that body's weapon hand is).
+ */
 export function rowOf(v, marks) {
   if (typeof v === 'number') return v;
   const m = /^\s*([a-z_]+)\s*(?:([+-])\s*(\d+))?\s*$/.exec(String(v));
@@ -103,15 +106,29 @@ export function bodyOf(kit, bodyKey) {
   if (!body) throw new Error(`unknown body "${bodyKey}"`);
   const spec = { z: body.z ?? 10, shapes: Object.entries(body.parts).map(([name, s]) => ({ mat: 'skin', ...s, name })) };
   const masks = {};
-  const layer = buildSpec(kit, spec, { bodyKey, marks: body.marks, masks, seed: seedOf(key) });
-  return (kit.cache[key] = { layer, masks, marks: body.marks });
+  const layer = buildSpec(kit, spec, { bodyKey, marks: body.marks, cols: body.cols ?? {}, masks, seed: seedOf(key) });
+  return (kit.cache[key] = { layer, masks, marks: body.marks, cols: body.cols ?? {} });
 }
 
 /** A shape's body / variant field: one name or a list of names. */
 const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
 
-/** A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short. */
-export const fitsBody = (spec, bodyKey) => !spec?.body || has(spec.body, bodyKey);
+/**
+ * Does a `body` field (one name or a list) take this body? A body with `like:` (the child bodies,
+ * art/bodies.yaml) also takes what its grown-up body takes: the child heads are the adult heads, so
+ * hair/m/short and the male face shapes fit the boy too.
+ */
+export const bodyIs = (kit, bodyKey, v) => has(v, bodyKey) || (!!kit?.bodies[bodyKey]?.like && has(v, kit.bodies[bodyKey].like));
+
+/** "child" for the child bodies (those with `like:`), else "adult". */
+export const ageOf = (kit, bodyKey) => (kit?.bodies[bodyKey]?.like ? 'child' : 'adult');
+
+/**
+ * A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short;
+ * one with `ages` (adult, child) only for those ages, e.g. grown-up clothes and beards.
+ */
+export const fitsBody = (spec, bodyKey, kit) =>
+  (!spec?.body || bodyIs(kit, bodyKey, spec.body)) && (!spec?.ages || has(spec.ages, ageOf(kit, bodyKey)));
 
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).
@@ -121,14 +138,14 @@ export function buildPiece(kit, id, bodyKey, opts = {}) {
   if (id === 'body') return { id, z: 10, cast: false, colors: {}, layers: { main: bodyOf(kit, bodyKey).layer } };
   const spec = kit.pieces[id];
   if (!spec) throw new Error(`unknown piece "${id}"`);
-  if (!fitsBody(spec, bodyKey)) throw new Error(`${id} is only for body ${[spec.body].flat().join(', ')}, not ${bodyKey}`);
-  const { marks, masks } = bodyOf(kit, bodyKey);
-  const pick = s => (!s.body || has(s.body, bodyKey)) && (!s.variant || has(s.variant, opts.variant));
+  if (!fitsBody(spec, bodyKey, kit)) throw new Error(`${id} is only for ${[spec.body ?? [], spec.ages ?? []].flat().join(', ')}, not ${bodyKey}`);
+  const { marks, cols, masks } = bodyOf(kit, bodyKey);
+  const pick = s => (!s.body || bodyIs(kit, bodyKey, s.body)) && (!s.variant || has(s.variant, opts.variant));
   const shapes = (spec.shapes ?? []).filter(pick);
   const layers = {};
   for (const name of new Set(shapes.map(s => s.layer ?? 'main'))) {
     layers[name] = buildSpec(kit, { shapes: shapes.filter(s => (s.layer ?? 'main') === name), legend: spec.legend },
-      { bodyKey, marks, masks, seed: seedOf(`${seedName(kit, id)}:${name}`) });
+      { bodyKey, marks, cols, masks, seed: seedOf(`${seedName(kit, id)}:${name}`) });
   }
   return { id, z: spec.z ?? 50, backZ: spec.back_z ?? 5, frontZ: spec.front_z ?? 61, cast: spec.cast ?? true, colors: spec.colors ?? {}, layers };
 }
@@ -164,7 +181,7 @@ function buildSpec(kit, spec, ctx) {
         if (s.mirror) span(y, CX - dx - w + 1, CX - dx, 1);
       }
     } else if (s.region) {
-      const { parts: names, rows, grow = 0 } = s.region;
+      const { parts: names, rows, grow = 0, side } = s.region;
       const y0 = rowOf(rows[0], ctx.marks), y1 = rowOf(rows[1], ctx.marks);
       for (let y = y0; y <= y1; y++) {
         const row = new Uint8Array(W);
@@ -176,11 +193,12 @@ function buildSpec(kit, spec, ctx) {
         for (let x = 0; x < W; x++) {
           let on = row[x];
           for (let k = 1; k <= grow && !on; k++) on = row[x - k] || row[x + k];
+          if (side === 'left' ? x > CX : side === 'right' ? x < CX : false) on = 0;
           if (on) put(x, y, mat, lvl, parts[0], x);
         }
       }
     } else if (s.ascii) {
-      const [dx, r] = s.at ?? [0, 0], y0 = rowOf(r, ctx.marks);
+      const [c, r] = s.at ?? [0, 0], dx = rowOf(c, ctx.cols ?? {}), y0 = rowOf(r, ctx.marks);
       s.ascii.replace(/\n$/, '').split('\n').forEach((line, j) => {
         [...line].forEach((ch, i) => {
           if (ch === '.' || ch === ' ') return;
@@ -297,5 +315,24 @@ export function lookColours(kit, look) {
 export function renderLook(kit, look) {
   const pcs = ['body', ...(look.pieces ?? [])].map(id =>
     buildPiece(kit, id, look.body, { variant: id.startsWith('face/') ? look.face : undefined }));
+  applyHides(kit, pcs, look.body);
   return compose(kit, pcs, lookColours(kit, look));
+}
+
+/**
+ * A piece with `hides: { pieces: [hair, horns], above: head+3 }` (hats) erases the pixels of those
+ * slots' pieces above that row, in every layer, so a topknot or horns do not poke through the
+ * crown while the hair below the brim still shows. Changes the built pieces in place.
+ */
+export function applyHides(kit, pcs, bodyKey) {
+  const { marks } = bodyOf(kit, bodyKey);
+  for (const pc of pcs) {
+    const h = kit.pieces[pc.id]?.hides;
+    if (!h) continue;
+    const y1 = rowOf(h.above, marks);
+    for (const other of pcs) {
+      if (other === pc || !h.pieces.some(s => other.id.startsWith(`${s}/`))) continue;
+      for (const L of Object.values(other.layers)) for (let p = 0; p < y1 * W; p++) { L.mat[p] = -1; L.lvl[p] = -1; }
+    }
+  }
 }

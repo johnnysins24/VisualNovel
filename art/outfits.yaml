@@ -1,0 +1,87 @@
+# Outfit pieces (Art decisions A21-A23, Phupha 2026-11-07), by slot, with the Thai name the player
+# sees. Clothes fit both grown-up bodies unless the piece says `body:`; child outfits are only for
+# the child bodies (`ages: [child]`). `feet` under body pieces is what the preview pairs them with.
+# Colours: cloth (main dye), trim (second dye), leather, metal, fitting; any ramp of the same kind
+# in palette.yaml (dye_*, leather_*, metal_*) can replace a piece's default.
+body:
+  body/farmer: { name: เสื้อลินินกับกางเกงชาวไร่, feet: feet/boots }
+  body/dress: { name: ชุดกระโปรงยาวชาวบ้าน, feet: feet/shoes }
+  body/overalls: { name: ชุดเอี๊ยมคนงานโรงกลั่น, feet: feet/boots }
+  body/leather_armor: { name: เกราะหนัง, feet: feet/boots }
+  body/chainmail: { name: เกราะโซ่, feet: feet/iron_boots }
+  body/halfplate: { name: เกราะครึ่งตัวมีท่อ, feet: feet/iron_boots }
+  body/mage_robe: { name: ชุดคลุมนักเวท, feet: feet/shoes }
+  body/cleric_robe: { name: ชุดนักบวช, feet: feet/sandals }
+  body/longcoat: { name: เสื้อโค้ทยาว, feet: feet/boots }
+  body/doublet: { name: เสื้อกั๊กกับเชิ้ตแขนพอง, feet: feet/shoes }
+  body/elf: { name: ชุดเอลฟ์, feet: feet/boots }
+head:
+  head/hood: { name: ฮู้ด }
+  head/helm: { name: หมวกเหล็ก }
+  head/goggles: { name: แว่นช่าง }
+  head/tophat: { name: หมวกทรงสูง }
+  head/cap: { name: หมวกแก๊ป }
+  head/veil: { name: ผ้าคลุมผมนักบวช }
+  head/feathered: { name: หมวกปีกกว้างมีขนนก }
+  head/crown: { name: มงกุฎเล็ก }
+  head/knit_cap: { name: หมวกไหมพรม }
+  head/kerchief: { name: ผ้าโพกหัว }
+cloak:
+  cloak/travel: { name: ผ้าคลุมเดินทาง }
+  cloak/fur: { name: ผ้าคลุมขนสัตว์ }
+  cloak/cape: { name: ผ้าคลุมสั้นสีสด }
+  cloak/ranger: { name: ผ้าคลุมมีฮู้ดของพราน }
+weapon:
+  weapon/longsword: { name: ดาบยาว }
+  weapon/axe: { name: ขวาน }
+  weapon/mace: { name: ตะบอง }
+  weapon/spear: { name: หอก }
+  weapon/staff: { name: ไม้เท้า }
+  weapon/bow: { name: ธนู }
+  weapon/crossbow: { name: หน้าไม้ }
+  weapon/musket: { name: ปืนดินดำยาว }
+  weapon/star_pistol: { name: ปืนพกเวท }
+  weapon/mech_staff: { name: ไม้เท้าจักรกล }
+  weapon/hammer: { name: ค้อน }
+  weapon/wrench: { name: ประแจ }
+  weapon/pickaxe: { name: จอบขุดแร่ }
+  weapon/pitchfork: { name: คราด }
+offhand:
+  offhand/shield: { name: โล่ }
+  offhand/dagger: { name: มีดสั้น }
+  offhand/lantern: { name: ตะเกียงแขวน }
+  offhand/tome: { name: คัมภีร์ }
+  offhand/lute: { name: พิณ }
+  offhand/pistol: { name: ปืนพกดินดำ }
+arm:
+  arm/silver: { name: แขนกลเงิน }
+  arm/hook: { name: ขอเหล็ก }
+feet:
+  feet/boots: { name: บู๊ตหนัง }
+  feet/iron_boots: { name: บู๊ตเหล็ก }
+  feet/sandals: { name: รองเท้าสาน }
+  feet/shoes: { name: รองเท้าหุ้มข้อ }
+child:
+  body/child_farm: { name: ชุดเด็กชาวไร่, feet: feet/boots }
+  body/child_refinery: { name: ชุดเด็กงานโรงกลั่น, feet: feet/shoes }
+  body/child_rich: { name: ชุดเด็กบ้านมีเงิน, feet: feet/shoes }
+  body/child_street: { name: ชุดเด็กข้างถนน }
+# worn over a body piece (A27)
+over:
+  over/tabard: { name: ผ้าคาดอกผู้เฝ้าผนึก }
+  over/apron: { name: ผ้ากันเปื้อนหนังช่าง }
+# the accessory slot (A27) and the eyepatch and round glasses (A26): show on the figure; several can
+# be worn together
+acc:
+  acc/face_scarf: { name: ผ้าปิดหน้า }
+  acc/gloves: { name: ถุงมือหนัง }
+  acc/holy_symbol: { name: สัญลักษณ์เทพ }
+  acc/purse: { name: ถุงเงิน }
+  acc/eyepatch: { name: ผ้าปิดตา }
+  acc/glasses: { name: แว่นกลม }
+# marks on the skin (A26): drawn under the face so they never cover an expression
+mark:
+  mark/wrinkles: { name: รอยย่นวัยชรา }
+  mark/scar_cheek: { name: แผลเป็นที่แก้ม }
+  mark/scar_brow: { name: แผลเป็นที่คิ้ว }
+  mark/freckles: { name: กระ }

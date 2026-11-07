@@ -1,0 +1,12 @@
+# Holy symbol (A27): a round medallion on a cord at the chest. One piece for every god; the god shows
+# in the metal (fitting ramp), set per god in art/npcs.yaml. A disc, never a cross.
+z: 36
+colors: { fitting: metal_brass, leather: leather_black }
+shapes:
+  - at: [-3, shoulder]
+    ascii: |
+      L.....L
+      .L...L.
+      ..fff..
+      .fFFFf.
+      ..fff..
