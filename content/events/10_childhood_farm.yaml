@@ -109,7 +109,7 @@
         ทั้งวัน{name}เดินถือปลายโซ่ข้ามนาของคนที่รู้จักทุกบ้าน คนลากโซ่สอนให้อ่านตัวเลขบนหลักไม้ สอนให้นับข้อโซ่โดยไม่ต้องก้มดู ป้าบ้านท้ายคลองยืนมองจากหน้าบ้าน ไม่ทักเหมือนทุกวัน
 
         ตกเย็นได้เหรียญทองแดงหนึ่งเหรียญ {father}เห็นเหรียญในมือลูก ก็พยักพเยิดไปทางครัว บอกว่าเอาไปให้แม่
-      effects: { stats: { INT: 1 }, gold: 1, flags: [helped_surveyors] }
+      effects: { stats: { INT: 1 }, gold: 1, flags: [helped_surveyors, lean_wizard] }
     - id: pull_stakes
       label: แอบออกไปถอนหลักแดงตอนกลางคืน
       check: { stat: DEX, dc: 12 }
@@ -118,7 +118,7 @@
           คืนนั้น{name}ย่องออกจากบ้านตอนทุกคนหลับ ถอนหลักแดงได้สิบเอ็ดหลัก โยนลงคลองไปทีละหลัก ฟังเสียงน้ำกลืนดังจ๋อมๆ
 
           เช้าขึ้นคนลากโซ่ด่าลั่นคันนา ต้องวัดใหม่ทั้งแปลง ไม่มีใครในหมู่บ้านบอกว่าใครทำ หลายคนเห็นโคลนติดขากางเกงของ{name} แล้วจู่ๆ ก็ความจำไม่ดีขึ้นมาพร้อมกัน
-        effects: { stats: { DEX: 1 }, alignment: { law: -1 }, flags: [pulled_survey_stakes] }
+        effects: { stats: { DEX: 1 }, alignment: { law: -1 }, flags: [pulled_survey_stakes, lean_rogue] }
       failure:
         text: |
           หลักที่สามปักลึกกว่าที่คิด {name}ดึงสุดแรงจนหงายหลังตกคลอง น้ำกระจายดังจนหมาเห่าทั้งหมู่บ้าน
@@ -160,13 +160,13 @@
           แม่ชีที่เปิดช่องรับเด็กไปโดยไม่ถามสักคำ ถามแค่ว่า{name}กินอะไรมาหรือยัง แล้วยื่นขนมปังค้างคืนออกมาให้หนึ่งก้อน
 
           กลับถึงบ้านตอนบ่าย โดนตีที่ปล่อยวัวหาย {name}ไม่เล่าว่าไปไหนมา
-        effects: { stats: { CON: 1 }, alignment: { moral: 1 }, flags: [saved_crossroads_baby] }
+        effects: { stats: { CON: 1 }, alignment: { moral: 1 }, flags: [saved_crossroads_baby, lean_cleric] }
       failure:
         text: |
           {name}วิ่งได้ครึ่งทางขาก็เริ่มสั่น เดินต่อไปได้อีกนิดก็ต้องนั่งพัก เด็กในเสื้อเงียบไปตั้งแต่ตอนนั้น
 
           ไปถึงช่องส่งขนมปังตอนสาย แม่ชีรับเด็กไปแล้วรีบเข้าไปข้างใน ไม่ได้บอกว่ายังหายใจอยู่หรือเปล่า {name}นั่งรออยู่หน้าช่องจนเที่ยง ไม่มีใครออกมาบอก
-        effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [saved_crossroads_baby] }
+        effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [saved_crossroads_baby, lean_cleric] }
     - id: tell_mother
       label: วิ่งกลับไปบอกแม่
       text: |
