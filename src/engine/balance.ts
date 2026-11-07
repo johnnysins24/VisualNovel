@@ -17,13 +17,19 @@ export const STAT_TH: Record<Stat, string> = {
 export const BIRTH_YEAR = { min: 270, max: 300 } as const;
 
 // ---------- เผ่า: โบนัสตาม SRD 5.1 ตั้งเมื่อ flag race_<id> ถูกตั้งครั้งแรก ----------
+/** อายุที่เริ่มเป็นผู้ใหญ่ ก่อนหน้านี้ทุกเผ่าโตเท่ามนุษย์ */
+export const ADULT_AGE = 18;
+/** ตัวละครของผู้เล่นตายไม่ได้ก่อนอายุนี้ (HP ไม่ต่ำกว่า 1 และ effect die ไม่มีผล) คนรอบตัวตายได้ตามเนื้อเรื่อง */
+export const PROTECTED_AGE = 12;
+
 export const RACES = {
-  human: { th: 'มนุษย์', bonus: { STR: 1, DEX: 1, CON: 1, INT: 1, WIS: 1, CHA: 1 }, traits: [] as string[] },
-  elf: { th: 'เอลฟ์', bonus: { DEX: 2 }, traits: [] as string[] },
-  dwarf: { th: 'คนแคระ', bonus: { CON: 2 }, traits: [] as string[] },
-  /** ทีฟลิ่งเกิดมาพร้อมรอยจอมมาร (ดู DEMON_MARK) */
-  tiefling: { th: 'ทีฟลิ่ง', bonus: { CHA: 2, INT: 1 }, traits: ['demon_mark'] },
-} as const satisfies Record<string, { th: string; bonus: Partial<Record<Stat, number>>; traits: string[] }>;
+  /** ageScale = จำนวนปีจริงต่อหนึ่งปีของชีวิตมนุษย์ หลังอายุ ADULT_AGE (อายุขัย ÷ 70) */
+  human: { th: 'มนุษย์', bonus: { STR: 1, DEX: 1, CON: 1, INT: 1, WIS: 1, CHA: 1 }, traits: [] as string[], ageScale: 1 },
+  elf: { th: 'เอลฟ์', bonus: { DEX: 2 }, traits: [] as string[], ageScale: 10 },
+  dwarf: { th: 'คนแคระ', bonus: { CON: 2 }, traits: [] as string[], ageScale: 5 },
+  /** ทีฟลิ่งเกิดมาพร้อมรอยจอมมาร (ดู DEMON_MARK) อายุขัยราว 80 ปี ใกล้มนุษย์จึงใช้ 1 */
+  tiefling: { th: 'ทีฟลิ่ง', bonus: { CHA: 2, INT: 1 }, traits: ['demon_mark'], ageScale: 1 },
+} as const satisfies Record<string, { th: string; bonus: Partial<Record<Stat, number>>; traits: string[]; ageScale: number }>;
 export type RaceId = keyof typeof RACES;
 export const RACE_IDS = Object.keys(RACES) as RaceId[];
 

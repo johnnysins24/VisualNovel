@@ -1,16 +1,2 @@
-- id: test_dagger
-  name: "[ทดสอบ] มีดสั้น"
-  slot: weapon
-  stats: { DEX: 1 }
-  sprite: weapon_dagger
-  passive:
-    description: "[ทดสอบ] ทอยพลาดครั้งแรกในเหตุการณ์ ทอยใหม่ได้หนึ่งครั้ง"
-    effect: { kind: reroll_failed_check }
-- id: test_cap
-  name: "[ทดสอบ] หมวกผ้า"
-  slot: head
-  stats: { CON: 1 }
-  sprite: head_cap
-  passive:
-    description: "[ทดสอบ] เลือดสูงสุด +2"
-    effect: { kind: max_hp, amount: 2 }
+# ของในเกม ยังไม่มีของจริงในชุดแรก ของทดสอบอยู่ที่ tests/fixtures/content
+[]
