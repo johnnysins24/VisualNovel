@@ -1,0 +1,12 @@
+# Seal Warden's tabard (A27): a long front panel over the armour to the knee, belted, with the
+# order's hollow diamond in the second colour. Worn over any body piece.
+ages: [adult]
+z: 33
+colors: { cloth: dye_grey, trim: dye_wine, leather: leather_black }
+shapes:
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, shoulder+1] } }
+  - { mat: cloth, sym: [[shoulder+2, 4], [waist, 4], [hip, 4], [knee-1, 4]] }
+  - { mat: trim, sym: [[knee-1, 4]] }
+  - { mat: leather, sym: [[waist, 5]] }
+  - { at: [0, waist], ascii: "F" }
+  - { at: [-2, chest-1], ascii: "..t..\n.t.t.\nt...t\n.t.t.\n..t.." }

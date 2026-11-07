@@ -14,6 +14,7 @@ body:
   body/cleric_robe: { name: ชุดนักบวช, feet: feet/sandals }
   body/longcoat: { name: เสื้อโค้ทยาว, feet: feet/boots }
   body/doublet: { name: เสื้อกั๊กกับเชิ้ตแขนพอง, feet: feet/shoes }
+  body/elf: { name: ชุดเอลฟ์, feet: feet/boots }
 head:
   head/hood: { name: ฮู้ด }
   head/helm: { name: หมวกเหล็ก }
@@ -65,3 +66,22 @@ child:
   body/child_refinery: { name: ชุดเด็กงานโรงกลั่น, feet: feet/shoes }
   body/child_rich: { name: ชุดเด็กบ้านมีเงิน, feet: feet/shoes }
   body/child_street: { name: ชุดเด็กข้างถนน }
+# worn over a body piece (A27)
+over:
+  over/tabard: { name: ผ้าคาดอกผู้เฝ้าผนึก }
+  over/apron: { name: ผ้ากันเปื้อนหนังช่าง }
+# the accessory slot (A27) and the eyepatch and round glasses (A26): show on the figure; several can
+# be worn together
+acc:
+  acc/face_scarf: { name: ผ้าปิดหน้า }
+  acc/gloves: { name: ถุงมือหนัง }
+  acc/holy_symbol: { name: สัญลักษณ์เทพ }
+  acc/purse: { name: ถุงเงิน }
+  acc/eyepatch: { name: ผ้าปิดตา }
+  acc/glasses: { name: แว่นกลม }
+# marks on the skin (A26): drawn under the face so they never cover an expression
+mark:
+  mark/wrinkles: { name: รอยย่นวัยชรา }
+  mark/scar_cheek: { name: แผลเป็นที่แก้ม }
+  mark/scar_brow: { name: แผลเป็นที่คิ้ว }
+  mark/freckles: { name: กระ }

@@ -2,6 +2,7 @@
 import { loadKit, buildPiece, renderLook, readYaml, fitsBody, W, H } from './kit.mjs';
 import { crop } from './sheet.mjs';
 import { lockBare, lockFace, faceBox, EXPRESSIONS } from './lock.mjs';
+import { npcLook } from './npc.mjs';
 
 /** Every expression of the locked look; each one is compared with the lock. */
 export const FACES = EXPRESSIONS;
@@ -78,7 +79,9 @@ export function runChecks(kit = loadKit()) {
   // (brows may sit under a fringe)
   const features = ['lash', 'white', 'eye', 'lip', 'blush', 'tear'].map(m => kit.matId[m]);
   for (const body of Object.keys(kit.bodies)) {
-    const hairs = Object.keys(kit.pieces).filter(id => /^(hair|beard|ears|horns|head)\//.test(id) && fitsBody(kit.pieces[id], body, kit));
+    // pieces drawn under the face (moustaches, skin marks) cannot cover it
+    const faceZ = kit.pieces['face/basic'].z ?? 15;
+    const hairs = Object.keys(kit.pieces).filter(id => /^(hair|beard|ears|horns|head)\//.test(id) && fitsBody(kit.pieces[id], body, kit) && (kit.pieces[id].z ?? 50) >= faceZ);
     const built = Object.fromEntries(hairs.map(id => [id, buildPiece(kit, id, body).layers.main]));
     for (const face of FACES) {
       const F = buildPiece(kit, 'face/basic', body, { variant: face }).layers.main;
@@ -121,7 +124,7 @@ export function runChecks(kit = loadKit()) {
     if (group === 'child' && String(ages) !== 'child') errors.push(`${id}: child outfits need "ages: [child]"`);
     if (group === 'body' && String(ages) !== 'adult') errors.push(`${id}: grown-up clothes need "ages: [adult]"`);
   }
-  for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak|weapon|offhand|arm)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
+  for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak|weapon|offhand|arm|over|acc|mark)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
   // every outfit on every body it fits, with its feet, rotating dyes: fits the canvas and the colour budget
   const dyes = Object.keys(kit.pal.ramps).filter(r => r.startsWith('dye_'));
   for (const items of Object.values(outfits)) Object.entries(items).forEach(([id, o], i) => {
@@ -147,6 +150,20 @@ export function runChecks(kit = loadKit()) {
     const base = looks[`proof_${body}`]?.pieces ?? [];
     hairLooks[`hair/${body}/${h}`] = { body, pieces: [...base.filter(id => !id.startsWith('hair/')), `hair/${body}/${h}`], choices: { ...pick('skin', i), ...pick('hair', i), ...pick('eyes', i) } };
   });
+  // NPC recipes (npcs.yaml): every piece and colour named exists, and eight members of each group
+  // (both bodies come up) are checked like the outfits; named characters like the looks
+  const npcs = readYaml('npcs.yaml'), npcData = { npcs, races, hair: hairList, outfits };
+  const named = Object.entries(npcs.named ?? {}).map(([k, n]) => [`named ${k}`, n.look]);
+  for (const [key, g] of Object.entries(npcs.groups)) {
+    if (!g.name) errors.push(`npcs.yaml: ${key} has no Thai name`);
+    const ids = [...(g.wear ?? []), ...(g.always ?? []), ...Object.values(g.slots ?? {}).flat(), ...Object.keys(g.chance ?? {})].filter(Boolean);
+    for (const id of ids) if (!kit.pieces[id]) errors.push(`npcs.yaml ${key} names ${id} but there is no such piece`);
+    for (const ramps of Object.values(g.colors ?? {})) for (const r of ramps) if (!kit.pal.ramps[r]) errors.push(`npcs.yaml ${key}: no ramp "${r}"`);
+    for (const race of g.races ?? []) if (!races[race]) errors.push(`npcs.yaml ${key}: no race "${race}"`);
+    for (let i = 0; i < 8; i++) { try { looksToCheck[`npc ${key} #${i}`] = npcLook(kit, key, i, {}, npcData); } catch (e) { errors.push(`npc ${key} #${i}: ${e.message}`); } }
+  }
+  for (const [god, gd] of Object.entries(npcs.gods ?? {})) for (const r of Object.values(gd.colors)) if (!kit.pal.ramps[r]) errors.push(`npcs.yaml god ${god}: no ramp "${r}"`);
+  for (const [n, l] of named) looksToCheck[n] = l;
   // looks: fit the canvas with room for the outline, stay within the colour budget
   // outfits change nothing on the face, so they are checked with one face that has the most colours
   const lookList = [...Object.entries({ ...looks, ...hairLooks }).map(([n, l]) => [n, l, FACES]), ...Object.entries(looksToCheck).map(([n, l]) => [n, l, ['cry']])];

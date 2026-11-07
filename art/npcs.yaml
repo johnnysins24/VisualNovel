@@ -1,0 +1,210 @@
+# NPC recipes (A25, Phupha 2026-11-07): an NPC is never drawn on its own. It is a look put together
+# from the shared pieces, picked at random from its group's recipe with a seed, so the same seed always
+# gives the same person (art/kit/npc.mjs, npcLook). Groups follow the story thread's list for the
+# grown-up years (factions from the world bible). Named characters get a fixed look under `named`.
+#
+# A group:
+#   name     Thai name of the group
+#   bodies   bodies to pick from (default [m, f]); a child group uses [cm, cf]
+#   races    races to pick from, repeat a race to make it likelier (default [human])
+#   wear     one of these body pieces (those that fit the body); its feet come from outfits.yaml
+#   always   pieces every member wears
+#   slots    for each slot, one option; ~ = nothing (repeat ~ to make "nothing" likelier)
+#   chance   piece: probability that it is added on its own
+#   colors   material: ramps to pick from (palette.yaml)
+#   god      true = a cleric's god is picked (or given) and its colours from `gods` are used
+#   old      probability of an old member: old-age lines and, half the time, silver hair
+# Every member also gets a random skin, hair colour, eye colour, hairstyle from hair.yaml, the race's
+# pieces from races.yaml (a grown dwarf always a beard, other grown men sometimes a moustache) and now and then a scar or
+# freckles (`marks` below).
+marks: { mark/scar_cheek: 0.05, mark/scar_brow: 0.05, mark/freckles: 0.12 }
+facial_hair: { dwarf: 1, other: 0.35 } # chance a grown man wears his race's beard or moustache
+
+# Colours of the six living gods (world bible): robe stole (trim) and holy symbol metal (fitting).
+gods:
+  verus: { name: เวรัส, colors: { trim: dye_mustard, fitting: metal_brass } }
+  isel: { name: อีเซล, colors: { trim: dye_wine, fitting: metal_brass } }
+  talis: { name: ทาลิส, colors: { trim: dye_sky, fitting: metal_silver } }
+  ossa: { name: ออสซา, colors: { trim: dye_black, fitting: metal_iron } }
+  ulwen: { name: อุลเวน, colors: { trim: dye_moss, fitting: metal_brass } }
+  belek: { name: เบเลค, colors: { trim: dye_grey, fitting: metal_black } }
+
+groups:
+  navy:
+    name: ทหารราชนาวี
+    races: [human, human, human, dwarf, elf]
+    wear: [body/longcoat]
+    slots:
+      head: [head/cap, head/cap, ~]
+      weapon: [weapon/longsword, weapon/musket, ~]
+      offhand: [offhand/pistol, ~, ~]
+    chance: { acc/gloves: 0.3 }
+    colors: { cloth: [dye_navy], trim: [dye_white, dye_mustard], fitting: [metal_brass] }
+  warden:
+    name: ผู้เฝ้าผนึก
+    races: [human, human, dwarf, tiefling, tiefling]
+    wear: [body/chainmail, body/leather_armor]
+    always: [over/tabard]
+    slots:
+      head: [head/helm, head/hood, ~]
+      weapon: [weapon/spear, weapon/longsword, weapon/mace]
+      offhand: [offhand/shield, offhand/lantern, ~]
+    old: 0.1
+    colors: { cloth: [dye_grey], trim: [dye_wine], metal: [metal_iron, metal_black] }
+  mercenary:
+    name: ทหารรับจ้าง
+    races: [human, human, human, dwarf, tiefling]
+    wear: [body/leather_armor, body/chainmail]
+    slots:
+      head: [head/helm, head/kerchief, ~, ~]
+      weapon: [weapon/axe, weapon/longsword, weapon/crossbow, weapon/mace]
+      offhand: [offhand/shield, offhand/dagger, ~]
+    chance: { mark/scar_cheek: 0.25, mark/scar_brow: 0.2, acc/eyepatch: 0.08, acc/gloves: 0.3 }
+    colors: { cloth: [dye_earth, dye_grey, dye_white], trim: [dye_earth, dye_black, dye_moss], metal: [metal_iron, metal_black] }
+  bandit:
+    name: โจร
+    races: [human, human, tiefling, dwarf]
+    wear: [body/leather_armor, body/farmer]
+    always: [acc/face_scarf]
+    slots:
+      head: [head/hood, head/kerchief, ~]
+      weapon: [weapon/axe, weapon/crossbow, weapon/mace, ~]
+      offhand: [offhand/dagger, offhand/dagger, ~]
+    chance: { mark/scar_brow: 0.2 }
+    colors: { cloth: [dye_black, dye_earth, dye_grey], trim: [dye_black, dye_earth] }
+  dockrat:
+    name: หนูท่า
+    races: [human, human, human, tiefling, tiefling, dwarf]
+    wear: [body/farmer, body/overalls]
+    slots:
+      head: [head/knit_cap, head/kerchief, head/cap, ~]
+      offhand: [offhand/dagger, ~, ~]
+    chance: { acc/purse: 0.3, acc/eyepatch: 0.1, acc/face_scarf: 0.12, mark/scar_cheek: 0.15 }
+    colors: { cloth: [dye_earth, dye_grey, dye_navy, dye_black], trim: [dye_grey, dye_earth, dye_wine] }
+  clerk:
+    name: เสมียน
+    races: [human, human, human, dwarf, elf]
+    wear: [body/doublet]
+    slots:
+      offhand: [offhand/tome, ~]
+    chance: { acc/glasses: 0.5 }
+    old: 0.2
+    colors: { cloth: [dye_grey, dye_black, dye_navy], trim: [dye_white] }
+  noble:
+    name: ขุนนาง
+    races: [human]
+    wear: [body/doublet, body/dress]
+    slots:
+      head: [head/tophat, head/feathered, ~, ~]
+      cloak: [cloak/cape, cloak/fur, ~]
+    chance: { arm/silver: 0.1, acc/glasses: 0.1 }
+    old: 0.2
+    colors: { cloth: [dye_wine, dye_purple, dye_navy, dye_sky], trim: [dye_mustard, dye_white], fitting: [metal_brass, metal_silver] }
+  workshop:
+    name: ช่างกลโรงงาน
+    races: [human, human, dwarf, dwarf, tiefling]
+    wear: [body/overalls]
+    slots:
+      head: [head/goggles, head/cap, head/knit_cap, ~]
+      weapon: [weapon/hammer, weapon/wrench]
+      over: [over/apron, ~]
+    chance: { acc/gloves: 0.6, arm/hook: 0.05, arm/silver: 0.05 }
+    colors: { cloth: [dye_navy, dye_earth, dye_grey], trim: [dye_grey, dye_white] }
+  institute:
+    name: สถาบันเวทหลวง
+    races: [human, human, elf, dwarf]
+    wear: [body/mage_robe]
+    slots:
+      head: [head/goggles, ~, ~]
+      weapon: [weapon/staff, weapon/mech_staff]
+      offhand: [offhand/tome, offhand/lantern, ~]
+    chance: { acc/glasses: 0.3 }
+    old: 0.15
+    colors: { cloth: [dye_purple, dye_navy, dye_sky], trim: [dye_mustard, dye_white] }
+  cleric:
+    name: นักบวช
+    races: [human, human, human, dwarf, elf]
+    wear: [body/cleric_robe]
+    always: [acc/holy_symbol]
+    god: true
+    slots:
+      head: [head/veil, head/hood, ~]
+      weapon: [weapon/mace, weapon/staff, ~]
+      offhand: [offhand/tome, offhand/lantern, ~]
+    old: 0.2
+    colors: { cloth: [dye_white] }
+  witch_hunter:
+    name: นักล่าแม่มดศาสนจักรตะเกียง
+    races: [human]
+    wear: [body/longcoat]
+    always: [acc/holy_symbol, offhand/lantern]
+    slots:
+      head: [head/feathered, head/hood]
+      weapon: [weapon/musket, weapon/longsword, weapon/crossbow]
+    chance: { acc/gloves: 0.5, mark/scar_cheek: 0.15 }
+    colors: { cloth: [dye_black], trim: [dye_white, dye_mustard], fitting: [metal_brass] }
+  ranger:
+    name: พราน
+    races: [human, human, elf, elf]
+    wear: [body/leather_armor]
+    always: [cloak/ranger]
+    slots:
+      head: [head/hood, ~]
+      weapon: [weapon/bow, weapon/bow, weapon/crossbow, weapon/spear]
+      offhand: [offhand/dagger, ~]
+    colors: { cloth: [dye_moss, dye_earth, dye_white], trim: [dye_earth, dye_moss] }
+  troupe:
+    name: คณะละครเร่
+    races: [human, human, elf, tiefling]
+    wear: [body/doublet, body/dress]
+    slots:
+      head: [head/feathered, head/cap, ~]
+      cloak: [cloak/cape, ~]
+      offhand: [offhand/lute, offhand/lute, ~]
+    colors: { cloth: [dye_mustard, dye_wine, dye_sky, dye_purple], trim: [dye_white, dye_mustard, dye_wine] }
+  worker:
+    name: คนงาน
+    races: [human, human, human, dwarf, tiefling]
+    wear: [body/farmer, body/overalls]
+    slots:
+      head: [head/knit_cap, head/kerchief, head/cap, ~]
+      weapon: [weapon/pickaxe, weapon/pitchfork, weapon/hammer, ~]
+    chance: { acc/gloves: 0.3 }
+    old: 0.15
+    colors: { cloth: [dye_earth, dye_grey, dye_white, dye_moss], trim: [dye_earth, dye_grey] }
+  merchant:
+    name: พ่อค้า
+    races: [human, human, dwarf, elf]
+    wear: [body/longcoat, body/doublet, body/dress]
+    always: [acc/purse]
+    slots:
+      head: [head/tophat, head/cap, ~]
+      offhand: [offhand/tome, ~, ~]
+    chance: { acc/glasses: 0.2 }
+    old: 0.2
+    colors: { cloth: [dye_wine, dye_navy, dye_earth, dye_mustard], trim: [dye_white, dye_mustard] }
+  elf_villager:
+    name: ชาวบ้านเอลฟ์
+    races: [elf]
+    wear: [body/elf]
+    slots:
+      cloak: [cloak/travel, ~, ~]
+      weapon: [weapon/bow, ~, ~]
+    old: 0.1
+    colors: { cloth: [dye_moss, dye_earth, dye_sky], trim: [dye_earth, dye_moss] }
+  child:
+    name: เด็ก
+    bodies: [cm, cf]
+    races: [human, human, human, elf, dwarf, tiefling]
+    wear: [body/child_farm, body/child_refinery, body/child_rich, body/child_street]
+    colors: { cloth: [dye_earth, dye_grey, dye_navy, dye_wine, dye_moss], trim: [dye_white, dye_grey, dye_earth] }
+
+# Named characters: a fixed look each (body, pieces, choices, colors), like art/looks.yaml.
+named:
+  grandma:
+    name: ท่านย่า (ขุนนางมนุษย์ ต้นสายเด็กเขาซ่อน เวนทราส)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, mark/wrinkles, body/dress, feet/shoes, cloak/fur, acc/glasses]
+      choices: { skin: porcelain, hair: silver, eyes: grey }
+      colors: { cloth: dye_purple, trim: dye_grey, fitting: metal_silver }

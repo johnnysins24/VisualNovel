@@ -1,0 +1,5 @@
+# Freckles (A26): a scatter of dots over the nose and cheeks in the lip colour. Under the face (z 12).
+z: 12
+cast: false
+shapes:
+  - { at: [-5, brow+4], mirror: true, ascii: "..n.\nn..n\n.n.." }

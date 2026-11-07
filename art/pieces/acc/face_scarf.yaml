@@ -1,0 +1,7 @@
+# Bandit's face scarf (A27): a cloth pulled up over the nose and mouth, tied behind the head. Hides
+# the mouth on purpose, so it is not held to the face check like hats. Over the face, under the hair.
+z: 38
+colors: { cloth: dye_black }
+shapes:
+  - { mat: cloth, sym: [[mouth-2, 5], [mouth, 5], [chin, 4], [neck+1, 3]] }
+  - { mat: cloth@1, sym: [[mouth+1, 4]] }
