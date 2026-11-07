@@ -72,8 +72,8 @@ describe('engine', () => {
   it('rejects unavailable choices', () => {
     expect(() => resolveChoice(game, newLife(1), 'childhood.test_fence', 'speak')).toThrow();
   });
-  it('dies at 0 hp', () => {
-    const l = applyEffects(game, newLife(1), { hp: -99 });
+  it('dies at 0 hp once past the protected age', () => {
+    const l = applyEffects(game, { ...newLife(1), age: 12 }, { hp: -99 });
     expect(l.alive).toBe(false);
   });
   it('natural 20 always succeeds', () => {

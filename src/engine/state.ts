@@ -1,6 +1,6 @@
 import type { Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, type WorldKey } from './balance';
+import { ADULT_AGE, BIRTH_YEAR, RACES, type RaceId, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -102,3 +102,16 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
 
 export const modifier = (score: number) => Math.floor((score - 10) / 2);
 export const worldYear = (life: Pick<LifeState, 'birthYear' | 'age'>) => life.birthYear + life.age;
+
+/** จำนวนปีจริงต่อหนึ่งปีชีวิตแบบมนุษย์ (เอลฟ์ 10 คนแคระ 5) ยังไม่รู้เผ่าใช้ 1 */
+export const ageScale = (life: Pick<LifeState, 'raceApplied'>) => RACES[life.raceApplied as RaceId]?.ageScale ?? 1;
+
+/**
+ * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: ก่อน 18 ปีเท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
+ * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงผู้ใหญ่ให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
+ */
+export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) =>
+  life.age <= ADULT_AGE ? life.age : ADULT_AGE + (life.age - ADULT_AGE) / ageScale(life);
+
+/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีก่อนเป็นผู้ใหญ่ หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
+export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < ADULT_AGE ? 1 : ageScale(life));
