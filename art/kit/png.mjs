@@ -1,4 +1,4 @@
-// Minimal PNG read/write for the voxel studio: 8-bit RGBA (or RGB) in, 8-bit RGBA out, no dependencies.
+// Minimal PNG read/write: 8-bit RGBA (or RGB) in, 8-bit RGBA out, no dependencies.
 import { deflateSync, inflateSync } from 'node:zlib';
 
 const CRC = (() => {

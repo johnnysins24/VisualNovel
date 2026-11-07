@@ -1,0 +1,16 @@
+# Faces. Each expression draws the left eye (mirrored to the right) from the row above the brow
+# mark, and the mouth at the mouth mark. Brows use the hair colour (d), so they follow it.
+z: 15
+cast: false
+shapes:
+  # --- eyes ---
+  - { variant: smile, body: m, at: [-4, brow-1], mirror: true, ascii: "....\n.dd.\nkkk.\nkwek\n.bb." }
+  - { variant: smile, body: f, at: [-4, brow-1], mirror: true, ascii: ".dd.\n....\nkkk.\nkwe.\n.be.\n.bb." }
+  - { variant: angry, at: [-4, brow-1], mirror: true, ascii: "....\n.ddd\n....\nkkkk\n.we." }
+  - { variant: surprised, at: [-4, brow-1], mirror: true, ascii: ".dd.\n....\nkkk.\nwww.\nwew.\nwww.\nSSS." }
+  # --- mouths ---
+  - { variant: smile, at: [-1, mouth], ascii: "n.n\n.n." }
+  - { variant: angry, at: [-1, mouth], ascii: "www\nnnn" }
+  - { variant: surprised, at: [-1, mouth], ascii: ".n.\n.n." }
+  # --- always: blush on the female face ---
+  - { body: f, at: [-4, brow+5], mirror: true, ascii: "pp" }

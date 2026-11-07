@@ -1,0 +1,24 @@
+# Bob with a wispy fringe; the back layer shows beside the neck.
+z: 60
+shapes:
+  - at: [-6, head]
+    ascii: |
+      ....HhhhH....
+      ..HhhhhhhhH..
+      .HhhhhhhhhhH.
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhdhhhhhddhh
+      hhd.d.d.d..hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      dh.........hd
+      .h.........h.
+  - layer: back
+    at: [-2, head+14]
+    ascii: |
+      hhhhh
+      hhhhh

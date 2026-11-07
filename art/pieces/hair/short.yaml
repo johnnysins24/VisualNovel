@@ -1,0 +1,20 @@
+# Short hair. Drawn from one row above the head mark; 13 px wide around the centre.
+z: 60
+shapes:
+  - at: [-6, head-1]
+    ascii: |
+      ......h......
+      ...hhHhhHh...
+      ..HhhhhhhhH..
+      .HhhhhhhhhhH.
+      hhhhhhhhhhhhh
+      hhhhhhhhdhhhh
+      hhdhd.dh.hdhh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      dh.........hd
+      .h.........h.

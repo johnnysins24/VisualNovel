@@ -1,0 +1,7 @@
+z: 20
+cast: false
+colors: { cloth: sky, trim: blue }
+shapes:
+  - { mat: cloth, region: { parts: [torso], rows: [chest, chest+1] } }
+  - { mat: trim, region: { parts: [torso], rows: [chest+2, chest+2] } }
+  - { mat: cloth, mirror: true, span: [[shoulder, -3, -3], [chest-1, -3, -3]] }

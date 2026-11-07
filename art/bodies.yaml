@@ -1,0 +1,27 @@
+# Base bodies on the 64x96 canvas. 3.25 heads tall: male 51 px, female 48 px, soles on row 93.
+# Rows are canvas rows. sym: [row, half width] around centre column 31 (half 6 = 13 px wide).
+# span: [row, from, to] in columns relative to 31 (left side; mirror adds the right side).
+# Values between listed rows are interpolated. Pieces place themselves with the marks.
+# anatomy: hand touches painted over the skin (digits = skin shade level), no new part.
+
+m:
+  marks: { head: 44, brow: 50, mouth: 57, chin: 58, neck: 59, shoulder: 61, chest: 64, waist: 69, hip: 71, crotch: 76, knee: 84, ankle: 89, sole: 93 }
+  parts:
+    skull: { sym: [[44, 3], [45, 4], [46, 5], [47, 6], [56, 6], [57, 5]] }
+    face: { sym: [[49, 4], [57, 4], [58, 3]] }
+    neck: { sym: [[59, 2], [60, 2]] }
+    torso: { sym: [[61, 4], [62, 7], [63, 8], [64, 7], [65, 6], [66, 6], [67, 5], [68, 5], [69, 4], [71, 4], [72, 5], [73, 6], [75, 6]] }
+    arm: { mirror: true, span: [[63, -10, -7], [64, -11, -8], [65, -11, -8], [66, -10, -8], [71, -10, -8], [72, -10, -9], [74, -10, -9], [75, -11, -9], [77, -11, -9]] }
+    leg: { mirror: true, span: [[76, -6, -1], [77, -5, -1], [78, -5, -1], [79, -5, -2], [80, -5, -2], [81, -4, -2], [88, -4, -2], [89, -3, -2], [90, -3, -2], [91, -4, -2], [92, -5, -2], [93, -5, -2]] }
+    anatomy: { paint: true, at: [-3, 63], ascii: "2222222\n.......\n.......\n.......\n.......\n..22222" }
+
+f:
+  marks: { head: 46, brow: 52, mouth: 58, chin: 60, neck: 61, shoulder: 63, chest: 66, waist: 70, hip: 72, crotch: 76, knee: 84, ankle: 89, sole: 93 }
+  parts:
+    skull: { sym: [[46, 2], [47, 4], [48, 5], [49, 6], [56, 6], [57, 5]] }
+    face: { sym: [[51, 4], [57, 4], [58, 3], [59, 3], [60, 2]] }
+    neck: { sym: [[61, 1], [62, 2]] }
+    torso: { sym: [[63, 4], [64, 7], [65, 7], [66, 5], [67, 4], [69, 4], [70, 3], [71, 4], [72, 5], [73, 6], [75, 6]] }
+    arm: { mirror: true, span: [[65, -8, -6], [71, -8, -6], [72, -8, -7], [73, -8, -7], [74, -8, -8], [75, -9, -8], [76, -10, -8], [77, -10, -8]] }
+    leg: { mirror: true, span: [[76, -6, -1], [77, -6, -1], [78, -5, -1], [79, -5, -1], [80, -5, -2], [81, -4, -2], [88, -4, -2], [89, -3, -2], [90, -3, -2], [91, -4, -2], [92, -5, -2], [93, -5, -2]] }
+    anatomy: { paint: true, at: [-4, 65], ascii: "..22222..\n.........\n.........\n.........\n11.....11" }

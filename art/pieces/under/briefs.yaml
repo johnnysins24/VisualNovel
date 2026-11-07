@@ -1,0 +1,7 @@
+# Briefs: painted on the body from hip to crotch; dark waistband on the hip row.
+z: 20
+cast: false
+colors: { cloth: navy }
+shapes:
+  - { mat: cloth, region: { parts: [torso, leg], rows: [hip, crotch] } }
+  - { mat: cloth@0, region: { parts: [torso], rows: [hip, hip] } }
