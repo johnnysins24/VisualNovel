@@ -1,4 +1,4 @@
-/** Placeholder canvas size. Final size is Art question A2 (waiting on Phupha). */
+/** Canvas size 64x96 (A2, approved). One base body for all races (A3, approved). Art itself is still placeholder. */
 export const CANVAS = { w: 64, h: 96 } as const;
 
 export interface Rect {

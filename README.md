@@ -7,7 +7,7 @@
 - กติกาสำหรับ Claude: [CLAUDE.md](CLAUDE.md)
 - รูปอ้างอิงสไตล์ภาพ: [docs/ref/](docs/ref/)
 
-สถานะ: โค้ดตั้งต้น (Phase 1) เนื้อเรื่อง ภาพ ธีม และฟอนต์ทั้งหมดเป็นค่าชั่วคราว รอคำตอบ Art/Lore จาก Phupha
+สถานะ: โค้ดตั้งต้น (Phase 1) เนื้อเรื่องและภาพเป็นค่าชั่วคราว รอ thread เนื้อเรื่องและศิลป์
 
 ## เริ่มใช้
 
@@ -29,7 +29,7 @@ npm run shots     # Playwright ถ่ายจอ 3 ขนาดลงโฟล�
 | `content/` | เหตุการณ์และของเป็น YAML (ตอนนี้มีแต่ข้อความ `[ทดสอบ]`) |
 | `scripts/` | build/validate เนื้อหา |
 
-ค่าชั่วคราวที่รอตัดสินใจ: ขนาด canvas `CANVAS` ใน `src/sprites/types.ts` (A2), ธีม/ฟอนต์ใน `src/ui/styles.css` (A8, A9)
+ตัดสินใจแล้ว: canvas 64×96 และร่างฐาน 1 ร่าง (A2, A3) ยังเป็นค่าชั่วคราว: ธีม/ฟอนต์ใน `src/ui/styles.css` (A8, A9) ตรวจกับ docs/PLAN.md
 
 ## Deploy (Cloudflare Pages)
 
