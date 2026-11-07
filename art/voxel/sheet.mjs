@@ -40,18 +40,3 @@ export function sheet(rows, { k = 4, gap = 16, margin = 16, bg = PEARL, trim = f
   });
   return { w: W, h: H, rgba: out };
 }
-
-/** Puts finished sheets side by side, bottoms lined up (e.g. groups drawn at different zooms). */
-export function hstack(imgs, { gap = 32, bg = PEARL } = {}) {
-  const W = imgs.reduce((a, i) => a + i.w, 0) + gap * (imgs.length - 1);
-  const H = Math.max(...imgs.map(i => i.h));
-  const out = new Uint8ClampedArray(W * H * 4);
-  for (let i = 0; i < W * H; i++) out.set(bg, i * 4);
-  let x0 = 0;
-  for (const img of imgs) {
-    const y0 = H - img.h;
-    for (let y = 0; y < img.h; y++) out.set(img.rgba.subarray(y * img.w * 4, (y + 1) * img.w * 4), ((y0 + y) * W + x0) * 4);
-    x0 += img.w + gap;
-  }
-  return { w: W, h: H, rgba: out };
-}

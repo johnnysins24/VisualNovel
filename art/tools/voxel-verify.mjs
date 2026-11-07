@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 // Checks the port against the sprites Voxel Realm itself baked (client/assets/ui/creator in the Voxel Realm repo):
-// the human race portraits, the 17 face icons and the origin portraits that use only the built-in outfit pieces.
+// the human race portraits, the 17 face icons and the origin portraits that use only the built-in outfit pieces,
+// all drawn on Voxel Realm's own body (VOXEL_REALM), not the game's.
 //   node art/tools/voxel-verify.mjs /path/to/voxel/client/assets/ui/creator
 // A pixel counts as exact when every channel matches; GPUs round the last bit of the lighting differently, so a
 // difference of 1 or 2 levels is normal. Shape differences (a pixel there in one and not the other) or larger
 // colour differences mean the port is wrong.
 import { readFileSync, existsSync } from 'node:fs';
 import { portrait, faceIcon } from '../voxel/sprite.mjs';
+import { VOXEL_REALM as style } from '../voxel/body.mjs';
 import { EXPRESSIONS } from '../voxel/head.mjs';
 import { decodePNG } from '../voxel/png.mjs';
 
@@ -30,14 +32,14 @@ const ORIGINS = {
 };
 
 const jobs = [];
-RACE.forEach((l, f) => jobs.push({ file: `race_human_${f ? 'f' : 'm'}`, img: () => portrait({ ...l, race: 'human', body: f, cls: f ? 'villager_f' : 'villager' }, { expr: 'smile' }) }));
-for (const e of Object.keys(EXPRESSIONS)) jobs.push({ file: `face_${e || 'neutral'}`, img: () => faceIcon(FACE, e) });
+RACE.forEach((l, f) => jobs.push({ file: `race_human_${f ? 'f' : 'm'}`, img: () => portrait({ ...l, race: 'human', body: f, cls: f ? 'villager_f' : 'villager' }, { expr: 'smile', style }) }));
+for (const e of Object.keys(EXPRESSIONS)) jobs.push({ file: `face_${e || 'neutral'}`, img: () => faceIcon(FACE, e, { style }) });
 for (const [id, L] of Object.entries(ORIGINS)) for (const f of [0, 1]) {
   const fr = L[f ? 'f' : 'm'];
   if (!fr) continue;
   const d = { race: 'human', body: f, skin: L.skin, eye: L.eye, om: L.om, ot: L.ot, fm: L.fm ?? 0, cls: L.cls, head: L.head ?? 1, acc: [...(L.acc ?? [])], outfit: { ...(L.out ?? {}) } };
   for (const k in fr) { if (k === 'acc') d.acc.push(...fr.acc); else d[k] = fr[k]; }
-  jobs.push({ file: `origin_${id}_${f ? 'f' : 'm'}`, badge: true, img: () => portrait(d, { expr: L.expr }) });
+  jobs.push({ file: `origin_${id}_${f ? 'f' : 'm'}`, badge: true, img: () => portrait(d, { expr: L.expr, style }) });
 }
 
 const T = { pixels: 0, exact: 0, close: 0, off: 0, shape: 0 };

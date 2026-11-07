@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// Writes the review images in art/preview/voxel/.
+// Writes the review images in art/preview/voxel/, all on the game's body (vn.mjs GAME_BODY) but body_compare.png
+// and match.png.
 //   node art/tools/voxel-preview.mjs [/path/to/voxel/client/assets/ui/creator]
 // With Voxel Realm's creator folder it also writes match.png: its baked sprites on top, this port's below.
 import { writeFileSync, readFileSync, existsSync, mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { fullBody, portrait, faceIcon } from '../voxel/sprite.mjs';
-import { usedRect } from '../voxel/render.mjs';
-import { sheet, hstack } from '../voxel/sheet.mjs';
+import { VOXEL_REALM } from '../voxel/body.mjs';
+import { sheet } from '../voxel/sheet.mjs';
 import { encodePNG, decodePNG } from '../voxel/png.mjs';
 import { fromDict } from '../voxel/appearance.mjs';
 import { EXPRESSIONS } from '../voxel/head.mjs';
 import { piecesFor, slotOf, SLOTS } from '../voxel/outfits.mjs';
-import { vnStyle } from '../voxel/vn.mjs';
 
 const OUT = fileURLToPath(new URL('../preview/voxel/', import.meta.url));
 mkdirSync(OUT, { recursive: true });
@@ -47,20 +47,11 @@ save('steps_sorcerer.png', sheet([steps(BARE.f, 'sorcerer'), steps(BARE.m, 'sorc
 const CLS = ['warrior', 'sorcerer', 'ranger', 'cleric', 'rogue', 'bard'];
 save('classes.png', sheet(['m', 'f'].map(b => CLS.map(c => fullBody({ ...BARE[b], cls: c, outfit: {} }))), { trim: true }));
 
-// the VisualNovel body (vn.mjs), bigger heads and reworked anatomy, at the ratios Phupha is choosing between.
-// vn_proportions: Voxel Realm's body first, then each ratio, bare on top and dressed below, each group zoomed by
-// a whole number so all stand about as tall as they would on the game's screen.
-export const VN_RATIOS = [3.25, 3, 2.5];
-const vn = VN_RATIOS.map(r => vnStyle(r));
+// Voxel Realm's own body on the left, the game's on the right, at the same zoom on the same floor: bare on top,
+// dressed below. The head is the same size; the body is shorter and reworked.
 const wear = (b, cls) => ({ ...BARE[b], cls, outfit: {} });
-save('vn_proportions.png', hstack([undefined, ...vn].map(style => {
-  const rows = [[BARE.m, BARE.f], [wear('m', 'warrior'), wear('f', 'cleric')]].map(r => r.map(d => fullBody(d, { style })));
-  const tall = Math.max(...rows[0].map(i => usedRect(i).h));
-  return sheet(rows, { trim: true, k: Math.round(240 / tall) });
-})));
-for (const style of vn) {
-  save(`vn_classes_${style.ratio}.png`, sheet(['m', 'f'].map(b => [...CLS.map(c => fullBody(wear(b, c), { style })), fullBody(BARE[b], { style })]), { trim: true }));
-}
+const both = looks => [...looks.map(d => fullBody(d, { style: VOXEL_REALM })), null, ...looks.map(d => fullBody(d))];
+save('body_compare.png', sheet([both([BARE.m, BARE.f]), both([wear('m', 'warrior'), wear('f', 'cleric')])], { trim: true }));
 
 const dir = process.argv[2];
 if (dir && existsSync(dir)) {
@@ -75,6 +66,6 @@ if (dir && existsSync(dir)) {
   const exprs = ['smile', 'angry', 'surprised', 'cry'];
   save('match.png', sheet([
     [down('race_human_m'), down('race_human_f'), ...exprs.map(e => down('face_' + e))],
-    [portrait(look(0)), portrait(look(1)), ...exprs.map(e => faceIcon(face, e))],
+    [portrait(look(0), { style: VOXEL_REALM }), portrait(look(1), { style: VOXEL_REALM }), ...exprs.map(e => faceIcon(face, e, { style: VOXEL_REALM }))],
   ]));
 }

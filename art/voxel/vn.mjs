@@ -16,14 +16,20 @@ export const HEAD_PX = 15.5;
 /** Voxel Realm's chin height for a human man with the long neck, in voxels. */
 const MAN_NECK = 45.5;
 
+/** The game's figure height in heads (Phupha's choice, 7 Nov 2026). */
+export const GAME_RATIO = 3.25;
+
 /** The VN body for a figure `ratio` heads tall. legs > 1 lengthens the legs against the torso. */
-export function vnStyle(ratio = 3.0, { legs = 1.08 } = {}) {
+export function vnStyle(ratio = GAME_RATIO, { legs = 1.08 } = {}) {
   return {
     name: 'vn', ratio, short_neck: false, simple: false, coarse: false, headScale: 1.0, blend: 1.3,
     spec: a => vnSpec(a, ratio, legs),
     prims: B => vnPrims(B.S),
   };
 }
+
+/** The body every game sprite uses (sprite.mjs draws with it unless told otherwise). */
+export const GAME_BODY = Object.freeze(vnStyle());
 
 /** Voxel Realm's landmarks (long neck) mapped onto the shorter body. */
 export function vnSpec(a, ratio, legs = 1.08) {
