@@ -1,0 +1,25 @@
+# Bow (A22): a wooden longbow held by its leather grip beside the body, the string on the inner side.
+z: 70
+colors: { wood: wood, leather: leather_brown }
+shapes:
+  - at: [hand-3, hand-9]
+    ascii: |
+      ...ow
+      ...ow
+      ..o.w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      lo...
+      lo...
+      lo...
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      ..o.w
+      ...ow
+      ...ow

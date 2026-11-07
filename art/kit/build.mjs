@@ -8,8 +8,8 @@
 //                                       women's on the female body, in hair.yaml order) and
 //                                       colours.png (the skin, hair and eye choices) and races.png
 //                                       (race pieces from races.yaml on men, women and children) and
-//                                       outfits.png (outfits.yaml on every body, metals, dyes, headgear
-//                                       and cloaks)
+//                                       outfits.png (outfits.yaml on every body, metals, dyes, headgear,
+//                                       cloaks, weapons, off-hand pieces and mechanical arms)
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
 //                                                (for a skin ramp also the lips and blush that go with it)
@@ -88,6 +88,11 @@ if (cmd === 'check') {
   // headgear on the farmer's clothes, cloaks over leather armour, men's row then women's
   for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.head).map(id => dressed(b, ['body/farmer', id])));
   for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.cloak).map(id => dressed(b, ['body/longcoat', id], { 'body/longcoat.cloth': 'dye_grey' })));
+  // weapons and tools, then off-hand pieces and mechanical arms, on leather armour
+  const HAND_BOX = { x: 4, y: 34, w: 56, h: 62 };
+  const armed = (b, ids) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${b}/${hairOf[b][0]}`, 'body/leather_armor', 'feet/boots', ...ids], face: 'smile' }), HAND_BOX);
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.weapon).map(id => armed(b, [id])));
+  for (const b of ['m', 'f']) outfitRows.push([...Object.keys(outfits.offhand), ...Object.keys(outfits.arm)].map(id => armed(b, [id])));
   for (const [file, rows, opts] of [['proof.png', [row1, pairs.m, pairs.f]], ['faces.png', faceRows], ['hair.png', hairRows, { scale: 5 }], ['colours.png', colourRows], ['races.png', raceRows], ['outfits.png', outfitRows]]) {
     const out = join(ART, 'preview', file);
     savePNG(out, sheet(rows, opts));

@@ -1,0 +1,36 @@
+# Wizard staff (A22): a plain wooden staff held upright, the top split into a fork that cradles a
+# brass knot.
+z: 70
+colors: { wood: wood, fitting: metal_brass }
+shapes:
+  - at: [hand-1, hand-22]
+    ascii: |
+      .o.
+      ofo
+      ofo
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.
+      ...
+      ...
+      ...
+      .o.
+      .o.
+      .o.
+      .o.
+      .o.

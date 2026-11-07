@@ -1,0 +1,14 @@
+# Hanging lantern (A22): a brass lantern on a short chain below the off hand, the glass glowing
+# (metal ramp, starsilver by default).
+z: 70
+colors: { metal: metal_starsilver, fitting: metal_brass }
+shapes:
+  - at: [ohand-2, hand+2]
+    ascii: |
+      ..f..
+      ..f..
+      .fff.
+      fgggf
+      fgGgf
+      fgggf
+      fffff

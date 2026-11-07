@@ -121,7 +121,7 @@ export function runChecks(kit = loadKit()) {
     if (group === 'child' && String(ages) !== 'child') errors.push(`${id}: child outfits need "ages: [child]"`);
     if (group === 'body' && String(ages) !== 'adult') errors.push(`${id}: grown-up clothes need "ages: [adult]"`);
   }
-  for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
+  for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak|weapon|offhand|arm)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
   // every outfit on every body it fits, with its feet, rotating dyes: fits the canvas and the colour budget
   const dyes = Object.keys(kit.pal.ramps).filter(r => r.startsWith('dye_'));
   for (const items of Object.values(outfits)) Object.entries(items).forEach(([id, o], i) => {
@@ -148,7 +148,9 @@ export function runChecks(kit = loadKit()) {
     hairLooks[`hair/${body}/${h}`] = { body, pieces: [...base.filter(id => !id.startsWith('hair/')), `hair/${body}/${h}`], choices: { ...pick('skin', i), ...pick('hair', i), ...pick('eyes', i) } };
   });
   // looks: fit the canvas with room for the outline, stay within the colour budget
-  for (const [name, look] of Object.entries({ ...looks, ...hairLooks, ...looksToCheck })) for (const face of FACES) {
+  // outfits change nothing on the face, so they are checked with one face that has the most colours
+  const lookList = [...Object.entries({ ...looks, ...hairLooks }).map(([n, l]) => [n, l, FACES]), ...Object.entries(looksToCheck).map(([n, l]) => [n, l, ['cry']])];
+  for (const [name, look, faces] of lookList) for (const face of faces) {
     let img;
     try { img = renderLook(kit, { ...look, face }); } catch (e) { errors.push(`${name}: ${e.message}`); continue; }
     for (let p = 0; p < W * H; p++) {

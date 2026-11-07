@@ -30,6 +30,31 @@ cloak:
   cloak/fur: { name: ผ้าคลุมขนสัตว์ }
   cloak/cape: { name: ผ้าคลุมสั้นสีสด }
   cloak/ranger: { name: ผ้าคลุมมีฮู้ดของพราน }
+weapon:
+  weapon/longsword: { name: ดาบยาว }
+  weapon/axe: { name: ขวาน }
+  weapon/mace: { name: ตะบอง }
+  weapon/spear: { name: หอก }
+  weapon/staff: { name: ไม้เท้า }
+  weapon/bow: { name: ธนู }
+  weapon/crossbow: { name: หน้าไม้ }
+  weapon/musket: { name: ปืนดินดำยาว }
+  weapon/star_pistol: { name: ปืนพกเวท }
+  weapon/mech_staff: { name: ไม้เท้าจักรกล }
+  weapon/hammer: { name: ค้อน }
+  weapon/wrench: { name: ประแจ }
+  weapon/pickaxe: { name: จอบขุดแร่ }
+  weapon/pitchfork: { name: คราด }
+offhand:
+  offhand/shield: { name: โล่ }
+  offhand/dagger: { name: มีดสั้น }
+  offhand/lantern: { name: ตะเกียงแขวน }
+  offhand/tome: { name: คัมภีร์ }
+  offhand/lute: { name: พิณ }
+  offhand/pistol: { name: ปืนพกดินดำ }
+arm:
+  arm/silver: { name: แขนกลเงิน }
+  arm/hook: { name: ขอเหล็ก }
 feet:
   feet/boots: { name: บู๊ตหนัง }
   feet/iron_boots: { name: บู๊ตเหล็ก }
