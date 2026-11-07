@@ -54,6 +54,7 @@
 
 - id: adult.job_refinery_crack
   stage: adult
+  scene: refinery
   weight: 45
   when:
     age: [19, 24]
@@ -161,6 +162,7 @@
 
 - id: adult.job_miner_ghost
   stage: adult
+  scene: mine
   weight: 45
   when:
     age: [19, 24]
@@ -218,6 +220,7 @@
 
 - id: adult.job_smith_shackles
   stage: adult
+  scene: workshop
   weight: 45
   when:
     age: [19, 24]
@@ -275,6 +278,7 @@
 
 - id: adult.job_merchant_hail
   stage: adult
+  scene: market
   weight: 45
   when:
     age: [19, 24]
@@ -316,6 +320,7 @@
 
 - id: adult.job_clerk_child_debt
   stage: adult
+  scene: belek_bank
   weight: 45
   when:
     age: [19, 24]

@@ -4,6 +4,7 @@
 
 - id: youth.filler_arvel
   stage: youth
+  scene: tavern
   weight: 1
   once: false
   when:

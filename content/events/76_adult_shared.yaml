@@ -5,6 +5,7 @@
 
 - id: adult.first_room
   stage: adult
+  scene: home
   weight: 10
   when:
     age: [19, 21]
@@ -79,6 +80,7 @@
 
 - id: adult.love_family
   stage: adult
+  scene: home
   weight: 10
   when:
     age: [20, 24]
@@ -122,6 +124,7 @@
 
 - id: adult.love_family_horned
   stage: adult
+  scene: home
   weight: 10
   when:
     age: [20, 24]
@@ -164,6 +167,7 @@
 
 - id: adult.friend_returns
   stage: adult
+  scene: home
   weight: 10
   when:
     age: [19, 23]
@@ -215,6 +219,7 @@
 
 - id: adult.home_festival
   stage: adult
+  scene: market
   weight: 10
   when:
     age: [19, 24]
@@ -248,6 +253,7 @@
 
 - id: adult.belek_account
   stage: adult
+  scene: market
   weight: 10
   when:
     age: [19, 24]
@@ -289,6 +295,7 @@
 
 - id: adult.airship_ride
   stage: adult
+  scene: ship_deck
   weight: 10
   when:
     age: [19, 24]
@@ -332,6 +339,7 @@
 
 - id: adult.doom_preacher
   stage: adult
+  scene: market
   weight: 10
   when:
     age: [19, 24]

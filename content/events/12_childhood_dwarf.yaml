@@ -87,6 +87,7 @@
 
 - id: childhood.dwarf_debt_wall
   stage: childhood
+  scene: clan_hall
   weight: 9
   when:
     age: [3, 11]
@@ -163,6 +164,7 @@
 
 - id: childhood.dwarf_elder_burial
   stage: childhood
+  scene: home
   weight: 8
   when:
     age: [6, 11]

@@ -4,6 +4,7 @@
 
 - id: youth.dwarf_old_anvil
   stage: youth
+  scene: workshop
   weight: 10
   when:
     age: [12, 13]

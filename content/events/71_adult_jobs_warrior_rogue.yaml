@@ -4,6 +4,7 @@
 
 - id: adult.job_navy_storm
   stage: adult
+  scene: ship_deck
   weight: 45
   when:
     age: [19, 24]
@@ -56,6 +57,7 @@
 
 - id: adult.job_navy_coast
   stage: adult
+  scene: ship_deck
   weight: 45
   when:
     age: [19, 24]
@@ -101,6 +103,7 @@
 
 - id: adult.job_wardens_night
   stage: adult
+  scene: fort
   weight: 45
   when:
     age: [19, 24]
@@ -306,6 +309,7 @@
 
 - id: adult.job_swindler_widow
   stage: adult
+  scene: noble_hall
   weight: 45
   when:
     age: [19, 24]

@@ -5,6 +5,7 @@
 
 - id: adult.war_draft
   stage: adult
+  scene: market
   weight: 60
   when:
     age: [19, 24]
@@ -56,6 +57,7 @@
 
 - id: adult.war_call_women
   stage: adult
+  scene: market
   weight: 30
   when:
     age: [19, 24]
@@ -84,6 +86,7 @@
 
 - id: adult.war_front
   stage: adult
+  scene: fort
   weight: 60
   when:
     age: [19, 25]
@@ -142,6 +145,7 @@
 
 - id: adult.war_dwarf_gate
   stage: adult
+  scene: clan_hall
   weight: 60
   when:
     age: [19, 24]

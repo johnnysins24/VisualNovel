@@ -152,6 +152,7 @@
 
 - id: adult.job_pick_cleric
   stage: adult
+  scene: temple
   weight: 1000
   when:
     age: [18, 18]

@@ -7,6 +7,7 @@
 
 - id: youth.commoner_belek_guarantor
   stage: youth
+  scene: market
   weight: 30
   when:
     age: [15, 17]

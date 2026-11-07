@@ -5,6 +5,7 @@
 # ---------- นักรบ ----------
 - id: adult.warrior_rival_kedra
   stage: adult
+  scene: tavern
   weight: 30
   when:
     age: [19, 22]
@@ -315,6 +316,7 @@
 # ---------- นักบวช ----------
 - id: adult.cleric_rival_lowen
   stage: adult
+  scene: temple
   weight: 30
   when:
     age: [19, 22]
@@ -381,6 +383,7 @@
 
 - id: adult.cleric_sanctuary
   stage: adult
+  scene: temple
   weight: 30
   when:
     age: [20, 24]
@@ -431,6 +434,7 @@
 # ---------- พราน ----------
 - id: adult.ranger_rival_hasken
   stage: adult
+  scene: tavern
   weight: 30
   when:
     age: [19, 22]
@@ -530,6 +534,7 @@
 # ---------- กวีเร่ ----------
 - id: adult.bard_rival_liran
   stage: adult
+  scene: tavern
   weight: 30
   when:
     age: [19, 22]
@@ -629,6 +634,7 @@
 # ---------- ชาวบ้าน ----------
 - id: adult.commoner_bounty_board
   stage: adult
+  scene: tavern
   weight: 30
   when:
     age: [19, 23]

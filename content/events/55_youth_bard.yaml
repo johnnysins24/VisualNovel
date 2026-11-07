@@ -118,6 +118,7 @@
 
 - id: youth.bard_witch_hunter_play
   stage: youth
+  scene: market
   weight: 30
   when:
     age: [15, 17]
@@ -170,6 +171,7 @@
 
 - id: youth.bard_witch_hunter_horns
   stage: youth
+  scene: market
   weight: 30
   when:
     age: [15, 17]
@@ -223,6 +225,7 @@
 
 - id: youth.bard_humming_party
   stage: youth
+  scene: noble_hall
   weight: 30
   when:
     age: [15, 17]
@@ -275,6 +278,7 @@
 
 - id: youth.bard_wall_outsiders
   stage: youth
+  scene: tavern
   weight: 30
   when:
     age: [15, 17]

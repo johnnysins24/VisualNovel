@@ -32,6 +32,7 @@
 
 - id: adult.filler_ventras
   stage: adult
+  scene: star_hall
   weight: 1
   once: false
   when:

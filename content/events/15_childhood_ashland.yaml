@@ -4,6 +4,7 @@
 
 - id: childhood.ashland_hound
   stage: childhood
+  scene: home
   weight: 8
   when:
     age: [3, 8]
@@ -81,6 +82,7 @@
 
 - id: childhood.ashland_fort_letters
   stage: childhood
+  scene: fort
   weight: 8
   when:
     age: [6, 11]
@@ -155,6 +157,7 @@
 
 - id: childhood.ashland_mine_collapse
   stage: childhood
+  scene: mine
   weight: 8
   when:
     age: [6, 11]

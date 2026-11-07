@@ -91,6 +91,7 @@
 
 - id: childhood.kept_hunter_visit
   stage: childhood
+  scene: home
   weight: 9
   when:
     age: [5, 9]
@@ -174,6 +175,7 @@
 
 - id: childhood.hidden_tail
   stage: childhood
+  scene: noble_hall
   weight: 8
   when:
     age: [4, 9]
@@ -266,6 +268,7 @@
 
 - id: childhood.hidden_ball
   stage: childhood
+  scene: noble_hall
   weight: 9
   when:
     age: [8, 11]
@@ -314,6 +317,7 @@
 # ---------- เด็กวิหารอีเซล ----------
 - id: childhood.foundling_night_fire
   stage: childhood
+  scene: temple
   weight: 9
   when:
     age: [3, 8]
@@ -359,6 +363,7 @@
 
 - id: childhood.foundling_hatch
   stage: childhood
+  scene: temple
   weight: 8
   when:
     age: [5, 10]
@@ -402,6 +407,7 @@
 
 - id: childhood.foundling_gentleman
   stage: childhood
+  scene: temple
   weight: 9
   when:
     age: [6, 10]
@@ -451,6 +457,7 @@
 
 - id: childhood.foundling_tin_button
   stage: childhood
+  scene: temple
   weight: 8
   when:
     age: [8, 11]
@@ -490,6 +497,7 @@
 
 - id: childhood.hidden_lamp_blessing
   stage: childhood
+  scene: temple
   weight: 8
   when:
     age: [5, 11]

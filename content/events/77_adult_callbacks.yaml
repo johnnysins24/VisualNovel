@@ -5,6 +5,7 @@
 
 - id: adult.welen_default
   stage: adult
+  scene: market
   weight: 10
   when:
     age: [19, 22]
@@ -47,6 +48,7 @@
 
 - id: adult.airship_vials
   stage: adult
+  scene: home
   weight: 10
   when:
     age: [19, 24]
@@ -89,6 +91,7 @@
 
 - id: adult.toren_old
   stage: adult
+  scene: temple
   weight: 10
   when:
     age: [19, 24]
@@ -130,6 +133,7 @@
 
 - id: adult.grandmother_old
   stage: adult
+  scene: noble_hall
   weight: 10
   when:
     age: [19, 24]
@@ -212,6 +216,7 @@
 
 - id: adult.lamp_five_year
   stage: adult
+  scene: temple
   weight: 10
   when:
     age: [19, 24]

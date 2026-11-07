@@ -4,6 +4,7 @@
 
 - id: adult.job_artificer_hand
   stage: adult
+  scene: workshop
   weight: 45
   when:
     age: [19, 24]
@@ -55,6 +56,7 @@
 
 - id: adult.job_researcher_circle
   stage: adult
+  scene: institute
   weight: 45
   when:
     age: [19, 24]
@@ -108,6 +110,7 @@
 
 - id: adult.job_hedge_doctor_glass
   stage: adult
+  scene: workshop
   weight: 45
   when:
     age: [19, 24]
@@ -159,6 +162,7 @@
 
 - id: adult.job_city_priest_crossroads
   stage: adult
+  scene: temple
   weight: 45
   when:
     age: [19, 24]
@@ -261,6 +265,7 @@
 
 - id: adult.job_fort_priest_dying
   stage: adult
+  scene: fort
   weight: 45
   when:
     age: [19, 24]

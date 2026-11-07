@@ -68,6 +68,7 @@
 
 - id: youth.elf_keeper_eye
   stage: youth
+  scene: star_hall
   weight: 10
   when:
     age: [12, 13]

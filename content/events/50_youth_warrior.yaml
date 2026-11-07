@@ -112,6 +112,7 @@
 
 - id: youth.warrior_ash_hounds
   stage: youth
+  scene: road
   weight: 30
   when:
     age: [15, 17]

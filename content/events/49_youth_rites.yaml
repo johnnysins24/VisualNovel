@@ -8,6 +8,7 @@
 
 - id: youth.rite_farm
   stage: youth
+  scene: market
   weight: 1000
   when:
     age: [14, 14]
@@ -152,6 +153,7 @@
 
 - id: youth.rite_dwarf
   stage: youth
+  scene: clan_hall
   weight: 1000
   when:
     age: [14, 14]
@@ -224,6 +226,7 @@
 
 - id: youth.rite_elf
   stage: youth
+  scene: star_hall
   weight: 1000
   when:
     age: [14, 14]
@@ -366,6 +369,7 @@
 
 - id: youth.rite_hidden
   stage: youth
+  scene: noble_hall
   weight: 1000
   when:
     age: [14, 14]
@@ -436,6 +440,7 @@
 
 - id: youth.rite_foundling
   stage: youth
+  scene: temple
   weight: 1000
   when:
     age: [14, 14]

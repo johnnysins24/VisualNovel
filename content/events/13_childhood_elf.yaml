@@ -73,6 +73,7 @@
 
 - id: childhood.elf_eldest_memory
   stage: childhood
+  scene: home
   weight: 8
   when:
     age: [6, 11]
@@ -128,6 +129,7 @@
 
 - id: childhood.elf_star_count
   stage: childhood
+  scene: star_hall
   weight: 9
   when:
     age: [7, 11]
