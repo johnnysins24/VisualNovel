@@ -1,0 +1,64 @@
+# ระบบเกมและวิธีเขียนเหตุการณ์ (YAML)
+
+ตัวเลขสมดุลทั้งหมดอยู่ที่ `src/engine/balance.ts` ไฟล์เดียว ตัวอย่างการใช้งานจริงดูที่ `tests/fixtures/content/` (เนื้อหาทดสอบ ไม่ใช่ lore)
+
+## Stat และชื่อ
+
+id ในไฟล์ YAML ใช้ `STR DEX CON INT WIS CHA` ส่วนผู้เล่นเห็น กำลัง ว่องไว อึด ปัญญา ญาณ เสน่ห์ (`STAT_TH`)
+
+## เผ่า (ได้จาก flag)
+
+ตั้ง flag `race_human`, `race_elf`, `race_dwarf` หรือ `race_tiefling` ใน effects ตอนเกิด ระบบจะให้โบนัส SRD ครั้งเดียว สุ่มพ่อแม่และชื่อตัวละครจากกลุ่มชื่อของเผ่า (`content/names.yaml`) และให้ trait `demon_mark` กับทีฟลิ่ง กลุ่มชื่อใน `names.yaml` (`race:` คือ id กลุ่ม จะตั้งเป็นอะไรก็ได้ เช่น `temple_foundling`) มี `male`, `female` และ `surname` (ไม่บังคับ) ถ้าเผ่านั้นยังไม่มีกลุ่มชื่อ ชื่อจะเป็น "ผู้เดินทาง" และพ่อแม่เป็น "พ่อ" "แม่"
+
+**เปลี่ยนกลุ่มชื่อตามบ้านที่เกิด** ใส่ `name_pool` ในตัวเลือกเกิดเดียวกับ flag เผ่า (ต้องตั้งพร้อมกัน เพราะชื่อสุ่มครั้งเดียว):
+
+```yaml
+effects:
+  flags: [race_tiefling]
+  name_pool: { self: temple_foundling, parents: none }   # none = ไม่มีพ่อแม่ที่รู้จัก ใช้ พ่อ แม่
+```
+
+`{surname}` ดึงจาก `surname` ของกลุ่มชื่อตัวเอง (ว่างถ้าไม่มี) ตัวตรวจเนื้อเรื่องเช็คว่ากลุ่มที่อ้างมีอยู่จริง
+
+flag อื่นที่ขึ้นต้น `origin_` ใช้ได้อิสระ
+
+## Effects ที่เพิ่มในรอบนี้
+
+```yaml
+effects:
+  class: warrior | rogue | wizard | cleric | ranger | bard   # ครั้งแรกครั้งเดียว ให้ stat และ HP ตามตาราง
+  god: verus | isel | talis | ossa | ulwen | belek | astel
+  world: { gods: 1, demon: -1, star: 0 }      # คะแนนโลกลับ ผู้เล่นไม่เห็น (−20..20)
+  alignment: { law: 2, moral: -1 }            # + คือระเบียบ/ดี  − คืออิสระ/ชั่ว (−10..10)
+  reputation: { belek_bank: -2, wardens: 1 }  # ติดข้ามชีวิต (−10..10)
+```
+
+กลุ่มสำหรับ reputation: `crown lamp_church belek_bank royal_institute distillers dwarf_council star_hall wardens dock_rats ash_cult star_listeners`
+
+## เงื่อนไข
+
+ใช้ได้ทั้งใน `when` ของเหตุการณ์และ `requires` ของตัวเลือก: `class`, `god`, `world: {demon: [min, max]}`, `min_reputation`, `max_reputation`
+
+เฉพาะ `when`: `age: [จาก, ถึง]`, `year: [จาก, ถึง]` (ปีในโลก = ปีเกิด + อายุ ปีเกิดสุ่ม 270 ถึง 300)
+
+## ข้อความ
+
+- ตัวเลือกมี `text` ได้ แสดงหลังเลือก (ตัวเลือกที่มี check จะต่อกับ text ของ success/failure)
+- ข้อความแบ่งย่อหน้าตามบรรทัดว่าง
+- `{name}` `{surname}` `{father}` `{mother}` และ `{ชาย|หญิง}` เช่น `{เขา|เธอ}`
+
+## แนวทางและนักบวช
+
+คะแนน alignment แบ่งเป็น 3 ช่องต่อแกน (ถึง ±3 คือเอียง) เทียบกับช่องของเทพบนตาราง 3×3 นักบวชที่ห่างเทพเกิน 1 ช่องเสียโบนัสญาณ ระบบตั้ง flag `cleric_drift` ให้ ใช้ใน `when.flags` เพื่อเขียนเหตุการณ์ "กลับตัว เปลี่ยนเทพ หรือหันไปหาสิ่งอื่น"
+
+## รอยจอมมาร
+
+trait `demon_mark` ให้โบนัสทอยเมื่อ check มี `foe: demon` (ศัตรูลังเล) หรือ `foe: star` (ศัตรูมองไม่เห็น) ค่า `foe` อื่นไม่มีผล ผู้เล่นไม่ถูกบอก
+
+## ชื่อเสียงข้ามชีวิต
+
+เก็บใน `meta` แยกจากเซฟชีวิต ชีวิตใหม่เริ่มด้วยชื่อเสียงที่จบชีวิตก่อนทิ้งไว้ ปรับ `REPUTATION_CARRY` ใน balance.ts ถ้าอยากให้เลือนลง
+
+## ตัวตรวจเนื้อเรื่อง (`npm run validate`)
+
+จับ flag/trait ที่อ่านแต่ไม่เคยถูกตั้ง ของที่ไม่มีจริง ตัวเลือกไม่มีผล id ซ้ำ ช่วงอายุ/ปีกลับด้าน placeholder ที่พิมพ์ผิด flag `race_*` ที่ไม่มีเผ่า และกลุ่มชื่อของเผ่าที่ไม่มี ตั้ง `CONTENT_DIR=tests/fixtures/content` เพื่อตรวจ/รันด้วยเนื้อหาทดสอบ (`npm run dev:fixture`)
