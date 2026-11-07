@@ -1,16 +1,76 @@
-# Faces. Each expression draws the left eye (mirrored to the right) from the row above the brow
-# mark, and the mouth at the mouth mark. Brows use the hair colour (d), so they follow it.
+# Faces: the 17 expressions of the locked look (docs/ref/style-lock/expressions_m.png and
+# expressions_f.png), reproduced pixel class for pixel class; `build.mjs check` compares all 17.
+# Rows count from the brow mark (brows, eyes, cheeks) and the mouth mark (mouths), so one shape fits
+# both bodies; `body:` marks the few spots where the locked male and female faces differ.
+# Eyes are drawn for the left eye and mirrored. Eyes that glance aside, and the wink, differ left to
+# right, so they are written full width from dx -4. `variant` takes one expression or a list.
+# Brows use the hair colour (d), so they follow it. `layer: front` draws above the hair (front_z).
 z: 15
+front_z: 61
 cast: false
 shapes:
-  # --- eyes ---
-  - { variant: smile, body: m, at: [-4, brow-1], mirror: true, ascii: "....\n.dd.\nkkk.\nkwek\n.bb." }
-  - { variant: smile, body: f, at: [-4, brow-1], mirror: true, ascii: ".dd.\n....\nkkk.\nkwe.\n.be.\n.bb." }
-  - { variant: angry, at: [-4, brow-1], mirror: true, ascii: "....\n.ddd\n....\nkkkk\n.we." }
-  - { variant: surprised, at: [-4, brow-1], mirror: true, ascii: ".dd.\n....\nkkk.\nwww.\nwew.\nwww.\nSSS." }
-  # --- mouths ---
-  - { variant: smile, at: [-1, mouth], ascii: "n.n\n.n." }
-  - { variant: angry, at: [-1, mouth], ascii: "www\nnnn" }
-  - { variant: surprised, at: [-1, mouth], ascii: ".n.\n.n." }
-  # --- always: blush on the female face ---
+  # --- always: blush on the female face (first, so expressions can draw over it) ---
   - { body: f, at: [-4, brow+5], mirror: true, ascii: "pp" }
+
+  # --- brows ---
+  - { variant: [neutral, smile, happy, smug, sleepy, sleep, wink, ko, eat, focus], body: m, at: [-3, brow], mirror: true, ascii: "dd" }
+  - { variant: [neutral, smile, happy, smug, sleepy, sleep, wink, ko, eat, focus], body: f, at: [-3, brow-1], mirror: true, ascii: "dd" }
+  - { variant: [laugh, surprised], at: [-3, brow-1], mirror: true, ascii: "dd" }
+  - { variant: angry, at: [-3, brow], mirror: true, ascii: "ddd" }
+  - { variant: [sad, cry, shy, hurt], at: [-4, brow-1], mirror: true, ascii: "..d\ndd" }
+  # on the locked female face the forehead shows through the fringe above worried brows
+  - { variant: [sad, cry, shy, hurt], body: f, layer: front, at: [-3, brow-1], mirror: true, ascii: "4" }
+
+  # --- eyes ---
+  - { variant: [neutral, smile], body: m, at: [-4, brow+1], mirror: true, ascii: "kkk.\nkwek\n.bb." }
+  - { variant: [neutral, smile], body: f, at: [-4, brow+1], mirror: true, ascii: "kkk.\nkwe.\n.be.\n.bb." }
+  - { variant: [happy, laugh, eat], at: [-4, brow+2], mirror: true, ascii: ".kk.\nk..k" }
+  - { variant: sad, at: [-4, brow+1], mirror: true, ascii: ".kkk\nkwe.\nkbb.\n.wb." }
+  - { variant: cry, at: [-4, brow+2], mirror: true, ascii: "k...\n.kkk\nk..." }
+  - { variant: [angry, focus], at: [-4, brow+2], mirror: true, ascii: "kkkk\n.we." }
+  - { variant: surprised, at: [-4, brow+1], mirror: true, ascii: "kkk.\nwww.\nwew.\nwww." }
+  - { variant: surprised, body: m, at: [-4, brow+5], mirror: true, ascii: "SSS" }
+  - { variant: surprised, body: f, at: [-2, brow+5], mirror: true, ascii: "S" }
+  - { variant: hurt, at: [-4, brow+1], mirror: true, ascii: "k...\n.k..\n..k.\n.k.." }
+  - { variant: hurt, body: f, at: [-4, brow+5], mirror: true, ascii: "k" }
+  - { variant: sleep, at: [-4, brow+2], mirror: true, ascii: "k..k\n.kk." }
+  - { variant: ko, at: [-4, brow+2], mirror: true, ascii: "k.k.\n.k..\nk.k." }
+  # half-closed eyes glancing aside
+  - variant: [smug, sleepy]
+    at: [-4, brow+2]
+    ascii: |
+      kkk...kkk
+      .be...be.
+      .bb...bb.
+  # lids lowered, eyes peeking below them
+  - variant: shy
+    at: [-4, brow+2]
+    ascii: |
+      kkk...kkk
+      .........
+      .be...be.
+  - variant: wink
+    at: [-4, brow+1]
+    ascii: |
+      ......kkk
+      .kk...ewk
+      k..k..bb.
+      ......bb.
+
+  # --- mouths ---
+  - { variant: [neutral, focus], body: m, at: [0, mouth], ascii: "nn" }
+  - { variant: [neutral, focus], body: f, at: [0, mouth], ascii: "n" }
+  - { variant: [shy, sleepy, sleep], at: [0, mouth], ascii: "n" }
+  - { variant: [smile, wink], at: [-1, mouth], ascii: "n.n\n.n." }
+  - { variant: happy, at: [-1, mouth], ascii: "nnn\nnpn" }
+  - { variant: laugh, at: [-2, mouth], ascii: "nwwwn\nnpppn" }
+  - { variant: sad, at: [-1, mouth], ascii: ".n.\nn.n" }
+  - { variant: cry, at: [-1, mouth], ascii: ".n.\nnnn" }
+  - { variant: [angry, hurt], at: [-1, mouth], ascii: "www\nnnn" }
+  - { variant: [surprised, ko], at: [0, mouth], ascii: "n\nn" }
+  - { variant: smug, at: [-2, mouth-1], ascii: "n..\n.nn" }
+  - { variant: eat, at: [-1, mouth], ascii: "pnp" }
+
+  # --- cheeks: blush and tears ---
+  - { variant: [happy, laugh, shy, eat], at: [-4, brow+5], mirror: true, ascii: "ppp" }
+  - { variant: cry, at: [-4, brow+5], mirror: true, ascii: "prp\n.r.\n.r." }

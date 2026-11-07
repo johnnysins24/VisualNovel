@@ -1,11 +1,12 @@
 // Script checks, so most mistakes show up as text before anyone has to look at an image.
 import { loadKit, buildPiece, renderLook, readYaml, W, H } from './kit.mjs';
 import { crop } from './sheet.mjs';
-import { lockBare, lockFace, faceBox } from './lock.mjs';
+import { lockBare, lockFace, faceBox, EXPRESSIONS } from './lock.mjs';
 
-export const FACES = ['smile', 'angry', 'surprised'];
+/** Every expression of the locked look; each one is compared with the lock. */
+export const FACES = EXPRESSIONS;
 const hexRGB = h => [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
-const LETTER = { skin: 's', hair: 'h', eye: 'e', white: 'w', lash: 'k', lip: 'n', blush: 'p', cloth: 'c', trim: 't' };
+const LETTER = { skin: 's', hair: 'h', eye: 'e', white: 'w', lash: 'k', lip: 'n', blush: 'p', tear: 'r', cloth: 'c', trim: 't' };
 
 /** pixel -> one letter for what it is (outline, skin, hair, eye...) by nearest palette colour. */
 export function classifier(kit) {
@@ -63,7 +64,8 @@ export function runChecks(kit = loadKit()) {
   const looks = readYaml('looks.yaml');
   // every piece (and each of its variants) builds on every body
   for (const [id, spec] of Object.entries(kit.pieces)) {
-    const variants = [...new Set((spec.shapes ?? []).map(s => s.variant).filter(Boolean))];
+    const variants = [...new Set((spec.shapes ?? []).flatMap(s => s.variant ?? []))];
+    if (id.startsWith('face/')) for (const v of variants) if (!FACES.includes(v)) errors.push(`${id}: unknown expression "${v}"`);
     for (const body of Object.keys(kit.bodies)) for (const variant of variants.length ? variants : [undefined]) {
       try { buildPiece(kit, id, body, { variant }); } catch (e) { errors.push(`${id} on ${body}${variant ? ` (${variant})` : ''}: ${e.message}`); }
     }

@@ -12,6 +12,7 @@ ramps:
   lash: [261717]
   lip: [ac776a]
   blush: [ffbfac]
+  tear: [c0f0ff]
   navy: [303242, 464a5f, 4a4f65, 4d5269, 4e536a]
   sky: [c3d1ed, ccdaf7, d2e1ff, d6e5ff, d9e8ff]
   blue: [5f74ab, 667db5, 6980ba, 6b82bd, 6d85c1]
@@ -29,6 +30,7 @@ materials:
   lash: { ramp: lash }
   lip: { ramp: lip }
   blush: { ramp: blush }
+  tear: { ramp: tear }
   cloth: { ramp: navy, tone: 3.6, edge: [0.7, 0.1], top: 0.5, noise: 0.7 }
   trim: { ramp: blue, tone: 3.2, edge: [1.0, 0.2], top: 0.5, noise: 1.0 }
 
@@ -51,6 +53,7 @@ legend:
   b: eye@1
   n: lip@0
   p: blush@0
+  r: tear@0
   c: cloth
   C: cloth@0
   t: trim
