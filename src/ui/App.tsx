@@ -1,32 +1,84 @@
-import { DebugPanel, EquipmentPanel, StatsPanel } from './Panels';
-import { SpriteView } from './SpriteView';
-import { Story } from './Story';
-import { exportLife, importLife, menuOpen, startLife } from '../store';
+import { useEffect } from 'preact/hooks';
+import { CharacterPanel, DebugPanel, Equipment, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { CloseList, PeoplePage } from './People';
+import { RollDialog } from './Endings';
+import { Icon } from './icons';
+import { BottomNav, Scene, StatRow, TopBar } from './Hud';
+import { ChoiceSheet, StoryLog, playableChoices } from './Story';
+import { bigRoll, choose, life, tab } from '../store';
+import { revealNext, revealing, scrolledBack } from './reading';
 
-function Menu() {
-  return (
-    <div class="menu panel" role="dialog" aria-label="เมนู">
-      <button onClick={() => { startLife(); menuOpen.value = false; }}>เริ่มชีวิตใหม่</button>
-      <button onClick={() => prompt('คัดลอกรหัสเซฟ', exportLife())}>ส่งออกรหัสเซฟ</button>
-      <button onClick={() => { const c = prompt('วางรหัสเซฟ'); if (c) { try { importLife(c); } catch { alert('รหัสไม่ถูกต้อง'); } } menuOpen.value = false; }}>นำเข้ารหัสเซฟ</button>
-      <button onClick={() => (menuOpen.value = false)}>ปิด</button>
-    </div>
-  );
+const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
+
+/** ปุ่มลัดเดสก์ท็อป: เลข 1–9 เลือกตัวเลือก Space/Enter อ่านย่อหน้าต่อ */
+function useHotkeys() {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || tab.value !== 'story') return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT')) return;
+      if (bigRoll.value) return;
+      if ((e.key === ' ' || e.key === 'Enter') && revealing.value && t?.tagName !== 'BUTTON') {
+        e.preventDefault();
+        revealNext();
+        return;
+      }
+      const n = Number(e.key);
+      if (!Number.isInteger(n) || n < 1 || n > 9) return;
+      const c = playableChoices()[n - 1];
+      if (c) {
+        e.preventDefault();
+        choose(c.id);
+      }
+    };
+    addEventListener('keydown', onKey);
+    return () => removeEventListener('keydown', onKey);
+  }, []);
 }
 
-/** One DOM, three layouts: CSS grid areas change by orientation and width (see styles.css). */
+/**
+ * DOM ชุดเดียว จัดวาง 3 แบบด้วย CSS grid (styles.css):
+ * มือถือแนวตั้ง · มือถือแนวนอน (เมนูเป็นแถบซ้าย) · เดสก์ท็อป 3 คอลัมน์
+ */
 export function App() {
+  useHotkeys();
+  const t = tab.value;
+  const Page = t === 'story' ? null : PAGES[t];
   return (
-    <main class="game">
-      <header class="top">
-        <h1>เถ้ากับดาว</h1>
-        <button aria-label="เมนู" onClick={() => (menuOpen.value = !menuOpen.value)}>☰</button>
-      </header>
-      {menuOpen.value && <Menu />}
-      <div class="portrait-box"><SpriteView /></div>
-      <StatsPanel />
-      <Story />
-      <EquipmentPanel />
+    <main class="game" data-tab={t} data-back={t === 'story' && scrolledBack.value ? '' : undefined}>
+      <TopBar />
+      <Scene />
+      <StatRow />
+      <aside class="side left" aria-label="ตัวละคร">
+        <section class="sec">
+          <h3>ค่าสถานะ</h3>
+          <StatGrid />
+        </section>
+        <section class="sec">
+          <h3>สวมใส่</h3>
+          <SlotGrid />
+        </section>
+        <Equipment />
+      </aside>
+      <section class="read">
+        {Page ? (
+          <div class="page"><Page /></div>
+        ) : (
+          <>
+            <StoryLog />
+            <ChoiceSheet />
+          </>
+        )}
+      </section>
+      <aside class="side right" aria-label="ผู้คนและโลก">
+        <CloseList />
+        <section class="sec">
+          <h3><Icon name="place" />ที่อยู่</h3>
+          <WorldMap here={life.value.locationTag} small />
+        </section>
+      </aside>
+      <BottomNav />
+      <RollDialog />
       {new URLSearchParams(location.search).has('debug') && <DebugPanel />}
     </main>
   );
