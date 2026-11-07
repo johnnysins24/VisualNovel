@@ -1,6 +1,6 @@
 import type { Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { ADULT_AGE, BIRTH_YEAR, RACES, type RaceId, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -46,8 +46,12 @@ export interface LifeState {
   seen: string[];
   log: LogEntry[];
   alive: boolean;
+  /** ทำไมชีวิตจบ: death = ตายจริง (HP หมดหรือ effect die), content_end = เนื้อเรื่องที่มีอยู่หมดแล้ว, null = ยังมีชีวิต */
+  endReason: EndReason;
   currentEventId: string | null;
 }
+
+export type EndReason = 'death' | 'content_end' | null;
 
 export interface LogEntry {
   age: number;
@@ -96,6 +100,7 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     seen: [],
     log: [],
     alive: true,
+    endReason: null,
     currentEventId: null,
   };
 }
@@ -107,11 +112,14 @@ export const worldYear = (life: Pick<LifeState, 'birthYear' | 'age'>) => life.bi
 export const ageScale = (life: Pick<LifeState, 'raceApplied'>) => RACES[life.raceApplied as RaceId]?.ageScale ?? 1;
 
 /**
- * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: ก่อน 18 ปีเท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
- * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงผู้ใหญ่ให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
+ * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: จนถึง EVEN_AGING_UNTIL เท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
+ * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงหลังจากนั้นให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
  */
 export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) =>
-  life.age <= ADULT_AGE ? life.age : ADULT_AGE + (life.age - ADULT_AGE) / ageScale(life);
+  life.age <= EVEN_AGING_UNTIL ? life.age : EVEN_AGING_UNTIL + (life.age - EVEN_AGING_UNTIL) / ageScale(life);
 
-/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีก่อนเป็นผู้ใหญ่ หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
-export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < ADULT_AGE ? 1 : ageScale(life));
+/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีจนถึง EVEN_AGING_UNTIL หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
+export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < EVEN_AGING_UNTIL ? 1 : ageScale(life));
+
+/** ชีวิตที่ยังไม่ตายแต่ไม่มีเหตุการณ์เหลือ: จบแบบ content_end ให้ UI แยกจากความตาย */
+export const outOfContent = (life: LifeState): LifeState => ({ ...life, alive: false, endReason: 'content_end' });

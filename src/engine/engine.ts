@@ -5,6 +5,8 @@ import { DEFAULT_NAME, type LifeState, type LogEntry, humanAge, modifier, worldY
 import type { ItemIndex } from './items';
 import { activePassives, effectiveStats, maxHp } from './items';
 import {
+  ADULT_AGE,
+  ADULT_HP_REGEN,
   ALIGN_CAP,
   CLASSES,
   CLASS_PRIMARY_BONUS,
@@ -159,6 +161,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   } else if (fx.die || next.hp <= 0) {
     next.hp = Math.max(0, next.hp);
     next.alive = false;
+    next.endReason = 'death';
   }
   return next;
 }
@@ -244,6 +247,10 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   if (texts.length) entry.text = texts.join('\n\n');
 
   next = settle(game, next, rng);
+  if (next.alive && life.age >= ADULT_AGE) {
+    // ผู้ใหญ่พักแผลได้ปีละ ADULT_HP_REGEN แผลถาวรให้เนื้อหาตั้งเป็น flag แทน
+    next = { ...next, hp: Math.min(maxHp(next, game.items), next.hp + ADULT_HP_REGEN) };
+  }
   next = {
     ...next,
     rngState: rng.state,

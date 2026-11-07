@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, choiceAvailable, eligible, makeGame, resolveChoice, settle } from '../src/engine/engine';
-import { humanAge, newLife, yearsPerEvent } from '../src/engine/state';
+import { humanAge, newLife, outOfContent, yearsPerEvent } from '../src/engine/state';
 import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { alignmentCell, bucket, clericDrifted, godDistance, hasDemonMark, situationalBonus } from '../src/engine/rules';
@@ -10,12 +10,14 @@ import { paragraphs, render } from '../src/engine/text';
 import { commitLife, newMeta } from '../src/engine/meta';
 import { migrate } from '../src/engine/save';
 import {
+  ADULT_HP_REGEN,
   ALIGN_CAP,
   CLASSES,
   CLASS_IDS,
   CLERIC_DRIFT_FLAG,
   CLERIC_WIS_BONUS,
   DEMON_MARK_BONUS,
+  EVEN_AGING_UNTIL,
   GODS,
   GOD_IDS,
   RACES,
@@ -288,33 +290,79 @@ describe('child protection', () => {
   });
 });
 
+describe('how a life ends', () => {
+  it('a living life has no end reason', () => expect(newLife(1).endReason).toBeNull());
+  it('hp loss and the die effect both end as death', () => {
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 }).endReason).toBe('death');
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { die: true }).endReason).toBe('death');
+    expect(applyEffects(game, { ...newLife(1), age: 5 }, { die: true }).endReason).toBeNull();
+  });
+  it('running out of events ends as content_end, not death', () => {
+    const l = outOfContent({ ...newLife(1), age: 25 });
+    expect(l.alive).toBe(false);
+    expect(l.endReason).toBe('content_end');
+  });
+  it('old saves without the field read as null', () => {
+    const { endReason: _, ...old } = newLife(4);
+    expect(migrate(old).endReason).toBeNull();
+  });
+});
+
+describe('adult hp regen', () => {
+  const adultGame = makeGame(
+    ContentSchema.parse({ items: [], events: [{ id: 'adult.rest', stage: 'adult', text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }, { id: 'hurt', label: 'b', effects: { hp: -5 } }] }] }),
+  );
+  const at = (age: number, hp: number) => ({ ...newLife(1), age, hp, baseMaxHp: 20 });
+  it('from 18 on, each event heals ADULT_HP_REGEN up to max', () => {
+    expect(resolveChoice(adultGame, at(18, 10), 'adult.rest', 'a').life.hp).toBe(10 + ADULT_HP_REGEN);
+    expect(resolveChoice(adultGame, at(30, 19), 'adult.rest', 'a').life.hp).toBe(20);
+  });
+  it('children and youths do not heal', () => {
+    expect(resolveChoice(adultGame, at(17, 10), 'adult.rest', 'a').life.hp).toBe(10);
+  });
+  it('the heal comes after the choice, so a hit that kills still kills', () => {
+    const r = resolveChoice(adultGame, at(25, 5), 'adult.rest', 'hurt').life;
+    expect(r.alive).toBe(false);
+    expect(r.hp).toBe(0);
+  });
+});
+
 describe('race ageing', () => {
   const at = (race: string | null, age: number) => ({ ...newLife(1), raceApplied: race, age });
-  it('all races use human ages until 18', () => {
-    for (const r of ['human', 'elf', 'dwarf', 'tiefling']) expect(humanAge(at(r, 18))).toBe(18);
-    expect(yearsPerEvent(at('elf', 10))).toBe(1);
-    expect(yearsPerEvent(at('elf', 17))).toBe(1);
+  it(`all races step one year per event until ${EVEN_AGING_UNTIL} (L15)`, () => {
+    for (const r of ['human', 'elf', 'dwarf', 'tiefling']) {
+      expect(humanAge(at(r, 18))).toBe(18);
+      expect(humanAge(at(r, EVEN_AGING_UNTIL))).toBe(EVEN_AGING_UNTIL);
+      for (const age of [10, 17, 18, 25, EVEN_AGING_UNTIL - 1]) expect(yearsPerEvent(at(r, age))).toBe(1);
+    }
   });
-  it('after 18 elves and dwarves stretch their stages', () => {
-    expect(yearsPerEvent(at('elf', 18))).toBe(10);
-    expect(yearsPerEvent(at('dwarf', 18))).toBe(5);
+  it(`after ${EVEN_AGING_UNTIL} elves and dwarves stretch their stages`, () => {
+    expect(yearsPerEvent(at('elf', 40))).toBe(10);
+    expect(yearsPerEvent(at('dwarf', 40))).toBe(5);
     expect(yearsPerEvent(at('human', 40))).toBe(1);
-    expect(humanAge(at('elf', 118))).toBe(28); // 18 + 100/10
-    expect(humanAge(at('dwarf', 68))).toBe(28);
-    expect(humanAge(at(null, 40))).toBe(40);
+    expect(humanAge(at('elf', 140))).toBe(50); // 40 + 100/10
+    expect(humanAge(at('dwarf', 90))).toBe(50);
+    expect(humanAge(at(null, 60))).toBe(60);
   });
-  it('when.age is read in human years, so an elf reaches the same stage at older real ages', () => {
-    const ev = ContentSchema.parse({ items: [], events: [{ id: 'adult.a', stage: 'adult', when: { age: [20, 30] }, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }] }).events[0]!;
-    expect(eligible(at('human', 25), ev)).toBe(true);
-    expect(eligible(at('elf', 25), ev)).toBe(false); // อายุจริง 25 = 18.7 แบบมนุษย์
-    expect(eligible(at('elf', 68), ev)).toBe(true); // 23 ปีแบบมนุษย์
-    expect(eligible(at('elf', 218), ev)).toBe(false); // 38 ปีแบบมนุษย์
+  it('a life born in the last birth year is still in the Starlight Age at 40', () => {
+    for (const r of ['human', 'elf', 'dwarf']) {
+      let l = { ...newLife(1), raceApplied: r, birthYear: 300, age: 0 };
+      while (humanAge(l) < 40) l = { ...l, age: l.age + yearsPerEvent(l) };
+      expect(l.birthYear + l.age).toBeLessThanOrEqual(340);
+    }
+  });
+  it('when.age is read in human years, so an elf reaches the same late stage at older real ages', () => {
+    const ev = ContentSchema.parse({ items: [], events: [{ id: 'elder.a', stage: 'elder', when: { age: [45, 55] }, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }] }).events[0]!;
+    expect(eligible(at('human', 50), ev)).toBe(true);
+    expect(eligible(at('elf', 50), ev)).toBe(false); // อายุจริง 50 = 41 แบบมนุษย์
+    expect(eligible(at('elf', 120), ev)).toBe(true); // 48 ปีแบบมนุษย์
+    expect(eligible(at('elf', 200), ev)).toBe(false); // 56 ปีแบบมนุษย์
   });
   it('an elf gets the same number of events per stage as a human but older numbers', () => {
     const run = (race: string) => {
       let l = { ...newLife(1), raceApplied: race, age: 18 };
       let n = 0;
-      while (humanAge(l) <= 30) {
+      while (humanAge(l) <= 60) {
         l = { ...l, age: l.age + yearsPerEvent(l) };
         n++;
       }
