@@ -110,8 +110,15 @@ export function bodyOf(kit, bodyKey) {
 /** A shape's body / variant field: one name or a list of names. */
 const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
 
+/**
+ * Does a `body` field (one name or a list) take this body? A body with `like:` (the child bodies,
+ * art/bodies.yaml) also takes what its grown-up body takes: the child heads are the adult heads, so
+ * hair/m/short and the male face shapes fit the boy too.
+ */
+export const bodyIs = (kit, bodyKey, v) => has(v, bodyKey) || (!!kit?.bodies[bodyKey]?.like && has(v, kit.bodies[bodyKey].like));
+
 /** A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short. */
-export const fitsBody = (spec, bodyKey) => !spec?.body || has(spec.body, bodyKey);
+export const fitsBody = (spec, bodyKey, kit) => !spec?.body || bodyIs(kit, bodyKey, spec.body);
 
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).
@@ -121,9 +128,9 @@ export function buildPiece(kit, id, bodyKey, opts = {}) {
   if (id === 'body') return { id, z: 10, cast: false, colors: {}, layers: { main: bodyOf(kit, bodyKey).layer } };
   const spec = kit.pieces[id];
   if (!spec) throw new Error(`unknown piece "${id}"`);
-  if (!fitsBody(spec, bodyKey)) throw new Error(`${id} is only for body ${[spec.body].flat().join(', ')}, not ${bodyKey}`);
+  if (!fitsBody(spec, bodyKey, kit)) throw new Error(`${id} is only for body ${[spec.body].flat().join(', ')}, not ${bodyKey}`);
   const { marks, masks } = bodyOf(kit, bodyKey);
-  const pick = s => (!s.body || has(s.body, bodyKey)) && (!s.variant || has(s.variant, opts.variant));
+  const pick = s => (!s.body || bodyIs(kit, bodyKey, s.body)) && (!s.variant || has(s.variant, opts.variant));
   const shapes = (spec.shapes ?? []).filter(pick);
   const layers = {};
   for (const name of new Set(shapes.map(s => s.layer ?? 'main'))) {

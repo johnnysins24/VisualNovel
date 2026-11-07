@@ -1,0 +1,10 @@
+# Tiefling horns, sawn stumps (A17): what many families do to a marked child. Short square stubs at
+# the top corners of the head with a flat, lighter cut face.
+z: 62
+shapes:
+  - at: [-5, head-2]
+    mirror: true
+    ascii: |
+      uu
+      mm
+      mm

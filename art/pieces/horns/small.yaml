@@ -1,0 +1,11 @@
+# Tiefling horns, small (A17): short points that show through the hair and lean outward.
+z: 62
+shapes:
+  - at: [-7, head-4]
+    mirror: true
+    ascii: |
+      m....
+      mm...
+      .mm..
+      ..mmm
+      ...mm

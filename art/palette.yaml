@@ -38,6 +38,8 @@ ramps:
   eye_grey: [3a4352, 8d99ab]
   eye_violet: [432d6b, 9d86d9]
   eye_amber: [6e3b0a, e9a531]
+  # tiefling horn (A17): charcoal with a plum cast, so it reads on every skin and hair colour
+  horn: ['453b4a', 574c5c, 685c6c, 7a6e7d, '948898']
   white: [ffffff]
   lash: [261717]
   tear: [c0f0ff]
@@ -60,6 +62,7 @@ materials:
   blush: { ramp: blush_peach }
   tear: { ramp: tear }
   cloth: { ramp: navy, tone: 3.6, edge: [0.7, 0.1], top: 0.5, noise: 0.7 }
+  horn: { ramp: horn, tone: 2.6, edge: [0.6, 0], top: 0.4, noise: 0.3, rag: 0 }
   trim: { ramp: blue, tone: 3.2, edge: [1.0, 0.2], top: 0.5, noise: 1.0 }
 
 # Character colours Phupha chose (Art decisions A12-A14, 2026-11-07). A look picks one of each by
@@ -111,3 +114,5 @@ legend:
   c: cloth
   C: cloth@0
   t: trim
+  m: horn
+  u: horn@4

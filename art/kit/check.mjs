@@ -69,14 +69,15 @@ export function runChecks(kit = loadKit()) {
     if (id.startsWith('face/')) for (const v of variants) if (!FACES.includes(v)) errors.push(`${id}: unknown expression "${v}"`);
     const folder = id.split('/').slice(1, -1).find(s => s in kit.bodies);
     if (folder && spec.body !== folder) errors.push(`${id}: pieces in ${folder}/ need "body: ${folder}"`);
-    for (const body of Object.keys(kit.bodies).filter(b => fitsBody(spec, b))) for (const variant of variants.length ? variants : [undefined]) {
+    for (const body of Object.keys(kit.bodies).filter(b => fitsBody(spec, b, kit))) for (const variant of variants.length ? variants : [undefined]) {
       try { buildPiece(kit, id, body, { variant }); } catch (e) { errors.push(`${id} on ${body}${variant ? ` (${variant})` : ''}: ${e.message}`); }
     }
   }
-  // hairstyles never hide the eyes, mouth, cheeks or tears of any expression (brows may sit under a fringe)
+  // hairstyles, beards, ears and horns never hide the eyes, mouth, cheeks or tears of any expression
+  // (brows may sit under a fringe)
   const features = ['lash', 'white', 'eye', 'lip', 'blush', 'tear'].map(m => kit.matId[m]);
   for (const body of Object.keys(kit.bodies)) {
-    const hairs = Object.keys(kit.pieces).filter(id => id.startsWith('hair/') && fitsBody(kit.pieces[id], body));
+    const hairs = Object.keys(kit.pieces).filter(id => /^(hair|beard|ears|horns)\//.test(id) && fitsBody(kit.pieces[id], body, kit));
     const built = Object.fromEntries(hairs.map(id => [id, buildPiece(kit, id, body).layers.main]));
     for (const face of FACES) {
       const F = buildPiece(kit, 'face/basic', body, { variant: face }).layers.main;
@@ -96,6 +97,16 @@ export function runChecks(kit = loadKit()) {
       else if (kit.pal.ramps[ramp].length !== kit.pal.ramps[kit.pal.materials[mat].ramp].length) errors.push(`choice ${group}.${name}: ramp "${ramp}" has ${kit.pal.ramps[ramp].length} colours, ${mat} needs ${kit.pal.ramps[kit.pal.materials[mat].ramp].length}`);
     }
     if (group === 'skin') for (const mat of ['skin', 'lip', 'blush']) if (!set[mat]) errors.push(`choice skin.${name}: sets no ${mat}`);
+  }
+  // race pieces (races.yaml): every piece listed exists; beards are men's pieces
+  const races = readYaml('races.yaml');
+  for (const [race, r] of Object.entries(races)) {
+    if (!r.name) errors.push(`races.yaml: ${race} has no Thai name`);
+    for (const [key, v] of Object.entries(r)) {
+      if (key === 'name') continue;
+      for (const id of Array.isArray(v) ? v : Object.keys(v)) if (!kit.pieces[id]) errors.push(`races.yaml ${race}.${key} lists ${id} but there is no such piece`);
+    }
+    for (const id of Object.keys(r.beard ?? {})) if (kit.pieces[id] && kit.pieces[id].body !== 'm') errors.push(`${id}: beards are for the male body (body: m)`);
   }
   // hairstyle lists (hair.yaml): each body's list names exactly the pieces in hair/<body>/
   for (const body of Object.keys(kit.bodies)) {

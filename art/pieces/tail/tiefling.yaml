@@ -1,0 +1,13 @@
+# Tiefling tail (A18): 1 px thin, skin coloured, from behind the hip down beside the left leg of the
+# picture, the tip curled outward below the knee. Placed by the crotch and knee marks, so it fits
+# the short child legs too. A back layer, so the body covers its root.
+z: 50
+shapes:
+  - { layer: back, mat: skin, span: [[crotch, -3, -3], [crotch+3, -6, -6], [knee, -6, -6]] }
+  - layer: back
+    at: [-10, knee+1]
+    ascii: |
+      ....s
+      ...s.
+      .s.s.
+      ..s..
