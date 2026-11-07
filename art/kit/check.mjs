@@ -70,6 +70,30 @@ export function runChecks(kit = loadKit()) {
       try { buildPiece(kit, id, body, { variant }); } catch (e) { errors.push(`${id} on ${body}${variant ? ` (${variant})` : ''}: ${e.message}`); }
     }
   }
+  // hairstyles never hide the eyes, mouth, cheeks or tears of any expression (brows may sit under a fringe)
+  const features = ['lash', 'white', 'eye', 'lip', 'blush', 'tear'].map(m => kit.matId[m]);
+  const hairs = Object.keys(kit.pieces).filter(id => id.startsWith('hair/'));
+  for (const body of Object.keys(kit.bodies)) {
+    const built = Object.fromEntries(hairs.map(id => [id, buildPiece(kit, id, body).layers.main]));
+    for (const face of FACES) {
+      const F = buildPiece(kit, 'face/basic', body, { variant: face }).layers.main;
+      for (const id of hairs) {
+        let n = 0;
+        for (let p = 0; p < W * H; p++) if (features.includes(F.mat[p]) && built[id]?.mat[p] >= 0) n++;
+        if (n) errors.push(`${id} on ${body} hides ${n} px of the ${face} face (eyes, mouth, cheeks)`);
+      }
+    }
+  }
+  // colour choices: each sets existing materials to existing ramps of the same length as the
+  // material's own; a skin tone brings its own lips and blush
+  for (const [group, sets] of Object.entries(kit.pal.choices ?? {})) for (const [name, set] of Object.entries(sets)) {
+    for (const [mat, ramp] of Object.entries(set)) {
+      if (!kit.pal.materials[mat]) errors.push(`choice ${group}.${name}: no material "${mat}"`);
+      else if (!kit.pal.ramps[ramp]) errors.push(`choice ${group}.${name}: no ramp "${ramp}"`);
+      else if (kit.pal.ramps[ramp].length !== kit.pal.ramps[kit.pal.materials[mat].ramp].length) errors.push(`choice ${group}.${name}: ramp "${ramp}" has ${kit.pal.ramps[ramp].length} colours, ${mat} needs ${kit.pal.ramps[kit.pal.materials[mat].ramp].length}`);
+    }
+    if (group === 'skin') for (const mat of ['skin', 'lip', 'blush']) if (!set[mat]) errors.push(`choice skin.${name}: sets no ${mat}`);
+  }
   // looks: fit the canvas with room for the outline, stay within the colour budget
   for (const [name, look] of Object.entries(looks)) for (const face of FACES) {
     let img;

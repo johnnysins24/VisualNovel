@@ -1,0 +1,42 @@
+# Long straight hair parted in the middle: curtains frame the face and fall over the shoulders to
+# the chest, in front of clothes. The back layer is the hair behind the neck; it shows beside it.
+z: 60
+shapes:
+  - at: [-8, head]
+    ascii: |
+      .....HhhhhhH.....
+      ....HhhhhhhhH....
+      ...HhhhhdhhhhH...
+      ..hhhhhd.dhhhhh..
+      ..hhhhd...dhhhh..
+      ..hhhd.....dhhh..
+      ..hhd.......dhh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hh.........hh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..hhh.......hhh..
+      ..dhh.......hhd..
+      ...hd.......dh...
+      ...d.........d...
+  - layer: back
+    at: [-6, head+11]
+    ascii: |
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh

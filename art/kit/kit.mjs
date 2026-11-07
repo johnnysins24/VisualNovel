@@ -272,9 +272,23 @@ export function compose(kit, pieces, look = {}) {
   return { w: W, h: H, rgba: out };
 }
 
-/** Convenience: build and compose a look { body, pieces: [...ids], face, colors }. */
+/**
+ * Colour overrides of a look: its choices (palette.yaml `choices`, e.g. { skin: "honey" } sets the
+ * skin, lip and blush ramps), then its own colors on top.
+ */
+export function lookColours(kit, look) {
+  const out = {};
+  for (const [group, name] of Object.entries(look.choices ?? {})) {
+    const set = kit.pal.choices?.[group]?.[name];
+    if (!set) throw new Error(`no ${group} choice "${name}" in palette.yaml`);
+    Object.assign(out, set);
+  }
+  return { ...out, ...(look.colors ?? {}) };
+}
+
+/** Convenience: build and compose a look { body, pieces: [...ids], face, choices, colors }. */
 export function renderLook(kit, look) {
   const pcs = ['body', ...(look.pieces ?? [])].map(id =>
     buildPiece(kit, id, look.body, { variant: id.startsWith('face/') ? look.face : undefined }));
-  return compose(kit, pcs, look.colors ?? {});
+  return compose(kit, pcs, lookColours(kit, look));
 }

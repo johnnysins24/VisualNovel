@@ -1,0 +1,21 @@
+# Messy: tufts sticking out every way, an uneven choppy fringe.
+z: 60
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      .....h...h.....
+      ....hh..hh.h...
+      ...hhhhhhhhhh..
+      ..HhhhhhhhhhhH.
+      .HhhhhhhhhhhhH.
+      .hhhhhhhhhhhhhh
+      hhhhhhhhhhhhhh.
+      .hhdhhdhhdhhdh.
+      .hhd...d...dhh.
+      .hh.........hh.
+      hhh.........hh.
+      hhh.........hhh
+      .hh.........hhh
+      .hh.........hh.
+      .dh.........hd.
+      .d...........d.
