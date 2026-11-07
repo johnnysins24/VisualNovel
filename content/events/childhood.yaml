@@ -1,0 +1,71 @@
+# เนื้อหาชั่วคราวสำหรับทดสอบระบบเท่านั้น ไม่ใช่ lore หรือเนื้อเรื่องจริง
+- id: childhood.test_fence
+  stage: childhood
+  weight: 10
+  when: { age: [0, 12], location_tag: village, not_flags: [test_met_wolf] }
+  text: "[ทดสอบ] มีบางอย่างเคลื่อนไหวอยู่หลังรั้ว"
+  choices:
+    - id: throw_stone
+      label: "[ทดสอบ] ขว้างก้อนหิน"
+      check: { stat: DEX, dc: 12 }
+      success: { text: "[ทดสอบ] โดน", effects: { stats: { DEX: 1 }, flags: [test_met_wolf] } }
+      failure: { text: "[ทดสอบ] พลาด", effects: { hp: -3 } }
+    - id: call_adult
+      label: "[ทดสอบ] ตะโกนเรียกผู้ใหญ่"
+      effects: { stats: { WIS: 1 } }
+    - id: speak
+      label: "[ทดสอบ] พูดกับมัน"
+      requires: { trait: test_beast_tongue }
+      effects: { flags: [test_met_wolf] }
+
+- id: childhood.test_chest
+  stage: childhood
+  weight: 6
+  when: { age: [3, 14], not_flags: [test_has_dagger] }
+  text: "[ทดสอบ] พบหีบเก่าใต้พื้นบ้าน"
+  choices:
+    - id: open
+      label: "[ทดสอบ] เปิดหีบ"
+      effects: { items: [test_dagger], flags: [test_has_dagger] }
+    - id: leave
+      label: "[ทดสอบ] ปล่อยไว้"
+      effects: { stats: { WIS: 1 }, traits: [test_beast_tongue] }
+
+- id: youth.test_duel
+  stage: youth
+  weight: 10
+  when: { age: [13, 30], flags: [test_has_dagger] }
+  text: "[ทดสอบ] มีคนท้าประลอง"
+  choices:
+    - id: accept
+      label: "[ทดสอบ] รับคำท้า"
+      check: { stat: STR, dc: 13 }
+      success: { effects: { gold: 5 } }
+      failure: { effects: { hp: -4 } }
+    - id: refuse
+      label: "[ทดสอบ] ปฏิเสธ"
+      effects: { stats: { CHA: -1 } }
+
+- id: elder.test_end
+  stage: elder
+  weight: 10
+  when: { age: [31, 120] }
+  text: "[ทดสอบ] ชีวิตมาถึงช่วงท้าย"
+  choices:
+    - id: rest
+      label: "[ทดสอบ] พักผ่อน"
+      effects: { die: true }
+
+- id: childhood.test_day
+  stage: childhood
+  weight: 3
+  once: false
+  when: { age: [0, 40] }
+  text: "[ทดสอบ] วันธรรมดาผ่านไป"
+  choices:
+    - id: work
+      label: "[ทดสอบ] ทำงานต่อไป"
+      effects: { gold: 1 }
+    - id: rest
+      label: "[ทดสอบ] พักผ่อน"
+      effects: { hp: 1 }
