@@ -1,0 +1,53 @@
+/* ธีม/ฟอนต์เป็นค่าชั่วคราว รอคำตอบ A8 และ A9 */
+:root {
+  --bg: #f1e8d4; --panel: #e6d9bc; --ink: #2b2118; --accent: #8a4a2b; --muted: #6d5f4c;
+  --tap: 48px; --gap: 12px;
+  font-family: 'Anuphan', 'Noto Sans Thai', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1d1a16; --panel: #2a2620; --ink: #ece3d0; --accent: #d79a6a; --muted: #a39679; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink); height: 100%; }
+button {
+  min-height: var(--tap); padding: 8px 14px; font: inherit; color: inherit; text-align: left;
+  background: var(--panel); border: 2px solid var(--accent); border-radius: 8px; cursor: pointer;
+}
+button.on { background: var(--accent); color: var(--bg); }
+.muted { color: var(--muted); }
+.panel { background: var(--panel); border-radius: 8px; padding: var(--gap); }
+h1, h2 { margin: 0 0 6px; font-size: 1rem; }
+ul { list-style: none; margin: 0; padding: 0; }
+
+.game {
+  display: grid; gap: var(--gap); padding: var(--gap);
+  padding-left: max(var(--gap), env(safe-area-inset-left)); padding-right: max(var(--gap), env(safe-area-inset-right));
+  min-height: 100dvh; max-width: 1280px; margin: 0 auto;
+}
+.top { grid-area: top; display: flex; justify-content: space-between; align-items: center; }
+.portrait-box { grid-area: portrait; display: grid; place-items: center; background: var(--panel); border-radius: 8px; padding: var(--gap); }
+.sprite { image-rendering: pixelated; height: min(30dvh, 288px); aspect-ratio: 64 / 96; }
+.stats { grid-area: stats; }
+.stats ul { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.story { grid-area: story; display: flex; flex-direction: column; gap: var(--gap); line-height: 1.7; font-size: 1.05rem; }
+.choices { display: grid; gap: 8px; }
+.equipment { grid-area: equip; }
+.roll { margin: 0; font-size: .9rem; } .roll.ok { color: #2e7d32; } .roll.bad { color: #b3261e; }
+.menu { grid-area: top; position: relative; z-index: 2; display: grid; gap: 8px; }
+
+/* มือถือแนวตั้ง */
+.game {
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas: 'top top' 'portrait stats' 'story story' 'equip equip';
+}
+/* มือถือแนวนอน: ตัวละครซ้าย เรื่องกลาง ค่าและกระเป๋าขวา */
+@media (orientation: landscape) and (max-height: 600px) {
+  .game { grid-template-columns: 0.8fr 1.6fr 1fr; grid-template-areas: 'top top top' 'portrait story stats' 'portrait story equip'; align-content: start; }
+  .sprite { height: min(55dvh, 288px); }
+  .story { max-height: calc(100dvh - 80px); overflow: auto; }
+}
+/* เดสก์ท็อป */
+@media (min-width: 1024px) and (min-height: 601px) {
+  .game { grid-template-columns: 280px 1fr 300px; grid-template-areas: 'top top top' 'portrait story stats' 'equip story stats'; align-content: start; }
+  .sprite { height: 288px; }
+}
