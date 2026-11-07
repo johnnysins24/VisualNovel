@@ -1,0 +1,6 @@
+z: 20
+cast: false
+colors: { cloth: sky, trim: blue }
+shapes:
+  - { mat: cloth, region: { parts: [torso, leg], rows: [hip, crotch] } }
+  - { mat: trim, span: [[hip, -2, 2]] }

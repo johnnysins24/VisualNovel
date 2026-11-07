@@ -1,0 +1,56 @@
+# Colours for the sprite kit. Pieces store material + shade level (0 dark .. 4 light);
+# a ramp gives the colour for each level. Shaded materials use 5-colour ramps.
+# Measured from docs/ref/style-lock/ (the locked look).
+
+outline: 2b2840
+
+ramps:
+  skin_peach: [ecc1a7, f4ceb0, fdd6b7, ffdcbc, ffe0c0]
+  hair_brown: [5f3728, 7b4627, 824a2a, 874d2c, 8b502e]
+  eye_blue: [264972, 6698d6]
+  white: [ffffff]
+  lash: [261717]
+  lip: [ac776a]
+  blush: [ffbfac]
+  navy: [303242, 464a5f, 4a4f65, 4d5269, 4e536a]
+  sky: [c3d1ed, ccdaf7, d2e1ff, d6e5ff, d9e8ff]
+  blue: [5f74ab, 667db5, 6980ba, 6b82bd, 6d85c1]
+
+# Material slots a piece can use. ramp = default colours; the rest shapes automatic shading:
+#   tone  = base level, edge = [mean darkening on the part's edge pixels, on the next ring]
+#           (ragged: most edge pixels darken a little, a few a lot; rag: 0 = even),
+#   top   = how much of the edge darkening applies to top edges (light comes from above),
+#   noise = speckle strength (random level jitter).
+materials:
+  skin: { ramp: skin_peach, tone: 3.45, edge: [0.7, 0.15], top: 0.3, noise: 1.7 }
+  hair: { ramp: hair_brown, tone: 3.0, edge: [0.5, 0], top: 0.6, noise: 0.3, rag: 0 }
+  eye: { ramp: eye_blue }
+  white: { ramp: white }
+  lash: { ramp: lash }
+  lip: { ramp: lip }
+  blush: { ramp: blush }
+  cloth: { ramp: navy, tone: 3.6, edge: [0.7, 0.1], top: 0.5, noise: 0.7 }
+  trim: { ramp: blue, tone: 3.2, edge: [1.0, 0.2], top: 0.5, noise: 1.0 }
+
+# Characters for ascii shapes. "mat" = shaded automatically, "mat@N" = fixed level N.
+# "." = nothing, "x" = erase. Digits are skin levels (for anatomy and face touches).
+legend:
+  s: skin
+  S: skin@0
+  '0': skin@0
+  '1': skin@1
+  '2': skin@2
+  '3': skin@3
+  '4': skin@4
+  h: hair
+  H: hair@1
+  d: hair@0
+  k: lash@0
+  w: white@0
+  e: eye@0
+  b: eye@1
+  n: lip@0
+  p: blush@0
+  c: cloth
+  C: cloth@0
+  t: trim

@@ -1,0 +1,8 @@
+# Looks for previews and checks: a body, the pieces it wears, a face, optional colour overrides.
+# proof_m / proof_f must match the locked look (docs/ref/style-lock/) pixel class for pixel class;
+# npm test checks this.
+proof_m: { body: m, pieces: [face/basic, under/briefs, hair/short] }
+proof_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/bob] }
+# the same pieces swapped between bodies (nothing redrawn)
+swap_m: { body: m, pieces: [face/basic, under/briefs, hair/bob] }
+swap_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/short] }
