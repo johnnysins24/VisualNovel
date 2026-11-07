@@ -1,0 +1,21 @@
+# Undercut: the sides clipped close (dark, fading into the skin at the ear), the long top swept over
+# to the right of the picture past the brow, where it hangs over the clipped side and ends at the eye.
+body: m
+z: 60
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      .....hhhhh.....
+      ...hhhhhhhhh...
+      ..HhhhhhhhhhhH.
+      ..hHhhhhhhhhhhH
+      ..hhHhhhhhhhhhh
+      .dd.hhHhhhhhhhh
+      .dd...dhhHhhhhh
+      .dd.....dhhhhhh
+      .dd.......dhhhh
+      .dd.........dhh
+      .dd.........dhd
+      .dd.........dd.
+      .d1.........dd.
+      .1...........1.

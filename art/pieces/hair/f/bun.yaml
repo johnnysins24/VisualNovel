@@ -1,0 +1,31 @@
+# Low bun: drawn back smooth from the forehead. A bun right behind the nape would not show from the
+# front, so the back layer sits a little to the right of the picture and peeks out beside the neck.
+body: f
+z: 60
+shapes:
+  - at: [-6, head]
+    ascii: |
+      ...HhhhhhH...
+      ..HhhhhhhhH..
+      .HhhHhhhHhhH.
+      hhhHhhhhhHhhh
+      hhHhhhhhhhHhh
+      hhhd.....dhhh
+      hhd.......dhh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      .d.........d.
+  - layer: back
+    at: [-4, head+12]
+    ascii: |
+      ....hhhhhh...
+      ..hhhhhhhhhh.
+      .hhhhhhdhHhhh
+      .hhhhhhhdhHhh
+      .hhhhhhhdhHhh
+      ..hhhhhhdHhh.
+      ....hhhhhh...

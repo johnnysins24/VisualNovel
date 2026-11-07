@@ -1,0 +1,39 @@
+# Ponytail: wispy bangs, the rest drawn back and tied high. The tail is a back layer: it rises over
+# the crown and hangs beside the head on the right of the picture, one outline apart from it.
+body: f
+z: 60
+shapes:
+  - at: [-6, head]
+    ascii: |
+      ...HhhhhhH...
+      ..HhhhhhhhH..
+      .HhhhhhhhhhH.
+      hhhhhhhhhhhhh
+      hhhdhhhdhhdhh
+      hhd.hd..d.dhh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      .d.........d.
+  - layer: back
+    at: [3, head-1]
+    ascii: |
+      .hh.....
+      ..dhh...
+      ...hhh..
+      ....hhh.
+      .....hhh
+      .....hhh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......hh
+      ......dh
+      .......d

@@ -1,0 +1,21 @@
+# Hairstyles by body. Phupha 2026-11-07 19:10: men and women have their own lists and never share a
+# cut. Order = order in the character creator; the value is the Thai name shown to the player.
+# Each entry is the piece art/pieces/hair/<body>/<id>.yaml, which says `body:` for that body only.
+m:
+  short: สั้น
+  messy: ยุ่ง
+  slicked: เสยหลัง
+  long: ยาวประบ่า
+  ponytail: หางม้าต่ำ
+  topknot: มวยจุก
+  undercut: อันเดอร์คัต
+  bald: โล้น
+f:
+  bob: บ็อบ
+  long: ยาวตรง
+  ponytail: หางม้า
+  braid: เปียข้าง
+  bun: มวยต่ำ
+  pixie: พิกซี่
+  wavy: ยาวลอน
+  twin_braids: เปียคู่

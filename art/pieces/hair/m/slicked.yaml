@@ -1,0 +1,19 @@
+# Slicked back: combed straight back from a high hairline, no fringe; short at the sides.
+body: m
+z: 60
+shapes:
+  - at: [-6, head-1]
+    ascii: |
+      .....hhh.....
+      ...HhhHhhH...
+      ..HhHhhhHhH..
+      .HhhHhhhHhhH.
+      hhhHhhhhhHhhh
+      hhHhhhhhhhHhh
+      hhhd.....dhhh
+      hhd.......dhh
+      hh.........hh
+      hh.........hh
+      hh.........hh
+      dh.........hd
+      .d.........d.

@@ -1,0 +1,19 @@
+# Pixie: cropped close all round with soft volume on top; a side-swept fringe from a part on the left
+# of the picture, and tapered wisps in front of the ears. Nothing below the jaw.
+body: f
+z: 60
+shapes:
+  - at: [-6, head-1]
+    ascii: |
+      ....hhhhh....
+      ..HhhhhhhhH..
+      .HhhhhhhhhhH.
+      hhhhhhhhhhhhh
+      hhhHhhhhhhhhh
+      hhd.dhhhhhhhh
+      hh....dhhhhhh
+      hh.......dhhh
+      hd.........hh
+      hh.........dh
+      dh.........hd
+      .d.........d.

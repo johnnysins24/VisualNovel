@@ -1,4 +1,5 @@
 # Bob with a wispy fringe; the back layer shows beside the neck.
+body: f
 z: 60
 shapes:
   - at: [-6, head]

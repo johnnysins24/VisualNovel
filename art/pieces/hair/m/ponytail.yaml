@@ -1,0 +1,43 @@
+# Low ponytail: everything combed back off the forehead and tied at the nape; a loose lock hangs at
+# one temple. The tail comes round the neck on the right of the picture, tied again where it meets
+# the shoulder, and falls over the chest to a rough point.
+body: m
+z: 60
+shapes:
+  - at: [-7, head-1]
+    ascii: |
+      ......hhh......
+      ....HhhHhhH....
+      ...HhHhhhHhH...
+      ..HhhHhhhHhhH..
+      .hhhHhhhhhHhhh.
+      .hhHhhhhhhHhhh.
+      .hhhd.....dhhh.
+      .hdh.......dhh.
+      .hd.........hh.
+      .hh.........hh.
+      .hh.........hh.
+      .dh.........hd.
+      ..d.........d..
+  - at: [3, head+13]
+    ascii: |
+      .hhh.
+      hhhhh
+      hhhhh
+      .ddd.
+      .hhhh
+      .hhHh
+      .hhHh
+      .hhHh
+      .hhHh
+      .hhh.
+      .hhd.
+      .dh..
+      ..h..
+      ..d..
+  - layer: back
+    at: [-6, head+12]
+    ascii: |
+      hhhhhhhhhhhhh
+      hhhhhhhhhhhhh
+      .hhhhhhhhhhh.

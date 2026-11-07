@@ -1,17 +1,45 @@
 # Colours for the sprite kit. Pieces store material + shade level (0 dark .. 4 light);
 # a ramp gives the colour for each level. Shaded materials use 5-colour ramps.
-# Measured from docs/ref/style-lock/ (the locked look).
+# Measured from docs/ref/style-lock/ (the locked look). The other skin, hair and eye ramps copy the
+# locked ramps' shading onto a new base colour (art/kit/colour.mjs); a skin's lips and blush go with it.
+# Quote a colour that YAML could read as a number in e notation, such as '893e25'.
 
 outline: 2b2840
 
 ramps:
+  # skin tones (A12), each with the lips and blush that go with it; peach is the locked skin
+  skin_porcelain: [eacec3, f3dacd, fce3d5, ffe8da, ffebdd]
   skin_peach: [ecc1a7, f4ceb0, fdd6b7, ffdcbc, ffe0c0]
+  skin_honey: [dda17d, e2ad83, eab388, eab98c, e9bd90]
+  skin_brown: [bc7451, bf7e54, c58257, c4875a, c28b5e]
+  skin_deep: [8b4e38, 8b5439, 8e573a, 8d5a3c, 8b5d3f]
+  lip_porcelain: [aa7f82]
+  lip_peach: [ac776a]
+  lip_honey: [a06047]
+  lip_brown: ['893e25']
+  lip_deep: [642218]
+  blush_porcelain: [ffcac9]
+  blush_peach: [ffbfac]
+  blush_honey: [eb9e7f]
+  blush_brown: [c66f50]
+  blush_deep: [914536]
+  # hair colours (A13); brown is the locked hair
+  hair_black: [322f3d, 38333e, 3a343f, 3b3540, 3c3641]
+  hair_dark_brown: [483029, 563829, 5a3a2a, 5c3b2b, 5e3c2c]
   hair_brown: [5f3728, 7b4627, 824a2a, 874d2c, 8b502e]
+  hair_auburn: [6f2d2c, 8f3923, 963c25, 9c3f26, a04227]
+  hair_copper: [96563a, b86429, c0672b, c66a2c, cb6d2d]
+  hair_blonde: [ac9b65, cead60, d6b263, dcb565, e0b867]
+  hair_silver: [b4b6c0, ccccd4, d2d2da, d6d6de, dadae2]
+  # eye colours (A14): top of the eye, bottom of the eye; blue is the locked eye
   eye_blue: [264972, 6698d6]
+  eye_brown: [4b2a1a, 9c6a43]
+  eye_green: [1f4f33, 5aa36b]
+  eye_grey: [3a4352, 8d99ab]
+  eye_violet: [432d6b, 9d86d9]
+  eye_amber: [6e3b0a, e9a531]
   white: [ffffff]
   lash: [261717]
-  lip: [ac776a]
-  blush: [ffbfac]
   tear: [c0f0ff]
   navy: [303242, 464a5f, 4a4f65, 4d5269, 4e536a]
   sky: [c3d1ed, ccdaf7, d2e1ff, d6e5ff, d9e8ff]
@@ -28,11 +56,37 @@ materials:
   eye: { ramp: eye_blue }
   white: { ramp: white }
   lash: { ramp: lash }
-  lip: { ramp: lip }
-  blush: { ramp: blush }
+  lip: { ramp: lip_peach }
+  blush: { ramp: blush_peach }
   tear: { ramp: tear }
   cloth: { ramp: navy, tone: 3.6, edge: [0.7, 0.1], top: 0.5, noise: 0.7 }
   trim: { ramp: blue, tone: 3.2, edge: [1.0, 0.2], top: 0.5, noise: 1.0 }
+
+# Character colours Phupha chose (Art decisions A12-A14, 2026-11-07). A look picks one of each by
+# name, e.g. choices: { skin: honey, hair: copper, eyes: green }; each choice sets the ramps listed.
+# Every race uses the same skin tones (tieflings too). Hairstyles are the pieces in art/pieces/hair/.
+choices:
+  skin:
+    porcelain: { skin: skin_porcelain, lip: lip_porcelain, blush: blush_porcelain }
+    peach: { skin: skin_peach, lip: lip_peach, blush: blush_peach }
+    honey: { skin: skin_honey, lip: lip_honey, blush: blush_honey }
+    brown: { skin: skin_brown, lip: lip_brown, blush: blush_brown }
+    deep: { skin: skin_deep, lip: lip_deep, blush: blush_deep }
+  hair:
+    black: { hair: hair_black }
+    dark_brown: { hair: hair_dark_brown }
+    brown: { hair: hair_brown }
+    auburn: { hair: hair_auburn }
+    copper: { hair: hair_copper }
+    blonde: { hair: hair_blonde }
+    silver: { hair: hair_silver }
+  eyes:
+    blue: { eye: eye_blue }
+    brown: { eye: eye_brown }
+    green: { eye: eye_green }
+    grey: { eye: eye_grey }
+    violet: { eye: eye_violet }
+    amber: { eye: eye_amber }
 
 # Characters for ascii shapes. "mat" = shaded automatically, "mat@N" = fixed level N.
 # "." = nothing, "x" = erase. Digits are skin levels (for anatomy and face touches).
