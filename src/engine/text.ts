@@ -1,10 +1,12 @@
 import { DEFAULT_NAME, type LifeState } from './state';
+import { GODS, type GodId } from './balance';
 
 /**
  * เติมค่าในข้อความเรื่อง
  *   {name} {surname} {father} {mother}   ชื่อตัวละคร นามสกุล และพ่อแม่ (ยังไม่รู้เผ่า ใช้ "พ่อ" "แม่")
  *   {a|b}                       a เมื่อเป็นเพศชาย b เมื่อเป็นเพศหญิง เช่น {เขา|เธอ}
  *   {partner}                   ชื่อคนรัก (ยังไม่มีใช้ "คนรัก")
+ *   {god}                       ชื่อไทยของเทพที่นับถือ (ยังไม่มีใช้ "เทพ")
  *   {p:a|b}                     a เมื่อคนรักเป็นชาย b เมื่อเป็นหญิง เช่น {p:เขา|เธอ}
  */
 export function render(text: string, life: LifeState): string {
@@ -28,6 +30,8 @@ export function render(text: string, life: LifeState): string {
         return life.parents?.mother ?? 'แม่';
       case 'partner':
         return life.partner?.name || 'คนรัก';
+      case 'god':
+        return GODS[life.god as GodId]?.th ?? 'เทพ';
       default:
         return whole;
     }
@@ -42,7 +46,7 @@ export function unknownPlaceholders(text: string): string[] {
     const body = inner.startsWith('p:') ? inner.slice(2) : inner;
     if (body.includes('|')) {
       if (body.split('|').length !== 2) out.push(`{${inner}}`);
-    } else if (inner.startsWith('p:') || !['name', 'surname', 'father', 'mother', 'partner'].includes(inner)) out.push(`{${inner}}`);
+    } else if (inner.startsWith('p:') || !['name', 'surname', 'father', 'mother', 'partner', 'god'].includes(inner)) out.push(`{${inner}}`);
   }
   return out;
 }

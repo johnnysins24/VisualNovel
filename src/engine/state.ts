@@ -48,12 +48,8 @@ export interface LifeState {
   seen: string[];
   log: LogEntry[];
   alive: boolean;
-  /** ทำไมชีวิตจบ: death = ตายจริง (HP หมดหรือ effect die), content_end = เนื้อเรื่องที่มีอยู่หมดแล้ว, null = ยังมีชีวิต */
-  endReason: EndReason;
   currentEventId: string | null;
 }
-
-export type EndReason = 'death' | 'content_end' | null;
 
 export interface Partner {
   /** ว่างจนกว่า settle จะสุ่มชื่อให้ */
@@ -111,7 +107,6 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     seen: [],
     log: [],
     alive: true,
-    endReason: null,
     currentEventId: null,
   };
 }
@@ -131,6 +126,3 @@ export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) =>
 
 /** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีจนถึง EVEN_AGING_UNTIL หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
 export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < EVEN_AGING_UNTIL ? 1 : ageScale(life));
-
-/** ชีวิตที่ยังไม่ตายแต่ไม่มีเหตุการณ์เหลือ: จบแบบ content_end ให้ UI แยกจากความตาย */
-export const outOfContent = (life: LifeState): LifeState => ({ ...life, alive: false, endReason: 'content_end' });

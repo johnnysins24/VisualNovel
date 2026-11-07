@@ -27,6 +27,8 @@ export const EffectsSchema = z
     stats: z.partialRecord(StatSchema, z.number().int()).optional(),
     hp: z.number().int().optional(),
     gold: z.number().int().optional(),
+    /** เงินที่เสียใน effect นี้ทำให้ติดลบได้ (หนี้ที่ผู้เล่นเลือกก่อเอง เช่น ค้ำหนี้แล้วรับหนี้มาจ่ายแทน) ไม่มี = เสียได้แค่เท่าที่มี */
+    debt: z.boolean().optional(),
     flags: z.array(z.string()).optional(),
     clear_flags: z.array(z.string()).optional(),
     traits: z.array(z.string()).optional(),
@@ -65,6 +67,8 @@ const OutcomeSchema = z.object({ text: z.string().optional(), effects: EffectsSc
 
 /** เงื่อนไขร่วมของ when (เหตุการณ์) และ requires (ตัวเลือก) ในส่วนสถานะโลกและตัวละคร */
 const StateConds = {
+  /** เพศของตัวละคร เช่น ประกาศเกณฑ์ทหารที่เรียกเฉพาะผู้ชาย */
+  gender: z.enum(['m', 'f']).optional(),
   class: ClassSchema.optional(),
   god: GodSchema.optional(),
   world: WorldRange.optional(),
@@ -84,6 +88,8 @@ export const ChoiceSchema = z.object({
       /** ตัวเลือกซ่อนถ้ามี flag ใดในนี้ (เช่น race_tiefling สำหรับงานที่ไม่รับคนมีเขา) */
       not_flags: z.array(z.string()).optional(),
       item: z.string().optional(),
+      /** ตัวเลือกที่ต้องจ่ายเงิน (ซื้อ ให้ ฝาก) ซ่อนถ้าเงินไม่ถึง ข้อความที่บอกว่าจ่ายกี่เหรียญจึงตรงกับเงินที่มีจริง */
+      min_gold: z.number().int().min(1).optional(),
       min_stat: z.partialRecord(StatSchema, z.number().int()).optional(),
       ...StateConds,
     })

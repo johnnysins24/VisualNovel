@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, choiceAvailable, eligible, makeGame, resolveChoice, settle } from '../src/engine/engine';
-import { humanAge, newLife, outOfContent, yearsPerEvent } from '../src/engine/state';
+import { humanAge, newLife, yearsPerEvent } from '../src/engine/state';
 import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { alignmentCell, bucket, clericDrifted, godDistance, hasDemonMark, situationalBonus } from '../src/engine/rules';
@@ -22,6 +22,7 @@ import {
   GOD_IDS,
   RACES,
   REPUTATION_CAP,
+  STAT_CAP,
   WORLD_CAP,
 } from '../src/engine/balance';
 import { maxHp } from '../src/engine/items';
@@ -300,6 +301,49 @@ describe('requires.not_flags', () => {
   });
 });
 
+describe('stat cap', () => {
+  const at = (STR: number) => ({ ...newLife(1), stats: { ...newLife(1).stats, STR } });
+  it(`event gains stop at ${STAT_CAP}, losses still apply`, () => {
+    expect(applyEffects(game, at(19), { stats: { STR: 3 } }).stats.STR).toBe(STAT_CAP);
+    expect(applyEffects(game, at(STAT_CAP), { stats: { STR: 1 } }).stats.STR).toBe(STAT_CAP);
+    expect(applyEffects(game, at(STAT_CAP), { stats: { STR: -1 } }).stats.STR).toBe(STAT_CAP - 1);
+  });
+  it('a score already above the cap is not pulled down by a gain', () => {
+    expect(applyEffects(game, at(STAT_CAP + 1), { stats: { STR: 1 } }).stats.STR).toBe(STAT_CAP + 1);
+  });
+});
+
+describe('gold: costs and debt', () => {
+  const ticket = { id: 'ticket', label: 't', text: 't', requires: { min_gold: 3 }, effects: { gold: -3 } };
+  it('requires.min_gold hides a paid choice until the money is there', () => {
+    expect(choiceAvailable({ ...newLife(1), gold: 2 }, ticket)).toBe(false);
+    expect(choiceAvailable({ ...newLife(1), gold: 3 }, ticket)).toBe(true);
+  });
+  it('a loss takes only what there is', () => {
+    expect(applyEffects(game, { ...newLife(1), gold: 2 }, { gold: -5 }).gold).toBe(0);
+    expect(applyEffects(game, { ...newLife(1), gold: 9 }, { gold: -5 }).gold).toBe(4);
+  });
+  it('a chosen debt can go below zero, and a later plain loss does not deepen it', () => {
+    const inDebt = applyEffects(game, { ...newLife(1), gold: 2 }, { gold: -5, debt: true });
+    expect(inDebt.gold).toBe(-3);
+    expect(applyEffects(game, inDebt, { gold: -2 }).gold).toBe(-3);
+    expect(applyEffects(game, inDebt, { gold: 4 }).gold).toBe(1);
+  });
+});
+
+describe('gender condition', () => {
+  const ev = { id: 'adult.draft', stage: 'adult', weight: 10, once: true, when: { gender: 'm' }, text: 't', choices: [{ id: 'go', label: 'g' }] } as const;
+  it('gates events and choices on the character gender', () => {
+    const man = { ...newLife(1), gender: 'm' as const };
+    const woman = { ...newLife(1), gender: 'f' as const };
+    expect(eligible(man, ev as never)).toBe(true);
+    expect(eligible(woman, ev as never)).toBe(false);
+    const ch = { id: 'nurse', label: 'n', text: 't', requires: { gender: 'f' as const } };
+    expect(choiceAvailable(woman, ch)).toBe(true);
+    expect(choiceAvailable(man, ch)).toBe(false);
+  });
+});
+
 describe('partner', () => {
   const lover = (gender: 'm' | 'f', pool?: string) =>
     settle(game, applyEffects(game, withFlags(['race_human']), { partner: pool ? { gender, pool } : { gender } }), new Rng(3));
@@ -316,6 +360,10 @@ describe('partner', () => {
     const l = lover('m', 'human'); // ชุดทดสอบมีชื่อชาย 2 ชื่อ พ่อใช้ไปหนึ่ง
     expect([l.name, l.parents?.mother, l.parents?.father]).not.toContain(l.partner!.name);
   });
+  it('renders {god} as the Thai name of the god served', () => {
+    expect(render('{god}', { ...newLife(1), god: 'ossa' })).toBe('ออสซา');
+    expect(render('{god}', newLife(1))).toBe('เทพ');
+  });
   it('renders {partner} and {p:a|b}', () => {
     const l = lover('m', 'human');
     expect(render('{partner} {p:เขา|เธอ}', l)).toBe(`${l.partner!.name} เขา`);
@@ -331,24 +379,6 @@ describe('partner', () => {
     expect(p).toContain('partner.pool "ghost"');
     expect(p).toContain('{p:x}');
     expect(p).not.toContain('{partner}');
-  });
-});
-
-describe('how a life ends', () => {
-  it('a living life has no end reason', () => expect(newLife(1).endReason).toBeNull());
-  it('hp loss and the die effect both end as death', () => {
-    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 }).endReason).toBe('death');
-    expect(applyEffects(game, { ...newLife(1), age: 30 }, { die: true }).endReason).toBe('death');
-    expect(applyEffects(game, { ...newLife(1), age: 5 }, { die: true }).endReason).toBeNull();
-  });
-  it('running out of events ends as content_end, not death', () => {
-    const l = outOfContent({ ...newLife(1), age: 25 });
-    expect(l.alive).toBe(false);
-    expect(l.endReason).toBe('content_end');
-  });
-  it('old saves without the field read as null', () => {
-    const { endReason: _, ...old } = newLife(4);
-    expect(migrate(old).endReason).toBeNull();
   });
 });
 

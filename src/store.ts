@@ -2,7 +2,7 @@ import { computed, signal } from '@preact/signals';
 import content from './generated/content.json';
 import { ContentSchema } from './engine/schema';
 import { makeGame, pickEvent, resolveChoice, type Game } from './engine/engine';
-import { newLife, outOfContent, type LifeState, type LogEntry } from './engine/state';
+import { newLife, type LifeState, type LogEntry } from './engine/state';
 import { newSeed } from './engine/rng';
 import { equip as equipItem } from './engine/items';
 import { exportCode, importCode, loadMeta, loadSlot, saveMeta, saveSlot } from './engine/save';
@@ -33,7 +33,7 @@ function finishIfDead() {
 function advance() {
   if (life.value.alive) {
     const { event, life: next } = pickEvent(game, life.value);
-    life.value = event ? next : outOfContent(next);
+    life.value = event ? next : { ...next, alive: false };
   }
   finishIfDead();
 }

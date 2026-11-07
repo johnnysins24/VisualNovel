@@ -15,6 +15,7 @@ import {
   PROTECTED_AGE,
   RACES,
   REPUTATION_CAP,
+  STAT_CAP,
   WORLD_CAP,
   WORLD_KEYS,
   type ClassId,
@@ -39,6 +40,7 @@ export function makeGame(content: Content): Game {
 const clamp = (n: number, cap: number) => Math.max(-cap, Math.min(cap, n));
 
 interface StateConds {
+  gender?: 'm' | 'f' | undefined;
   class?: string | undefined;
   god?: string | undefined;
   world?: Partial<Record<(typeof WORLD_KEYS)[number], [number, number]>> | undefined;
@@ -48,6 +50,7 @@ interface StateConds {
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
 function stateConditionsMet(life: LifeState, c: StateConds): boolean {
+  if (c.gender && life.gender !== c.gender) return false;
   if (c.class && life.classId !== c.class) return false;
   if (c.god && life.god !== c.god) return false;
   for (const [k, range] of Object.entries(c.world ?? {})) {
@@ -109,6 +112,7 @@ export function choiceAvailable(life: LifeState, choice: Choice): boolean {
   if (r.flag && !life.flags.includes(r.flag)) return false;
   if (r.not_flags?.some((f) => life.flags.includes(f))) return false;
   if (r.item && !life.inventory.includes(r.item)) return false;
+  if (r.min_gold !== undefined && life.gold < r.min_gold) return false;
   for (const [s, min] of Object.entries(r.min_stat ?? {})) {
     if (life.stats[s as keyof typeof life.stats] < (min ?? 0)) return false;
   }
@@ -127,8 +131,12 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     alignment: { ...life.alignment },
     reputation: { ...life.reputation },
   };
-  for (const s of STATS) next.stats[s] += fx.stats?.[s] ?? 0;
-  next.gold += fx.gold ?? 0;
+  for (const s of STATS) {
+    const d = fx.stats?.[s] ?? 0;
+    // ค่าที่เพิ่มหยุดที่ STAT_CAP ค่าที่เกินอยู่แล้ว (โบนัสเผ่าหรืออาชีพ) ไม่ถูกลดลง
+    next.stats[s] = d > 0 ? Math.max(next.stats[s], Math.min(STAT_CAP, next.stats[s] + d)) : next.stats[s] + d;
+  }
+  next.gold = addGold(life.gold, fx.gold ?? 0, fx.debt === true);
   for (const f of fx.flags ?? []) if (!next.flags.includes(f)) next.flags.push(f);
   next.flags = next.flags.filter((f) => !fx.clear_flags?.includes(f));
   for (const t of fx.traits ?? []) if (!next.traits.includes(t)) next.traits.push(t);
@@ -163,9 +171,17 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   } else if (fx.die || next.hp <= 0) {
     next.hp = Math.max(0, next.hp);
     next.alive = false;
-    next.endReason = 'death';
   }
   return next;
+}
+
+/**
+ * เงินที่เสีย (ค่าปรับ โดนขโมย ของพัง) เอาไปได้แค่เท่าที่มี เงินติดลบได้เฉพาะ effect ที่มี debt: true คือหนี้ที่เลือกก่อเอง
+ * คนที่ติดหนี้อยู่แล้วเสียเงินแบบไม่ใช่หนี้ก็ไม่ติดลบเพิ่ม เพราะไม่มีเหรียญให้เสีย
+ */
+export function addGold(gold: number, delta: number, debt: boolean): number {
+  if (delta >= 0 || debt) return gold + delta;
+  return Math.max(Math.min(gold, 0), gold + delta);
 }
 
 /** กลุ่มชื่อของคนรักเมื่อเนื้อหาไม่ระบุ: กลุ่มของพ่อแม่ ถ้าไม่มีพ่อแม่ใช้กลุ่มตามเผ่า ถ้ายังไม่มีใช้ human */
