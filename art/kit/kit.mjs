@@ -117,8 +117,15 @@ const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
  */
 export const bodyIs = (kit, bodyKey, v) => has(v, bodyKey) || (!!kit?.bodies[bodyKey]?.like && has(v, kit.bodies[bodyKey].like));
 
-/** A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short. */
-export const fitsBody = (spec, bodyKey, kit) => !spec?.body || bodyIs(kit, bodyKey, spec.body);
+/** "child" for the child bodies (those with `like:`), else "adult". */
+export const ageOf = (kit, bodyKey) => (kit?.bodies[bodyKey]?.like ? 'child' : 'adult');
+
+/**
+ * A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short;
+ * one with `ages` (adult, child) only for those ages, e.g. grown-up clothes and beards.
+ */
+export const fitsBody = (spec, bodyKey, kit) =>
+  (!spec?.body || bodyIs(kit, bodyKey, spec.body)) && (!spec?.ages || has(spec.ages, ageOf(kit, bodyKey)));
 
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).
@@ -128,7 +135,7 @@ export function buildPiece(kit, id, bodyKey, opts = {}) {
   if (id === 'body') return { id, z: 10, cast: false, colors: {}, layers: { main: bodyOf(kit, bodyKey).layer } };
   const spec = kit.pieces[id];
   if (!spec) throw new Error(`unknown piece "${id}"`);
-  if (!fitsBody(spec, bodyKey, kit)) throw new Error(`${id} is only for body ${[spec.body].flat().join(', ')}, not ${bodyKey}`);
+  if (!fitsBody(spec, bodyKey, kit)) throw new Error(`${id} is only for ${[spec.body ?? [], spec.ages ?? []].flat().join(', ')}, not ${bodyKey}`);
   const { marks, masks } = bodyOf(kit, bodyKey);
   const pick = s => (!s.body || bodyIs(kit, bodyKey, s.body)) && (!s.variant || has(s.variant, opts.variant));
   const shapes = (spec.shapes ?? []).filter(pick);

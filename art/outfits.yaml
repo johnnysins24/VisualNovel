@@ -1,0 +1,26 @@
+# Outfit pieces (Art decisions A21-A23, Phupha 2026-11-07), by slot, with the Thai name the player
+# sees. Clothes fit both grown-up bodies unless the piece says `body:`; child outfits are only for
+# the child bodies (`ages: [child]`). `feet` under body pieces is what the preview pairs them with.
+# Colours: cloth (main dye), trim (second dye), leather, metal, fitting; any ramp of the same kind
+# in palette.yaml (dye_*, leather_*, metal_*) can replace a piece's default.
+body:
+  body/farmer: { name: เสื้อลินินกับกางเกงชาวไร่, feet: feet/boots }
+  body/dress: { name: ชุดกระโปรงยาวชาวบ้าน, feet: feet/shoes }
+  body/overalls: { name: ชุดเอี๊ยมคนงานโรงกลั่น, feet: feet/boots }
+  body/leather_armor: { name: เกราะหนัง, feet: feet/boots }
+  body/chainmail: { name: เกราะโซ่, feet: feet/iron_boots }
+  body/halfplate: { name: เกราะครึ่งตัวมีท่อ, feet: feet/iron_boots }
+  body/mage_robe: { name: ชุดคลุมนักเวท, feet: feet/shoes }
+  body/cleric_robe: { name: ชุดนักบวช, feet: feet/sandals }
+  body/longcoat: { name: เสื้อโค้ทยาว, feet: feet/boots }
+  body/doublet: { name: เสื้อกั๊กกับเชิ้ตแขนพอง, feet: feet/shoes }
+feet:
+  feet/boots: { name: บู๊ตหนัง }
+  feet/iron_boots: { name: บู๊ตเหล็ก }
+  feet/sandals: { name: รองเท้าสาน }
+  feet/shoes: { name: รองเท้าหุ้มข้อ }
+child:
+  body/child_farm: { name: ชุดเด็กชาวไร่, feet: feet/boots }
+  body/child_refinery: { name: ชุดเด็กงานโรงกลั่น, feet: feet/shoes }
+  body/child_rich: { name: ชุดเด็กบ้านมีเงิน, feet: feet/shoes }
+  body/child_street: { name: ชุดเด็กข้างถนน }

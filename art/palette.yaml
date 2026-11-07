@@ -38,6 +38,28 @@ ramps:
   eye_grey: [3a4352, 8d99ab]
   eye_violet: [432d6b, 9d86d9]
   eye_amber: [6e3b0a, e9a531]
+  # cloth dyes (A23); ramps shaped like navy (art/kit/colour.mjs), level 0 softened by hand
+  dye_white: [c3bba7, e0d8c7, e5dece, e9e2d2, eae3d3]
+  dye_earth: [5b3f2c, '725133', '775739', 7a5a3e, 7b5b3f]
+  dye_grey: [5b5c62, 75767f, 7a7c84, 7d7f88, '7e8089']
+  dye_navy: ['303242', 464a5f, 4a4f65, 4d5269, 4e536a]
+  dye_wine: [5c1a22, 74272c, 772b31, 7a2e35, 7b2f36]
+  dye_moss: [45502a, 56622e, 5a6835, 5d6b3a, 5e6c3b]
+  dye_mustard: [a07a2a, bc9021, c1962d, c49a35, c59b36]
+  dye_purple: [402a5a, 57427b, 5b4781, 5e4a86, 5f4b87]
+  dye_black: ['312d36', 3b3844, 3d3a46, 3e3b48, 3f3c49]
+  dye_sky: [516b89, 6886ac, 6c8cb3, 6f8fb8, '7090b9']
+  # leather and wood (A23)
+  leather_brown: [5a3c28, 744a28, 79502f, 7c5334, 7d5435]
+  leather_black: ['342e36', 413b46, 433e4a, 45404c, 46414d]
+  wood: [69472a, 825b34, 87613b, 8a6440, 8b6541]
+  # metals (A23): light top edges; starsilver glows blue, demon coal glows red
+  metal_iron: ['6c7283', 858c9e, 9ea5b6, b9bfcf, d4dae9]
+  metal_black: [3f3d4b, '4b4958', '595767', 6b6979, '8a8898']
+  metal_brass: [8a6526, a37a30, bd923b, d4ab4e, ecd07a]
+  metal_silver: [8f95a6, a9afbf, c3c8d6, d9dde8, f0f2f8]
+  metal_starsilver: [5c78b8, 76a0dc, 9cc4f0, c2e0ff, e8f6ff]
+  metal_demoncoal: [5a2a2a, 7c3030, a83a2c, d8582c, ffa040]
   # tiefling horn (A17): charcoal with a plum cast, so it reads on every skin and hair colour
   horn: ['453b4a', 574c5c, 685c6c, 7a6e7d, '948898']
   white: [ffffff]
@@ -63,6 +85,13 @@ materials:
   tear: { ramp: tear }
   cloth: { ramp: navy, tone: 3.6, edge: [0.7, 0.1], top: 0.5, noise: 0.7 }
   horn: { ramp: horn, tone: 2.6, edge: [0.6, 0], top: 0.4, noise: 0.3, rag: 0 }
+  # outfits (A22-A23): leather and wood parts, metal (top edges catch the light), chain mail,
+  # fittings (buckles, pipes, trim) in a second metal
+  leather: { ramp: leather_brown, tone: 3.2, edge: [0.8, 0.2], top: 0.4, noise: 0.8 }
+  wood: { ramp: wood, tone: 3.0, edge: [0.7, 0], top: 0.4, noise: 0.6, rag: 0 }
+  metal: { ramp: metal_iron, tone: 2.6, edge: [0.8, 0.2], top: -1.4, noise: 0.3, rag: 0 }
+  chain: { ramp: metal_iron, tone: 2.4, edge: [0.6, 0], top: -0.8, noise: 2.4 }
+  fitting: { ramp: metal_brass, tone: 2.8, edge: [0.6, 0], top: -1.2, noise: 0.2, rag: 0 }
   trim: { ramp: blue, tone: 3.2, edge: [1.0, 0.2], top: 0.5, noise: 1.0 }
 
 # Character colours Phupha chose (Art decisions A12-A14, 2026-11-07). A look picks one of each by
@@ -116,3 +145,12 @@ legend:
   t: trim
   m: horn
   u: horn@4
+  l: leather
+  L: leather@0
+  o: wood
+  g: metal
+  G: metal@4
+  q: chain
+  f: fitting
+  F: fitting@4
+  T: trim@0

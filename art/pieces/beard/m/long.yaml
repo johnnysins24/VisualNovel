@@ -2,6 +2,7 @@
 # tapering point down to the chest. Leaves the eyes, cheeks and every mouth of the 17 faces clear.
 # Hair colour, so it follows the hair choice.
 body: m
+ages: [adult]
 z: 60
 shapes:
   - at: [-6, mouth-3]

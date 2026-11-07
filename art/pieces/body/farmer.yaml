@@ -1,0 +1,11 @@
+# Farmer: undyed linen shirt with rolled sleeves, earth-brown trousers, rope belt (A22).
+ages: [adult]
+z: 30
+colors: { cloth: dye_white, trim: dye_earth, leather: leather_brown }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, waist] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, waist-1] } }
+  - { mat: cloth@1, region: { parts: [arm], rows: [waist, waist] } }
+  - { mat: leather, region: { parts: [torso], rows: [waist+1, waist+1] } }
+  - { mat: skin, sym: [[shoulder, 1], [shoulder+2, 0]] }

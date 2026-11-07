@@ -1,0 +1,14 @@
+# Doublet (bard, noble): puffed shirt sleeves, a fitted waistcoat in the second colour; trousers on
+# the man, a skirt to below the knee on the woman (cut separately, A21).
+ages: [adult]
+z: 30
+colors: { cloth: dye_white, trim: dye_wine, leather: leather_brown }
+shapes:
+  - { mat: leather, region: { parts: [torso, leg], rows: [waist, ankle] }, body: m }
+  - { mat: trim, sym: [[waist, 4], [hip, 6], [knee+2, 7]], body: f }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder+1, chest+3], grow: 1 } }
+  - { mat: cloth@1, region: { parts: [arm], rows: [crotch-4, crotch-4] } }
+  - { mat: trim, region: { parts: [torso], rows: [shoulder, hip] } }
+  - { mat: cloth, sym: [[shoulder, 2], [shoulder+1, 1], [chest, 0]] }
+  - { at: [0, chest+2], ascii: "f\n.\nf" }

@@ -1,0 +1,12 @@
+# Refinery worker: bib overalls over a short-sleeved shirt, leather straps, brass buttons (A22).
+ages: [adult]
+z: 30
+colors: { cloth: dye_navy, trim: dye_grey }
+shapes:
+  - { mat: trim, region: { parts: [torso], rows: [shoulder, chest] } }
+  - { mat: trim, region: { parts: [arm], rows: [shoulder, chest+1] } }
+  - { mat: cloth, sym: [[chest+1, 4], [waist, 4]] }
+  - { mat: cloth, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: leather, span: [[shoulder+1, -4, -4], [chest, -4, -4]], mirror: true }
+  - { mat: fitting, at: [-3, chest+1], mirror: true, ascii: "f" }
+  - { mat: skin, sym: [[shoulder, 1]] }

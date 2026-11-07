@@ -1,0 +1,15 @@
+# Half plate with pipes (magitech, A22): breastplate and pauldrons over a padded coat, two brass
+# pipes from the chest to the belt, plate tassets over the hips.
+ages: [adult]
+z: 30
+colors: { cloth: dye_wine, trim: dye_grey, leather: leather_black }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, waist] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: metal, sym: [[shoulder+1, 4], [chest, 5], [waist, 4], [waist+1, 3]] }
+  - { mat: metal, region: { parts: [arm], rows: [shoulder, shoulder+3], grow: 1 } }
+  - { mat: metal, region: { parts: [torso, leg], rows: [hip, crotch+1], grow: 1 } }
+  - { mat: leather, region: { parts: [torso], rows: [waist+2, waist+2], grow: 1 } }
+  - { mat: fitting, span: [[chest, -3, -3], [waist, -3, -3]], mirror: true }
+  - { at: [-3, chest-1], mirror: true, ascii: "F" }

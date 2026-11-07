@@ -1,0 +1,12 @@
+# Chain mail: a hauberk to mid-thigh with half sleeves over a padded shirt, leather belt, trousers.
+ages: [adult]
+z: 30
+colors: { cloth: dye_earth, trim: dye_grey, leather: leather_brown }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: chain, region: { parts: [torso, leg], rows: [shoulder, crotch+3], grow: 1 } }
+  - { mat: chain, region: { parts: [arm], rows: [shoulder, chest+3] } }
+  - { mat: leather, region: { parts: [torso], rows: [waist, waist], grow: 1 } }
+  - { mat: chain, region: { parts: [torso, leg], rows: [crotch+3, crotch+3], grow: 1 } }
+  - { at: [0, waist], ascii: "f" }

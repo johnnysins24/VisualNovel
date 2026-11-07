@@ -1,0 +1,11 @@
+# Cleric robe: plain robe to the ankle with a stole down the front in the god's colour (trim, five
+# god palettes), hem band (A22).
+ages: [adult]
+z: 30
+colors: { cloth: dye_white, trim: dye_mustard }
+shapes:
+  - { mat: cloth, sym: [[waist, 4], [hip, 6], [crotch, 7], [ankle-1, 8]] }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, waist] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: trim, sym: [[shoulder, 2], [shoulder+1, 1], [ankle-2, 1]] }
+  - { mat: trim, sym: [[ankle-1, 8]] }

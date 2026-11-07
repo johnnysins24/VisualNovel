@@ -62,6 +62,7 @@ export const colourCount = img => {
 export function runChecks(kit = loadKit()) {
   const errors = [], notes = [];
   const looks = readYaml('looks.yaml'), hairList = readYaml('hair.yaml');
+  const looksToCheck = {};
   // every piece (and each of its variants) builds on every body it is for; a piece in a folder named
   // after a body (hair/m/short) is for that body only and says so
   for (const [id, spec] of Object.entries(kit.pieces)) {
@@ -108,6 +109,28 @@ export function runChecks(kit = loadKit()) {
     }
     for (const id of Object.keys(r.beard ?? {})) if (kit.pieces[id] && kit.pieces[id].body !== 'm') errors.push(`${id}: beards are for the male body (body: m)`);
   }
+  // outfit lists (outfits.yaml): every piece listed exists with a Thai name, every body/ and feet/
+  // piece is listed, child outfits are for children only and the rest for grown-ups
+  const outfits = readYaml('outfits.yaml');
+  const listedOutfits = Object.values(outfits).flatMap(g => Object.keys(g));
+  for (const [group, items] of Object.entries(outfits)) for (const [id, o] of Object.entries(items)) {
+    if (!kit.pieces[id]) { errors.push(`outfits.yaml lists ${id} but there is no such piece`); continue; }
+    if (!o?.name) errors.push(`outfits.yaml: ${id} has no Thai name`);
+    if (o?.feet && !kit.pieces[o.feet]) errors.push(`outfits.yaml: ${id} pairs with missing ${o.feet}`);
+    const ages = [kit.pieces[id].ages ?? []].flat();
+    if (group === 'child' && String(ages) !== 'child') errors.push(`${id}: child outfits need "ages: [child]"`);
+    if (group === 'body' && String(ages) !== 'adult') errors.push(`${id}: grown-up clothes need "ages: [adult]"`);
+  }
+  for (const id of Object.keys(kit.pieces)) if (/^(body|feet)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
+  // every outfit on every body it fits, with its feet, rotating dyes: fits the canvas and the colour budget
+  const dyes = Object.keys(kit.pal.ramps).filter(r => r.startsWith('dye_'));
+  for (const items of Object.values(outfits)) Object.entries(items).forEach(([id, o], i) => {
+    for (const body of Object.keys(kit.bodies)) {
+      if (!kit.pieces[id] || !fitsBody(kit.pieces[id], body, kit)) continue;
+      const base = looks[`proof_${kit.bodies[body].like ?? body}`]?.pieces ?? [];
+      looksToCheck[`${id} on ${body}`] = { body, pieces: [...base, id, ...(o?.feet ? [o.feet] : [])], colors: { cloth: dyes[i % dyes.length], trim: dyes[(i + 3) % dyes.length] } };
+    }
+  });
   // hairstyle lists (hair.yaml): each body's list names exactly the pieces in hair/<body>/
   for (const body of Object.keys(kit.bodies)) {
     const listed = Object.keys(hairList[body] ?? {}).map(h => `hair/${body}/${h}`);
@@ -125,7 +148,7 @@ export function runChecks(kit = loadKit()) {
     hairLooks[`hair/${body}/${h}`] = { body, pieces: [...base.filter(id => !id.startsWith('hair/')), `hair/${body}/${h}`], choices: { ...pick('skin', i), ...pick('hair', i), ...pick('eyes', i) } };
   });
   // looks: fit the canvas with room for the outline, stay within the colour budget
-  for (const [name, look] of Object.entries({ ...looks, ...hairLooks })) for (const face of FACES) {
+  for (const [name, look] of Object.entries({ ...looks, ...hairLooks, ...looksToCheck })) for (const face of FACES) {
     let img;
     try { img = renderLook(kit, { ...look, face }); } catch (e) { errors.push(`${name}: ${e.message}`); continue; }
     for (let p = 0; p < W * H; p++) {

@@ -1,6 +1,7 @@
 # Dwarf beard, braided (A16): full and short at the jaw, gathered under the chin into one braid that
 # hangs to the belly. Dark rows are the braid's crossings.
 body: m
+ages: [adult]
 z: 60
 shapes:
   - at: [-6, mouth-3]

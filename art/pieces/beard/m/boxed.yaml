@@ -1,5 +1,6 @@
 # Dwarf beard, short and boxed (A16): trimmed square just below the chin.
 body: m
+ages: [adult]
 z: 60
 shapes:
   - at: [-6, mouth-3]
