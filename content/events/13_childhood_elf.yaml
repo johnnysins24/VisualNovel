@@ -213,7 +213,7 @@
         โอรีวัลมองตามนิ้ว เด็กคนหนึ่งปีนขึ้นไปนั่งบนท่อนสองพันปี ห้อยขาแกว่งไปมา
 
         เขาเก็บน้ำเต้าใส่ย่าม "คืนนี้ลมแรงเกินไป" เขาว่า ทั้งที่ลมไม่ได้แรง
-      effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [orival_spared_camp, lean_cleric] }
+      effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [orival_spared_camp] }
     - id: tell_eldest
       label: ปีนกลับไปบอกผู้เฒ่า
       text: |
