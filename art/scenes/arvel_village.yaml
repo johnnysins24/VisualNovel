@@ -1,0 +1,38 @@
+# A farming village in Arvel (world bible scene 1): thatched cottages, a small Isel chapel with the
+# lamp on its tower, ripe wheat, an airship far off, and the bone-pale sky pillar of the Arvel fields
+# on the horizon.
+layers:
+  - sky: { horizon: 66 }
+  - stars: { count: 70, below: 55 }
+  - body: { day: [206, 16, 6], dusk: [52, 54, 9], night: [214, 18, 5] }
+  - clouds: { count: 5, y: [6, 28] }
+  - pillar: { x: 168, w: 5, base: 62 }
+    haze: 0.55
+  - prop: { art: airship, at: [72, 24] }
+    haze: 0.45
+  - ridge: { mat: far, base: 66, amp: 18, scale: 0.025, seed: 1 }
+    haze: 0.4
+  - ridge: { mat: mid, base: 71, amp: 9, scale: 0.04, seed: 2 }
+    haze: 0.15
+  - trees: { kind: round, mat: leaf, base: 70, every: 9, h: [6, 9], x: [0, 70] }
+    haze: 0.15
+  - trees: { kind: round, mat: leaf, base: 70, every: 11, h: [6, 10], x: [190, 260] }
+    haze: 0.15
+  - field: { y0: 70, y1: 86, mat: field }
+  - prop: { art: chapel, at: [140, 76] }
+    outline: true
+  - prop: { art: cottage, at: [[96, 79], [176, 80]] }
+    outline: true
+  - smoke: { at: [104, 66], puffs: 5 }
+  - prop: { art: barn, at: [30, 82] }
+    outline: true
+  - ground: { y: 86, mat: grass, tufts: 40 }
+  - road: { y: [86, 111], top: [120, 136], bottom: [100, 156], mat: dirt }
+  - prop: { art: fence, at: [[8, 92], [24, 92], [190, 92], [206, 92]] }
+    outline: true
+  - prop: { art: well, at: [214, 104] }
+    outline: true
+  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [-6, 0] }
+    outline: true
+  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [30, 34], x: [250, 256] }
+    outline: true

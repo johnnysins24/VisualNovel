@@ -1,0 +1,9 @@
+# Temple healer's satchel (story item healer_satchel): a cloth bag on a strap across the body from
+# the right shoulder to the left hip, a red mark on the flap.
+z: 37
+colors: { cloth: dye_white, trim: dye_earth, leather: leather_brown }
+shapes:
+  - { mat: leather, span: [[shoulder, -4, -4], [waist, 4, 4]] }
+  - { mat: cloth, rect: [3, waist, 5, 5] }
+  - { mat: trim, rect: [3, waist, 5, 2] }
+  - { at: [5, waist+2], ascii: "C" }

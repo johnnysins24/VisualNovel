@@ -1,0 +1,20 @@
+# Home in Hordun: a clan room cut from the rock, stone blocks and an arched door, a coal brazier
+# glowing red, shelves of tools and tankards, a heavy table.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks }
+  - furn: { kind: door, at: [24, 92], w: 22, h: 40, arch: true, mat: wood }
+    outline: true
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16, depth: 80 }
+  - furn: { kind: hearth, at: [168, 92], w: 40, h: 34, chimney: true, fire: fire }
+    outline: true
+  - glow: { at: [188, 86], r: 26, colour: 'f07040' }
+  - furn: { kind: shelf, at: [64, 62], w: 30, h: 26, rows: 2 }
+    outline: true
+  - furn: { kind: shelf, at: [218, 62], w: 30, h: 26, rows: 2 }
+    outline: true
+  - furn: { kind: table, at: [52, 108], w: 38, h: 16 }
+    outline: true
+  - furn: { kind: barrel, at: [222, 106], w: 12, h: 16 }
+    outline: true
+  - vignette: { strength: 0.55 }

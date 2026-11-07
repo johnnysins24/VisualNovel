@@ -1,0 +1,23 @@
+# Mine: a demon-coal tunnel, timber props, rails to a cart, red seams glowing in the rock, a lantern.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: dark_stone, pattern: plaster, noise: 1.4 }
+  - glow: { at: [128, 70], r: 34, colour: '120c18' }
+  - rect: { x: 100, y: 40, w: 56, h: 53, mat: ink, lvl: 0 }
+  - prop: { at: [[30, 50], [196, 34], [70, 80], [230, 70]], ascii: ".f..\nfFf.\n..ff" }
+  - glow: { at: [32, 49], r: 8, colour: 'e0742f' }
+  - glow: { at: [198, 33], r: 8, colour: 'e0742f' }
+  - glow: { at: [72, 79], r: 8, colour: 'e0742f' }
+  - glow: { at: [232, 69], r: 8, colour: 'e0742f' }
+  - rect: { x: 92, y: 30, w: 6, h: 63, mat: wood, lvl: 2.6 }
+  - rect: { x: 158, y: 30, w: 6, h: 63, mat: wood, lvl: 2.2 }
+  - rect: { x: 88, y: 26, w: 80, h: 6, mat: wood, lvl: 3 }
+    outline: true
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 30, depth: 50 }
+  - line: { from: [[112, 93], [70, 111]], mat: metal }
+  - line: { from: [[144, 93], [186, 111]], mat: metal }
+  - furn: { kind: rail_cart, at: [104, 92], w: 48, h: 16 }
+    outline: true
+  - furn: { kind: lamp, at: [86, 34] }
+  - glow: { at: [87, 36], r: 20, colour: 'f7d98a' }
+  - vignette: { strength: 0.6 }

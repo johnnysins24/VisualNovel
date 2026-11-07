@@ -1,0 +1,23 @@
+# Home in Ventras: a rented room under the roof, brick walls, a small iron stove, a narrow bed, crates
+# for furniture, and a window onto the rooftops and their star-dew dishes.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick, rails: [4] }
+  - pane: { x: 150, y: 24, w: 30, h: 24 }
+  - furn: { kind: curtain, at: [148, 50], w: 34, h: 28, mat: cloth }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9, depth: 80 }
+  - furn: { kind: hearth, at: [20, 92], w: 22, h: 24, fire: fire }
+    outline: true
+  - rect: { x: 29, y: 0, w: 4, h: 68, mat: metal, lvl: 2 }
+  - glow: { at: [31, 86], r: 16, colour: 'ffb060' }
+  - furn: { kind: shelf, at: [60, 60], w: 26, h: 14, rows: 1 }
+    outline: true
+  - furn: { kind: lamp, at: [128, 30], light: lamp }
+  - glow: { at: [129, 32], r: 16, colour: 'aad6fb', only: [dusk, night] }
+  - furn: { kind: bed, at: [196, 98], w: 46, h: 14, mat: cloth }
+    outline: true
+  - furn: { kind: crate, at: [56, 104], w: 14, h: 12 }
+    outline: true
+  - furn: { kind: crate, at: [68, 108], w: 16, h: 14 }
+    outline: true
+  - vignette: { strength: 0.5 }

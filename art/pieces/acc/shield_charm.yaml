@@ -1,0 +1,12 @@
+# Silver shield charm (story item bullet_charm, Lady Isvel's husband's): a small silver shield on a
+# fine chain at the chest, the rich man's charm against bullets.
+z: 36
+colors: { metal: metal_silver }
+shapes:
+  - at: [-3, shoulder]
+    ascii: |
+      g.....g
+      .g...g.
+      ..ggg..
+      ..gGg..
+      ...g...

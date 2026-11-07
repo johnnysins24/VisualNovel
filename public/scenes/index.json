@@ -1,0 +1,37 @@
+{
+ "times": [
+  "day",
+  "dusk",
+  "night"
+ ],
+ "scenes": [
+  "arvel_village",
+  "ashland",
+  "belek_bank",
+  "clan_hall",
+  "fort",
+  "home_arvel_village",
+  "home_ashland",
+  "home_hordun",
+  "home_ileth",
+  "home_ventras",
+  "hordun",
+  "ileth",
+  "institute",
+  "market_arvel_village",
+  "market_ashland",
+  "market_hordun",
+  "market_ileth",
+  "market_ventras",
+  "mine",
+  "noble_hall",
+  "refinery",
+  "road",
+  "ship_deck",
+  "star_hall",
+  "tavern",
+  "temple",
+  "ventras",
+  "workshop"
+ ]
+}

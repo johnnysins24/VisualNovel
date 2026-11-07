@@ -1,0 +1,8 @@
+# Flour-sack scrap (story item flour_sack_scrap, the cloth the baby was wrapped in): a square of
+# coarse sacking tied round the neck, the knot at the front.
+z: 37
+colors: { cloth: dye_white }
+shapes:
+  - { mat: cloth, sym: [[neck, 3], [shoulder, 4]] }
+  - { mat: cloth@1, sym: [[shoulder, 4]] }
+  - { at: [-1, shoulder+1], ascii: "c.c\n.C." }

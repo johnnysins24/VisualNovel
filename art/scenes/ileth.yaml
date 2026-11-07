@@ -1,0 +1,30 @@
+# Ileth (world bible scene 5): a forest of huge old trees, elf houses on the branches, the Star
+# Counting Tower glowing on the tallest crown, Talis's and Ulwen's pillars far off.
+layers:
+  - sky: { horizon: 70 }
+  - stars: { count: 90, below: 60 }
+  - body: { day: [30, 14, 6], dusk: [200, 58, 9], night: [36, 14, 5] }
+  - pillar: { x: 64, w: 4, base: 60 }
+    haze: 0.6
+  - pillar: { x: 226, w: 4, base: 62 }
+    haze: 0.6
+  - trees: { kind: pine, mat: pine, base: 72, every: 7, h: [16, 26], seed: 1 }
+    haze: 0.4
+  - ridge: { mat: mid, base: 80, amp: 4, scale: 0.05, seed: 7 }
+    haze: 0.3
+  - bigtree: { x: 168, base: 84, top: 14, trunk: 10, spread: 70, depth: 26, clumps: 12 }
+    haze: 0.12
+  - prop: { art: star_tower, at: [164, 15] }
+  - glow: { at: [168, 8], r: 12, colour: 'bad8fa' }
+  - bigtree: { x: 52, base: 88, top: 22, trunk: 8, spread: 56, depth: 20, clumps: 9 }
+    haze: 0.04
+  - prop: { art: branch_house, at: [[38, 58], [150, 50]] }
+    outline: true
+  - trees: { kind: pine, mat: pine, base: 86, every: 16, h: [22, 30], seed: 4 }
+    outline: true
+  - ground: { y: 86, mat: grass, tufts: 50, tuft: leaf }
+  - road: { y: [86, 111], top: [118, 132], bottom: [104, 150], mat: dirt }
+  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [40, 46], x: [-8, 0], seed: 5 }
+    outline: true
+  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [38, 44], x: [252, 256], seed: 6 }
+    outline: true

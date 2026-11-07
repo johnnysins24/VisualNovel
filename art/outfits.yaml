@@ -46,6 +46,7 @@ weapon:
   weapon/wrench: { name: ประแจ }
   weapon/pickaxe: { name: จอบขุดแร่ }
   weapon/pitchfork: { name: คราด }
+  weapon/saber: { name: ดาบสั้นด้ามหนังปลาฉลาม }
 offhand:
   offhand/shield: { name: โล่ }
   offhand/dagger: { name: มีดสั้น }
@@ -53,6 +54,7 @@ offhand:
   offhand/tome: { name: คัมภีร์ }
   offhand/lute: { name: พิณ }
   offhand/pistol: { name: ปืนพกดินดำ }
+  offhand/lamp_glass: { name: แก้วครอบตะเกียงหนา }
 arm:
   arm/silver: { name: แขนกลเงิน }
   arm/hook: { name: ขอเหล็ก }
@@ -79,6 +81,11 @@ acc:
   acc/purse: { name: ถุงเงิน }
   acc/eyepatch: { name: ผ้าปิดตา }
   acc/glasses: { name: แว่นกลม }
+  acc/satchel: { name: ย่ามยาของวิหาร }
+  acc/shield_charm: { name: เครื่องรางโล่เงิน }
+  acc/sack_scrap: { name: ผ้ากระสอบแป้งผูกคอ }
+  acc/saw_case: { name: กล่องเลื่อยเงิน }
+  acc/unit_tag: { name: ป้ายไม้ประจำกอง }
 # marks on the skin (A26): drawn under the face so they never cover an expression
 mark:
   mark/wrinkles: { name: รอยย่นวัยชรา }

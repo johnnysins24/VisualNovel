@@ -1,5 +1,5 @@
 # Shield (A22): a kite shield on the off arm, painted cloth face with a band across the top in the
-# second colour, a brass boss, an iron rim.
+# second colour, a square brass boss (never a cross), an iron rim.
 z: 70
 colors: { cloth: dye_navy, trim: dye_white, metal: metal_iron, fitting: metal_brass }
 shapes:
@@ -12,9 +12,9 @@ shapes:
       gtttttttg
       gcccccccg
       gcccccccg
-      gcccFcccg
+      gccfFfccg
       gccfffccg
-      gcccfcccg
+      gccfffccg
       .gcccccg.
       .gcccccg.
       ..gcccg..

@@ -1,0 +1,20 @@
+# Home in Ileth: a house on a great branch, walls of fitted planks, a round window open to the leaves
+# and the stars, hanging plants, a low bed and a shelf of scrolls.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: wood, pattern: logs }
+  - pane: { x: 40, y: 22, w: 30, h: 30, arch: true, cross: false, frame_bg: wood }
+  - trees: { kind: round, mat: elf_leaf, base: 56, every: 10, h: [10, 14], x: [40, 70], seed: 3 }
+    haze: 0.2
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 8, depth: 70 }
+  - furn: { kind: bookcase, at: [180, 92], w: 36, h: 44, rows: 3 }
+    outline: true
+  - furn: { kind: lamp, at: [130, 26], light: lamp }
+  - glow: { at: [131, 28], r: 16, colour: 'bad8fa', only: [dusk, night] }
+  - trees: { kind: round, mat: leaf, base: 30, every: 60, h: [10, 12], x: [96, 100], seed: 4 }
+    outline: true
+  - trees: { kind: round, mat: leaf, base: 30, every: 60, h: [10, 12], x: [228, 232], seed: 5 }
+    outline: true
+  - furn: { kind: bed, at: [20, 106], w: 52, h: 12, mat: elf_leaf }
+    outline: true
+  - vignette: { strength: 0.4 }

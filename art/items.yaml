@@ -1,0 +1,10 @@
+# Sprite pieces for the game's items (content/items/items.yaml), by item id. The story writes the
+# items; this file says what each one looks like on the character. An item may show as more than one
+# piece. Items not listed here do not show on the figure.
+navy_saber: [weapon/saber]
+thick_lamp_glass: [offhand/lamp_glass]
+healer_satchel: [acc/satchel]
+bullet_charm: [acc/shield_charm]
+flour_sack_scrap: [acc/sack_scrap]
+silver_saw_case: [acc/saw_case]
+unit_tag: [acc/unit_tag]

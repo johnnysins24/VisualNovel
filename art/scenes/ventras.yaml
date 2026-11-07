@@ -1,0 +1,30 @@
+# Ventras street (world bible scene 2): crowded roofs with star-dew dishes, sky lamps along the
+# street, refinery chimneys and the airship tower over the river district, Verus's pillar behind it
+# all. Best at dusk and night, when every window and lamp is lit.
+layers:
+  - sky: { horizon: 70 }
+  - stars: { count: 40, below: 40 }
+  - body: { day: [40, 14, 6], dusk: [30, 60, 9], night: [44, 16, 5] }
+  - clouds: { count: 4, y: [4, 24], seed: 1 }
+  - pillar: { x: 120, w: 6, base: 66 }
+    haze: 0.55
+  - prop: { art: airship, at: [[180, 20], [36, 32]] }
+    haze: 0.4
+  - skyline: { base: 66, h: [10, 26], w: [8, 14], wall: slate, roof: slate, windows: 0.25, gables: 0.2, chimneys: 0.3 }
+    haze: 0.5
+  - prop: { art: dock_tower, at: [200, 62] }
+    haze: 0.35
+  - prop: { art: factory, at: [[150, 66], [20, 66]] }
+    haze: 0.35
+  - smoke: { at: [158, 52], puffs: 7, drift: 2 }
+  - smoke: { at: [167, 52], puffs: 6, drift: 2 }
+  - smoke: { at: [28, 52], puffs: 6, drift: 2 }
+  - skyline: { base: 84, h: [16, 30], w: [12, 20], wall: brick, roof: slate, windows: 0.55, gables: 0.5, dishes: 0.6, chimneys: 0.3, seed: 2 }
+    outline: true
+  - ground: { y: 84, mat: stone, noise: 1.2 }
+  - road: { y: [90, 111], top: [-10, 266], bottom: [-40, 296], mat: dark_stone }
+  - prop: { art: sky_lamp, at: [[30, 92], [120, 92], [210, 92]] }
+    outline: true
+  - glow: { at: [32, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
+  - glow: { at: [122, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
+  - glow: { at: [212, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }

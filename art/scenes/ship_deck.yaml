@@ -1,0 +1,22 @@
+# Ship deck: on the deck of a royal ship or an airship, rail and rigging, the envelope overhead,
+# clouds and far land below.
+layers:
+  - sky: { horizon: 90 }
+  - stars: { count: 80, below: 70 }
+  - body: { day: [200, 30, 6], dusk: [40, 70, 10], night: [214, 24, 5] }
+  - clouds: { count: 6, y: [30, 70], seed: 3, size: 30 }
+  - ridge: { mat: far, base: 92, amp: 6, scale: 0.03, seed: 9 }
+    haze: 0.55
+  - ridge: { mat: cloth, base: 14, amp: 6, scale: 0.02, seed: 21, to: 18 }
+    outline: true
+  - line: { from: [[30, 18], [0, 80]], mat: wood }
+  - line: { from: [[90, 18], [70, 80]], mat: wood }
+  - line: { from: [[166, 18], [186, 80]], mat: wood }
+  - line: { from: [[226, 18], [256, 80]], mat: wood }
+  - rect: { x: 0, y: 80, w: 256, h: 3, mat: wood, lvl: 3.6 }
+  - prop: { at: [0, 92], ascii: "w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w" }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 10, depth: 90 }
+  - furn: { kind: barrel, at: [20, 104], w: 12, h: 16 }
+    outline: true
+  - furn: { kind: crate, at: [220, 106], w: 18, h: 14 }
+    outline: true

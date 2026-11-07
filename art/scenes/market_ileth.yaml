@@ -1,0 +1,8 @@
+# Market in Ileth: a clearing between the great trees, stalls with leaf-green awnings, lamps.
+base: { scene: ileth, layers: 13 }
+layers:
+  - ground: { y: 86, mat: grass, tufts: 40, tuft: leaf }
+  - furn: { kind: stall, at: [10, 104], w: 40, h: 30, mat: elf_leaf }
+    outline: true
+  - furn: { kind: stall, at: [204, 104], w: 40, h: 30, mat: cloth }
+    outline: true

@@ -1,0 +1,12 @@
+# Unit tag (story item unit_tag, from the coal war): a small wooden tag on a cord at the neck, the
+# unit's mark burnt into it.
+z: 36
+colors: { leather: leather_black }
+shapes:
+  - at: [-3, shoulder]
+    ascii: |
+      L.....L
+      .L...L.
+      ..oooo.
+      ..oLoo.
+      ..oooo.

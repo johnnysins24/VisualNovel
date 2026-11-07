@@ -1,0 +1,21 @@
+# Home in Arvel: a farm cottage room, plastered walls between dark beams, the stone hearth, a shelf
+# of crocks, the family table and a straw bed, a window onto the fields.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: plaster, beams: [62, 150, 224], rails: [6], noise: 0.6 }
+  - pane: { x: 160, y: 26, w: 24, h: 22 }
+  - furn: { kind: hearth, at: [8, 92], w: 44, h: 40, chimney: true }
+    outline: true
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 12, depth: 90 }
+  - glow: { at: [30, 86], r: 26, colour: 'ffb060' }
+  - furn: { kind: shelf, at: [76, 66], w: 40, h: 22, rows: 2 }
+    outline: true
+  - furn: { kind: lamp, at: [120, 36] }
+  - glow: { at: [121, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - furn: { kind: bed, at: [196, 96], w: 50, h: 16, mat: red_cloth }
+    outline: true
+  - furn: { kind: table, at: [150, 108], w: 34, h: 18 }
+    outline: true
+  - furn: { kind: barrel, at: [60, 104], w: 10, h: 16 }
+    outline: true
+  - vignette: { strength: 0.4 }

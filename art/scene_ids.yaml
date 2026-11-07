@@ -1,0 +1,10 @@
+# Scene ids the game uses (agreed with the story thread, 2026-11-07). An event shows the picture
+# `<scene>_<location_tag>` if there is one, else `<scene>`, else its `<location_tag>` (outdoors).
+# Each id is a file art/scenes/<id>.yaml; `npm run scenes` (node art/kit/build.mjs scenes) writes
+# public/scenes/<id>_<day|dusk|night>.png and public/scenes/index.json.
+locations: [arvel_village, ventras, hordun, ileth, ashland]
+# a scene drawn once per location: <scene>_<location_tag>
+per_location: [home, market]
+# one picture wherever it happens
+shared: [temple, tavern, refinery, road, fort, noble_hall, workshop, ship_deck, mine, clan_hall, institute, belek_bank, star_hall]
+times: [day, dusk, night]

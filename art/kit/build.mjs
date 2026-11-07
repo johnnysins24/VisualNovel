@@ -12,6 +12,9 @@
 //                                       cloaks, weapons, off-hand pieces and mechanical arms) and
 //                                       extras.png (elf outfit, tabard, apron, accessories, skin marks,
 //                                       moustaches) and npcs.png (eight of each NPC group in npcs.yaml)
+//   node art/kit/build.mjs scenes        write every scene (art/scenes) at every time of day to
+//                                       public/scenes/ for the game and art/preview/scenes.png
+//   node art/kit/build.mjs icon          write the app icon (art/icon.yaml) to public/
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
 //                                                (for a skin ramp also the lips and blush that go with it)
@@ -22,6 +25,9 @@ import { lockBare, lockFace, faceBox } from './lock.mjs';
 import { runChecks, classifier, diffRows, FACES } from './check.mjs';
 import { rampLike, follow } from './colour.mjs';
 import { npcLook } from './npc.mjs';
+import { loadScenes, renderScene } from './scene.mjs';
+import { encodePNG } from './png.mjs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 
 const BODY_BOX = { x: 12, y: 38, w: 40, h: 58 }; // the figure without the empty canvas above it
 const RACE_BOX = { x: 12, y: 34, w: 40, h: 62 }; // room for horns above the head
@@ -111,6 +117,36 @@ if (cmd === 'check') {
     savePNG(out, sheet(rows, opts));
     console.log('wrote', out);
   }
+} else if (cmd === 'scenes') {
+  // every scene at every time: art/preview/scenes.png, and the game's files in public/scenes/
+  const S = loadScenes(), ids = readYaml('scene_ids.yaml'), dir = join(ART, '..', 'public', 'scenes');
+  mkdirSync(dir, { recursive: true });
+  const rows = [], index = { times: ids.times, scenes: Object.keys(S.scenes) };
+  for (const id of Object.keys(S.scenes)) {
+    const row = ids.times.map(t => renderScene(S, id, t));
+    row.forEach((img, i) => writeFileSync(join(dir, `${id}_${ids.times[i]}.png`), encodePNG(img)));
+    rows.push(row);
+  }
+  writeFileSync(join(dir, 'index.json'), JSON.stringify(index, null, 1) + '\n');
+  savePNG(join(ART, 'preview', 'scenes.png'), sheet(rows, { scale: 1, gap: 4, margin: 4 }));
+  console.log(`wrote ${rows.length * ids.times.length} scene pictures to ${dir} and art/preview/scenes.png`);
+} else if (cmd === 'icon') {
+  // the app icon (art/icon.yaml) scaled by whole numbers: favicon 32, 192 and 512 for the web app
+  const ic = readYaml('icon.yaml'), rows = ic.pixels.replace(/\n$/, '').split('\n'), n = rows.length;
+  const at = scale => {
+    const w = n * scale, rgba = new Uint8ClampedArray(w * w * 4);
+    rows.forEach((row, y) => [...row].forEach((ch, x) => {
+      if (ch === '.') return;
+      const hx = String(ic.colours[ch]).padStart(6, '0'), c = [0, 2, 4].map(i => parseInt(hx.slice(i, i + 2), 16));
+      for (let j = 0; j < scale; j++) for (let i = 0; i < scale; i++) { const p = ((y * scale + j) * w + x * scale + i) * 4; rgba.set([...c, 255], p); }
+    }));
+    return { w, h: w, rgba };
+  };
+  const dir = join(ART, '..', 'public');
+  mkdirSync(dir, { recursive: true });
+  for (const [file, scale] of [['favicon.png', 1], ['icon-192.png', 6], ['icon-512.png', 16]]) writeFileSync(join(dir, file), encodePNG(at(scale)));
+  savePNG(join(ART, 'preview', 'icon.png'), sheet([[at(1), at(2), at(4)]], { scale: 2 }));
+  console.log('wrote public/favicon.png, icon-192.png, icon-512.png and art/preview/icon.png');
 } else if (cmd === 'look') {
   const kit = loadKit(), looks = readYaml('looks.yaml');
   const [name, face = 'smile'] = args;

@@ -1,0 +1,24 @@
+# Refinery floor: a brick hall with tall windows, a row of brass stills dripping star dew into glass,
+# pipes along the wall, a catwalk overhead.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick }
+  - pane: { x: 30, y: 10, w: 20, h: 30, frame: metal }
+  - pane: { x: 118, y: 10, w: 20, h: 30, frame: metal }
+  - pane: { x: 206, y: 10, w: 20, h: 30, frame: metal }
+  - line: { from: [[0, 46], [256, 46]], w: 3, mat: metal }
+  - line: { from: [[0, 52], [256, 52]], w: 2, mat: brass }
+  - rect: { x: 0, y: 44, w: 256, h: 1, mat: metal, lvl: 1 }
+  - floor: { y0: 93, mat: stone, pattern: flags, tile: 22, depth: 80 }
+  - furn: { kind: still, at: [10, 94], w: 22, h: 34 }
+    outline: true
+  - furn: { kind: still, at: [58, 94], w: 22, h: 34 }
+    outline: true
+  - furn: { kind: still, at: [170, 94], w: 22, h: 34 }
+    outline: true
+  - furn: { kind: still, at: [218, 94], w: 22, h: 34, pipe: 6 }
+    outline: true
+  - glow: { at: [43, 76], r: 10, colour: '97bdec' }
+  - glow: { at: [91, 76], r: 10, colour: '97bdec' }
+  - glow: { at: [203, 76], r: 10, colour: '97bdec' }
+  - vignette: { strength: 0.4 }

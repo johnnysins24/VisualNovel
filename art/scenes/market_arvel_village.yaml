@@ -1,0 +1,11 @@
+# Market in Arvel: the village green on market day, stalls under striped awnings by the well.
+base: { scene: arvel_village, layers: 12 }
+layers:
+  - ground: { y: 86, mat: grass, tufts: 30 }
+  - road: { y: [86, 111], top: [60, 196], bottom: [0, 256], mat: dirt }
+  - furn: { kind: stall, at: [10, 100], w: 40, h: 30, mat: red_cloth }
+    outline: true
+  - furn: { kind: stall, at: [196, 100], w: 40, h: 30, mat: leaf }
+    outline: true
+  - furn: { kind: cart, at: [60, 104], w: 30, h: 13, load: field }
+    outline: true

@@ -3,6 +3,7 @@ import { loadKit, buildPiece, renderLook, readYaml, fitsBody, W, H } from './kit
 import { crop } from './sheet.mjs';
 import { lockBare, lockFace, faceBox, EXPRESSIONS } from './lock.mjs';
 import { npcLook } from './npc.mjs';
+import { loadScenes, renderScene } from './scene.mjs';
 
 /** Every expression of the locked look; each one is compared with the lock. */
 export const FACES = EXPRESSIONS;
@@ -150,6 +151,8 @@ export function runChecks(kit = loadKit()) {
     const base = looks[`proof_${body}`]?.pieces ?? [];
     hairLooks[`hair/${body}/${h}`] = { body, pieces: [...base.filter(id => !id.startsWith('hair/')), `hair/${body}/${h}`], choices: { ...pick('skin', i), ...pick('hair', i), ...pick('eyes', i) } };
   });
+  // item sprites (items.yaml): every piece named exists
+  for (const [item, ids] of Object.entries(readYaml('items.yaml'))) for (const id of ids) if (!kit.pieces[id]) errors.push(`items.yaml: ${item} shows ${id} but there is no such piece`);
   // NPC recipes (npcs.yaml): every piece and colour named exists, and eight members of each group
   // (both bodies come up) are checked like the outfits; named characters like the looks
   const npcs = readYaml('npcs.yaml'), npcData = { npcs, races, hair: hairList, outfits };
@@ -164,6 +167,18 @@ export function runChecks(kit = loadKit()) {
   }
   for (const [god, gd] of Object.entries(npcs.gods ?? {})) for (const r of Object.values(gd.colors)) if (!kit.pal.ramps[r]) errors.push(`npcs.yaml god ${god}: no ramp "${r}"`);
   for (const [n, l] of named) looksToCheck[n] = l;
+  // scenes: every id the game asks for exists, every scene draws at every time and covers the canvas
+  const S = loadScenes(), ids = readYaml('scene_ids.yaml');
+  const wanted = [...ids.locations, ...ids.shared, ...ids.per_location.flatMap(s => ids.locations.map(l => `${s}_${l}`))];
+  for (const id of wanted) if (!S.scenes[id]) errors.push(`scene_ids.yaml wants scene ${id} but there is no art/scenes/${id}.yaml`);
+  for (const id of Object.keys(S.scenes)) for (const t of ids.times) {
+    try {
+      const img = renderScene(S, id, t);
+      let holes = 0;
+      for (let p = 0; p < img.w * img.h; p++) if (!img.rgba[p * 4 + 3]) holes++;
+      if (holes) errors.push(`scene ${id} (${t}) leaves ${holes} px empty`);
+    } catch (e) { errors.push(`scene ${id} (${t}): ${e.message}`); }
+  }
   // looks: fit the canvas with room for the outline, stay within the colour budget
   // outfits change nothing on the face, so they are checked with one face that has the most colours
   const lookList = [...Object.entries({ ...looks, ...hairLooks }).map(([n, l]) => [n, l, FACES]), ...Object.entries(looksToCheck).map(([n, l]) => [n, l, ['cry']])];

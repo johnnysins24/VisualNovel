@@ -1,0 +1,17 @@
+# Noble hall: a manor's great room (and the throne room in 318), checkered marble, tall windows
+# with red curtains, a chandelier, portraits in gold frames, a red carpet.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, rails: [8, 60], noise: 0.3 }
+  - pane: { x: 26, y: 16, w: 20, h: 40, arch: true, frame: brass, frame_bg: plaster }
+  - pane: { x: 210, y: 16, w: 20, h: 40, arch: true, frame: brass, frame_bg: plaster }
+  - furn: { kind: curtain, at: [20, 58], w: 32, h: 44 }
+  - furn: { kind: curtain, at: [204, 58], w: 32, h: 44 }
+  - prop: { at: [[76, 46], [160, 46]], ascii: "yyyyyyyyyyyyyyyyyyyy\nyCCCCCCCCCCCCCCCCCCy\nyCcccccaaaacccccccCy\nyCcccccaaaaccccccCCy\nyCccccaaaaaacccccCCy\nyCcccEEEEEEEEccccCCy\nyCccEEEEEEEEEEcccCCy\nyCccEEEEEEEEEEcccCCy\nyCCCCCCCCCCCCCCCCCCy\nyyyyyyyyyyyyyyyyyyyy" }
+    outline: true
+  - rect: { x: 0, y: 62, w: 256, h: 31, mat: wood, lvl: 2.4 }
+  - prop: { at: [0, 90], ascii: "WwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwww" }
+  - floor: { y0: 93, mat: plaster, pattern: checker, mat2: dark_stone, tile: 16, rows: 14, depth: 90, carpet: [10, 26] }
+  - furn: { kind: chandelier, at: [116, 14], w: 25 }
+  - glow: { at: [128, 16], r: 24, colour: 'f7d98a', only: [dusk, night] }
+  - vignette: { strength: 0.35 }

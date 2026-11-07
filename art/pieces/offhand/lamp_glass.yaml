@@ -1,0 +1,13 @@
+# Thick lamp glass (story item thick_lamp_glass, from Severin's family glassworks): a heavy glass
+# lamp chimney held up in the off hand, two fingers thick, catching the light.
+z: 70
+colors: { metal: metal_silver }
+shapes:
+  - at: [ohand-1, hand-7]
+    ascii: |
+      .ggg.
+      gG.Gg
+      g...g
+      gG.Gg
+      g...g
+      .ggg.
