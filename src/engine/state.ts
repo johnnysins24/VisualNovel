@@ -55,6 +55,17 @@ export interface LogEntry {
   choiceId: string;
   roll?: { d20: number; mod: number; dc: number; success: boolean };
   text?: string;
+  /** สิ่งที่เปลี่ยนจากตัวเลือกนี้ ใช้แสดงเป็นสัญลักษณ์ใต้ย่อหน้า (เซฟเก่าไม่มี) */
+  changes?: LifeChanges;
+}
+
+export interface LifeChanges {
+  stats?: Partial<Record<Stat, number>>;
+  hp?: number;
+  gold?: number;
+  items?: string[];
+  traits?: string[];
+  classId?: string;
 }
 
 export const DEFAULT_NAME = 'ผู้เดินทาง';

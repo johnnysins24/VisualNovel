@@ -1,7 +1,7 @@
-import type { Choice, Content, Effects, GameEvent, NamePool } from './schema';
+import type { Choice, Content, Effects, GameEvent, NamePool, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
-import { DEFAULT_NAME, type LifeState, type LogEntry, humanAge, modifier, worldYear, yearsPerEvent } from './state';
+import { DEFAULT_NAME, type LifeChanges, type LifeState, type LogEntry, humanAge, modifier, worldYear, yearsPerEvent } from './state';
 import type { ItemIndex } from './items';
 import { activePassives, effectiveStats, maxHp } from './items';
 import {
@@ -110,6 +110,56 @@ export function choiceAvailable(life: LifeState, choice: Choice): boolean {
     if (life.stats[s as keyof typeof life.stats] < (min ?? 0)) return false;
   }
   return stateConditionsMet(life, r);
+}
+
+/** เหตุผลที่ตัวเลือกยังใช้ไม่ได้: 'hidden' = ซ่อน (ปลดด้วย trait ของ flag หรือสถานะ), หรือรายการ stat ที่ยังไม่ถึง */
+export type LockState = null | 'hidden' | { stat: Stat; min: number }[];
+
+export function choiceLock(life: LifeState, choice: Choice): LockState {
+  if (choiceAvailable(life, choice)) return null;
+  const r = choice.requires!;
+  const { min_stat, ...rest } = r;
+  // ถ้าเงื่อนไขอื่นผ่านหมดและติดแค่ stat ให้โชว์เป็นตัวเลือกล็อกพร้อมเหตุผล
+  if (!choiceAvailable(life, { ...choice, requires: rest })) return 'hidden';
+  const short: { stat: Stat; min: number }[] = [];
+  for (const [st, min] of Object.entries(min_stat ?? {})) {
+    if (life.stats[st as Stat] < (min ?? 0)) short.push({ stat: st as Stat, min: min ?? 0 });
+  }
+  return short.length ? short : 'hidden';
+}
+
+/** โบนัสรวมของเช็ค (ค่า stat รวมของสวมใส่ + สถานการณ์ + passive) */
+export function checkModifier(game: Game, life: LifeState, check: NonNullable<Choice['check']>): number {
+  const stats = effectiveStats(life, game.items);
+  let mod = modifier(stats[check.stat]) + situationalBonus(life, check.stat, check.foe);
+  for (const p of activePassives(life, game.items)) if (p.kind === 'check_bonus' && p.stat === check.stat) mod += p.amount;
+  return mod;
+}
+
+/** โอกาสสำเร็จ 0 ถึง 1 ตามกติกาเดียวกับ resolveChoice (20 ผ่านเสมอ 1 พลาดเสมอ ทอยใหม่ได้ถ้ามี passive) */
+export function checkChance(game: Game, life: LifeState, check: NonNullable<Choice['check']>): number {
+  const mod = checkModifier(game, life, check);
+  let wins = 0;
+  for (let d = 1; d <= 20; d++) if (d === 20 || (d !== 1 && d + mod >= check.dc)) wins++;
+  const p = wins / 20;
+  const reroll = activePassives(life, game.items).some((x) => x.kind === 'reroll_failed_check');
+  return reroll ? 1 - (1 - p) * (1 - p) : p;
+}
+
+function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined {
+  const c: LifeChanges = {};
+  for (const s of STATS) {
+    const d = after.stats[s] - before.stats[s];
+    if (d) (c.stats ??= {})[s] = d;
+  }
+  if (after.hp !== before.hp) c.hp = after.hp - before.hp;
+  if (after.gold !== before.gold) c.gold = after.gold - before.gold;
+  const items = after.inventory.filter((i) => !before.inventory.includes(i));
+  if (items.length) c.items = items;
+  const traits = after.traits.filter((t) => !before.traits.includes(t));
+  if (traits.length) c.traits = traits;
+  if (after.classId && after.classId !== before.classId) c.classId = after.classId;
+  return Object.keys(c).length ? c : undefined;
 }
 
 export function applyEffects(game: Game, life: LifeState, fx: Effects | undefined): LifeState {
@@ -226,10 +276,8 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   const texts: string[] = choice.text ? [choice.text] : [];
 
   if (choice.check) {
-    const stats = effectiveStats(life, game.items);
     const passives = activePassives(life, game.items);
-    let mod = modifier(stats[choice.check.stat]) + situationalBonus(life, choice.check.stat, choice.check.foe);
-    for (const p of passives) if (p.kind === 'check_bonus' && p.stat === choice.check.stat) mod += p.amount;
+    const mod = checkModifier(game, life, choice.check);
     let d20 = rng.d20();
     if (d20 + mod < choice.check.dc && passives.some((p) => p.kind === 'reroll_failed_check')) {
       d20 = Math.max(d20, rng.d20());
@@ -244,6 +292,8 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   if (texts.length) entry.text = texts.join('\n\n');
 
   next = settle(game, next, rng);
+  const changes = diffLife(life, next);
+  if (changes) entry.changes = changes;
   next = {
     ...next,
     rngState: rng.state,

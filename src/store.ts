@@ -14,7 +14,10 @@ export const meta = signal<Meta>(newMeta());
 export const life = signal<LifeState>(newLife(newSeed()));
 export const slot = signal(0);
 export const lastEntry = signal<LogEntry | null>(null);
-export const menuOpen = signal(false);
+export type Tab = 'story' | 'character' | 'people' | 'world' | 'more';
+export const tab = signal<Tab>('story');
+/** ผู้เล่นกด "พักไว้" ย่อแผ่นตัวเลือกลง เวลาในเกมไม่เดินจนกว่าจะเลือก */
+export const sheetCollapsed = signal(false);
 
 export const currentEvent = computed(() => game.events.find((e) => e.id === life.value.currentEventId) ?? null);
 
@@ -51,6 +54,7 @@ export function choose(choiceId: string) {
   const res = resolveChoice(game, life.value, id, choiceId);
   life.value = res.life;
   lastEntry.value = res.entry;
+  sheetCollapsed.value = false;
   advance();
   persist();
 }

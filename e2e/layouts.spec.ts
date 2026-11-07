@@ -2,10 +2,10 @@ import { expect, test } from '@playwright/test';
 
 test('plays a few choices and screenshots the layout', async ({ page }, info) => {
   await page.goto('/');
-  await expect(page.locator('.story .choices button').first()).toBeVisible();
+  await expect(page.locator('.sheet .choice:not(.locked)').first()).toBeVisible();
   await page.screenshot({ path: `shots/${info.project.name}-start.png`, fullPage: true });
   for (let i = 0; i < 3; i++) {
-    const btn = page.locator('.story .choices button').first();
+    const btn = page.locator('.sheet .choice:not(.locked)').first();
     if (!(await btn.isVisible())) break;
     await btn.click();
   }
@@ -17,8 +17,8 @@ test('plays a few choices and screenshots the layout', async ({ page }, info) =>
 
 test('saves survive a reload', async ({ page }) => {
   await page.goto('/');
-  await page.locator('.story .choices button').first().click();
-  const age = await page.locator('.stats h2').innerText();
+  await page.locator('.sheet .choice:not(.locked)').first().click();
+  const age = (await page.locator('.top .meta').textContent()) ?? '';
   // saving is async: wait until the write has landed in IndexedDB before reloading
   await page.waitForFunction(
     () =>
@@ -33,5 +33,5 @@ test('saves survive a reload', async ({ page }) => {
       }),
   );
   await page.reload();
-  await expect(page.locator('.stats h2')).toHaveText(age);
+  await expect(page.locator('.top .meta')).toHaveText(age);
 });

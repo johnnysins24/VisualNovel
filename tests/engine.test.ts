@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Rng } from '../src/engine/rng';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
-import { applyEffects, makeGame, pickEvent, resolveChoice } from '../src/engine/engine';
+import { applyEffects, checkChance, choiceLock, makeGame, pickEvent, resolveChoice } from '../src/engine/engine';
 import { equip, effectiveStats, maxHp } from '../src/engine/items';
 import { newLife } from '../src/engine/state';
 import { exportCode, importCode } from '../src/engine/save';
@@ -107,4 +107,44 @@ describe('save code', () => {
     expect(importCode(exportCode(life))).toEqual(life);
   });
   it('rejects garbage', () => expect(() => importCode(btoa('{"a":1}'))).toThrow());
+});
+
+describe('choice helpers for the HUD', () => {
+  const base = () => {
+    const l = newLife(1);
+    l.stats = { STR: 10, DEX: 14, CON: 10, INT: 10, WIS: 10, CHA: 10 };
+    return l;
+  };
+  it('checkChance matches the d20 rules (nat 20 wins, nat 1 fails)', () => {
+    const l = base();
+    // DEX 14 = +2, DC 12 needs 10+ on the die: 11 faces of 20
+    expect(checkChance(game, l, { stat: 'DEX', dc: 12 })).toBeCloseTo(11 / 20);
+    expect(checkChance(game, l, { stat: 'STR', dc: 30 })).toBeCloseTo(1 / 20);
+    expect(checkChance(game, l, { stat: 'STR', dc: 1 })).toBeCloseTo(19 / 20);
+  });
+  it('choiceLock shows stat-only locks and hides the rest', () => {
+    const l = base();
+    expect(choiceLock(l, { id: 'a', label: 'a' })).toBeNull();
+    expect(choiceLock(l, { id: 'b', label: 'b', requires: { min_stat: { STR: 14 } } })).toEqual([{ stat: 'STR', min: 14 }]);
+    expect(choiceLock(l, { id: 'c', label: 'c', requires: { trait: 'beast_tongue' } })).toBe('hidden');
+    expect(choiceLock(l, { id: 'd', label: 'd', requires: { trait: 'beast_tongue', min_stat: { STR: 14 } } })).toBe('hidden');
+  });
+  it('log entries record what a choice changed', () => {
+    let l = newLife(3);
+    let found = false;
+    for (let i = 0; i < 40 && l.alive && !found; i++) {
+      const { event, life: next } = pickEvent(game, l);
+      if (!event) break;
+      const c = event.choices.find((x) => choiceLock(next, x) === null)!;
+      const res = resolveChoice(game, next, event.id, c.id);
+      if (res.entry.changes) {
+        found = true;
+        const ch = res.entry.changes;
+        for (const [s, d] of Object.entries(ch.stats ?? {})) expect(res.life.stats[s as 'STR'] - next.stats[s as 'STR']).toBe(d);
+        if (ch.gold) expect(res.life.gold - next.gold).toBe(ch.gold);
+      }
+      l = res.life;
+    }
+    expect(found).toBe(true);
+  });
 });
