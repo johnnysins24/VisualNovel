@@ -1,0 +1,22 @@
+# Iron helm (A22): an open-faced dome with a riveted brow band and cheek guards. Hides the hair and
+# horns under it.
+z: 65
+colors: { metal: metal_iron, fitting: metal_brass }
+hides: { pieces: [hair, horns], above: head+5 }
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      .....GGGGG.....
+      ...ggggggggg...
+      ..ggggggggggg..
+      .ggggggggggggg.
+      .ggggggggggggg.
+      .ggggggggggggg.
+      gggfgggfgggfggg
+      ggg.........ggg
+      gg...........gg
+      gg...........gg
+      gg...........gg
+      gg...........gg
+      gg...........gg
+      .g...........g.

@@ -8,7 +8,8 @@
 //                                       women's on the female body, in hair.yaml order) and
 //                                       colours.png (the skin, hair and eye choices) and races.png
 //                                       (race pieces from races.yaml on men, women and children) and
-//                                       outfits.png (outfits.yaml on every body, metals and dyes)
+//                                       outfits.png (outfits.yaml on every body, metals, dyes, headgear
+//                                       and cloaks)
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
 //                                                (for a skin ramp also the lips and blush that go with it)
@@ -78,11 +79,15 @@ if (cmd === 'check') {
   // outfits (outfits.yaml): men, women, boys, girls in each outfit with its feet; then one armour in
   // every metal and one dress in every dye
   const outfits = readYaml('outfits.yaml'), fits = (id, b) => fitsBody(kit.pieces[id], b, kit);
-  const dressed = (b, id, colors = {}) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${kit.bodies[b].like ?? b}/${hairOf[kit.bodies[b].like ?? b][0]}`, id, ...(outfits.body[id]?.feet ?? outfits.child[id]?.feet ? [outfits.body[id]?.feet ?? outfits.child[id]?.feet] : [])], face: 'smile', colors }), RACE_BOX);
+  const feetOf = id => outfits.body[id]?.feet ?? outfits.child[id]?.feet;
+  const dressed = (b, ids, colors = {}) => crop(renderLook(kit, { body: b, pieces: ['face/basic', ...under[b], `hair/${kit.bodies[b].like ?? b}/${hairOf[kit.bodies[b].like ?? b][0]}`, ...[ids].flat(), ...[ids].flat().map(feetOf).filter(Boolean)], face: 'smile', colors }), RACE_BOX);
   const outfitRows = ['m', 'f', 'cm', 'cf'].map(b => Object.keys(b.startsWith('c') ? outfits.child : outfits.body).filter(id => fits(id, b)).map(id => dressed(b, id)));
   const ramps = prefix => Object.keys(kit.pal.ramps).filter(r => r.startsWith(prefix));
   outfitRows.push(ramps('metal_').map(r => dressed('m', 'body/halfplate', { metal: r })));
   outfitRows.push(ramps('dye_').map(r => dressed('f', 'body/dress', { cloth: r })));
+  // headgear on the farmer's clothes, cloaks over leather armour, men's row then women's
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.head).map(id => dressed(b, ['body/farmer', id])));
+  for (const b of ['m', 'f']) outfitRows.push(Object.keys(outfits.cloak).map(id => dressed(b, ['body/longcoat', id], { 'body/longcoat.cloth': 'dye_grey' })));
   for (const [file, rows, opts] of [['proof.png', [row1, pairs.m, pairs.f]], ['faces.png', faceRows], ['hair.png', hairRows, { scale: 5 }], ['colours.png', colourRows], ['races.png', raceRows], ['outfits.png', outfitRows]]) {
     const out = join(ART, 'preview', file);
     savePNG(out, sheet(rows, opts));

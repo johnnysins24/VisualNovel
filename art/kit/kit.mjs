@@ -311,5 +311,24 @@ export function lookColours(kit, look) {
 export function renderLook(kit, look) {
   const pcs = ['body', ...(look.pieces ?? [])].map(id =>
     buildPiece(kit, id, look.body, { variant: id.startsWith('face/') ? look.face : undefined }));
+  applyHides(kit, pcs, look.body);
   return compose(kit, pcs, lookColours(kit, look));
+}
+
+/**
+ * A piece with `hides: { pieces: [hair, horns], above: head+3 }` (hats) erases the pixels of those
+ * slots' pieces above that row, in every layer, so a topknot or horns do not poke through the
+ * crown while the hair below the brim still shows. Changes the built pieces in place.
+ */
+export function applyHides(kit, pcs, bodyKey) {
+  const { marks } = bodyOf(kit, bodyKey);
+  for (const pc of pcs) {
+    const h = kit.pieces[pc.id]?.hides;
+    if (!h) continue;
+    const y1 = rowOf(h.above, marks);
+    for (const other of pcs) {
+      if (other === pc || !h.pieces.some(s => other.id.startsWith(`${s}/`))) continue;
+      for (const L of Object.values(other.layers)) for (let p = 0; p < y1 * W; p++) { L.mat[p] = -1; L.lvl[p] = -1; }
+    }
+  }
 }

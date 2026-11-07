@@ -1,0 +1,13 @@
+# Peaked cap (workers, sailors, navy, A22): a soft crown, a band, a short dark visor.
+z: 65
+colors: { cloth: dye_navy, trim: dye_black }
+hides: { pieces: [hair, horns], above: head+4 }
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      ...ccccccccc...
+      .ccccccccccccc.
+      ccccccccccccccc
+      ccccccccccccccc
+      TTTTTTTTTTTTTTT
+      ..CCCCCCCCCCC..

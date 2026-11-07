@@ -1,0 +1,15 @@
+# Worker's kerchief (A27): a cloth tied over the top of the head, the knot and its two ends on the
+# right of the picture.
+z: 65
+colors: { cloth: dye_wine }
+hides: { pieces: [hair, horns], above: head+2 }
+shapes:
+  - at: [-7, head-2]
+    ascii: |
+      ....ccccccc......
+      ..ccccccccccc....
+      .ccccccccccccc...
+      cccccccccccccccc.
+      CCCCCCCCCCCCCCCcc
+      ..............c.c
+      ..............c..

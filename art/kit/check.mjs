@@ -74,11 +74,11 @@ export function runChecks(kit = loadKit()) {
       try { buildPiece(kit, id, body, { variant }); } catch (e) { errors.push(`${id} on ${body}${variant ? ` (${variant})` : ''}: ${e.message}`); }
     }
   }
-  // hairstyles, beards, ears and horns never hide the eyes, mouth, cheeks or tears of any expression
+  // hairstyles, beards, ears, horns and headgear never hide the eyes, mouth, cheeks or tears of any expression
   // (brows may sit under a fringe)
   const features = ['lash', 'white', 'eye', 'lip', 'blush', 'tear'].map(m => kit.matId[m]);
   for (const body of Object.keys(kit.bodies)) {
-    const hairs = Object.keys(kit.pieces).filter(id => /^(hair|beard|ears|horns)\//.test(id) && fitsBody(kit.pieces[id], body, kit));
+    const hairs = Object.keys(kit.pieces).filter(id => /^(hair|beard|ears|horns|head)\//.test(id) && fitsBody(kit.pieces[id], body, kit));
     const built = Object.fromEntries(hairs.map(id => [id, buildPiece(kit, id, body).layers.main]));
     for (const face of FACES) {
       const F = buildPiece(kit, 'face/basic', body, { variant: face }).layers.main;
@@ -121,7 +121,7 @@ export function runChecks(kit = loadKit()) {
     if (group === 'child' && String(ages) !== 'child') errors.push(`${id}: child outfits need "ages: [child]"`);
     if (group === 'body' && String(ages) !== 'adult') errors.push(`${id}: grown-up clothes need "ages: [adult]"`);
   }
-  for (const id of Object.keys(kit.pieces)) if (/^(body|feet)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
+  for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
   // every outfit on every body it fits, with its feet, rotating dyes: fits the canvas and the colour budget
   const dyes = Object.keys(kit.pal.ramps).filter(r => r.startsWith('dye_'));
   for (const items of Object.values(outfits)) Object.entries(items).forEach(([id, o], i) => {

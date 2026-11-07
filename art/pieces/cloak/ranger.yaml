@@ -1,0 +1,12 @@
+# Ranger's hooded cloak (A22): a long cloak with the hood down, bunched round the neck and showing
+# behind the head; drab, for the woods and the ash lands.
+z: 40
+back_z: 3
+colors: { cloth: dye_moss, leather: leather_brown }
+shapes:
+  - { layer: back, mat: cloth@1, sym: [[chin-2, 7], [shoulder, 7]] }
+  - { layer: back, mat: cloth@1, span: [[shoulder+1, -8, -5], [chest, -10, -6], [knee+2, -10, -5]], mirror: true }
+  - { layer: back, mat: cloth@0, span: [[knee+2, -10, -5]], mirror: true }
+  - { mat: cloth, region: { parts: [torso, arm, neck], rows: [neck, shoulder+3], grow: 1 } }
+  - { mat: cloth@1, region: { parts: [torso, arm], rows: [shoulder+3, shoulder+3], grow: 1 } }
+  - { at: [0, shoulder+1], ascii: "l" }

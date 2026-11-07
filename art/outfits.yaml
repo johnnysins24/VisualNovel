@@ -14,6 +14,22 @@ body:
   body/cleric_robe: { name: ชุดนักบวช, feet: feet/sandals }
   body/longcoat: { name: เสื้อโค้ทยาว, feet: feet/boots }
   body/doublet: { name: เสื้อกั๊กกับเชิ้ตแขนพอง, feet: feet/shoes }
+head:
+  head/hood: { name: ฮู้ด }
+  head/helm: { name: หมวกเหล็ก }
+  head/goggles: { name: แว่นช่าง }
+  head/tophat: { name: หมวกทรงสูง }
+  head/cap: { name: หมวกแก๊ป }
+  head/veil: { name: ผ้าคลุมผมนักบวช }
+  head/feathered: { name: หมวกปีกกว้างมีขนนก }
+  head/crown: { name: มงกุฎเล็ก }
+  head/knit_cap: { name: หมวกไหมพรม }
+  head/kerchief: { name: ผ้าโพกหัว }
+cloak:
+  cloak/travel: { name: ผ้าคลุมเดินทาง }
+  cloak/fur: { name: ผ้าคลุมขนสัตว์ }
+  cloak/cape: { name: ผ้าคลุมสั้นสีสด }
+  cloak/ranger: { name: ผ้าคลุมมีฮู้ดของพราน }
 feet:
   feet/boots: { name: บู๊ตหนัง }
   feet/iron_boots: { name: บู๊ตเหล็ก }
