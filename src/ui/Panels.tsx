@@ -10,6 +10,7 @@ import { Icon, STAT_ICON } from './icons';
 import { SpriteView } from './SpriteView';
 import { PLACE_TH, signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
+import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
 
 const FACTION_TH: Record<FactionId, string> = {
   crown: 'ราชสำนักอาร์เวล',
@@ -195,6 +196,21 @@ export function MorePanel() {
           <span class="pills" role="radiogroup" aria-label="ธีม">
             {THEMES.map((t) => (
               <button key={t.id} role="radio" aria-checked={theme.value === t.id} onClick={() => setTheme(t.id)}>{t.th}</button>
+            ))}
+          </span>
+        </div>
+        <div class="setting">
+          <span><Icon name="book" />การอ่าน</span>
+          <span class="pills" role="radiogroup" aria-label="การอ่าน">
+            <button role="radio" aria-checked={revealMode.value === 'step'} onClick={() => setRevealMode('step')}>ทีละย่อหน้า</button>
+            <button role="radio" aria-checked={revealMode.value === 'all'} onClick={() => setRevealMode('all')}>ทั้งหมด</button>
+          </span>
+        </div>
+        <div class="setting">
+          <span><Icon name="play" />ความเร็วอัตโนมัติ</span>
+          <span class="pills" role="radiogroup" aria-label="ความเร็วอัตโนมัติ">
+            {SPEEDS.map((n) => (
+              <button key={n} role="radio" class="num" aria-checked={autoSpeed.value === n} onClick={() => setSpeed(n)}>{n}x</button>
             ))}
           </span>
         </div>

@@ -22,6 +22,12 @@ export const sheetCollapsed = signal(false);
 /** ผลทอยของเช็คสำคัญที่ยังไม่ปิด (กล่องเต๋ากลางจอ U4) */
 export const bigRoll = signal<{ entry: LogEntry; stat: Stat } | null>(null);
 
+/**
+ * การแสดงทีละย่อหน้า (U3): จำนวนย่อหน้า "ใหม่" ที่เปิดแล้วหลังการเลือกครั้งล่าสุด
+ * null = แสดงทั้งหมด (เช่นเพิ่งโหลดเซฟ) ย่อหน้าใหม่คือผลของตัวเลือกกับเหตุการณ์ถัดไป
+ */
+export const revealed = signal<number | null>(null);
+
 export const currentEvent = computed(() => game.events.find((e) => e.id === life.value.currentEventId) ?? null);
 
 function persist() {
@@ -47,6 +53,7 @@ function advance() {
 
 export function startLife(seed = newSeed()) {
   lastEntry.value = null;
+  revealed.value = 1;
   life.value = newLife(seed, meta.value);
   advance();
   persist();
@@ -62,6 +69,7 @@ export function choose(choiceId: string) {
   life.value = res.life;
   lastEntry.value = res.entry;
   sheetCollapsed.value = false;
+  revealed.value = 1;
   advance();
   persist();
 }
@@ -101,6 +109,8 @@ export async function loadFromSlot(n: number) {
 export const exportLife = () => exportCode(life.value);
 export function importLife(code: string) {
   life.value = importCode(code);
+  lastEntry.value = null;
+  revealed.value = null;
   persist();
 }
 

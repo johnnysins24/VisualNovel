@@ -4,10 +4,11 @@ import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
 import { STATS } from '../engine/schema';
 import { paragraphs, render } from '../engine/text';
 import type { LifeChanges, LogEntry } from '../engine/state';
-import { choose, currentEvent, game, life, sheetCollapsed } from '../store';
+import { choose, currentEvent, game, lastEntry, life, sheetCollapsed } from '../store';
 import { Ending } from './Endings';
 import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
+import { autoSpeed, autoplay, cycleSpeed, fresh, revealAll, revealNext, revealing, scrolledBack, shownCount } from './reading';
 
 /** อายุที่เปิดค้างไว้ อายุเก่ากว่านี้พับเป็นก้อนเดียว */
 const OPEN_AGES = 2;
@@ -32,10 +33,11 @@ function Changes({ c }: { c: LifeChanges }) {
   );
 }
 
-function Entry({ e, old }: { e: LogEntry; old: boolean }) {
+function Entry({ e, old, limit }: { e: LogEntry; old: boolean; limit?: number }) {
   const l = life.value;
   const ev = game.events.find((x) => x.id === e.eventId);
   const choice = ev?.choices.find((c) => c.id === e.choiceId);
+  const after = e.text ? paragraphs(render(e.text, l)) : [];
   return (
     <article class={`entry ${old ? 'old' : ''}`}>
       {ev && paragraphs(render(ev.text, l)).map((p, i) => <p key={i}>{p}</p>)}
@@ -47,8 +49,8 @@ function Entry({ e, old }: { e: LogEntry; old: boolean }) {
           {e.roll.success ? 'สำเร็จ' : 'พลาด'}
         </p>
       )}
-      {e.text && paragraphs(render(e.text, l)).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
-      {e.changes && <Changes c={e.changes} />}
+      {after.slice(0, limit).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
+      {e.changes && (limit === undefined || limit >= after.length) && <Changes c={e.changes} />}
     </article>
   );
 }
@@ -61,26 +63,84 @@ function AgeHead({ age, year }: { age: number; year: number }) {
   );
 }
 
+function onScroll(e: Event) {
+  const el = e.currentTarget as HTMLElement;
+  const back = el.scrollHeight - el.scrollTop - el.clientHeight > 160;
+  if (back !== scrolledBack.value) scrolledBack.value = back;
+}
+
+/**
+ * หมุนจอแล้วอ่านต่อที่เดิม: จำย่อหน้าบนสุดที่เห็นอยู่ พอขนาดจอเปลี่ยนเลื่อนกลับไปที่ย่อหน้านั้น
+ * ถ้าอยู่ท้ายสุดอยู่แล้วก็ปล่อยให้ติดท้ายเหมือนเดิม
+ */
+function useKeepPlace(box: { current: HTMLDivElement | null }) {
+  useEffect(() => {
+    let anchor: { el: Element; top: number } | null = null;
+    let atEnd = true;
+    const remember = () => {
+      const el = box.current;
+      if (!el) return;
+      atEnd = el.scrollHeight - el.scrollTop - el.clientHeight < 24;
+      const top = el.getBoundingClientRect().top;
+      const first = [...el.querySelectorAll('p, h2')].find((p) => p.getBoundingClientRect().bottom > top);
+      anchor = first ? { el: first, top: first.getBoundingClientRect().top - top } : null;
+    };
+    const restore = () => {
+      const el = box.current;
+      if (!el) return;
+      if (atEnd) el.scrollTop = el.scrollHeight;
+      else if (anchor && el.contains(anchor.el)) el.scrollTop += anchor.el.getBoundingClientRect().top - el.getBoundingClientRect().top - anchor.top;
+    };
+    const el = box.current;
+    let raf = 0;
+    const onResize = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => requestAnimationFrame(restore));
+    };
+    el?.addEventListener('scroll', remember, { passive: true });
+    addEventListener('resize', onResize);
+    remember();
+    return () => {
+      el?.removeEventListener('scroll', remember);
+      removeEventListener('resize', onResize);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+}
+
 /** บันทึกชีวิตแยกตามอายุ เหตุการณ์ปัจจุบันอยู่ท้ายสุด */
 export function StoryLog() {
   const l = life.value;
   const ev = currentEvent.value;
   const [showOld, setShowOld] = useState(false);
   const end = useRef<HTMLDivElement>(null);
+  const box = useRef<HTMLDivElement>(null);
+  useKeepPlace(box);
 
   const ages: number[] = [];
   for (const e of l.log) if (!ages.includes(e.age)) ages.push(e.age);
   if (ev && !ages.includes(l.age)) ages.push(l.age);
   const folded = showOld ? [] : ages.slice(0, Math.max(0, ages.length - OPEN_AGES));
-  const shown = ages.filter((a) => !folded.includes(a));
+  const open = ages.filter((a) => !folded.includes(a));
   const year = (age: number) => l.birthYear + age;
 
+  const shown = shownCount.value;
+  const { after, now } = fresh.value;
+  const isFresh = (e: LogEntry) => e === lastEntry.value && l.log[l.log.length - 1] === e;
+  const nowShown = now.slice(0, Math.max(0, shown - after.length));
+  const more = revealing.value;
+
   useEffect(() => {
-    end.current?.scrollIntoView?.({ block: 'end' });
-  }, [l.log.length, ev?.id]);
+    end.current?.scrollIntoView?.({ block: 'end', behavior: shown === Infinity ? 'auto' : 'smooth' });
+  }, [l.log.length, ev?.id, shown]);
+
+  // แตะที่ไหนก็ได้ในบันทึกเพื่ออ่านย่อหน้าต่อไป (ยกเว้นปุ่ม)
+  const onTap = (e: MouseEvent) => {
+    if (more && !(e.target as HTMLElement).closest('button')) revealNext();
+  };
 
   return (
-    <div class="log" aria-live="polite">
+    <div ref={box} class={`log ${more ? 'reading' : ''}`} aria-live="polite" onClick={onTap} onScroll={onScroll}>
       {folded.length > 0 && (
         <button class="fold" onClick={() => setShowOld(true)}>
           <Icon name="chevron" />
@@ -88,20 +148,25 @@ export function StoryLog() {
           · {l.log.filter((e) => folded.includes(e.age)).length} เหตุการณ์
         </button>
       )}
-      {shown.map((age) => (
+      {open.map((age) => (
         <section key={age} class="age-group">
           <AgeHead age={age} year={year(age)} />
           {l.log.filter((e) => e.age === age).map((e, i) => (
-            <Entry key={`${e.eventId}-${i}`} e={e} old={!!ev || l.log.indexOf(e) < l.log.length - 1} />
+            <Entry key={`${e.eventId}-${i}`} e={e} old={!!ev || l.log.indexOf(e) < l.log.length - 1} limit={isFresh(e) && shown !== Infinity ? shown : undefined} />
           ))}
-          {ev && age === l.age && (
+          {ev && age === l.age && nowShown.length > 0 && (
             <article class="entry current">
-              {paragraphs(render(ev.text, l)).map((p, i) => <p key={i}>{p}</p>)}
+              {nowShown.map((p, i) => <p key={i} class={i === nowShown.length - 1 && more ? 'just' : ''}>{p}</p>)}
             </article>
           )}
         </section>
       ))}
-      {!l.alive && <Ending />}
+      {more && (
+        <button class="read-on" onClick={revealNext} aria-label="อ่านต่อ">
+          <Icon name="chevron" />
+        </button>
+      )}
+      {!l.alive && !more && <Ending />}
       <div ref={end} />
     </div>
   );
@@ -112,7 +177,7 @@ const pctClass = (p: number) => (p >= 0.7 ? 'good' : p >= 0.4 ? 'mid' : 'bad');
 /** ตัวเลือกที่กดได้ เรียงตามที่แสดง ใช้กับปุ่มลัด 1–9 */
 export function playableChoices() {
   const ev = currentEvent.value;
-  if (!ev || !life.value.alive) return [];
+  if (!ev || !life.value.alive || revealing.value) return [];
   return ev.choices.filter((c) => choiceLock(life.value, c) === null);
 }
 
@@ -120,6 +185,7 @@ export function playableChoices() {
 export function ChoiceSheet() {
   const l = life.value;
   const ev = currentEvent.value;
+  if (revealing.value) return <ReadBar />;
   if (!ev || !l.alive) return null;
   const rows = ev.choices
     .map((c) => ({ c, lock: choiceLock(l, c) }))
@@ -172,6 +238,25 @@ export function ChoiceSheet() {
           </button>
         );
       })}
+    </div>
+  );
+}
+
+/** แถบระหว่างอ่าน: เล่นอัตโนมัติ ความเร็ว ข้ามไปตัวเลือก และอ่านต่อ */
+function ReadBar() {
+  const on = autoplay.value;
+  return (
+    <div class="sheet readbar" role="group" aria-label="การอ่าน">
+      <button class={`icon-btn ${on ? 'on' : ''}`} onClick={() => (autoplay.value = !on)} aria-pressed={on} aria-label={on ? 'หยุดเล่นอัตโนมัติ' : 'เล่นอัตโนมัติ'}>
+        <Icon name={on ? 'pause' : 'play'} />
+      </button>
+      <button class="speed num" onClick={cycleSpeed} aria-label={`ความเร็ว ${autoSpeed.value} เท่า`}>{autoSpeed.value}x</button>
+      <button class="icon-btn" onClick={revealAll} aria-label="ข้ามไปตัวเลือก">
+        <Icon name="skip" />
+      </button>
+      <button class="primary next" onClick={revealNext}>
+        <Icon name="next" />อ่านต่อ
+      </button>
     </div>
   );
 }

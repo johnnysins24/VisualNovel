@@ -5,17 +5,24 @@ import { RollDialog } from './Endings';
 import { Icon } from './icons';
 import { BottomNav, Scene, StatRow, TopBar } from './Hud';
 import { ChoiceSheet, StoryLog, playableChoices } from './Story';
-import { choose, life, tab } from '../store';
+import { bigRoll, choose, life, tab } from '../store';
+import { revealNext, revealing, scrolledBack } from './reading';
 
 const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
 
-/** ปุ่มลัดเดสก์ท็อป: เลข 1–9 เลือกตัวเลือก */
+/** ปุ่มลัดเดสก์ท็อป: เลข 1–9 เลือกตัวเลือก Space/Enter อ่านย่อหน้าต่อ */
 function useHotkeys() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey || tab.value !== 'story') return;
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === 'TEXTAREA' || t.tagName === 'INPUT')) return;
+      if (bigRoll.value) return;
+      if ((e.key === ' ' || e.key === 'Enter') && revealing.value && t?.tagName !== 'BUTTON') {
+        e.preventDefault();
+        revealNext();
+        return;
+      }
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > 9) return;
       const c = playableChoices()[n - 1];
@@ -38,7 +45,7 @@ export function App() {
   const t = tab.value;
   const Page = t === 'story' ? null : PAGES[t];
   return (
-    <main class="game" data-tab={t}>
+    <main class="game" data-tab={t} data-back={t === 'story' && scrolledBack.value ? '' : undefined}>
       <TopBar />
       <Scene />
       <StatRow />

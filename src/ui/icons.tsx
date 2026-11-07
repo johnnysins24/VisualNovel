@@ -51,6 +51,10 @@ export const PATHS = {
   quill: 'M20 4C12 4 7 9 6 18l-2 2M6 18c4 0 9-2 11-7M9 14h5',
   next: 'M9 5l7 7-7 7',
   close: 'M6 6l12 12M18 6 6 18',
+  play: 'M8 5v14l11-7z',
+  pause: 'M8 5v14M16 5v14',
+  skip: 'M5 5l7 7-7 7M13 5l7 7-7 7',
+  book: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5',
 } as const;
 
 export type IconName = keyof typeof PATHS;
