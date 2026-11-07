@@ -191,7 +191,7 @@
         ลูกพี่ลูกน้องรับเข็มกลัดไป พลิกดูด้านหลัง แล้วเก็บใส่กระเป๋า ตลอดปีใหม่นั้นไม่ปริปากกับใคร
 
         ปีใหม่ปีต่อมาก็มาค้างอีก และมาขอของชิ้นใหม่
-      effects: { stats: { INT: 1 }, flags: [cousin_knows, cousin_blackmail] }
+      effects: { stats: { INT: 1 }, flags: [cousin_knows, cousin_blackmail, lean_rogue] }
     - id: threaten
       label: บอกว่าถ้าพูด จะมีของมาหาตอนกลางคืน
       check: { stat: CHA, dc: 11 }
@@ -287,7 +287,7 @@
           {name}ฮัมตาม ปล่อยตาลอยไปที่ตะเกียงฟ้าบนเพดาน เหมือนเด็กข้างๆ สายตาของเขากวาดผ่าน{name}ไปโดยไม่หยุด แล้วไปหยุดที่เด็กผู้หญิงคนหนึ่งตรงมุมห้อง ที่นั่งกินขนมอยู่เฉยๆ
 
           ปีใหม่ปีต่อมา {name}ไม่เห็นเด็กคนนั้นในงานอีก
-        effects: { stats: { CHA: 1 }, flags: [fooled_star_listener] }
+        effects: { stats: { CHA: 1 }, flags: [fooled_star_listener, lean_bard] }
       failure:
         text: |
           {name}ฮัมตาม แต่ช้าไปครึ่งจังหวะ แล้วก็เพี้ยน
@@ -434,7 +434,7 @@
           "เสียงเหมือนอะไร" เขาถาม
 
           {name}ทำเสียงหึ่งในคอ ต่ำๆ ยาวๆ เหมือนที่เด็กในเมืองเล่าว่าได้ยิน เขาเคาะปากกากับสมุดสองที แล้วไม่จดชื่อ ยื่นลูกกวาดให้เพิ่มอีกเม็ด
-        effects: { stats: { CHA: 1 }, flags: [fooled_star_listener] }
+        effects: { stats: { CHA: 1 }, flags: [fooled_star_listener, lean_bard] }
       failure:
         text: |
           "เสียงเหมือนอะไร" เขาถาม

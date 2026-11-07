@@ -1,0 +1,154 @@
+# กันพลาดก่อนพิธี อายุ 13: ชีวิตที่ยังไม่มีความโน้มเอียง (lean_*) นอกทางประจำถิ่นเลยสักทาง จะได้เรื่องนี้หนึ่งครั้ง
+# พิธีตอนอายุ 14 จึงมีทางนักผจญภัยให้เลือกอย่างน้อยสองทางเสมอ (ทางประจำถิ่น กับทางที่ได้จากเรื่องนี้)
+# น้ำหนัก 100000 เพื่อให้ชนะเรื่องอื่นของอายุ 13 แทบทุกครั้ง เนื้อเรื่องไม่ระบุถิ่น ห้ามใช้ {father} {mother}
+# ข้อความกลางและตัวเลือกเขียนครั้งเดียวแล้วใช้ซ้ำด้วย anchor ของ YAML (&ชื่อ แล้วเรียกด้วย *ชื่อ)
+# แต่ละถิ่นตัดตัวเลือกของทางประจำถิ่นตัวเองออก เพราะทางนั้นเปิดอยู่แล้ว
+
+- id: youth.own_try_farm
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_farm]
+    not_flags: [lean_rogue, lean_wizard, lean_cleric, lean_ranger, lean_bard]
+  text: &own_try_text |
+    ปีที่สิบสามผ่านไปเกินครึ่ง ผู้ใหญ่รอบตัว{name}เริ่มพูดถึงวันเลือกทางที่จะมาถึงในปีหน้า พูดกันตอนกินข้าว พูดกันตอนล้างชาม พูดด้วยน้ำเสียงของเรื่องที่ตกลงกันไว้นานแล้ว ว่า{name}คงไปทางที่ผู้ใหญ่เตรียมไว้ให้
+
+    ตลอดปีไม่มีใครเว้นช่องให้{name}ได้พูด คืนที่นอนไม่หลับ {name}ลองนึกดูเองว่าถ้ามีคนเว้นช่องไว้ จะพูดว่าอะไร แล้วก็นึกไม่ออก
+
+    นับดูแล้ว ทุกอย่างที่{name}เคยทำมาล้วนมีคนส่งให้ทำ ก่อนสิ้นปีนั้น {name}ลองทำอะไรอย่างหนึ่งที่ไม่มีใครส่ง
+  choices:
+    - &own_try_rogue
+      id: night_steps
+      label: ฝึกออกไปข้างนอกตอนกลางคืน แล้วกลับมาโดยไม่มีใครรู้
+      text: |
+        {name}เริ่มจากนับก้าว จากที่นอนถึงประตูมีสิบเอ็ดก้าว ก้าวที่สี่กับก้าวที่เก้ามีเสียง ประตูจะร้องถ้าผลักเร็ว แต่ถ้ายกขึ้นนิดหนึ่งก่อนผลัก จะเงียบ
+
+        เดือนแรกออกไปได้แค่หน้าประตู ยืนฟังเสียงกลางคืนครู่หนึ่งแล้วกลับเข้ามา เดือนที่สามไปได้ไกลจนกลับถึงที่นอนตอนฟ้าเริ่มเทา ไม่ได้ไปทำอะไร ไปให้ถึงแล้วกลับ
+
+        เช้าวันหนึ่งมีคนบ่นตอนกินข้าวว่าเมื่อคืนได้ยินเสียงอะไรเดินผ่านหน้าห้อง {name}ตักข้าวเข้าปากต่อ ไม่เงยหน้า
+      effects: { stats: { DEX: 1 }, flags: [lean_rogue] }
+    - &own_try_wizard
+      id: old_lock
+      label: แกะแม่กุญแจเก่าที่ไขไม่ออกแล้ว ดูว่าข้างในทำงานอย่างไร
+      text: |
+        แม่กุญแจลูกนั้นนอนอยู่ก้นลังของเก่ามาสองปี ไม่มีใครไขออก {name}ใช้ตะปูตัวเล็กงัดฝาด้านหลัง เอาผ้ามาปูพื้น แล้ววางทุกชิ้นที่หยิบออกเรียงตามลำดับ หมุดทองเหลืองห้าตัว ลวดขดสองเส้น แผ่นเหล็กบางที่สึกเป็นร่องกลาง
+
+        สามคืนกว่าจะรู้ว่าหมุดตัวไหนกันตัวไหน คืนที่สี่ประกอบกลับ เหลือลวดขดเส้นเล็กหนึ่งเส้นที่ไม่รู้ว่าออกมาจากตรงไหน แต่แม่กุญแจไขออกคล่องกว่าตอนที่ยังใช้ได้
+
+        ลวดเส้นนั้น{name}เก็บไว้ในกระเป๋าเสื้อ เวลาคิดอะไรไม่ออกก็หยิบออกมาหมุนเล่น
+      effects: { stats: { INT: 1 }, flags: [lean_wizard] }
+    - &own_try_cleric
+      id: elder_supper
+      label: ไปป้อนข้าวคนแก่ที่นอนป่วยอยู่ลำพังทุกเย็น
+      text: |
+        คนแก่คนนั้นบ่นทุกอย่าง น้ำแกงร้อนไป น้ำแกงเย็นไป เด็กสมัยนี้ถือช้อนไม่เป็น ไม่นานนัก{name}ก็จำได้ว่าคืนไหนแกจะบ่นเรื่องอะไร คืนที่ลมแรงบ่นเรื่องเข่า คืนที่เงียบบ่นเรื่องลูกที่ไม่มาเยี่ยม
+
+        เย็นวันหนึ่งแกกินหมดชามโดยไม่บ่นสักคำ {name}นั่งอยู่ข้างที่นอนจนดึกกว่าทุกวัน ฟังเสียงหายใจที่ช้าลง แล้วค่อยกลับมาเป็นจังหวะเดิม
+
+        ก่อนกลับ แกแกะเชือกที่ผูกของชิ้นเล็กไว้หัวนอนออกมายื่นให้ ว่าเอาไป ข้าไม่ต้องใช้แล้ว
+      effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [lean_cleric] }
+    - &own_try_ranger
+      id: night_thief
+      label: นั่งเฝ้าดูว่าอะไรมาคุ้ยเศษอาหารทุกคืน
+      text: |
+        สามคืนแรกไม่เห็นอะไรเลย เห็นแต่รอยตอนเช้า รอยเท้าเล็กเท่าเหรียญทองแดง สี่นิ้ว เล็บสั้น ไปทางเดียวกันทุกครั้ง
+
+        คืนที่สี่{name}ย้ายไปนั่งอีกฝั่ง ให้ลมพัดจากกองเศษอาหารมาหาตัว แล้วนั่งไม่ขยับจนขาชา ใกล้สว่าง แมวตัวเมียผอมจนเห็นซี่โครงย่องออกมาจากเงา คาบเศษอาหารไปทีละชิ้น {name}ตามไปห่างๆ จนเจอโพรงที่มีลูกแมวสามตัวนอนกองกันอยู่
+
+        {name}ไม่บอกใคร ตั้งแต่วันนั้น เศษอาหารที่{name}เอาไปทิ้งก็ไปวางใกล้โพรงขึ้นทีละนิด
+      effects: { stats: { WIS: 1 }, flags: [lean_ranger] }
+    - &own_try_bard
+      id: new_ending
+      label: เล่านิทานให้เด็กเล็กฟัง แล้วแต่งตอนจบเองเมื่อนึกไม่ออก
+      text: |
+        นิทานเรื่องแรกเป็นเรื่องที่ใครๆ ก็รู้ {name}เล่าไปได้ครึ่งเรื่องแล้วนึกตอนจบไม่ออก เด็กห้าคนนั่งรอ ปากอ้าค้าง {name}จึงแต่งต่อไปเอง ให้ตัวร้ายไม่ตาย แต่หนีลงไปอยู่ก้นบ่อ แล้วโผล่ขึ้นมาทุกคืนที่มีเด็กไม่ยอมนอน
+
+        อาทิตย์ต่อมา เด็กกลุ่มเดิมพาเพื่อนมาอีกสามคน ขอฟังเรื่องเดิม ตอนจบแบบเดิม ไม่เอาแบบที่ผู้ใหญ่เล่า
+
+        ผู้ใหญ่คนหนึ่งมาถาม{name}ทีหลังว่าลูกนอนผวามาสองคืนเพราะตัวอะไรในบ่อ ไปได้ยินมาจากไหน {name}ตอบว่าได้ยินเขาเล่ากันมา
+      effects: { stats: { CHA: 1 }, flags: [lean_bard] }
+
+- id: youth.own_try_refinery
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_refinery]
+    not_flags: [lean_warrior, lean_wizard, lean_cleric, lean_ranger, lean_bard]
+  text: *own_try_text
+  choices:
+    - &own_try_warrior
+      id: dawn_stick
+      label: หาไม้ท่อนหนึ่งมาฝึกฟาดทุกเช้าก่อนใครตื่น
+      text: |
+        ไม่มีใครสอน {name}จึงยืนแบบที่เคยเห็นยามยืนเฝ้าประตู เท้ากางเท่าไหล่ เข่างอนิดหนึ่ง แล้วฟาดไม้ลงบนตอไม้เก่าซ้ำๆ จนแขนหนักเหมือนหิ้วถังน้ำสองใบ อาทิตย์แรกฝ่ามือพองทั้งสองข้าง อาทิตย์ที่สองแผลพองแตก แล้วด้านขึ้นมาแทน
+
+        ปลายปี ตรงที่มือจับไม้เป็นรอยดำมันวาวสองรอย ห่างกันหนึ่งกำมือพอดี
+
+        เช้าวันหนึ่งมีคนยืนดูอยู่ตรงประตู ไม่พูดอะไร แล้วเดินกลับเข้าไป เช้าวันรุ่งขึ้น ข้างตอไม้มีไม้ท่อนใหม่วางไว้ เนื้อแข็งกว่าเดิม ปลายด้ามพันเชือกกันลื่นมาให้เสร็จ
+      effects: { stats: { STR: 1 }, flags: [lean_warrior] }
+    - *own_try_wizard
+    - *own_try_cleric
+    - *own_try_ranger
+    - *own_try_bard
+
+- id: youth.own_try_dwarf
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_dwarf_clan]
+    not_flags: [lean_warrior, lean_wizard, lean_rogue, lean_ranger, lean_bard]
+  text: *own_try_text
+  choices: [*own_try_warrior, *own_try_wizard, *own_try_rogue, *own_try_ranger, *own_try_bard]
+
+- id: youth.own_try_elf
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_elf_bough]
+    not_flags: [lean_warrior, lean_wizard, lean_rogue, lean_cleric, lean_bard]
+  text: *own_try_text
+  choices: [*own_try_warrior, *own_try_wizard, *own_try_rogue, *own_try_cleric, *own_try_bard]
+
+- id: youth.own_try_kept
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_marked_kept]
+    not_flags: [lean_warrior, lean_wizard, lean_rogue, lean_cleric, lean_bard]
+  text: *own_try_text
+  choices: [*own_try_warrior, *own_try_wizard, *own_try_rogue, *own_try_cleric, *own_try_bard]
+
+- id: youth.own_try_hidden
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_marked_hidden]
+    not_flags: [lean_warrior, lean_rogue, lean_ranger, lean_cleric, lean_bard]
+  text: *own_try_text
+  choices: [*own_try_warrior, *own_try_rogue, *own_try_ranger, *own_try_cleric, *own_try_bard]
+
+- id: youth.own_try_foundling
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_marked_foundling]
+    not_flags: [lean_warrior, lean_wizard, lean_rogue, lean_ranger, lean_bard, tinker_brass_fitting]
+  text: *own_try_text
+  choices: [*own_try_warrior, *own_try_wizard, *own_try_rogue, *own_try_ranger, *own_try_bard]
+
+- id: youth.own_try_ashland
+  stage: youth
+  weight: 100000
+  when:
+    age: [13, 13]
+    flags: [origin_ashland]
+    not_flags: [lean_rogue, lean_wizard, lean_cleric, lean_ranger, lean_bard]
+  text: *own_try_text
+  choices: [*own_try_rogue, *own_try_wizard, *own_try_cleric, *own_try_ranger, *own_try_bard]

@@ -238,7 +238,7 @@
         {name}ขึงผ้าเช็ดหน้าทาบหิน เอาถ่านถูจนลายอักษรแถวล่างสุดขึ้นมาบนผ้าครบสามตัว ลุงเห็นแต่ไม่ห้าม
 
         "อย่าให้ใครในสภาเห็น" เขาบอกตอนเดินขึ้นบันได "แล้วอย่าพยายามอ่าน"
-      effects: { stats: { INT: 1 }, flags: [copied_sealed_runes] }
+      effects: { stats: { INT: 1 }, flags: [copied_sealed_runes, lean_wizard] }
     - id: back_away
       label: ถอยออกมายืนข้างลุง
       text: |

@@ -38,7 +38,7 @@
         ตาของ{name}กับแสงในอกมันเป็นสีเดียวกัน สองฝ่ายจ้องกันจนตะเกียงในบ้านกะพริบเพราะน้ำมันใกล้หมด
 
         แล้วมันก็หมอบลงบนเถ้าตรงนั้น คางวางบนขาหน้า ตาไม่ละจากชานบ้าน {name}ไม่ยอมเข้าบ้าน มันก็ไม่ยอมไป จน{father}ต้องออกมาอุ้มลูกเข้าบ้านตอนตีสอง
-      effects: { stats: { WIS: 1 }, flags: [stared_down_hound] }
+      effects: { stats: { WIS: 1 }, flags: [stared_down_hound, lean_ranger] }
 
 - id: childhood.ashland_silver_grass
   stage: childhood
@@ -98,7 +98,7 @@
         ไม่ถึงปี {name}อ่านหน้าซองจดหมายในถุงออกทุกฉบับ ถึงป้อมสาม ถึงหลุมเก้า ถึงบริษัทเหมืองในเวนทราส ถึงสภาตระกูลที่ทุนดาร์
 
         จ่ามอร์เดนบอกว่าห้ามแกะอ่าน แต่ไม่ได้ห้ามอ่านหน้าซอง
-      effects: { stats: { INT: 1 }, flags: [reads_letters] }
+      effects: { stats: { INT: 1 }, flags: [reads_letters, lean_wizard] }
     - id: carry
       label: ขอเป็นคนแบกถุงจดหมายไปส่งถึงป้อม
       text: |
