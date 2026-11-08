@@ -1,0 +1,36 @@
+# ของจากชุด 3b–3c สายอาชีพ คู่แข่ง และปมเก่า (อายุ 25 ถึง 40)
+# ได้จากเหตุการณ์ใน 84_mid_class.yaml และ 85_mid_callbacks.yaml
+
+- id: kedra_sword
+  name: ดาบของเคดรา ใบมีรอยบิ่นสามรอย
+  slot: weapon
+  rarity: uncommon
+  stats: { STR: 1 }
+
+- id: finnick_picks
+  name: ห่อเหล็กงัดของฟินนิค
+  slot: accessory
+  rarity: uncommon
+  passive:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+
+- id: black_music_box
+  name: กล่องดนตรีไม้ดำ มุมฝาบิ่น
+  slot: accessory
+  rarity: rare
+  passive:
+    description: ทอยพลาดครั้งแรกในแต่ละเหตุการณ์ได้ทอยใหม่อีกครั้ง
+    effect: { kind: reroll_failed_check, once_per_event: true }
+
+- id: blind_astronomer_notes
+  name: สมุดตัวเลขของนักดาราศาสตร์หลวง
+  slot: offhand
+  rarity: uncommon
+  stats: { INT: 1 }
+
+- id: hasken_longbow
+  name: ธนูยาวของฮัสเกน
+  slot: weapon
+  rarity: uncommon
+  stats: { DEX: 1 }
