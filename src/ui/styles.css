@@ -71,6 +71,8 @@ ul { list-style: none; margin: 0; padding: 0; }
 .scene .hill { position: absolute; left: -10%; right: -10%; bottom: -45%; height: 70%; background: var(--hill); border-radius: 50% 50% 0 0; }
 .scene .hill.back { left: 35%; right: -30%; bottom: -52%; background: var(--hill2); }
 .sprite { position: relative; image-rendering: pixelated; height: 88%; max-height: 288px; aspect-ratio: 64 / 96; margin-bottom: 4%; }
+.scene.has-img { background-size: cover; background-position: center bottom; background-repeat: no-repeat; image-rendering: pixelated; }
+.scene.has-img .scene-place { background: color-mix(in srgb, var(--bg) 82%, transparent); padding: 2px 8px; border-radius: 999px; }
 .scene-place { position: absolute; top: 8px; left: 12px; font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
 .scene-place .icon { width: 14px; height: 14px; }
 

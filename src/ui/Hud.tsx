@@ -7,6 +7,7 @@ import { game, life, tab, type Tab } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { SpriteView } from './SpriteView';
 import { resolvedTheme, theme, toggleTheme } from './theme';
+import { sceneImage } from './scenes';
 
 /** ชื่อไทยของ location_tag (ตามคัมภีร์โลก) */
 export const PLACE_TH: Record<string, string> = {
@@ -83,10 +84,11 @@ export function TopBar() {
 
 export function Scene() {
   const place = PLACE_TH[life.value.locationTag];
+  const img = sceneImage.value;
   return (
-    <div class="scene">
-      <div class="hill" />
-      <div class="hill back" />
+    <div class={`scene ${img ? `has-img ${img.time}` : ''}`} style={img ? { backgroundImage: `url(${img.url})` } : undefined}>
+      {!img && <div class="hill" />}
+      {!img && <div class="hill back" />}
       <SpriteView />
       {place && <span class="scene-place"><Icon name="place" />{place}</span>}
     </div>
