@@ -1,0 +1,16 @@
+# Miner's lamp helmet (story item miner_lamp_helmet, a fifth-level foreman's): a round iron cap with a
+# brim, a small lamp on the front that glows (starsilver lens).
+z: 65
+colors: { metal: metal_black, fitting: metal_starsilver }
+hides: { pieces: [hair, horns], above: head+4 }
+shapes:
+  - at: [-7, head-3]
+    ascii: |
+      ......FF.......
+      .....gffg......
+      ...ggggggggg...
+      ..ggggggggggg..
+      .ggggggggggggg.
+      .ggggggggggggg.
+      ggggggggggggggg
+      GGGGGGGGGGGGGGG

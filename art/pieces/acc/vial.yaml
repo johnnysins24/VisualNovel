@@ -1,0 +1,12 @@
+# Dark vial (story item dim_night_vial, star dew that stopped glowing on the night the stars dimmed):
+# a small glass vial on a cord at the left hip, the dew inside grey and dead.
+z: 36
+colors: { metal: metal_black, leather: leather_black }
+shapes:
+  - at: [3, waist+1]
+    ascii: |
+      .L.
+      .g.
+      gGg
+      ggg
+      .g.

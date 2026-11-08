@@ -1,0 +1,11 @@
+# Cradle bell (story item cradle_bell): a small brass bell tied to the belt on the left hip.
+z: 36
+colors: { fitting: metal_brass, leather: leather_black }
+shapes:
+  - at: [3, waist]
+    ascii: |
+      .L.
+      .f.
+      fFf
+      fff
+      .f.

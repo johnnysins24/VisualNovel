@@ -258,3 +258,39 @@ named:
       pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_walrus, mark/wrinkles, mark/scar_brow, body/chainmail, over/tabard, feet/iron_boots, acc/gloves, weapon/spear]
       choices: { skin: honey, hair: silver, eyes: grey }
       colors: { metal: metal_black }
+  # more recurring characters of ages 25-40 (story batches 3b-3c)
+  ravis:
+    name: ราวิส (คู่แข่งสายสามัญชน หัวหน้าคนงาน)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/undercut, body/overalls, feet/boots, head/cap, acc/gloves, weapon/wrench]
+      choices: { skin: brown, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_navy, trim: dye_white, fitting: metal_brass }
+  mila:
+    name: มิลา (ลูกสาวหญิงซักผ้า ถือดาบไม้ด้ามคราดทาดำ)
+    look:
+      body: cf
+      pieces: [face/basic, under/briefs, under/vest, hair/f/twin_braids, mark/freckles, body/child_street, weapon/staff]
+      choices: { skin: peach, hair: blonde, eyes: blue }
+      colors: { cloth: dye_white, trim: dye_sky, weapon/staff.wood: leather_black, weapon/staff.fitting: metal_black }
+  daedraek:
+    name: แดดแรก (หญิงมีเขา หัวโจร)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/ponytail, horns/curved, tail/tiefling, mark/scar_brow, body/leather_armor, feet/boots, cloak/travel, weapon/axe, offhand/dagger]
+      choices: { skin: honey, hair: black, eyes: amber }
+      colors: { cloth: dye_black, trim: dye_wine, leather: leather_black }
+  halverin:
+    name: เจ้าชายฮาลเวริน (ผ้าขาวของศาสนจักรตะเกียง รัชทายาทปี 318)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, body/doublet, feet/shoes, cloak/cape, head/crown, acc/holy_symbol]
+      choices: { skin: porcelain, hair: blonde, eyes: blue }
+      colors: { cloth: dye_white, trim: dye_mustard, fitting: metal_brass }
+  selimar:
+    name: เจ้าหญิงเซลีมาร์ (ผ้าเทาของเบเลค รัชทายาทปี 318)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, body/dress, feet/shoes, cloak/fur, head/crown, acc/holy_symbol]
+      choices: { skin: porcelain, hair: dark_brown, eyes: grey }
+      colors: { cloth: dye_grey, trim: dye_black, fitting: metal_black }
