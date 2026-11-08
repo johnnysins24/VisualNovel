@@ -123,6 +123,7 @@
 
 - id: youth.hidden_doctor_funeral
   stage: youth
+  scene: noble_hall
   weight: 10
   when:
     age: [12, 13]
@@ -184,6 +185,7 @@
 
 - id: youth.hidden_lodge_sale
   stage: youth
+  scene: noble_hall
   weight: 10
   when:
     age: [12, 13]
@@ -245,6 +247,7 @@
 
 - id: youth.foundling_wolves
   stage: youth
+  scene: temple
   weight: 10
   when:
     age: [12, 13]
@@ -363,6 +366,7 @@
 
 - id: youth.foundling_green_book
   stage: youth
+  scene: temple
   weight: 12
   when:
     age: [12, 13]

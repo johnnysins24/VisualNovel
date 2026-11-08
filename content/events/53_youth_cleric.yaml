@@ -186,6 +186,7 @@
 
 - id: youth.cleric_talis_runaway
   stage: youth
+  scene: temple
   weight: 30
   when:
     age: [15, 17]

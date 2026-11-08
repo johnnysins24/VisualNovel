@@ -5,6 +5,7 @@
 # ---------- สงครามถ่าน ----------
 - id: childhood.war_conscription
   stage: childhood
+  scene: market
   weight: 14
   when:
     age: [3, 11]
@@ -353,6 +354,7 @@
 
 - id: childhood.belek_child_account
   stage: childhood
+  scene: market
   weight: 5
   when:
     age: [6, 10]

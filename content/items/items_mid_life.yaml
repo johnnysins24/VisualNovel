@@ -1,0 +1,42 @@
+# ของจากเหตุการณ์ชีวิต ชุด 3b–3c (อายุ 25 ถึง 40) ได้ผ่าน effects.items ใน 86_mid_shared.yaml และ 87_mid_world.yaml
+# ยังไม่มี sprite งานศิลป์จะใส่ field sprite ทีหลัง
+
+- id: wedding_clay_bowl
+  name: ชามไฟดินเผาจากวันแต่งงาน
+  slot: offhand
+  passive:
+    description: เลือดสูงสุด +1
+    effect: { kind: max_hp, amount: 1 }
+
+- id: cradle_bell
+  name: กระดิ่งทองเหลืองหัวเปลลูก
+  slot: accessory
+  passive:
+    description: ทอยอึดได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CON, amount: 1 }
+
+- id: mother_shawl
+  name: ผ้าคลุมไหล่ผืนเก่าของแม่
+  slot: cloak
+  stats: { CON: 1 }
+
+- id: toren_oil_ladle
+  name: ทัพพีตักน้ำมันของแม่ชีโทเรน
+  slot: offhand
+  rarity: uncommon
+  passive:
+    description: เลือดสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: back_brace
+  name: สายรัดเอวหนังวัวสองชั้นจากหมอนวดกระดูก
+  slot: accessory
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+
+- id: dim_night_vial
+  name: ขวดน้ำค้างที่ไม่เรืองแสงจากคืนดาวหรี่
+  slot: accessory
+  rarity: rare
+  stats: { INT: 1, WIS: 1 }

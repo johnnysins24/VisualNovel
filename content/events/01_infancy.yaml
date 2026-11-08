@@ -279,6 +279,7 @@
 
 - id: infancy.foundling_register
   stage: infancy
+  scene: temple
   weight: 10
   when:
     age: [1, 2]

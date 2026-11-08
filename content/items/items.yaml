@@ -1,2 +1,49 @@
-# ของในเกม ยังไม่มีของจริงในชุดแรก ของทดสอบอยู่ที่ tests/fixtures/content
-[]
+# ของในเกม ได้จากเหตุการณ์ (effects.items) ผู้เล่นสวมเองในแผงอุปกรณ์
+# ยังไม่มี sprite ของทุกชิ้น งานศิลป์จะใส่ field sprite ทีหลัง
+
+- id: healer_satchel
+  name: ย่ามยาของวิหาร
+  slot: accessory
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: navy_saber
+  name: ดาบสั้นด้ามหนังปลาฉลาม
+  slot: weapon
+  stats: { DEX: 1 }
+  rarity: uncommon
+
+- id: bullet_charm
+  name: เครื่องรางโล่เงินของสามีท่านหญิงอิสเวล
+  slot: accessory
+  rarity: uncommon
+  passive:
+    description: เลือดสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: thick_lamp_glass
+  name: แก้วครอบตะเกียงหนาสองนิ้วจากบ้านเซเวริน
+  slot: offhand
+  rarity: uncommon
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: flour_sack_scrap
+  name: กระสอบแป้งที่ห่อตอนเกิด
+  slot: accessory
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: silver_saw_case
+  name: กล่องเลื่อยเงินของท่านย่า
+  slot: accessory
+  rarity: rare
+  stats: { CHA: 1 }
+
+- id: unit_tag
+  name: ป้ายไม้ประจำกองจากสงครามถ่าน
+  slot: accessory
+  stats: { CON: 1 }

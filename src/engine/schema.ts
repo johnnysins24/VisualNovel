@@ -53,6 +53,8 @@ export const EffectsSchema = z
     stats: z.partialRecord(StatSchema, z.number().int()).optional(),
     hp: z.number().int().optional(),
     gold: z.number().int().optional(),
+    /** เงินที่เสียใน effect นี้ทำให้ติดลบได้ (หนี้ที่ผู้เล่นเลือกก่อเอง เช่น ค้ำหนี้แล้วรับหนี้มาจ่ายแทน) ไม่มี = เสียได้แค่เท่าที่มี */
+    debt: z.boolean().optional(),
     flags: z.array(z.string()).optional(),
     clear_flags: z.array(z.string()).optional(),
     traits: z.array(z.string()).optional(),
@@ -71,6 +73,11 @@ export const EffectsSchema = z
     name_pool: z.object({ self: z.string().optional(), parents: z.string().optional() }).strict().optional(),
     /** ตั้งเทพที่นับถือ */
     god: GodSchema.optional(),
+    /**
+     * มีคนรัก (แทนคนเดิมถ้ามีอยู่แล้ว) ชื่อสุ่มจากกลุ่มชื่อ pool ตามเพศที่ระบุ ไม่ระบุ pool ใช้กลุ่มชื่อของพ่อแม่หรือเผ่า
+     * ใช้ในข้อความด้วย {partner} และ {p:เขา|เธอ}
+     */
+    partner: z.object({ gender: z.enum(['m', 'f']), pool: z.string().optional() }).strict().optional(),
     /** เพิ่มหรือปรับคนในชีวิต (ผังครอบครัวและผังความสัมพันธ์) */
     people: z.array(PersonEffectSchema).optional(),
   })
@@ -90,6 +97,8 @@ const OutcomeSchema = z.object({ text: z.string().optional(), effects: EffectsSc
 
 /** เงื่อนไขร่วมของ when (เหตุการณ์) และ requires (ตัวเลือก) ในส่วนสถานะโลกและตัวละคร */
 const StateConds = {
+  /** เพศของตัวละคร เช่น ประกาศเกณฑ์ทหารที่เรียกเฉพาะผู้ชาย */
+  gender: z.enum(['m', 'f']).optional(),
   class: ClassSchema.optional(),
   god: GodSchema.optional(),
   world: WorldRange.optional(),
@@ -106,7 +115,11 @@ export const ChoiceSchema = z.object({
     .object({
       trait: z.string().optional(),
       flag: z.string().optional(),
+      /** ตัวเลือกซ่อนถ้ามี flag ใดในนี้ (เช่น race_tiefling สำหรับงานที่ไม่รับคนมีเขา) */
+      not_flags: z.array(z.string()).optional(),
       item: z.string().optional(),
+      /** ตัวเลือกที่ต้องจ่ายเงิน (ซื้อ ให้ ฝาก) ซ่อนถ้าเงินไม่ถึง ข้อความที่บอกว่าจ่ายกี่เหรียญจึงตรงกับเงินที่มีจริง */
+      min_gold: z.number().int().min(1).optional(),
       min_stat: z.partialRecord(StatSchema, z.number().int()).optional(),
       ...StateConds,
     })
@@ -118,11 +131,22 @@ export const ChoiceSchema = z.object({
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
 
+/**
+ * ฉากหลังของเหตุการณ์ (ภาพประกอบจาก thread ศิลป์) ไม่ใส่ = ใช้ภาพตาม location_tag
+ * home กับ market มีภาพแยกตามถิ่น ฉากอื่นใช้ภาพเดียวทุกถิ่น
+ */
+export const SCENES = [
+  'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop',
+  'ship_deck', 'mine', 'clan_hall', 'institute', 'belek_bank', 'star_hall',
+] as const;
+export type Scene = (typeof SCENES)[number];
+
 export const EventSchema = z.object({
   id: z.string().regex(/^[a-z_]+\.[a-z0-9_]+$/, 'id ต้องเป็น stage.name'),
   stage: StageSchema,
   weight: z.number().positive().default(10),
   once: z.boolean().default(true),
+  scene: z.enum(SCENES).optional(),
   when: z
     .object({
       age: z.tuple([z.number().int(), z.number().int()]).optional(),

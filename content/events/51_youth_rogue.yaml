@@ -110,6 +110,7 @@
 
 - id: youth.rogue_mooring_rope
   stage: youth
+  scene: ship_deck
   weight: 30
   when:
     age: [15, 17]

@@ -5,6 +5,8 @@ import { DEFAULT_NAME, type LifeChanges, type LifeState, type LogEntry, type Per
 import type { ItemIndex } from './items';
 import { activePassives, effectiveStats, maxHp } from './items';
 import {
+  ADULT_AGE,
+  ADULT_HP_REGEN,
   ALIGN_CAP,
   CLASSES,
   CLASS_PRIMARY_BONUS,
@@ -13,6 +15,7 @@ import {
   PROTECTED_AGE,
   RACES,
   REPUTATION_CAP,
+  STAT_CAP,
   WORLD_CAP,
   WORLD_KEYS,
   type ClassId,
@@ -37,6 +40,7 @@ export function makeGame(content: Content): Game {
 const clamp = (n: number, cap: number) => Math.max(-cap, Math.min(cap, n));
 
 interface StateConds {
+  gender?: 'm' | 'f' | undefined;
   class?: string | undefined;
   god?: string | undefined;
   world?: Partial<Record<(typeof WORLD_KEYS)[number], [number, number]>> | undefined;
@@ -46,6 +50,7 @@ interface StateConds {
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
 function stateConditionsMet(life: LifeState, c: StateConds): boolean {
+  if (c.gender && life.gender !== c.gender) return false;
   if (c.class && life.classId !== c.class) return false;
   if (c.god && life.god !== c.god) return false;
   for (const [k, range] of Object.entries(c.world ?? {})) {
@@ -105,7 +110,9 @@ export function choiceAvailable(life: LifeState, choice: Choice): boolean {
   if (!r) return true;
   if (r.trait && !life.traits.includes(r.trait)) return false;
   if (r.flag && !life.flags.includes(r.flag)) return false;
+  if (r.not_flags?.some((f) => life.flags.includes(f))) return false;
   if (r.item && !life.inventory.includes(r.item)) return false;
+  if (r.min_gold !== undefined && life.gold < r.min_gold) return false;
   for (const [s, min] of Object.entries(r.min_stat ?? {})) {
     if (life.stats[s as keyof typeof life.stats] < (min ?? 0)) return false;
   }
@@ -149,6 +156,13 @@ export function checkChance(game: Game, life: LifeState, check: NonNullable<Choi
 export const CLOSENESS_CAP = 5;
 /** พ่อแม่เริ่มที่ความสนิทเท่านี้ */
 export const PARENT_CLOSENESS = 3;
+/** คู่ครองปัจจุบัน (life.partner) อยู่ในรายชื่อคนด้วย id นี้ คนเก่าที่ถูกแทนย้ายไปเป็น partner_2, partner_3 ... */
+export const PARTNER_PERSON_ID = 'partner';
+/** คนรักเริ่มที่ความสนิทเท่านี้ */
+export const PARTNER_CLOSENESS = 3;
+/** flag ที่เนื้อหาตั้งเมื่อแต่งงาน และเมื่อคู่ครองจากไป */
+export const MARRIED_FLAG = 'married';
+export const PARTNER_DIED_FLAG = 'partner_died';
 
 /** รวม effects.people เข้ากับรายชื่อเดิม (อ้างด้วย id) คนที่ไม่เคยมีและไม่มีชื่อจะถูกข้าม */
 export function applyPeople(people: Person[], fx: PersonEffect[], age: number): Person[] {
@@ -201,8 +215,12 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     alignment: { ...life.alignment },
     reputation: { ...life.reputation },
   };
-  for (const s of STATS) next.stats[s] += fx.stats?.[s] ?? 0;
-  next.gold += fx.gold ?? 0;
+  for (const s of STATS) {
+    const d = fx.stats?.[s] ?? 0;
+    // ค่าที่เพิ่มหยุดที่ STAT_CAP ค่าที่เกินอยู่แล้ว (โบนัสเผ่าหรืออาชีพ) ไม่ถูกลดลง
+    next.stats[s] = d > 0 ? Math.max(next.stats[s], Math.min(STAT_CAP, next.stats[s] + d)) : next.stats[s] + d;
+  }
+  next.gold = addGold(life.gold, fx.gold ?? 0, fx.debt === true);
   for (const f of fx.flags ?? []) if (!next.flags.includes(f)) next.flags.push(f);
   next.flags = next.flags.filter((f) => !fx.clear_flags?.includes(f));
   for (const t of fx.traits ?? []) if (!next.traits.includes(t)) next.traits.push(t);
@@ -220,6 +238,21 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   if (fx.god) next.god = fx.god;
   if (fx.people?.length) next.people = applyPeople(next.people ?? [], fx.people, next.age);
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
+  if (fx.partner) {
+    next.partner = { name: '', gender: fx.partner.gender, pool: fx.partner.pool ?? defaultPartnerPool(next) };
+    // คนรักคนเก่ายังอยู่บนผังความสัมพันธ์ แต่ไม่ใช่คู่ครองแล้ว
+    const old = (next.people ?? []).find((p) => p.id === PARTNER_PERSON_ID);
+    if (old) {
+      const n = (next.people ?? []).filter((p) => /^partner_\d+$/.test(p.id)).length + 2;
+      next.people = (next.people ?? []).map((p) => (p === old ? { ...p, id: `partner_${n}`, kin: undefined } : p));
+    }
+  }
+  if (next.partner?.name && (next.people ?? []).some((p) => p.id === PARTNER_PERSON_ID)) {
+    const pfx: PersonEffect = { id: PARTNER_PERSON_ID };
+    if (fx.flags?.includes(MARRIED_FLAG)) pfx.kin = 'spouse';
+    if (fx.flags?.includes(PARTNER_DIED_FLAG)) pfx.dies = true;
+    if (pfx.kin || pfx.dies) next.people = applyPeople(next.people, [pfx], next.age);
+  }
   let classHp = 0;
   if (fx.class && !next.classId) {
     const def = CLASSES[fx.class as ClassId];
@@ -240,6 +273,22 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     next.endReason = 'death';
   }
   return next;
+}
+
+/**
+ * เงินที่เสีย (ค่าปรับ โดนขโมย ของพัง) เอาไปได้แค่เท่าที่มี เงินติดลบได้เฉพาะ effect ที่มี debt: true คือหนี้ที่เลือกก่อเอง
+ * คนที่ติดหนี้อยู่แล้วเสียเงินแบบไม่ใช่หนี้ก็ไม่ติดลบเพิ่ม เพราะไม่มีเหรียญให้เสีย
+ */
+export function addGold(gold: number, delta: number, debt: boolean): number {
+  if (delta >= 0 || debt) return gold + delta;
+  return Math.max(Math.min(gold, 0), gold + delta);
+}
+
+/** กลุ่มชื่อของคนรักเมื่อเนื้อหาไม่ระบุ: กลุ่มของพ่อแม่ ถ้าไม่มีพ่อแม่ใช้กลุ่มตามเผ่า ถ้ายังไม่มีใช้ human */
+function defaultPartnerPool(life: LifeState): string {
+  const parents = life.namePool.parents;
+  if (parents && parents !== 'none') return parents;
+  return life.raceApplied ?? 'human';
 }
 
 function pickName(pool: NamePool | undefined, gender: 'm' | 'f', rng: Rng, avoid: string[] = []): string | null {
@@ -285,6 +334,21 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
     const sur = selfPool?.surname ?? [];
     if (sur.length) next.surname = sur[rng.int(0, sur.length - 1)]!;
   }
+  if (next.partner && !next.partner.name) {
+    const avoid = [next.name, next.parents?.father ?? '', next.parents?.mother ?? ''];
+    const pool = game.names.get(next.partner.pool) ?? game.names.get('human');
+    const name = pickName(pool, next.partner.gender, rng, avoid);
+    if (name) next = { ...next, partner: { ...next.partner, name } };
+  }
+  if (next.partner?.name && !(next.people ?? []).some((p) => p.id === PARTNER_PERSON_ID)) {
+    const married = next.flags.includes(MARRIED_FLAG);
+    next = {
+      ...next,
+      people: applyPeople(next.people ?? [], [
+        { id: PARTNER_PERSON_ID, name: next.partner.name, gender: next.partner.gender, bond: 'love', closeness: PARTNER_CLOSENESS, ...(married ? { kin: 'spouse' as const } : {}) },
+      ], next.age),
+    };
+  }
   const drifted = clericDrifted(next);
   const has = next.flags.includes(CLERIC_DRIFT_FLAG);
   if (drifted !== has) {
@@ -329,6 +393,10 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   next = settle(game, next, rng);
   const changes = diffLife(life, next);
   if (changes) entry.changes = changes;
+  if (next.alive && life.age >= ADULT_AGE) {
+    // ผู้ใหญ่พักแผลได้ปีละ ADULT_HP_REGEN แผลถาวรให้เนื้อหาตั้งเป็น flag แทน
+    next = { ...next, hp: Math.min(maxHp(next, game.items), next.hp + ADULT_HP_REGEN) };
+  }
   next = {
     ...next,
     rngState: rng.state,

@@ -58,6 +58,7 @@
 
 - id: youth.farm_hetel_bell
   stage: youth
+  scene: home
   weight: 10
   when:
     age: [12, 13]

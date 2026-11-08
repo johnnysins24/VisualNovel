@@ -5,6 +5,7 @@
 
 - id: youth.filler_late_arvel
   stage: youth
+  scene: market
   weight: 1
   once: false
   when:
@@ -61,6 +62,7 @@
 
 - id: youth.filler_late_hordun
   stage: youth
+  scene: road
   weight: 1
   once: false
   when:

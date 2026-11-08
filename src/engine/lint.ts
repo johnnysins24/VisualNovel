@@ -62,6 +62,7 @@ export function lintContent(c: Content): string[] {
           if (!pe.name && !namedPeople.has(pe.id)) problems.push(`${cw}: people "${pe.id}" ไม่มีชื่อและไม่เคยถูกตั้งชื่อที่ไหน`);
         }
         if (fx?.name_pool?.self === 'none') problems.push(`${cw}: name_pool.self ใช้ none ไม่ได้ (none ใช้กับ parents)`);
+        if (fx?.partner?.pool && !poolIds.has(fx.partner.pool)) problems.push(`${cw}: partner.pool "${fx.partner.pool}" ไม่มีใน names.yaml`);
       }
       for (const t of [ch.label, ch.text, ch.success?.text, ch.failure?.text]) {
         for (const ph of unknownPlaceholders(t ?? '')) problems.push(`${cw}: placeholder ไม่รู้จัก ${ph}`);

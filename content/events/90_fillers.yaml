@@ -115,6 +115,7 @@
 
 - id: childhood.filler_ashland
   stage: childhood
+  scene: home
   weight: 1
   once: false
   when:

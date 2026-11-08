@@ -118,6 +118,7 @@
 
 - id: youth.bard_witch_hunter_play
   stage: youth
+  scene: market
   weight: 30
   when:
     age: [15, 17]
@@ -170,6 +171,7 @@
 
 - id: youth.bard_witch_hunter_horns
   stage: youth
+  scene: market
   weight: 30
   when:
     age: [15, 17]
@@ -223,6 +225,7 @@
 
 - id: youth.bard_humming_party
   stage: youth
+  scene: noble_hall
   weight: 30
   when:
     age: [15, 17]
@@ -268,13 +271,14 @@
     - id: join_the_hum
       label: ปล่อยเพลงลงไปหาเสียงฮัมของแขก
       text: |
-        {name}ลดเสียงลง ปล่อยทำนองไหลลงไปหาเสียงต่ำเสียงนั้นทีละโน้ต จนเพลงของ{name}กับเสียงฮัมของแขกทั้งห้องกลายเป็นเสียงเดียวกัน เจ้าของบ้านหันมามอง หลับตาลง แล้วยิ้ม
+        {name}ลดเสียงลง ปล่อยทำนองไหลลงไปหาเสียงต่ำเสียงนั้นทีละเสียง จนเพลงของ{name}กับเสียงฮัมของแขกทั้งห้องกลายเป็นเสียงเดียวกัน เจ้าของบ้านหันมามอง หลับตาลง แล้วยิ้ม
 
         ตอนรับค่าจ้าง เธอจ่ายให้สองเท่า แล้วชวนให้มาร้องที่บ้านนี้ทุกเย็นวันอัสเทล มีแขกประจำนั่งอ่านหนังสือกันสิบกว่าคน เธอบอกว่าไม่ต้องเตรียมเพลงมา พวกเราร้องเพลงเดียวกันอยู่แล้ว
       effects: { stats: { CHA: 1 }, gold: 12, world: { star: 1 }, reputation: { star_listeners: 1 }, flags: [sang_for_listeners] }
 
 - id: youth.bard_wall_outsiders
   stage: youth
+  scene: tavern
   weight: 30
   when:
     age: [15, 17]

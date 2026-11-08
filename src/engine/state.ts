@@ -1,6 +1,6 @@
 import type { Bond, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { ADULT_AGE, BIRTH_YEAR, RACES, type RaceId, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -38,6 +38,8 @@ export interface LifeState {
   namePool: { self?: string; parents?: string };
   /** สุ่มชื่อแล้วหรือยัง */
   namesApplied: boolean;
+  /** คนรักหรือคู่ครอง ชื่อสุ่มจากกลุ่มชื่อ pool ตอน settle (L16: เพศใดก็ได้) */
+  partner: Partner | null;
   /** ซ่อนจากผู้เล่น */
   world: Record<WorldKey, number>;
   alignment: { law: number; moral: number };
@@ -51,6 +53,14 @@ export interface LifeState {
   /** คนในชีวิตนอกจากพ่อแม่ ดู effects.people */
   people: Person[];
   currentEventId: string | null;
+}
+
+export interface Partner {
+  /** ว่างจนกว่า settle จะสุ่มชื่อให้ */
+  name: string;
+  gender: Gender;
+  /** id กลุ่มชื่อใน names.yaml */
+  pool: string;
 }
 
 export interface LogEntry {
@@ -123,6 +133,7 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     surname: '',
     namePool: {},
     namesApplied: false,
+    partner: null,
     world: { gods: 0, demon: 0, star: 0 },
     alignment: { law: 0, moral: 0 },
     reputation: { ...(meta?.reputation ?? {}) },
@@ -142,11 +153,11 @@ export const worldYear = (life: Pick<LifeState, 'birthYear' | 'age'>) => life.bi
 export const ageScale = (life: Pick<LifeState, 'raceApplied'>) => RACES[life.raceApplied as RaceId]?.ageScale ?? 1;
 
 /**
- * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: ก่อน 18 ปีเท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
- * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงผู้ใหญ่ให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
+ * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: จนถึง EVEN_AGING_UNTIL เท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
+ * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงหลังจากนั้นให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
  */
 export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) =>
-  life.age <= ADULT_AGE ? life.age : ADULT_AGE + (life.age - ADULT_AGE) / ageScale(life);
+  life.age <= EVEN_AGING_UNTIL ? life.age : EVEN_AGING_UNTIL + (life.age - EVEN_AGING_UNTIL) / ageScale(life);
 
-/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีก่อนเป็นผู้ใหญ่ หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
-export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < ADULT_AGE ? 1 : ageScale(life));
+/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีจนถึง EVEN_AGING_UNTIL หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
+export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < EVEN_AGING_UNTIL ? 1 : ageScale(life));

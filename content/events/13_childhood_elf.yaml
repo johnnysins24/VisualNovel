@@ -73,6 +73,7 @@
 
 - id: childhood.elf_eldest_memory
   stage: childhood
+  scene: home
   weight: 8
   when:
     age: [6, 11]
@@ -128,6 +129,7 @@
 
 - id: childhood.elf_star_count
   stage: childhood
+  scene: star_hall
   weight: 9
   when:
     age: [7, 11]
@@ -198,7 +200,7 @@
       check: { stat: DEX, dc: 13 }
       success:
         text: |
-          ไฟลุกท่วมกองซุงตอนตีสอง {name}มองจากบนกิ่ง เห็นคนตัดไม้วิ่งเท้าเปล่าออกจากเต็นท์ มีคนอุ้มเด็กออกมา มีคนตะโกนเรียกชื่อกันวุ่น ท่อนสองพันปีไหม้อยู่จนฟ้าสาง
+          ไฟลุกท่วมกองซุงตอนตีสอง {name}มองจากบนกิ่ง เห็นคนตัดไม้วิ่งเท้าเปล่าออกจากกระโจม มีคนอุ้มเด็กออกมา มีคนตะโกนเรียกชื่อกันวุ่น ท่อนสองพันปีไหม้อยู่จนฟ้าสาง
 
           สองคนกลับถึงหมู่บ้านก่อนพระอาทิตย์ขึ้น ผมของ{name}มีกลิ่นควันเหมือนเสื้อของโอรีวัล ผู้ใหญ่หลายคนเบือนหน้าตอนเดินผ่าน
         effects: { stats: { DEX: 1 }, alignment: { law: -1 }, flags: [burned_logging_camp, orival_bond, lean_rogue] }
