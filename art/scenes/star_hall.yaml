@@ -1,0 +1,22 @@
+# The Star Counting Tower in Ileth: an observatory room in the crown of the great tree, the roof open
+# on the sky (stars at night, and their count), a brass telescope, a ledger of the count.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: wood, pattern: logs }
+  - pane: { x: 40, y: 0, w: 176, h: 50, cross: false }
+  - rect: { x: 40, y: 50, w: 176, h: 3, mat: wood, lvl: 3.4 }
+  - line: { from: [[128, 0], [128, 50]], w: 2, mat: wood }
+  - line: { from: [[84, 0], [84, 50]], w: 2, mat: wood }
+  - line: { from: [[172, 0], [172, 50]], w: 2, mat: wood }
+  - trees: { kind: round, mat: elf_leaf, base: 92, every: 9, h: [12, 18], x: [-4, 40], seed: 1 }
+  - trees: { kind: round, mat: elf_leaf, base: 92, every: 9, h: [12, 18], x: [216, 260], seed: 2 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 10, depth: 80 }
+  - line: { from: [[150, 92], [196, 40]], w: 4, mat: brass }
+    outline: true
+  - line: { from: [[172, 92], [170, 66]], w: 2, mat: wood }
+  - line: { from: [[180, 92], [176, 66]], w: 2, mat: wood }
+  - furn: { kind: table, at: [52, 108], w: 36, h: 18 }
+    outline: true
+  - furn: { kind: lamp, at: [110, 58], light: lamp }
+  - glow: { at: [111, 60], r: 16, colour: 'bad8fa', only: [dusk, night] }
+  - vignette: { strength: 0.35 }

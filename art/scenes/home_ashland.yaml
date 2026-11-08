@@ -1,0 +1,17 @@
+# Home in the Ashland: a hut of woven silver grass over a timber frame, a small hearth of ash-grey
+# stones, sleeping mats, a water jar, a window onto the grey plain.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: silver_grass, pattern: weave, beams: [40, 128, 216] }
+  - pane: { x: 160, y: 30, w: 22, h: 16 }
+  - floor: { y0: 93, mat: ash, pattern: flags, tile: 20, depth: 60 }
+  - furn: { kind: hearth, at: [60, 98], w: 26, h: 14, fire: fire }
+    outline: true
+  - glow: { at: [73, 92], r: 22, colour: 'ff9a50' }
+  - furn: { kind: shelf, at: [70, 56], w: 28, h: 14, rows: 1 }
+    outline: true
+  - furn: { kind: bed, at: [190, 104], w: 52, h: 10, mat: dirt }
+    outline: true
+  - furn: { kind: barrel, at: [22, 100], w: 10, h: 14 }
+    outline: true
+  - vignette: { strength: 0.45 }

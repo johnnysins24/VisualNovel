@@ -1,0 +1,24 @@
+# A Seal Warden fort in the Ashland: inside the curtain wall, tents of the garrison (and of the coal
+# war camps), the order's banners, the seal stones beyond the gate.
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 90, below: 50 }
+  - body: { day: [40, 14, 6], dusk: [220, 40, 9], night: [210, 16, 5] }
+  - clouds: { count: 3, y: [6, 20], seed: 8, size: 30 }
+  - pillar: { x: 130, w: 10, base: 54, top: 26 }
+    haze: 0.45
+  - wall: { y0: 50, y1: 88, mat: stone, pattern: blocks }
+  - prop: { at: [0, 50], ascii: "n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n" }
+  - furn: { kind: door, at: [116, 88], w: 24, h: 30, arch: true, mat: wood }
+    outline: true
+  - furn: { kind: banner, at: [40, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
+  - furn: { kind: banner, at: [204, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
+  - ground: { y: 88, mat: ash, noise: 1, tufts: 30, tuft: silver_grass }
+  - furn: { kind: tent, at: [6, 104], w: 40, h: 22, mat: cloth }
+    outline: true
+  - furn: { kind: tent, at: [206, 102], w: 44, h: 22, mat: cloth }
+    outline: true
+  - furn: { kind: crate, at: [52, 106], w: 14, h: 12 }
+    outline: true
+  - furn: { kind: barrel, at: [190, 106], w: 10, h: 14 }
+    outline: true

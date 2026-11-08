@@ -1,0 +1,18 @@
+# Oil ladle (story item toren_oil_ladle, Sister Toren's): a long brass ladle held down in the off hand.
+z: 70
+colors: { metal: metal_brass, leather: leather_brown }
+shapes:
+  - at: [ohand, hand-4]
+    ascii: |
+      .l.
+      .l.
+      .l.
+      ...
+      ...
+      ...
+      .g.
+      .g.
+      .g.
+      ggg
+      gGg
+      .g.

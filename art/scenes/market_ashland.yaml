@@ -1,0 +1,10 @@
+# Market in the Ashland: tents and trade carts outside the fort walls on the grey plain.
+base: { scene: ashland, layers: 9 }
+layers:
+  - ground: { y: 92, mat: ash, noise: 1.2, tufts: 40, tuft: silver_grass }
+  - furn: { kind: tent, at: [4, 104], w: 44, h: 24, mat: dirt }
+    outline: true
+  - furn: { kind: stall, at: [206, 104], w: 42, h: 30, mat: red_cloth }
+    outline: true
+  - furn: { kind: cart, at: [56, 106], w: 34, h: 13, load: silver_grass }
+    outline: true

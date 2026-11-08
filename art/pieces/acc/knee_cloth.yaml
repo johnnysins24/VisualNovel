@@ -1,0 +1,7 @@
+# Knee cloth (story item grandma_knee_cloth, the bread cloth Grandma sewed): a checked cloth bound
+# round the right knee (picture left).
+z: 34
+colors: { cloth: dye_white, trim: dye_wine }
+shapes:
+  - { mat: cloth, region: { parts: [leg], rows: [knee-1, knee+1], side: left } }
+  - { mat: trim, region: { parts: [leg], rows: [knee, knee], side: left } }

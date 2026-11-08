@@ -1,0 +1,14 @@
+# Reading lens (story item clerk_reading_lens, a Belek temple clerk's): a round magnifier in a brass
+# frame hanging on a cord at the chest.
+z: 36
+colors: { fitting: metal_brass, leather: leather_black, metal: metal_starsilver }
+shapes:
+  - at: [-3, shoulder]
+    ascii: |
+      L.....L
+      .L...L.
+      ..fff..
+      .fgGgf.
+      .fgggf.
+      ..fff..
+      ...f...

@@ -1,0 +1,24 @@
+# The road: a cart track through the countryside, a coal convoy's wagon, the railway on its bank
+# behind, hills and a far pillar.
+layers:
+  - sky: { horizon: 66 }
+  - stars: { count: 70, below: 55 }
+  - body: { day: [60, 16, 6], dusk: [210, 56, 9], night: [70, 18, 5] }
+  - clouds: { count: 5, y: [6, 30], seed: 6 }
+  - pillar: { x: 220, w: 4, base: 62 }
+    haze: 0.6
+  - ridge: { mat: far, base: 66, amp: 14, scale: 0.03, seed: 11 }
+    haze: 0.4
+  - ridge: { mat: mid, base: 76, amp: 6, scale: 0.05, seed: 12 }
+    haze: 0.15
+  - line: { from: [[0, 76], [256, 70]], w: 2, mat: metal, ties: 4, tie: wood }
+  - trees: { kind: round, mat: leaf, base: 80, every: 14, h: [8, 12], seed: 13 }
+    haze: 0.1
+  - ground: { y: 84, mat: grass, tufts: 50 }
+  - road: { y: [84, 111], top: [-10, 266], bottom: [-60, 316], mat: dirt }
+  - furn: { kind: cart, at: [170, 100], w: 40, h: 14, load: dark_stone }
+    outline: true
+  - furn: { kind: cart, at: [20, 96], w: 34, h: 13, load: dark_stone }
+    outline: true
+  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [250, 256], seed: 14 }
+    outline: true

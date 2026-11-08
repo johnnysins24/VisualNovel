@@ -1,0 +1,11 @@
+# Black music box (story item black_music_box, its lid chipped at one corner): a small box of black
+# wood hanging in a strap at the left hip, a brass crank.
+z: 36
+colors: { leather: leather_black, wood: wood, fitting: metal_brass }
+shapes:
+  - at: [3, waist+1]
+    ascii: |
+      LLL.
+      LLLL
+      LLLLf
+      LLLL

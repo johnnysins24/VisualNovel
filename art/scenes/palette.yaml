@@ -1,0 +1,348 @@
+# Colours for scene backgrounds (art/kit/scene.mjs). Ramps are 5 steps, dark (0) to light (4), soft
+# and a little cooler than the sprites, so the figure in front always reads first. Quote colours.
+outline: '2b2840' # the sprites' outline; scenes use it (as `ink`) only round near props
+star: 'f4f2ff'
+
+# Times of day. sky: colours from the top of the picture to the horizon. mul and tint change every
+# colour that is not a light (a material with `lit` switches to its lit ramp at dusk and night; one
+# with `glow: true` is never tinted). body: the sun or moon.
+times:
+  day: { sky: ['8fb6e0', 'b4d0ec', 'dbe7f3'], mul: [1, 1, 1], tint: ['ffffff', 0], lights: false, body: 'fff8dc' }
+  dusk: { sky: ['5b4c7e', 'b77c95', 'f0b57e'], mul: [1, 0.84, 0.8], tint: ['8a5a7a', 0.2], lights: true, body: 'ffcf86' }
+  night: { sky: ['161a33', '232c50', '35426b'], mul: [0.4, 0.46, 0.66], tint: ['1c2142', 0.22], lights: true, stars: true, body: 'eceeff' }
+
+# Rooms (`interior: true`): the light inside. Night is lamplight, warm and low, not moonlight; the
+# sky shows only through windows (`pane`), in the outdoor colours above.
+interior_haze: '6b5a5e'
+interior_times:
+  day: { sky: ['8c7f78', '8c7f78'], mul: [1, 0.98, 0.95], tint: ['ffffff', 0], lights: false, body: 'ffffff' }
+  dusk: { sky: ['8c7f78', '8c7f78'], mul: [0.9, 0.78, 0.72], tint: ['7a4a52', 0.16], lights: true, body: 'ffffff' }
+  night: { sky: ['8c7f78', '8c7f78'], mul: [0.62, 0.52, 0.5], tint: ['3a2a3e', 0.2], lights: true, body: 'ffffff' }
+
+materials:
+  ink: { ramp: ['2b2840'] }
+  cloud: { ramp: ['b9c6dc', 'cdd8ea', 'dfe7f4', 'eef2fa', 'fbfcff'] }
+  far: { ramp: ['7d8cad', '8c9bba', '9aa8c4', 'a9b5ce', 'bcc6da'] } # distant mountains
+  mid: { ramp: ['5f7a74', '6c887d', '7a9686', '8aa491', 'a0b69f'] } # hills
+  grass: { ramp: ['5d7f4c', '6b8e55', '7a9c5e', '8aab67', '9fbd78'] }
+  field: { ramp: ['a88a4a', 'bf9f55', 'd2b363', 'dfc373', 'ecd68e'] } # ripe wheat
+  dirt: { ramp: ['6e5643', '806550', '927560', 'a3866f', 'b59a82'] }
+  stone: { ramp: ['6b6a78', '7c7b8a', '8e8d9c', 'a09fae', 'b6b5c3'] }
+  dark_stone: { ramp: ['3e3c4a', '4a4857', '565465', '636173', '737186'] }
+  bone: { ramp: ['b9b2a6', 'cac3b6', 'd8d1c4', 'e4ddd0', 'f1ebdf'] } # sky pillars, always cold and pale
+  snow: { ramp: ['c4cbe0', 'd2d8ea', 'dfe4f2', 'ebeff8', 'f8faff'] }
+  ash: { ramp: ['5c5660', '6a646d', '79737b', '88828a', '9a949b'] } # Ashland ground
+  silver_grass: { ramp: ['8b8f98', '9da1aa', 'b0b3bb', 'c3c6cd', 'd6d8de'] }
+  wood: { ramp: ['5a3e2c', '6c4b34', '7e5a3e', '8f6a4a', 'a17d5c'] }
+  plank: { ramp: ['7b5a3c', '8d6945', '9e7850', 'ae875c', 'bf986c'] }
+  thatch: { ramp: ['8f7442', 'a4874e', 'b6985b', 'c6a96a', 'd5ba7d'] }
+  slate: { ramp: ['4c5266', '58607a', '656d87', '737b95', '858da6'] }
+  roof_red: { ramp: ['7a3f3a', '8e4b44', 'a0574e', 'b06559', 'c27767'] }
+  plaster: { ramp: ['b8ad9c', 'c9bfae', 'd8cebd', 'e3dacb', 'efe7da'] }
+  brick: { ramp: ['7d4e44', '8f5b4f', 'a0685a', 'ad7666', 'bc8676'] }
+  metal: { ramp: ['5f6576', '737a8c', '8990a2', 'a0a7b8', 'bcc2d1'] }
+  brass: { ramp: ['7d5d2a', '96722f', 'b08a3a', 'c7a24d', 'e0c06e'] }
+  pine: { ramp: ['2f4a42', '385649', '41634f', '4c7058', '5b8063'] }
+  leaf: { ramp: ['3f6447', '4a7350', '56825a', '639065', '76a274'] }
+  elf_leaf: { ramp: ['3f6a5a', '4a7a66', '578a72', '659a7f', '7aad91'] }
+  water: { ramp: ['4f6f97', '5d7fa6', '6c8fb4', '7d9fc1', '95b4d2'] }
+  smoke: { ramp: ['8a8794', '9b98a4', 'aba9b4', 'bcbac4', 'cfcdd6'] }
+  cloth: { ramp: ['5d4a6a', '6d5879', '7c6688', '8b7597', 'a08baa'] }
+  red_cloth: { ramp: ['6e2f36', '823a40', '94464b', 'a55457', 'b86766'] }
+  gold: { ramp: ['8a6a2a', 'a7832f', 'c39d3c', 'd8b551', 'ecd27a'], glow: true }
+  # lights: dark glass by day, warm (window) or sky-blue (lamp, star dew) once lit
+  window: { ramp: ['3d4a63', '45526c', '4f5c77', '5a6782', '67748f'], lit: ['b98a45', 'd6a552', 'eec46a', 'f7d98a', 'fff0b8'] }
+  window_dark: { ramp: ['3a4258', '3f475e', '454d64', '4b536a', '525a71'] }
+  lamp: { ramp: ['8fa3bf', '9fb2cc', 'b1c3da', 'c4d4e7', 'd9e5f3'], lit: ['6fa7e0', '8cc0f0', 'aad6fb', 'cbe8ff', 'eef8ff'] }
+  fire: { ramp: ['9a3a24', 'c2502a', 'e0742f', 'f39a45', 'ffc56e'], glow: true } # furnaces, demon coal
+  star_dew: { ramp: ['5f86c4', '78a0da', '97bdec', 'bad8fa', 'e2f1ff'], glow: true }
+
+# Characters for props (ascii). "mat@level"; "." = nothing.
+legend:
+  k: ink@0
+  w: wood@2
+  W: wood@4
+  p: plank@3
+  P: plank@1
+  t: thatch@3
+  T: thatch@1
+  s: slate@3
+  S: slate@1
+  r: roof_red@3
+  R: roof_red@1
+  a: plaster@3
+  A: plaster@1
+  b: brick@3
+  B: brick@1
+  n: stone@3
+  N: stone@1
+  d: dark_stone@2
+  D: dark_stone@0
+  m: metal@3
+  M: metal@1
+  g: brass@3
+  G: brass@1
+  o: window@2
+  O: window@4
+  l: lamp@3
+  L: lamp@4
+  f: fire@3
+  F: fire@4
+  c: cloth@3
+  C: cloth@1
+  e: red_cloth@3
+  E: red_cloth@1
+  y: gold@3
+  Y: gold@4
+  h: bone@3
+  H: bone@1
+  v: leaf@3
+  V: leaf@1
+  q: star_dew@3
+  Q: star_dew@4
+  u: smoke@3
+  x: snow@3
+
+# Shared props (ascii), placed by scenes with `prop: { art: <name>, at: [left, bottom] }`.
+props:
+  cottage: |
+    ......TTTTTTT......
+    ....TTtttttttTT....
+    ..TTtttttttttttTT..
+    .TtttttttttttttttT.
+    TTTTTTTTTTTTTTTTTTT
+    .aaaaaaaaaaaaaaaaa.
+    .aAoOAaaaaaaaAoOAa.
+    .aAooAaaaPPaaAooAa.
+    .aaaaaaaaPpaaaaaaa.
+    .aaaaaaaaPpaaaaaaa.
+    .AAAAAAAAPpAAAAAAA.
+  barn: |
+    .......RRR........
+    .....RRrrrRR......
+    ...RRrrrrrrrRR....
+    .RRrrrrrrrrrrrRR..
+    RRRRRRRRRRRRRRRRR.
+    .pPpPpPpPpPpPpPp..
+    .pPpPpPPPPPpPpPp..
+    .pPpPpPwwwPpPpPp..
+    .pPpPpPwWwPpPpPp..
+    .pPpPpPwwwPpPpPp..
+  chapel: |
+    ......LL.......
+    .....LlLl......
+    ......nn.......
+    .....SnnS......
+    ....SnoonS.....
+    ....nnoonn.....
+    ...SSSSSSSSSSSS
+    ..SssssssssssS.
+    .SsssssssssssS.
+    SSSSSSSSSSSSSSS
+    .nnNnnnnnnnNnn.
+    .nOonnnPPnnOon.
+    .nooNnnPpnnoon.
+    .nnnnnnPpnnnnn.
+    .NNNNNNPpNNNNN.
+  airship: |
+    ....cccccccc....
+    ..cccCcccCcccc..
+    .ccCcccccccccCcc
+    ..cccCcccCcccc..
+    ....cccccccc....
+    ......M..M......
+    .....wwwwwww....
+    ......wOwOw.....
+  fence: |
+    w...w...w...w...w
+    wwwwwwwwwwwwwwwww
+    w...w...w...w...w
+    wwwwwwwwwwwwwwwww
+    w...w...w...w...w
+  well: |
+    .wwwwww.
+    .w....w.
+    .w....w.
+    nnnnnnnn
+    NnnNnnNn
+    nnNnnNnn
+  tower_house: |
+    ......SS......
+    ....SSssSS....
+    ..SSssssssSS..
+    SSSSSSSSSSSSSS
+    .pppppppppppp.
+    .pPoOpppPoOPp.
+    .pPooppppooPp.
+    .pppppppppppp.
+    .PPPPPPPPPPPP.
+  dish: |
+    m.....m
+    .mmmmm.
+    ...M...
+    ...M...
+  sky_lamp: |
+    .LL.
+    .ll.
+    ..M.
+    ..M.
+    ..M.
+    ..M.
+    ..M.
+    ..M.
+    ..M.
+    .MMM
+  factory: |
+    .....BB.......BB...
+    .....bB.......bB...
+    .....bB.......bB...
+    .....bB.......bB...
+    SSSSSbBSSSSSSSbBSSS
+    bbbbbbbbbbbbbbbbbbb
+    bOobOobOobOobOobOob
+    bOobOobOobOobOobOob
+    bbbbbbbbbbbbbbbbbbb
+    BBBBBBBBBBBBBBBBBBB
+  dock_tower: |
+    .....mm.....
+    ....mMMm....
+    .....mm.....
+    .....ss.....
+    ...ssssss...
+    ..mmmmmmmm..
+    ....nnnn....
+    ....nOon....
+    ....nnnn....
+    ....nOon....
+    ....nnnn....
+    ....nOon....
+    ....nnnn....
+    ...nnnnnn...
+    ..NNNNNNNN..
+  furnace: |
+    ...dddddd...
+    ..dddddddd..
+    .ddDDDDDDdd.
+    .ddDfFFfDdd.
+    .ddDFFFFDdd.
+    .ddDfFFfDdd.
+    dddddddddddd
+    DDDDDDDDDDDD
+  dwarf_door: |
+    ..dddddddd..
+    .dddddddddd.
+    ddDggggggDdd
+    ddgGwwwwGgdd
+    ddgwwwwwwgdd
+    ddgwwwgwwgdd
+    ddgwwwwwwgdd
+    ddgwwwwwwgdd
+    DDDDDDDDDDDD
+  star_tower: |
+    ....QQ....
+    ...QqqQ...
+    ..pppppp..
+    .pPPPPPPp.
+    pppOpOpppp
+    .pppppppp.
+    ..wwwwww..
+    ...wwww...
+  branch_house: |
+    ...VVVVVV...
+    .VVvvvvvvVV.
+    VvvvvvvvvvvV
+    .pppppppppp.
+    .pOopppPpOp.
+    .pppppppppp.
+    wwwwwwwwwwww
+  fort: |
+    ......................ee............................
+    ......................eE............................
+    ......................M.............................
+    n.n.n.n...............M...............n.n.n.n.......
+    nnnnnnn..............nMn..............nnnnnnn.......
+    nNnnnnN..........n.n.nMn.n.n..........nNnnnnN.......
+    nnnnnnn..........nnnnnnnnnnn..........nnnnnnn.......
+    nnnOnnn..........nnnnnnnnnnn..........nnnOnnn.......
+    nNnnnnNn.n.n.n.n.nnnnOnOnnnnn.n.n.n.n.nNnnnnN.......
+    nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.......
+    nNnnnnNnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnNnnnnN.......
+    nnnOnnnnnNnnnnnNnnnnnnnnnnnnnNnnnnnNnnnnnOnnn.......
+    nNnnnnNnnnnnnnnnnnnnPPPPnnnnnnnnnnnnnnnNnnnnN.......
+    nnnnnnnnnnnnnnnnnnnPPppPPnnnnnnnnnnnnnnnnnnnn.......
+    nNnnnnNnnnnnnnnnnnnPPppPPnnnnnnnnnnnnnnNnnnnN.......
+    NNNNNNNNNNNNNNNNNNNPPppPPNNNNNNNNNNNNNNNNNNNN.......
+  seal_stone: |
+    .hh.
+    hhhh
+    hHqh
+    hhhh
+    hHhh
+    HHHH
+  hearth: |
+    ..nnnnnnnnnnnnnnnnnnnnnn..
+    nnnnnnnnnnnnnnnnnnnnnnnnnn
+    NNNNNNNNNNNNNNNNNNNNNNNNNN
+    .nnnnnnnnnnnnnnnnnnnnnnnn.
+    .nnNnnnnnnnnnnnnnnnnnNnnn.
+    .nnnDDDDDDDDDDDDDDDDDDnnn.
+    .nnnDDDDDDDDDDDDDDDDDDnnn.
+    .nNnDDDDDDDMDDDDDDDDDDnNn.
+    .nnnDDDDDDMmMDDDDDDDDDnnn.
+    .nnnDDDDDDDMDDDfDDDDDDnnn.
+    .nnnDDDDDDDMDDfFfDDDDDnnn.
+    .nNnDDDDDDDDDfFFFfDDDDnNn.
+    .nnnDDDDDDDDfFFFFFfDDDnnn.
+    .nnnDDDDDDDwwwwwwwwDDDnnn.
+    .NNNNNNNNNNNNNNNNNNNNNNNN.
+  table: |
+    ....eee..YY.......
+    wwwwwwwwwwwwwwwwww
+    WWWWWWWWWWWWWWWWWW
+    .w..............w.
+    .w..............w.
+    .w..............w.
+    .w..............w.
+    .w..............w.
+  shelf: |
+    .ee..aa..n..ee.
+    wwwwwwwwwwwwwww
+    .W...........W.
+    ..B..aa.ee..n..
+    wwwwwwwwwwwwwww
+    .W...........W.
+  bed: |
+    w..................
+    wcccccccccccccccc..
+    waaaCcccccccccccccw
+    wAaaCcccccccccccccw
+    wwwwwwwwwwwwwwwwwww
+    w.................w
+  oil_lamp: |
+    ..M..
+    ..M..
+    .MMM.
+    .MOM.
+    .MMM.
+  stool: |
+    wwwwww
+    WWWWWW
+    .w..w.
+    .w..w.
+  barrel: |
+    .wwwwww.
+    wMMMMMMw
+    wwWwwwww
+    wwWwwwww
+    wMMMMMMw
+    wwWwwwww
+    wwWwwwww
+    .MMMMMM.
+  crate: |
+    pppppppp
+    pPppppPp
+    ppPppPpp
+    pppPPppp
+    ppPppPpp
+    pPppppPp
+    PPPPPPPP

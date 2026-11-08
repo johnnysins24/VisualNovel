@@ -1,0 +1,14 @@
+# Grandmother's silver saw case (story item silver_saw_case): a narrow silver case on the belt at
+# the right hip (picture left), a brass clasp.
+z: 36
+colors: { metal: metal_silver, fitting: metal_brass }
+shapes:
+  - at: [-6, waist]
+    ascii: |
+      gg
+      Gg
+      gF
+      gg
+      gg
+      Gg
+      gg

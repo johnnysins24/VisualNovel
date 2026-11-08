@@ -1,0 +1,11 @@
+# Pick roll (story item finnick_picks): a rolled leather wrap of lock picks on the belt at the right
+# hip (picture left), the steel ends showing.
+z: 36
+colors: { leather: leather_black, metal: metal_iron }
+shapes:
+  - at: [-6, waist]
+    ascii: |
+      Gg
+      ll
+      Ll
+      ll

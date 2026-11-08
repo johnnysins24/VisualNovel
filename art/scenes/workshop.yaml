@@ -1,0 +1,19 @@
+# Workshop: an artificer's shop, a smithy or a back-room healer, one room with the tools on the wall,
+# a forge in the corner, a long workbench with things on it, shelves of jars.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6] }
+  - rect: { x: 70, y: 28, w: 70, h: 30, mat: wood, lvl: 1.6 }
+  - prop: { at: [74, 52], ascii: "..mm.....M.......m......Mm.....mmm.....m.....M.\n..mm.....M......mMm.....Mm......m.....mMm....M.\n...w.....M.......w......w.......w......w.....M.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w." }
+    outline: true
+  - furn: { kind: shelf, at: [170, 60], w: 40, h: 28, rows: 2 }
+    outline: true
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 18, depth: 80 }
+  - furn: { kind: hearth, at: [214, 92], w: 38, h: 34, chimney: true, fire: fire }
+    outline: true
+  - glow: { at: [233, 86], r: 24, colour: 'f39a45' }
+  - furn: { kind: table, at: [8, 106], w: 64, h: 20 }
+    outline: true
+  - furn: { kind: lamp, at: [100, 14] }
+  - glow: { at: [101, 16], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - vignette: { strength: 0.45 }

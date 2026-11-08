@@ -1,0 +1,10 @@
+# Mother's old shawl (story item mother_shawl): a worn knitted shawl round the shoulders, the point
+# hanging at the back, fringe at the front edge.
+z: 40
+back_z: 3
+colors: { cloth: dye_earth, trim: dye_mustard }
+shapes:
+  - { layer: back, mat: cloth@1, span: [[shoulder+1, -7, -5], [chest+2, -8, -5]], mirror: true }
+  - { mat: cloth, region: { parts: [torso, arm], rows: [shoulder, shoulder+2], grow: 1 } }
+  - { mat: cloth, sym: [[shoulder+3, 3], [chest+1, 1]] }
+  - { mat: trim, region: { parts: [arm], rows: [shoulder+3, shoulder+3], grow: 1 } }

@@ -1,0 +1,20 @@
+# Belek's bank (the temple is the bank): clerks' desks, walls of drawers ordered by year, the iron
+# scales on a chain above the counter grille, cold grey light.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: slate, pattern: blocks }
+  - furn: { kind: drawers, at: [4, 92], w: 80, h: 84, cell: 11, cellh: 7 }
+    outline: true
+  - furn: { kind: drawers, at: [172, 92], w: 80, h: 84, cell: 11, cellh: 7 }
+    outline: true
+  - prop: { at: [110, 40], ascii: "......M......\n......M......\n.MMMMMMMMMMM.\n.M....M....M.\n.M....M....M.\nMMM...M...MMM\n......M......\n.....MMM....." }
+    outline: true
+  - floor: { y0: 93, mat: stone, pattern: checker, mat2: slate, tile: 14, rows: 14, depth: 90 }
+  - furn: { kind: counter, at: [88, 96], w: 80, h: 24, mat: dark_stone, items: false }
+    outline: true
+  - prop: { at: [90, 72], ascii: "M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" }
+  - furn: { kind: lamp, at: [60, 14], light: lamp }
+  - furn: { kind: lamp, at: [196, 14], light: lamp }
+  - glow: { at: [61, 16], r: 16, colour: 'aad6fb', only: [dusk, night] }
+  - glow: { at: [197, 16], r: 16, colour: 'aad6fb', only: [dusk, night] }
+  - vignette: { strength: 0.35 }

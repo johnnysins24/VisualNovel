@@ -26,11 +26,13 @@ head:
   head/crown: { name: มงกุฎเล็ก }
   head/knit_cap: { name: หมวกไหมพรม }
   head/kerchief: { name: ผ้าโพกหัว }
+  head/miner_helmet: { name: หมวกเหล็กติดตะเกียง }
 cloak:
   cloak/travel: { name: ผ้าคลุมเดินทาง }
   cloak/fur: { name: ผ้าคลุมขนสัตว์ }
   cloak/cape: { name: ผ้าคลุมสั้นสีสด }
   cloak/ranger: { name: ผ้าคลุมมีฮู้ดของพราน }
+  cloak/shawl: { name: ผ้าคลุมไหล่ผืนเก่า }
 weapon:
   weapon/longsword: { name: ดาบยาว }
   weapon/axe: { name: ขวาน }
@@ -46,6 +48,7 @@ weapon:
   weapon/wrench: { name: ประแจ }
   weapon/pickaxe: { name: จอบขุดแร่ }
   weapon/pitchfork: { name: คราด }
+  weapon/saber: { name: ดาบสั้นด้ามหนังปลาฉลาม }
 offhand:
   offhand/shield: { name: โล่ }
   offhand/dagger: { name: มีดสั้น }
@@ -53,6 +56,9 @@ offhand:
   offhand/tome: { name: คัมภีร์ }
   offhand/lute: { name: พิณ }
   offhand/pistol: { name: ปืนพกดินดำ }
+  offhand/lamp_glass: { name: แก้วครอบตะเกียงหนา }
+  offhand/fire_bowl: { name: ชามไฟดินเผา }
+  offhand/ladle: { name: ทัพพีตักน้ำมัน }
 arm:
   arm/silver: { name: แขนกลเงิน }
   arm/hook: { name: ขอเหล็ก }
@@ -79,6 +85,19 @@ acc:
   acc/purse: { name: ถุงเงิน }
   acc/eyepatch: { name: ผ้าปิดตา }
   acc/glasses: { name: แว่นกลม }
+  acc/satchel: { name: ย่ามยาของวิหาร }
+  acc/shield_charm: { name: เครื่องรางโล่เงิน }
+  acc/sack_scrap: { name: ผ้ากระสอบแป้งผูกคอ }
+  acc/saw_case: { name: กล่องเลื่อยเงิน }
+  acc/unit_tag: { name: ป้ายไม้ประจำกอง }
+  acc/bell: { name: กระดิ่งทองเหลือง }
+  acc/back_brace: { name: สายรัดเอวหนังสองชั้น }
+  acc/vial: { name: ขวดน้ำค้างดับ }
+  acc/pick_roll: { name: ห่อเหล็กงัด }
+  acc/music_box: { name: กล่องดนตรีไม้ดำ }
+  acc/grass_scarf: { name: ผ้าพันคอหญ้าสีเงิน }
+  acc/knee_cloth: { name: ผ้าพันเข่า }
+  acc/lens: { name: แว่นขยายกรอบทองเหลือง }
 # marks on the skin (A26): drawn under the face so they never cover an expression
 mark:
   mark/wrinkles: { name: รอยย่นวัยชรา }

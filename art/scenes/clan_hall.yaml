@@ -1,0 +1,20 @@
+# Clan hall in Hordun: the dwarf council chamber, a long stone table, braziers, clan banners, and the
+# wall cut with the names of the coal-war debt, row on row.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks }
+  - rect: { x: 70, y: 14, w: 116, h: 50, mat: dark_stone, lvl: 2.4 }
+    outline: true
+  - prop: { at: [74, 48], ascii: "NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.NNNN.N.NNN.NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.N\n............................................................................................................\nNNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.NNN.NN.N.NNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.N\n............................................................................................................\nN.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.NN.NNNN..N.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.N\n............................................................................................................\nNN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.N.NNN.N.NN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.\n............................................................................................................\nNNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NNN.NN.NN.NNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NN\n............................................................................................................\nN.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNNN.NN.N..N.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNN\n............................................................................................................\nNN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN.NNN.NN.NN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN\n............................................................................................................\nNNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NN.NNN.N.NNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.N\n............................................................................................................\nN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NNNN.N.NN.N.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NN\n............................................................................................................\nNN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NNNN.N.NN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N" }
+  - furn: { kind: banner, at: [20, 52], w: 14, h: 44, mat: red_cloth, sign: gold }
+  - furn: { kind: banner, at: [222, 52], w: 14, h: 44, mat: cloth, sign: gold }
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16, depth: 90 }
+  - furn: { kind: hearth, at: [12, 92], w: 30, h: 22, fire: fire }
+    outline: true
+  - furn: { kind: hearth, at: [214, 92], w: 30, h: 22, fire: fire }
+    outline: true
+  - glow: { at: [27, 86], r: 20, colour: 'f07040' }
+  - glow: { at: [229, 86], r: 20, colour: 'f07040' }
+  - furn: { kind: table, at: [60, 108], w: 136, h: 16, mat: stone, items: false }
+    outline: true
+  - vignette: { strength: 0.5 }

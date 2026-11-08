@@ -1,0 +1,8 @@
+# Silver-grass scarf (story item warden_grass_scarf, woven by an old woman of the Wardens): a scarf
+# of grey-silver grass wound round the neck, the two ends hanging down the chest.
+z: 38
+colors: { cloth: dye_grey }
+shapes:
+  - { mat: cloth, sym: [[neck, 3], [shoulder, 4]] }
+  - { mat: cloth@1, sym: [[shoulder, 4]] }
+  - { at: [1, shoulder+1], ascii: "cc\ncc\ncC\nc.\nC." }

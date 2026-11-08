@@ -1,0 +1,51 @@
+# App icon (32x32, scaled up by whole numbers for public/ icons): the night sky over the Ashland,
+# the broken pillar of the dead star god, one bright star above it, embers of demon coal in the ash.
+# The game is เถ้ากับดาว (Ash and Star). `node art/kit/build.mjs icon` writes the icon files.
+colours:
+  n: '1d2142'
+  N: '263058'
+  m: '35426b'
+  q: 'cbe8ff'
+  s: 'f8fbff'
+  h: 'f1ebdf'
+  H: 'd8d1c4'
+  B: 'b9b2a6'
+  k: '2b2840'
+  z: '9a949b'
+  a: '79737b'
+  A: '5c5660'
+  f: 'e0742f'
+  F: 'ffc56e'
+pixels: |
+  .....nnnnnnnnnnnnnnnnnnnnnn.....
+  ...nnnnnnnnnnnnnnnnnnnnnnnnnn...
+  ..nnnnnnnnnnnnnnnnnnnnnnnnnnnn..
+  .nnnnnnnnnnnnnnnnnnnnnnnnnnnnnn.
+  .nnnnnnnnnnnnnnnnnnnnnnnnqnnnnn.
+  nnnnnqnnnnnnnnnnnnnnnnnnnnnnnnnn
+  nnnnnnnnnnnnnnqnqnqnnnnnnnnnnnnn
+  nnnnnnnnnnnnnnnqsqnnnnnnnnnnnnnn
+  nnnnnnnnnnnnnnqsssqnnnnnnnnnnnnn
+  nNnNnNnNnNnNnnnqsqnnnNnNnNnNnNnN
+  NnNnNnNnNnNnNnqnqnqnNnNnNnNnNnNn
+  NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN
+  NNNNNNNNNqNNNNNNkNNNNNNNNNNNNNNN
+  NNNNNNNNNNNNNNkkHkkNNNNNNNNqNNNN
+  NNNNNNNNNNNNNkhkHkHkNNNNNNNNNNNN
+  NNNNqNNNNNNNNkhhHhHkNNNNNNNNNNNN
+  NNNNNNNNNNNNkhhhHhHBkNNNNNNNNNNN
+  NmNmNmNmNmNmkhhhHhHBkmNmNmNmNmNm
+  mNmNmNmNmNmNkhhhHhHBkNmNmNmNmNmN
+  mmmmmmmmmmmmkhhhHhHBkmmmmmmmmmmm
+  mmmmmmmmmmmmkhhhHhHBkmmmmmmmmmmm
+  mmmmmmmmmmmmkhhhHhHBkmmmmmmmmmmm
+  mmmmmmmmmmmzzhhhHhHBkmmmmmmmmmmz
+  mmmmmmmmmmzaahhhHhHBkmmmmmmmmmza
+  mmmmzmmmmzaaaaazaaazBkmmmzzzzzaa
+  zzzzazzmzaaAAaaaaaaazmmmzaaaaaaA
+  aaaaaaFzaaAAAAAaAAAaazzzaaaaaaAA
+  .aaaAaffaAAAAAAAAAAAaaaaaFAAAAA.
+  .AAAAAAaAAAAAAAAAAAAAaaafffAAAA.
+  ..AAAAAAAAAAAAAAAAAAAAAAAAAAAA..
+  ...AAAAAAAAAAAAAAAAAAAAAAAAAA...
+  .....AAAAAAAAAAAAAAAAAAAAAA.....

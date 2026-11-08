@@ -1,0 +1,8 @@
+# Back brace (story item back_brace, from the bone-setter): a wide double belt of cowhide round the
+# waist, two buckles.
+z: 34
+colors: { leather: leather_brown, fitting: metal_iron }
+shapes:
+  - { mat: leather, region: { parts: [torso], rows: [waist-1, waist+1], grow: 1 } }
+  - { mat: leather@0, region: { parts: [torso], rows: [waist, waist], grow: 1 } }
+  - { at: [-2, waist-1], mirror: true, ascii: "f\n.\nf" }

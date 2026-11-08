@@ -1,0 +1,24 @@
+# Temple: a stone hall that serves any of the six gods, a stone altar under the great hanging lamp
+# (Verus's lamp burns in every temple), columns, tall arched windows, candles; weddings and funerals.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: bone, pattern: blocks }
+  - pane: { x: 40, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
+  - pane: { x: 200, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
+  - furn: { kind: banner, at: [92, 56], w: 12, h: 40, mat: cloth, sign: gold }
+  - furn: { kind: banner, at: [152, 56], w: 12, h: 40, mat: cloth, sign: gold }
+  - floor: { y0: 93, mat: stone, pattern: flags, tile: 18, depth: 90, carpet: [8, 22], carpet_mat: red_cloth }
+  - furn: { kind: column, at: [14, 92], w: 8, h: 92 }
+    outline: true
+  - furn: { kind: column, at: [74, 92], w: 8, h: 92 }
+    outline: true
+  - furn: { kind: column, at: [174, 92], w: 8, h: 92 }
+    outline: true
+  - furn: { kind: column, at: [234, 92], w: 8, h: 92 }
+    outline: true
+  - furn: { kind: altar, at: [112, 92], w: 32, h: 16, mat: cloth }
+    outline: true
+  - furn: { kind: lamp, at: [127, 30], light: window }
+  - glow: { at: [128, 32], r: 22, colour: 'f7d98a' }
+  - prop: { at: [[116, 75], [137, 75]], ascii: "O\nm\nm" }
+  - vignette: { strength: 0.45 }
