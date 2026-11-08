@@ -1,0 +1,71 @@
+# ของจากเหตุการณ์ประจำงาน ชุด 3b–3c (อายุ 25 ถึง 40) ได้ผ่าน effects.items ในไฟล์ 80 ถึง 83
+# ยังไม่มี sprite งานศิลป์จะใส่ field sprite ทีหลัง
+
+- id: navy_star_pistol
+  name: ปืนพกน้ำค้างดาวลำกล้องสลักลายดาว
+  slot: weapon
+  rarity: uncommon
+  stats: { DEX: 1 }
+
+- id: warden_grass_scarf
+  name: ผ้าพันคอทอจากหญ้าสีเงินของหญิงชราแห่งภาคี
+  slot: cloak
+  rarity: uncommon
+  passive:
+    description: เลือดสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: haldan_goggles
+  name: แว่นช่างเลนส์สองชั้นของฮาลเดน
+  slot: head
+  rarity: uncommon
+  stats: { INT: 1 }
+
+- id: healer_oak_staff
+  name: ไม้เท้าไม้เนื้อแข็งจากเด็กหมู่บ้านที่เจ็ด
+  slot: weapon
+  stats: { CON: 1 }
+
+- id: garven_lantern
+  name: ตะเกียงกะดึกบุบสามรอยของการ์เวน
+  slot: offhand
+  rarity: rare
+  passive:
+    description: ทอยอึดได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CON, amount: 1 }
+
+- id: hunter_long_rifle
+  name: ปืนยาวลำกล้องเกลียวของยามโรงกลั่น
+  slot: weapon
+  rarity: uncommon
+  stats: { DEX: 1 }
+
+- id: grandma_knee_cloth
+  name: ผ้าห่อขนมปังที่ยายเย็บให้ไว้พันเข่า
+  slot: legs
+  rarity: uncommon
+  passive:
+    description: เลือดสูงสุด +1
+    effect: { kind: max_hp, amount: 1 }
+
+- id: miner_lamp_helmet
+  name: หมวกเหล็กติดตะเกียงของหัวหน้าคนงานชั้นห้า
+  slot: head
+  rarity: uncommon
+  passive:
+    description: เลือดสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: smith_dwarf_hammer
+  name: ค้อนสลักเส้นนับสิบเส้นของตระกูลค้อนเงียบ
+  slot: weapon
+  rarity: uncommon
+  stats: { STR: 1 }
+
+- id: clerk_reading_lens
+  name: แว่นขยายกรอบทองเหลืองของเสมียนวิหารเบเลค
+  slot: accessory
+  rarity: uncommon
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
