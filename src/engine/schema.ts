@@ -19,6 +19,32 @@ const FactionSchema = z.enum(FACTIONS);
 const WorldKeySchema = z.enum(WORLD_KEYS);
 const FoeSchema = z.enum(FOE_SIDES);
 
+/** ตำแหน่งในผังครอบครัว พ่อแม่ถูกเพิ่มเองตอนสุ่มชื่อ (id father, mother) */
+export const KIN_ROLES = [
+  'father', 'mother',
+  'grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal',
+  'sibling_older', 'sibling_younger', 'spouse', 'child',
+] as const;
+export type KinRole = (typeof KIN_ROLES)[number];
+/** ชนิดความสัมพันธ์บนผังความสัมพันธ์ */
+export const BONDS = ['kin', 'friend', 'mentor', 'love', 'rival'] as const;
+export type Bond = (typeof BONDS)[number];
+
+/** คนในชีวิต อ้างด้วย id เดิมทุกครั้ง ครั้งแรกต้องมี name */
+export const PersonEffectSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/),
+    name: z.string().optional(),
+    gender: z.enum(['m', 'f']).optional(),
+    kin: z.enum(KIN_ROLES).optional(),
+    bond: z.enum(BONDS).optional(),
+    /** บวกลบความสนิท ช่วง −5 ถึง 5 */
+    closeness: z.number().int().optional(),
+    dies: z.boolean().optional(),
+  })
+  .strict();
+export type PersonEffect = z.infer<typeof PersonEffectSchema>;
+
 const WorldRange = z.partialRecord(WorldKeySchema, z.tuple([z.number().int(), z.number().int()]));
 const RepMap = z.partialRecord(FactionSchema, z.number().int());
 
@@ -52,6 +78,8 @@ export const EffectsSchema = z
      * ใช้ในข้อความด้วย {partner} และ {p:เขา|เธอ}
      */
     partner: z.object({ gender: z.enum(['m', 'f']), pool: z.string().optional() }).strict().optional(),
+    /** เพิ่มหรือปรับคนในชีวิต (ผังครอบครัวและผังความสัมพันธ์) */
+    people: z.array(PersonEffectSchema).optional(),
   })
   .strict();
 export type Effects = z.infer<typeof EffectsSchema>;
@@ -61,6 +89,8 @@ const CheckSchema = z.object({
   dc: z.number().int().min(1).max(30),
   /** ฝั่งของศัตรู/สิ่งที่เผชิญ: ใช้กับรอยจอมมาร */
   foe: FoeSchema.optional(),
+  /** เช็คสำคัญ: โชว์กล่องทอยเต๋ากลางจอ (เช็คที่มี foe ก็โชว์) */
+  major: z.boolean().optional(),
 });
 
 const OutcomeSchema = z.object({ text: z.string().optional(), effects: EffectsSchema.optional() });

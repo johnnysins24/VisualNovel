@@ -1,0 +1,11 @@
+# Cheek scar (A26): a slash down the left cheek (picture right), in the lip colour with a light
+# edge. Under the face (z 12).
+z: 12
+cast: false
+shapes:
+  - at: [1, brow+4]
+    ascii: |
+      ...n4
+      ..n4.
+      .n4..
+      n4...

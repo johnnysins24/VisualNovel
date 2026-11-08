@@ -1,0 +1,11 @@
+# Child outfit, street: an oversized grown-up shirt worn as a smock, torn at the hem, patched,
+# bare legs (A22).
+ages: [child]
+z: 30
+colors: { cloth: dye_grey, trim: dye_earth }
+shapes:
+  - { mat: cloth, region: { parts: [torso, leg], rows: [shoulder, crotch+2], grow: 1 } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, chest+3] } }
+  - { at: [-5, crotch+2], ascii: "x.x...x..x." }
+  - { mat: trim, at: [2, chest+1], ascii: "TT\nTT" }
+  - { mat: skin, sym: [[shoulder, 1]] }

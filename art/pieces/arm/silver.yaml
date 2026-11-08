@@ -1,0 +1,10 @@
+# Silver mechanical arm (magitech, A22, A24): the rich man's arm, replacing the left arm (picture
+# right) from below the shoulder, plated forearm, a brass elbow joint, jointed fingers. Drawn over
+# the sleeve.
+z: 45
+colors: { metal: metal_silver, fitting: metal_brass }
+shapes:
+  - { mat: metal, region: { parts: [arm], rows: [chest+2, crotch+1], side: right } }
+  - { mat: fitting, region: { parts: [arm], rows: [chest+3, chest+3], side: right } }
+  - { mat: fitting, region: { parts: [arm], rows: [waist+2, waist+2], side: right } }
+  - { mat: metal@0, region: { parts: [arm], rows: [crotch, crotch], side: right } }

@@ -1,0 +1,11 @@
+# Artificer's goggles (magitech, A22): two brass-rimmed lenses pushed up on the forehead on a
+# leather strap round the head. The lenses take the metal ramp (starsilver blue by default).
+z: 65
+colors: { metal: metal_starsilver, fitting: metal_brass, leather: leather_brown }
+shapes:
+  - at: [-7, brow-4]
+    ascii: |
+      ...fff...fff...
+      ..fGgGf.fGgGf..
+      llfgggflfgggfll
+      ...fff...fff...

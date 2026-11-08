@@ -1,0 +1,11 @@
+# Tiefling horns, curved back (A17): thick at the root on top of the head, they rise, bend outward
+# and sweep back to a thin point; seen from the front the point dips just past the side of the head.
+z: 62
+shapes:
+  - at: [-9, head-3]
+    mirror: true
+    ascii: |
+      ..mmmm..
+      .mm..mmm
+      m.....mm
+      m.......

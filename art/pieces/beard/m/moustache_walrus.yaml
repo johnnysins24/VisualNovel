@@ -1,0 +1,13 @@
+# Walrus moustache (A26): thick and bushy, drooping past the corners of the mouth. Under the face,
+# so the mouth still shows over it.
+body: m
+ages: [adult]
+z: 14
+cast: false
+shapes:
+  - at: [-4, mouth-2]
+    ascii: |
+      .hhhhhhh.
+      hhhhhhhhh
+      hh.....hh
+      d.......d

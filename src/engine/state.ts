@@ -1,4 +1,4 @@
-import type { Slot, Stat } from './schema';
+import type { Bond, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
 import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type WorldKey } from './balance';
 import { Rng } from './rng';
@@ -48,6 +48,10 @@ export interface LifeState {
   seen: string[];
   log: LogEntry[];
   alive: boolean;
+  /** null ระหว่างยังมีชีวิต */
+  endReason: EndReason | null;
+  /** คนในชีวิตนอกจากพ่อแม่ ดู effects.people */
+  people: Person[];
   currentEventId: string | null;
 }
 
@@ -65,6 +69,35 @@ export interface LogEntry {
   choiceId: string;
   roll?: { d20: number; mod: number; dc: number; success: boolean };
   text?: string;
+  /** สิ่งที่เปลี่ยนจากตัวเลือกนี้ ใช้แสดงเป็นสัญลักษณ์ใต้ย่อหน้า (เซฟเก่าไม่มี) */
+  changes?: LifeChanges;
+}
+
+export interface Person {
+  id: string;
+  name: string;
+  gender?: 'm' | 'f';
+  kin?: KinRole;
+  bond?: Bond;
+  /** −5 ถึง 5 */
+  closeness: number;
+  alive: boolean;
+  /** อายุของผู้เล่นตอนรู้จัก */
+  metAge: number;
+  /** อายุของผู้เล่นตอนคนนี้ตาย */
+  diedAge?: number;
+}
+
+/** ชีวิตจบเพราะตายจริง หรือเพราะเนื้อเรื่องที่เขียนไว้หมดก่อน */
+export type EndReason = 'death' | 'content_end';
+
+export interface LifeChanges {
+  stats?: Partial<Record<Stat, number>>;
+  hp?: number;
+  gold?: number;
+  items?: string[];
+  traits?: string[];
+  classId?: string;
 }
 
 export const DEFAULT_NAME = 'ผู้เดินทาง';
@@ -107,6 +140,8 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     seen: [],
     log: [],
     alive: true,
+    endReason: null,
+    people: [],
     currentEventId: null,
   };
 }

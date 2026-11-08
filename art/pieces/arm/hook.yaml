@@ -1,0 +1,14 @@
+# Iron hook arm (A22, A24): the poor man's arm, an iron cuff on the left forearm (picture right)
+# held by leather straps, and a hook where the hand was.
+z: 45
+colors: { metal: metal_iron, leather: leather_brown }
+shapes:
+  - { mat: leather, region: { parts: [arm], rows: [chest+2, waist], side: right } }
+  - { mat: metal, region: { parts: [arm], rows: [waist+1, crotch+1], side: right } }
+  - { mat: leather@0, region: { parts: [arm], rows: [chest+4, chest+4], side: right } }
+  - at: [ohand-2, hand+2]
+    ascii: |
+      ..g.
+      ..g.
+      g.g.
+      .gG.

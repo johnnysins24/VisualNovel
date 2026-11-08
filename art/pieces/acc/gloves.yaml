@@ -1,0 +1,7 @@
+# Work or riding gloves (A27): leather over the hands and wrists, a darker cuff. Uses the hand mark,
+# so it fits grown-ups and children.
+z: 42
+colors: { leather: leather_brown }
+shapes:
+  - { mat: leather, region: { parts: [arm], rows: [hand-2, hand+1] } }
+  - { mat: leather@0, region: { parts: [arm], rows: [hand-3, hand-3] } }

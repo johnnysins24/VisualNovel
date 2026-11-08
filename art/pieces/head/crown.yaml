@@ -1,0 +1,11 @@
+# Small crown (A22): a gold circlet with three points and a stone (trim) at the front, sitting on
+# the hair.
+z: 65
+colors: { metal: metal_brass, trim: dye_wine }
+shapes:
+  - at: [-6, head-1]
+    ascii: |
+      g.....G.....g
+      gg...ggg...gg
+      ggggggTgggggg
+      GGGGGGGGGGGGG

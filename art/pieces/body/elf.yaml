@@ -1,0 +1,15 @@
+# Elf outfit (A27): a long tunic in forest green to above the knee with a leaf-cut hem, a mantle of
+# leaf points over the shoulders, a woven sash, close leggings.
+ages: [adult]
+z: 30
+colors: { cloth: dye_moss, trim: dye_earth, leather: leather_brown }
+shapes:
+  - { mat: trim, region: { parts: [leg], rows: [hip, ankle] } }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, hip] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: cloth, sym: [[hip, 6], [crotch, 7], [knee-3, 7]] }
+  - { at: [-7, knee-2], ascii: "c.c.c.c.c.c.c.c" }
+  - { mat: cloth@1, region: { parts: [torso, arm], rows: [shoulder, shoulder+1], grow: 1 } }
+  - { at: [-9, shoulder+2], mirror: true, ascii: ".C.C.C.C" }
+  - { mat: leather, sym: [[waist, 4]] }
+  - { at: [-1, waist+1], ascii: "L\nL" }

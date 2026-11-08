@@ -1,0 +1,10 @@
+# Child outfit, well-off family: a little buttoned coat with a white collar, trousers (A22).
+ages: [child]
+z: 30
+colors: { cloth: dye_navy, trim: dye_grey }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [waist, ankle] } }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, hip+1] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-3] } }
+  - { mat: white, sym: [[shoulder, 2]] }
+  - { at: [0, chest], ascii: "f\n.\nf\n.\nf" }

@@ -1,0 +1,10 @@
+# Short bright cape (bard, troupe, noble, A22): over the shoulders to the waist, a contrasting hem.
+z: 40
+back_z: 3
+colors: { cloth: dye_wine, trim: dye_mustard }
+shapes:
+  - { layer: back, mat: cloth@1, span: [[shoulder+1, -8, -5], [chest, -10, -6], [hip, -10, -5]], mirror: true }
+  - { layer: back, mat: trim, span: [[hip, -10, -5]], mirror: true }
+  - { mat: cloth, region: { parts: [torso, arm], rows: [shoulder, shoulder+3], grow: 1 } }
+  - { mat: trim, region: { parts: [torso, arm], rows: [shoulder+4, shoulder+4], grow: 1 } }
+  - { at: [-1, shoulder], ascii: "TTT" }

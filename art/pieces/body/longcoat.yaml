@@ -1,0 +1,14 @@
+# Long coat to the knee, open over a waistcoat and trousers (trim), high collar, brass buttons
+# (magitech era, A22).
+ages: [adult]
+z: 30
+colors: { cloth: dye_black, trim: dye_grey, leather: leather_brown }
+shapes:
+  - { mat: trim, region: { parts: [torso, leg], rows: [shoulder, ankle] } }
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder, hip] } }
+  - { mat: cloth, region: { parts: [arm], rows: [shoulder, crotch-4] } }
+  - { mat: cloth, sym: [[hip, 6], [knee, 7]] }
+  - { mat: trim, sym: [[shoulder+2, 1], [knee, 2]] }
+  - { mat: cloth@1, span: [[shoulder, -3, -2], [shoulder+1, -3, -2]], mirror: true }
+  - { mat: cloth@1, region: { parts: [arm], rows: [crotch-5, crotch-4] } }
+  - { at: [-3, chest], mirror: true, ascii: "f\n.\nf" }

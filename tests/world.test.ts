@@ -391,6 +391,24 @@ describe('partner', () => {
     expect(p).toContain('{p:x}');
     expect(p).not.toContain('{partner}');
   });
+  it('shows on the people list as love, becomes spouse on marriage, dies on partner_died', () => {
+    let l = lover('f', 'human');
+    const person = () => l.people.find((x) => x.id === 'partner')!;
+    expect(person()).toMatchObject({ name: l.partner!.name, gender: 'f', bond: 'love', alive: true });
+    expect(person().kin).toBeUndefined();
+    l = applyEffects(game, l, { flags: ['married'] });
+    expect(person().kin).toBe('spouse');
+    l = applyEffects(game, l, { flags: ['partner_died'], clear_flags: ['married'] });
+    expect(person().alive).toBe(false);
+  });
+  it('moves a former partner to partner_2 when a new one comes', () => {
+    const first = lover('m', 'human');
+    const l = settle(game, applyEffects(game, applyEffects(game, first, { flags: ['married'] }), { partner: { gender: 'f', pool: 'human' } }), new Rng(9));
+    const old = l.people.find((x) => x.id === 'partner_2')!;
+    expect(old.name).toBe(first.partner!.name);
+    expect(old.kin).toBeUndefined();
+    expect(l.people.find((x) => x.id === 'partner')!.name).toBe(l.partner!.name);
+  });
 });
 
 describe('adult hp regen', () => {

@@ -1,0 +1,9 @@
+# Fur cloak (A22): a heavy cloak with a thick fur collar (trim, speckled) over the shoulders.
+z: 40
+back_z: 3
+colors: { cloth: dye_earth, trim: dye_white }
+shapes:
+  - { layer: back, mat: cloth@1, span: [[shoulder+1, -8, -5], [chest, -10, -6], [knee+2, -10, -5]], mirror: true }
+  - { layer: back, mat: cloth@0, span: [[knee+2, -10, -5]], mirror: true }
+  - { mat: cloth, region: { parts: [torso, arm], rows: [shoulder+1, shoulder+3], grow: 1 } }
+  - { mat: trim, region: { parts: [torso, arm, neck], rows: [shoulder-1, shoulder+1], grow: 2 } }

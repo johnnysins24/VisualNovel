@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Rng } from '../src/engine/rng';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
-import { applyEffects, makeGame, pickEvent, resolveChoice } from '../src/engine/engine';
+import { applyEffects, applyPeople, checkChance, choiceLock, makeGame, pickEvent, resolveChoice, settle } from '../src/engine/engine';
 import { equip, effectiveStats, maxHp } from '../src/engine/items';
 import { newLife } from '../src/engine/state';
 import { exportCode, importCode } from '../src/engine/save';
@@ -107,4 +107,75 @@ describe('save code', () => {
     expect(importCode(exportCode(life))).toEqual(life);
   });
   it('rejects garbage', () => expect(() => importCode(btoa('{"a":1}'))).toThrow());
+});
+
+describe('choice helpers for the HUD', () => {
+  const base = () => {
+    const l = newLife(1);
+    l.stats = { STR: 10, DEX: 14, CON: 10, INT: 10, WIS: 10, CHA: 10 };
+    return l;
+  };
+  it('checkChance matches the d20 rules (nat 20 wins, nat 1 fails)', () => {
+    const l = base();
+    // DEX 14 = +2, DC 12 needs 10+ on the die: 11 faces of 20
+    expect(checkChance(game, l, { stat: 'DEX', dc: 12 })).toBeCloseTo(11 / 20);
+    expect(checkChance(game, l, { stat: 'STR', dc: 30 })).toBeCloseTo(1 / 20);
+    expect(checkChance(game, l, { stat: 'STR', dc: 1 })).toBeCloseTo(19 / 20);
+  });
+  it('choiceLock shows stat-only locks and hides the rest', () => {
+    const l = base();
+    expect(choiceLock(l, { id: 'a', label: 'a' })).toBeNull();
+    expect(choiceLock(l, { id: 'b', label: 'b', requires: { min_stat: { STR: 14 } } })).toEqual([{ stat: 'STR', min: 14 }]);
+    expect(choiceLock(l, { id: 'c', label: 'c', requires: { trait: 'beast_tongue' } })).toBe('hidden');
+    expect(choiceLock(l, { id: 'd', label: 'd', requires: { trait: 'beast_tongue', min_stat: { STR: 14 } } })).toBe('hidden');
+  });
+  it('log entries record what a choice changed', () => {
+    let l = newLife(3);
+    let found = false;
+    for (let i = 0; i < 40 && l.alive && !found; i++) {
+      const { event, life: next } = pickEvent(game, l);
+      if (!event) break;
+      const c = event.choices.find((x) => choiceLock(next, x) === null)!;
+      const res = resolveChoice(game, next, event.id, c.id);
+      if (res.entry.changes) {
+        found = true;
+        const ch = res.entry.changes;
+        for (const [s, d] of Object.entries(ch.stats ?? {})) expect(res.life.stats[s as 'STR'] - next.stats[s as 'STR']).toBe(d);
+        if (ch.gold) expect(res.life.gold - next.gold).toBe(ch.gold);
+      }
+      l = res.life;
+    }
+    expect(found).toBe(true);
+  });
+});
+
+describe('people and endings', () => {
+  it('applyPeople adds, updates by id, clamps closeness and records deaths', () => {
+    let ppl = applyPeople([], [{ id: 'rowen', name: 'โรวีน', bond: 'friend', closeness: 2 }], 15);
+    expect(ppl).toEqual([{ id: 'rowen', name: 'โรวีน', bond: 'friend', closeness: 2, alive: true, metAge: 15 }]);
+    ppl = applyPeople(ppl, [{ id: 'rowen', closeness: 9 }, { id: 'ghost', closeness: 1 }], 16);
+    expect(ppl).toHaveLength(1);
+    expect(ppl[0]!.closeness).toBe(5);
+    ppl = applyPeople(ppl, [{ id: 'rowen', dies: true }], 20);
+    expect(ppl[0]).toMatchObject({ alive: false, diedAge: 20 });
+  });
+  it('a die effect marks the life as a real death', () => {
+    const l = { ...newLife(5), age: 30 };
+    const dead = applyEffects(game, l, { die: true });
+    expect(dead.alive).toBe(false);
+    expect(dead.endReason).toBe('death');
+  });
+  it('lint flags a person who is never named', () => {
+    const bad = ContentSchema.parse({
+      items: [],
+      events: [{ id: 'youth.p', stage: 'youth', text: 'x', choices: [{ id: 'c', label: 'c', effects: { people: [{ id: 'nobody', closeness: 1 }] } }] }],
+    });
+    expect(lintContent(bad).join('\n')).toContain('nobody');
+  });
+  it('parents become people once names are drawn', () => {
+    const l = settle(game, applyEffects(game, newLife(9), { flags: ['race_human'] }), new Rng(1));
+    expect(l.parents).not.toBeNull();
+    expect(l.people.find((p) => p.id === 'father')?.name).toBe(l.parents!.father);
+    expect(l.people.find((p) => p.id === 'mother')?.kin).toBe('mother');
+  });
 });

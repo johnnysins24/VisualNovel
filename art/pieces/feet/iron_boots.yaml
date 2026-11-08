@@ -1,0 +1,7 @@
+# Iron boots (sabatons and greaves) to below the knee, a lighter knee cop (A22).
+z: 35
+colors: { metal: metal_iron }
+shapes:
+  - { mat: metal, region: { parts: [leg], rows: [knee, sole] } }
+  - { mat: metal@4, region: { parts: [leg], rows: [knee, knee] } }
+  - { mat: metal@0, region: { parts: [leg], rows: [sole, sole] } }

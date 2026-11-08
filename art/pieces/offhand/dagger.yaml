@@ -1,0 +1,12 @@
+# Dagger (A22): a short blade held up and out in the off hand, a brass guard.
+z: 70
+colors: { metal: metal_iron, fitting: metal_brass }
+shapes:
+  - at: [ohand+1, hand-6]
+    ascii: |
+      .....G
+      ....g.
+      ...g..
+      f.g...
+      .f....
+      ..f...

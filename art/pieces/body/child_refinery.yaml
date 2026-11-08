@@ -1,0 +1,13 @@
+# Child outfit, refinery: soot-grey overalls rolled at the shin, a short-sleeved shirt, a patch on
+# one knee (A22).
+ages: [child]
+z: 30
+colors: { cloth: dye_grey, trim: dye_earth }
+shapes:
+  - { mat: trim, region: { parts: [torso], rows: [shoulder, chest] } }
+  - { mat: trim, region: { parts: [arm], rows: [shoulder, chest] } }
+  - { mat: cloth, sym: [[chest+1, 3], [waist, 4]] }
+  - { mat: cloth, region: { parts: [torso, leg], rows: [waist, ankle-1] } }
+  - { mat: cloth@1, region: { parts: [leg], rows: [ankle-1, ankle-1] } }
+  - { mat: trim@1, at: [-3, knee-1], ascii: "TT\nTT" }
+  - { mat: skin, sym: [[shoulder, 1]] }

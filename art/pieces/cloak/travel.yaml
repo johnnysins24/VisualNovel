@@ -1,0 +1,11 @@
+# Travelling cloak (A22): a mantle over the shoulders fastened at the neck with a brass clasp, the
+# cloak falling behind the body to the shins; its darker inside shows beside the arms and legs.
+z: 40
+back_z: 3
+colors: { cloth: dye_earth, fitting: metal_brass }
+shapes:
+  - { layer: back, mat: cloth@1, span: [[shoulder+1, -8, -5], [chest, -10, -6], [knee+3, -10, -5]], mirror: true }
+  - { layer: back, mat: cloth@0, span: [[knee+3, -10, -5]], mirror: true }
+  - { mat: cloth, region: { parts: [torso, arm], rows: [shoulder, shoulder+2], grow: 1 } }
+  - { mat: cloth@1, region: { parts: [torso, arm], rows: [shoulder+3, shoulder+3], grow: 1 } }
+  - { at: [-1, shoulder], ascii: "FfF" }

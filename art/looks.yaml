@@ -3,3 +3,11 @@
 # npm test checks this. Every hairstyle in hair.yaml is also checked on its own body (check.mjs).
 proof_m: { body: m, pieces: [face/basic, under/briefs, hair/m/short] }
 proof_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/f/bob] }
+# Child bodies (A19): the adult heads on the short body, in a plain undershirt until the child outfits.
+child_m: { body: cm, pieces: [face/basic, under/briefs, under/vest, hair/m/short] }
+child_f: { body: cf, pieces: [face/basic, under/briefs, under/vest, hair/f/bob] }
+# One of each race (races.yaml); tieflings with amber eyes (A14).
+elf_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/f/long, ears/elf], choices: { hair: silver, eyes: violet } }
+dwarf_m: { body: m, pieces: [face/basic, under/briefs, hair/m/short, beard/m/long], choices: { hair: auburn } }
+tiefling_m: { body: m, pieces: [face/basic, under/briefs, hair/m/messy, horns/curved, tail/tiefling], choices: { hair: black, eyes: amber } }
+tiefling_child: { body: cf, pieces: [face/basic, under/briefs, under/vest, hair/f/pixie, horns/stumps, tail/tiefling], choices: { eyes: amber } }

@@ -1,0 +1,10 @@
+# Old-age lines (A26): a forehead line, crow's feet and the lines beside the mouth, in the lip colour, which is the darkest tone of each skin.
+# Drawn under the face (z 12), so no expression is ever covered; the hair covers the forehead line
+# under a fringe.
+ages: [adult]
+z: 12
+cast: false
+shapes:
+  - { at: [-2, brow-2], mirror: true, ascii: "nnn" }
+  - { at: [-5, brow+1], mirror: true, ascii: "n\n.\nn" }
+  - { at: [-3, mouth-2], mirror: true, ascii: "n\nn\n.n" }

@@ -1,0 +1,9 @@
+# Brow scar (A26): a cut down through the right brow (picture left) and on below the eye. The gap in
+# the brow is drawn above the face (front_z 16); the rest under it (z 12), so it never covers an eye.
+z: 12
+front_z: 16
+cast: false
+shapes:
+  - { body: m, layer: front, at: [-3, brow], ascii: "4" }
+  - { body: f, layer: front, at: [-3, brow-1], ascii: "4" }
+  - { at: [-3, brow+4], ascii: "n\nn" }

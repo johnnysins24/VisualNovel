@@ -1,0 +1,6 @@
+# Town shoes, ankle high, black leather (A22).
+z: 35
+colors: { leather: leather_black }
+shapes:
+  - { mat: leather, region: { parts: [leg], rows: [ankle, sole] } }
+  - { mat: leather@0, region: { parts: [leg], rows: [sole, sole] } }

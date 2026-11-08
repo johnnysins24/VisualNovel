@@ -1,0 +1,8 @@
+# Plain undershirt for the child bodies, so the child previews are dressed (child outfits come in
+# batch 4a). Painted on the torso from the shoulders to the hip.
+ages: [child]
+z: 21
+cast: false
+colors: { cloth: sky }
+shapes:
+  - { mat: cloth, region: { parts: [torso], rows: [shoulder+1, hip] } }
