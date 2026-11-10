@@ -1,4 +1,4 @@
-# Thin moustache (A26, for every race but dwarves): one neat line above the lip. Under the face
+# Thin moustache (A26, for every race but dwarves): one neat line above the lip, a row of skin between them so the mouth stays clear (2026-11-10). Under the face
 # (z 14), so the mouth of every expression shows over it.
 body: m
 ages: [adult]
@@ -6,4 +6,4 @@ grown: true
 z: 14
 cast: false
 shapes:
-  - { at: [-3, mouth-1], ascii: "hhhhhhh" }
+  - { at: [-3, mouth-2], ascii: "hhhhhhh" }

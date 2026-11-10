@@ -27,6 +27,7 @@ export function makeKit({ palette, bodies, pieces, ...data }) {
   pal.outline = hex(pal.outline);
   // each piece knows its slot (the folder: hair, weapon, acc...) for the bodies' `bare` lists
   for (const [id, spec] of Object.entries(pieces)) if (spec && !('slot' in spec)) Object.defineProperty(spec, 'slot', { value: id.split('/')[0] });
+  if (pal.item_outline) pal.item_outline = { ...pal.item_outline, colour: hex(pal.item_outline.colour) };
   const kit = { pal, pieces, bodies, mats: Object.keys(pal.materials), cache: {}, data };
   kit.matId = Object.fromEntries(kit.mats.map((m, i) => [m, i]));
   return kit;
@@ -275,11 +276,12 @@ function rampFor(kit, piece, matName, look = {}) {
  * Returns { w, h, rgba }.
  */
 export function compose(kit, pieces, look = {}) {
+  const heldSlots = kit.pal.item_outline?.slots ?? [];
   const stack = [];
   for (const pc of pieces) {
     for (const [name, L] of Object.entries(pc.layers)) {
       const ramps = kit.mats.map(m => (L.mat.includes(kit.matId[m]) ? rampFor(kit, pc, m, look) : null));
-      stack.push({ z: { back: pc.backZ, front: pc.frontZ }[name] ?? pc.z, cast: pc.cast, L, ramps });
+      stack.push({ z: { back: pc.backZ, front: pc.frontZ }[name] ?? pc.z, cast: pc.cast, L, ramps, held: heldSlots.includes(pc.id.split('/')[0]) });
     }
   }
   stack.sort((a, b) => a.z - b.z);
@@ -301,7 +303,24 @@ export function compose(kit, pieces, look = {}) {
     const ramp = ramps[L.mat[p]];
     set(p, ramp[Math.max(0, Math.min(ramp.length - 1, lv))]);
   }
+  if (stack.some(s => s.held)) itemOutline(kit, stack, top, out, set);
   return { w: W, h: H, rgba: out };
+}
+
+/**
+ * Held items (palette.yaml `item_outline`: weapons, off-hand things) get a 1 px light ring so they
+ * read apart from the figure behind them: every pixel next to the item that is not the item turns
+ * light, on the body as well as outside it, and the dark outline moves out around the new ring.
+ */
+function itemOutline(kit, stack, top, out, set) {
+  const isHeld = p => top[p] >= 0 && stack[top[p]].held;
+  const near = (p, f) => { const x = p % W, y = (p / W) | 0; return N4.some(([dx, dy]) => { const X = x + dx, Y = y + dy; return X >= 0 && X < W && Y >= 0 && Y < H && f(Y * W + X); }); };
+  const ring = new Uint8Array(W * H);
+  for (let p = 0; p < W * H; p++) if (!isHeld(p) && near(p, isHeld)) ring[p] = 1;
+  const light = rgb(kit.pal.item_outline.colour), dark = rgb(kit.pal.outline);
+  for (let p = 0; p < W * H; p++) if (ring[p]) set(p, light);
+  // the ring may stick out past the silhouette: outline it so it never melts into a light background
+  for (let p = 0; p < W * H; p++) if (!ring[p] && top[p] < 0 && near(p, q => ring[q] && top[q] < 0)) set(p, dark);
 }
 
 /**
