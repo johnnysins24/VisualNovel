@@ -38,7 +38,7 @@ function useHotkeys() {
 
 /**
  * DOM ชุดเดียว จัดวาง 3 แบบด้วย CSS grid (styles.css):
- * มือถือแนวตั้ง · มือถือแนวนอน (เมนูเป็นแถบซ้าย) · เดสก์ท็อป 3 คอลัมน์
+ * มือถือแนวตั้ง · มือถือแนวนอน (เมนูเป็นแถบซ้าย) · เดสก์ท็อป 2 คอลัมน์ (เวทีซ้าย หนังสือขวา)
  */
 export function App() {
   useHotkeys();
@@ -47,19 +47,29 @@ export function App() {
   return (
     <main class="game" data-tab={t} data-back={t === 'story' && scrolledBack.value ? '' : undefined}>
       <TopBar />
-      <Scene />
       <StatRow />
-      <aside class="side left" aria-label="ตัวละคร">
-        <section class="sec">
-          <h3>ค่าสถานะ</h3>
-          <StatGrid />
-        </section>
-        <section class="sec">
-          <h3>สวมใส่</h3>
-          <SlotGrid />
-        </section>
-        <Equipment />
-      </aside>
+      {/* เวที: ฉาก ค่าสถานะ ผู้คน (เดสก์ท็อปเป็นคอลัมน์ซ้าย มือถือแตกเป็นแถวของ grid หลัก) */}
+      <div class="stage">
+        <Scene />
+        <aside class="side left" aria-label="ตัวละคร">
+          <section class="sec">
+            <h3>ค่าสถานะ</h3>
+            <StatGrid />
+          </section>
+          <section class="sec">
+            <h3>สวมใส่</h3>
+            <SlotGrid />
+          </section>
+          <Equipment />
+        </aside>
+        <aside class="side right" aria-label="ผู้คนและโลก">
+          <CloseList />
+          <section class="sec">
+            <h3><Icon name="place" />ที่อยู่</h3>
+            <WorldMap here={life.value.locationTag} small />
+          </section>
+        </aside>
+      </div>
       <section class="read">
         {Page ? (
           <div class="page"><Page /></div>
@@ -70,13 +80,6 @@ export function App() {
           </>
         )}
       </section>
-      <aside class="side right" aria-label="ผู้คนและโลก">
-        <CloseList />
-        <section class="sec">
-          <h3><Icon name="place" />ที่อยู่</h3>
-          <WorldMap here={life.value.locationTag} small />
-        </section>
-      </aside>
       <BottomNav />
       <RollDialog />
       {new URLSearchParams(location.search).has('debug') && <DebugPanel />}
