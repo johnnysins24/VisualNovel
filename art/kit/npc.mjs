@@ -1,7 +1,7 @@
 // NPC looks from the recipes in art/npcs.yaml (A25): seeded random picks from the shared pieces.
-import { readYaml, fitsBody } from './kit.mjs';
+import { fitsBody } from './core.mjs';
 
-const UNDER = { m: ['under/briefs'], f: ['under/bra', 'under/panties'], cm: ['under/briefs', 'under/vest'], cf: ['under/briefs', 'under/vest'] };
+export const UNDER = { m: ['under/briefs'], f: ['under/bra', 'under/panties'], cm: ['under/briefs', 'under/vest'], cf: ['under/briefs', 'under/vest'] };
 
 /** A small seeded random source: the same string always gives the same numbers. */
 export function rng(seed) {
@@ -18,8 +18,8 @@ export function rng(seed) {
  * opts: body, race, god, face to fix them instead of picking.
  */
 export function npcLook(kit, groupKey, seed, opts = {}, data = {}) {
-  const npcs = data.npcs ?? readYaml('npcs.yaml'), races = data.races ?? readYaml('races.yaml');
-  const hairList = data.hair ?? readYaml('hair.yaml'), outfits = data.outfits ?? readYaml('outfits.yaml');
+  const d = { ...kit.data, ...data };
+  const { npcs, races, hair: hairList, outfits } = d;
   const g = npcs.groups[groupKey];
   if (!g) throw new Error(`no NPC group "${groupKey}" in art/npcs.yaml`);
   const r = rng(`${groupKey}:${seed}`), one = a => a[Math.floor(r() * a.length)];

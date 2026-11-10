@@ -67,7 +67,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .top-tabs button[aria-current='true'] { background: var(--subtle); color: var(--ink); }
 
 /* ---------- ฉาก ---------- */
-.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); min-height: 0; display: grid; place-items: end center; }
+.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); min-height: 0; display: grid; place-items: end center; grid-auto-flow: column; justify-content: center; column-gap: 6%; }
 .scene .hill { position: absolute; left: -10%; right: -10%; bottom: -45%; height: 70%; background: var(--hill); border-radius: 50% 50% 0 0; }
 .scene .hill.back { left: 35%; right: -30%; bottom: -52%; background: var(--hill2); }
 .sprite { position: relative; image-rendering: pixelated; height: 88%; max-height: 288px; aspect-ratio: 64 / 96; margin-bottom: 4%; }
@@ -204,6 +204,12 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node:focus-visible circle, .chart .node:hover circle { stroke: var(--accent); }
 .chart .node.me circle { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
 .chart .node.dead { opacity: .5; }
+.face { image-rendering: pixelated; }
+.slot { position: relative; }
+.slot-name { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; white-space: nowrap; font-size: .75rem; padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); pointer-events: none; }
+.slot-art { width: 80%; height: 80%; object-fit: contain; image-rendering: pixelated; }
+.avatar.face { background: var(--subtle); object-fit: cover; }
+.node.dead .face { filter: grayscale(1); opacity: .6; }
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
 .chart .node.me .initial { fill: var(--ink); font-weight: 600; }
 .chart .nm { text-anchor: middle; font-size: 12.5px; fill: var(--ink); }
