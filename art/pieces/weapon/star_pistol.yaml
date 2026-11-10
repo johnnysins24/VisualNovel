@@ -1,12 +1,13 @@
-# Star pistol (magitech, A22): a short barrel pointing out of the picture side with a glowing
-# starsilver phial on top (metal), brass body, wooden butt in the fist.
+# Star pistol (magitech, A22) (redrawn bold 2026-11-10 so it reads at game size): a short barrel
+# pointing out, a glowing starsilver phial on top, a brass body, a wooden butt in the fist.
 z: 70
 colors: { metal: metal_starsilver, fitting: metal_brass, wood: wood }
+legend: { G: metal@4, X: metal@0, f: fitting@2, g: metal@3, o: wood@2, v: fitting@1, x: metal@1, y: wood@1 }
 shapes:
-  - at: [hand-8, hand-3]
+  - at: [hand-4, hand-3]
     ascii: |
-      ..gGg......
-      Ggggggg....
-      .....ff....
-      ...........
-      ..........o
+      ...GGx..
+      ..GggxX.
+      xxffffvv
+      ....oy..
+      ....oy..

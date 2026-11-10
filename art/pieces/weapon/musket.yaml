@@ -1,40 +1,33 @@
-# Black-powder long gun (A22): held upright, the iron barrel above the fist, the wooden stock
-# below it, a brass lock.
+# Black-powder long gun (A22) (redrawn bold 2026-11-10 so it reads at game size): a long iron
+# barrel leaning out, a brass lock, a broad wooden stock below the fist.
 z: 70
-colors: { metal: metal_iron, wood: wood, fitting: metal_brass }
+colors: { metal: metal_iron, wood: wood, fitting: metal_brass, leather: leather_brown }
+legend: { F: fitting@4, G: metal@4, f: fitting@2, g: metal@3, o: wood@2, v: fitting@1, x: metal@1, y: wood@1 }
 shapes:
-  - at: [hand-1, hand-25]
+  - at: [hand-5, hand-19]
     ascii: |
-      .G.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      .g.
-      fof
-      .o.
-      .of
-      .o.
-      .o.
-      ...
-      ...
-      ...
-      .o.
-      .oo
-      .oo
-      .oo
-      .oo
-      ..o
+      G........
+      Gx.......
+      .gx......
+      .gx......
+      .gx......
+      ..gx.....
+      ..gx.....
+      ..gx.....
+      ...gx....
+      ...gx....
+      ...gx....
+      ....gx...
+      ....gx...
+      ....gx...
+      .....gx..
+      .....gx..
+      ....fFv..
+      .....oov.
+      .........
+      .........
+      .........
+      .....ooy.
+      ......ooy
+      ......oyy
+      .......yy

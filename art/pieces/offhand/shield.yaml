@@ -1,22 +1,22 @@
-# Shield (A22): a kite shield on the off arm, painted cloth face with a band across the top in the
-# second colour, a square brass boss (never a cross), an iron rim.
+# Shield (A22) (redrawn bold 2026-11-10 so it reads at game size): a kite shield on the off arm,
+# painted face with a band across the top in the second colour, a big brass boss, a thick iron
+# rim.
 z: 70
 colors: { cloth: dye_navy, trim: dye_white, metal: metal_iron, fitting: metal_brass }
+legend: { C: cloth@1, F: fitting@4, G: metal@4, T: trim@1, c: cloth@3, f: fitting@2, g: metal@3, t: trim@3, v: fitting@1, x: metal@1 }
 shapes:
-  - at: [ohand-2, hand-8]
+  - at: [ohand-5, hand-5]
     ascii: |
-      .gggGggg.
-      gcccccccg
-      gcccccccg
-      gtttttttg
-      gtttttttg
-      gcccccccg
-      gcccccccg
-      gccfFfccg
-      gccfffccg
-      gccfffccg
-      .gcccccg.
-      .gcccccg.
-      ..gcccg..
-      ...gcg...
-      ....g....
+      .GGGGggx.
+      GccccccCx
+      GttttttTx
+      GttttttTx
+      GccFfvcCx
+      GccfFvcCx
+      GccvvvcCx
+      GccccccCx
+      .gccccCx.
+      .gcccCCx.
+      ..gccCx..
+      ...gCx...
+      ....x....

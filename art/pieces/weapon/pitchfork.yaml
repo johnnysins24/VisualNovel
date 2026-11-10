@@ -1,34 +1,32 @@
-# Pitchfork (A27): held upright, a long wooden shaft, three iron tines above the head.
+# Pitchfork (A27) (redrawn bold 2026-11-10 so it reads at game size): three iron prongs on a
+# crossbar, a long wooden shaft.
 z: 70
-colors: { metal: metal_iron, wood: wood }
+colors: { metal: metal_iron, wood: wood, fitting: metal_brass, leather: leather_brown }
+legend: { G: metal@4, f: fitting@2, g: metal@3, o: wood@2, x: metal@1 }
 shapes:
-  - at: [hand-2, hand-21]
+  - at: [hand-8, hand-21]
     ascii: |
-      G.G.G
-      g.g.g
-      g.g.g
-      ggggg
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      .....
-      .....
-      .....
-      ..o..
-      ..o..
-      ..o..
-      ..o..
-      ..o..
+      G.G.G.....
+      .G.G.G....
+      .g.g.g....
+      .g.g.g....
+      ..gxgxg...
+      ...xfx....
+      ....o.....
+      .....o....
+      .....o....
+      .....o....
+      ......o...
+      ......o...
+      ......o...
+      .......o..
+      .......o..
+      .......o..
+      ........o.
+      ........o.
+      ........o.
+      .........o
+      ..........
+      ..........
+      ..........
+      .........o

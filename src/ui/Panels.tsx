@@ -8,6 +8,8 @@ import { worldYear } from '../engine/state';
 import { equip, exportLife, game, importLife, life, meta, startLife, tab } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { SpriteView } from './SpriteView';
+import { piecesOfItem } from '../sprites/looks';
+import { itemIconUrl } from '../sprites/render';
 import { PLACE_TH, signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
@@ -78,9 +80,14 @@ function SlotBox({ slot }: { slot: Slot }) {
   const id = l.equipped[slot];
   const it = id ? game.items.get(id) : undefined;
   const label = `${SLOT_TH[slot]}: ${it?.name ?? 'ว่าง'}`;
+  // ของที่มีภาพในชุด sprite ขึ้นรูปของชิ้นนั้นแทนไอคอนช่อง (Phupha เลือก 10 พ.ย. 2026) แตะ/ชี้ดูชื่อ
+  const icon = it ? itemIconUrl(piecesOfItem(it.id, game.items)) : null;
+  const [shown, setShown] = useState(false);
   return (
-    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img">
-      <Icon name={slot} />
+    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img"
+      onClick={() => it && setShown(!shown)} onMouseLeave={() => setShown(false)}>
+      {icon ? <img class="slot-art" src={icon} alt="" /> : <Icon name={slot} />}
+      {shown && it && <span class="slot-name">{it.name}</span>}
     </div>
   );
 }

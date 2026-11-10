@@ -44,14 +44,14 @@ const feetFor = (wear: string): string | undefined =>
 
 /** ชิ้นของของที่สวมอยู่: art/items.yaml ก่อน แล้วค่อย field sprite ของ item */
 function itemPieces(l: LifeState, items: ItemIndex): string[] {
-  const out: string[] = [];
-  for (const id of Object.values(l.equipped)) {
-    if (!id) continue;
-    const mapped = (kit.data.items as Record<string, string[]>)[id];
-    const sprite = items.get(id)?.sprite;
-    out.push(...(mapped ?? (sprite ? [sprite] : [])));
-  }
-  return out;
+  return Object.values(l.equipped).flatMap((id) => (id ? piecesOfItem(id, items) : []));
+}
+
+/** ชิ้นภาพของของหนึ่งชิ้น: art/items.yaml ก่อน แล้วค่อย field sprite ของ item (ไม่มีภาพคืน []) */
+export function piecesOfItem(id: string, items: ItemIndex): string[] {
+  const mapped = (kit.data.items as Record<string, string[]>)[id];
+  const sprite = items.get(id)?.sprite;
+  return (mapped ?? (sprite ? [sprite] : [])).filter((p) => kit.pieces[p]);
 }
 
 /** สีหน้าจากสถานะ: สลบเมื่อตาย เจ็บเมื่อเลือดเหลือน้อย ยิ้มหรือเศร้าตามผลทอยล่าสุด */
