@@ -1,0 +1,28 @@
+# The healer's room above the salted-fish shop: three narrow beds, a curtain between them, a shelf
+# of bottles, hanging herbs, a wash basin, a window on the street. Story: hedge doctor events.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, beams: [-120, 64, 192, 400], noise: 0.7, skirt: wood }
+  - slope: { from: [[-256, 40], [40, 0]], mat: wood }
+  - pane: { x: 112, y: 22, w: 30, h: 24 }
+  - furn: { kind: curtain, at: [110, 48], w: 34, h: 28, mat: plaster }
+  - prop: { art: herbs, at: [[108, 12], [-80, 14], [300, 14]] }
+  - furn: { kind: shelf, at: [154, 66], w: 36, h: 26, rows: 2 }
+    outline: true
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9, depth: 80 }
+  - furn: { kind: bed, at: [4, 100], w: 46, h: 14, mat: plaster }
+    outline: true
+  - furn: { kind: curtain, at: [52, 92], w: 8, h: 50, mat: cloth }
+  - furn: { kind: bed, at: [204, 100], w: 46, h: 14, mat: plaster }
+    outline: true
+  - furn: { kind: bed, at: [-90, 100], w: 46, h: 14, mat: plaster }
+    outline: true
+  - prop: { art: basin, at: [64, 100] }
+    outline: true
+  - furn: { kind: chair, at: [192, 104], w: 8, h: 18 }
+    outline: true
+  - furn: { kind: table, at: [300, 104], w: 40, h: 16 }
+    outline: true
+  - furn: { kind: lamp, at: [96, 30] }
+  - glow: { at: [97, 32], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - vignette: { strength: 0.45 }

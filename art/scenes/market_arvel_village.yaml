@@ -20,3 +20,6 @@ layers:
     outline: true
   - prop: { art: well, at: [380, 100] }
     outline: true
+  - prop: { art: chicken, at: [[206, 108], [214, 107]] }
+  - prop: { art: horse, at: [32, 100], flip: true }
+    outline: true

@@ -444,7 +444,7 @@
 - id: adult.mid_smith_inspection
   stage: adult
   weight: 45
-  scene: workshop
+  scene: smithy
   when:
     age: [25, 32]
     flags: [job_smith]
@@ -513,7 +513,7 @@
 - id: adult.mid_smith_coal
   stage: adult
   weight: 45
-  scene: workshop
+  scene: smithy
   when:
     age: [33, 40]
     flags: [job_smith]

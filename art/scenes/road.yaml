@@ -29,3 +29,7 @@ layers:
   - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [250, 256], seed: 14 }
     outline: true
     repeat: [-470, 200]
+  - prop: { art: horse, at: [210, 100] }
+    outline: true
+  - prop: { art: horse, at: [54, 96] }
+    outline: true

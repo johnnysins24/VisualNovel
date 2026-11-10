@@ -136,7 +136,7 @@ export type Choice = z.infer<typeof ChoiceSchema>;
  * home กับ market มีภาพแยกตามถิ่น ฉากอื่นใช้ภาพเดียวทุกถิ่น
  */
 export const SCENES = [
-  'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop',
+  'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop', 'smithy', 'golem_shop', 'healer',
   'ship_deck', 'mine', 'clan_hall', 'institute', 'belek_bank', 'star_hall',
 ] as const;
 export type Scene = (typeof SCENES)[number];

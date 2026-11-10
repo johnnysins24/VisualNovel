@@ -32,3 +32,7 @@ layers:
   - glow: { at: [-58, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
     repeat: [-90, -180, 360, 450, 540]
   - glow: { at: [212, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
+  - prop: { art: carriage, at: [4, 108] }
+    outline: true
+  - prop: { art: horse, at: [27, 108], legend: { w: dark_stone@1 } }
+    outline: true

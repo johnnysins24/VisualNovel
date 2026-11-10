@@ -44,4 +44,5 @@ layers:
   - prop: { art: stove, at: [40, 100] }
     outline: true
   - glow: { at: [45, 95], r: 12, colour: 'f39a45' }
+  - prop: { art: cat, at: [54, 100] }
   - vignette: { strength: 0.6 }

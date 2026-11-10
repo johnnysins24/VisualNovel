@@ -220,7 +220,7 @@
 
 - id: adult.job_smith_shackles
   stage: adult
-  scene: workshop
+  scene: smithy
   weight: 45
   when:
     age: [19, 24]

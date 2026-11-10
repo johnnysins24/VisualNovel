@@ -1,0 +1,33 @@
+# Smithy: a stone forge room. A big hearth burning demon coal (dark red fire), the anvil, a quench
+# barrel, a coal heap, tongs and hammers on the wall. Story: the shackles order, the witch hunter's
+# inspection, the demon-coal forge, the old anvil clans of Hordun.
+interior: true
+layers:
+  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks, beams: [-150, 96, 360], skirt: dark_stone }
+  - pane: { x: 108, y: 22, w: 18, h: 18, frame: metal }
+    repeat: [-260, 260]
+  - prop: { art: tools, at: [[60, 52], [-120, 52], [300, 52]] }
+    outline: true
+  - rect: { x: 56, y: 53, w: 30, h: 2, mat: wood, lvl: 3 }
+    repeat: [-180, 240]
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 18, depth: 80 }
+  - furn: { kind: hearth, at: [176, 92], w: 56, h: 44, chimney: true, fire: fire }
+    outline: true
+  - glow: { at: [204, 84], r: 34, colour: 'e0502f' }
+  - prop: { art: coal, at: [[236, 98], [150, 96]] }
+    outline: true
+  - glow: { at: [242, 96], r: 8, colour: 'e0502f' }
+  - prop: { art: anvil, at: [16, 102] }
+    outline: true
+  - furn: { kind: barrel, at: [50, 104], w: 12, h: 14 }
+    outline: true
+  - rect: { x: 50, y: 90, w: 12, h: 1, mat: water, lvl: 3.4 }
+  - furn: { kind: table, at: [-140, 104], w: 50, h: 18 }
+    outline: true
+  - furn: { kind: crates, at: [300, 104] }
+    outline: true
+  - prop: { art: anvil, at: [380, 104] }
+    outline: true
+  - furn: { kind: lamp, at: [80, 18] }
+  - glow: { at: [81, 20], r: 16, colour: 'f7d98a', only: [dusk, night] }
+  - vignette: { strength: 0.5 }

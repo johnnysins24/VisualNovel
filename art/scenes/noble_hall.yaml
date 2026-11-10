@@ -33,4 +33,6 @@ layers:
   - furn: { kind: plant, at: [-20, 98], w: 14, h: 26, mat: brass }
     outline: true
     repeat: [290]
+  - prop: { art: dog, at: [48, 106], legend: { w: plaster@1 } }
+    outline: true
   - vignette: { strength: 0.35 }

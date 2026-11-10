@@ -1,5 +1,6 @@
-# Workshop: an artificer's shop, a smithy or a back-room healer, one room with the tools on the wall,
-# a forge in the corner, a long workbench with things on it, shelves of jars.
+# Workshop: a mage's lamp workshop (Severin's glassworks back room) and the fallback for any other
+# craft. Tools on the wall, a small forge, a workbench of glass, star-dew lamps hanging under test.
+# The smithy, the golem shop and the healer's room have their own scenes.
 interior: true
 layers:
   - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6], beams: [-100, 160, 300], skirt: wood }
@@ -39,4 +40,10 @@ layers:
     repeat: [-240, 260]
   - glow: { at: [101, 16], r: 18, colour: 'f7d98a', only: [dusk, night] }
     repeat: [-240, 260]
+  - furn: { kind: lamp, at: [40, 30], light: lamp }
+  - furn: { kind: lamp, at: [60, 24], light: lamp }
+  - furn: { kind: lamp, at: [150, 28], light: lamp }
+  - glow: { at: [41, 32], r: 12, colour: 'aad6fb' }
+  - glow: { at: [61, 26], r: 12, colour: 'aad6fb' }
+  - glow: { at: [151, 30], r: 12, colour: 'aad6fb' }
   - vignette: { strength: 0.45 }

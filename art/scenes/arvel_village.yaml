@@ -43,3 +43,4 @@ layers:
     outline: true
   - furn: { kind: cart, at: [320, 104], w: 30, h: 13, load: field }
     outline: true
+  - prop: { art: chicken, at: [[196, 104], [203, 106], [64, 100], [-140, 106], [-132, 104]] }
