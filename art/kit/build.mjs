@@ -13,7 +13,10 @@
 //                                       extras.png (elf outfit, tabard, apron, accessories, skin marks,
 //                                       moustaches) and npcs.png (eight of each NPC group in npcs.yaml)
 //   node art/kit/build.mjs scenes        write every scene (art/scenes) at every time of day to
-//                                       public/scenes/ for the game and art/preview/scenes.png
+//                                       public/scenes/ for the game (256 x 112, the stage) and art/preview/scenes.png, and
+//                                       scenes_stage.png: each scene by day with two figures standing
+//                                       where the game puts them, cut to a phone's view and in full
+//   node art/kit/build.mjs scenes <id>  only art/preview/scene_<id>.png (all times, figures on)
 //   node art/kit/build.mjs icon          write the app icon (art/icon.yaml) to public/
 //   node art/kit/build.mjs look <name> [face]   write art/preview/<name>.png from art/looks.yaml
 //   node art/kit/build.mjs ramp <ramp> <hex>     print a ramp shaped like <ramp> with <hex> as level 3
@@ -22,10 +25,10 @@ import { join } from 'node:path';
 import { loadKit, renderLook, readYaml, fitsBody, ART } from './kit.mjs';
 import { sheet, crop, savePNG } from './sheet.mjs';
 import { lockBare, lockFace, faceBox } from './lock.mjs';
-import { runChecks, classifier, diffRows, FACES } from './check.mjs';
+import { runChecks, classifier, diffRows, FACES, FIGURES } from './check.mjs';
 import { rampLike, follow } from './colour.mjs';
 import { npcLook } from './npc.mjs';
-import { loadScenes, renderScene } from './scene.mjs';
+import { loadScenes, renderScene, OX, MID, SW, SH, STAGE } from './scene.mjs';
 import { encodePNG } from './png.mjs';
 import { mkdirSync, writeFileSync } from 'node:fs';
 
@@ -117,6 +120,11 @@ if (cmd === 'check') {
     savePNG(out, sheet(rows, opts));
     console.log('wrote', out);
   }
+} else if (cmd === 'scenes' && args[0]) {
+  const S = loadScenes(), ids = readYaml('scene_ids.yaml'), figs = stageFigures();
+  const rows = ids.times.map(t => [onStage(renderScene(S, args[0], t), figs)]);
+  savePNG(join(ART, 'preview', `scene_${args[0]}.png`), sheet(rows, { scale: 2, gap: 4, margin: 4 }));
+  console.log(`wrote art/preview/scene_${args[0]}.png`);
 } else if (cmd === 'scenes') {
   // every scene at every time: art/preview/scenes.png, and the game's files in public/scenes/
   const S = loadScenes(), ids = readYaml('scene_ids.yaml'), dir = join(ART, '..', 'public', 'scenes');
@@ -124,10 +132,17 @@ if (cmd === 'check') {
   const rows = [], index = { times: ids.times, scenes: Object.keys(S.scenes) };
   for (const id of Object.keys(S.scenes)) {
     const row = ids.times.map(t => renderScene(S, id, t));
-    row.forEach((img, i) => writeFileSync(join(dir, `${id}_${ids.times[i]}.png`), encodePNG(img)));
+    // the game's picture is the stage (256 x 112); the wings only show in the previews for now
+    row.forEach((img, i) => writeFileSync(join(dir, `${id}_${ids.times[i]}.png`), encodePNG(crop(img, { x: OX, y: 0, w: STAGE, h: SH }))));
     rows.push(row);
   }
+  // stand: the row the figures' soles go on (the sprites' sole row is 93 of 96)
+  index.width = STAGE; index.height = SH; index.mid = MID;
+  index.stand = Object.fromEntries(rows.map((r, i) => [index.scenes[i], r[0].stand]));
   writeFileSync(join(dir, 'index.json'), JSON.stringify(index, null, 1) + '\n');
+  const figs = stageFigures(), PHONE = STAGE;
+  const stage = rows.map(r => { const img = onStage(r[0], figs); return [crop(img, { x: MID + OX - PHONE / 2, y: 0, w: PHONE, h: SH }), img]; });
+  savePNG(join(ART, 'preview', 'scenes_stage.png'), sheet(stage, { scale: 1, gap: 4, margin: 4 }));
   savePNG(join(ART, 'preview', 'scenes.png'), sheet(rows, { scale: 1, gap: 4, margin: 4 }));
   console.log(`wrote ${rows.length * ids.times.length} scene pictures to ${dir} and art/preview/scenes.png`);
 } else if (cmd === 'icon') {
@@ -161,4 +176,26 @@ if (cmd === 'check') {
   if (ref.startsWith('skin')) for (const m of ['lip', 'blush']) console.log(m, follow(pal.ramps[pal.materials[m].ramp][0], pal.ramps[pal.materials.skin.ramp], base));
 } else {
   console.log('usage: node art/kit/build.mjs check | proof [-v] | look <name> [face] | ramp <ramp> <hex>');
+}
+
+/** two figures (a townsman and a cleric) as the game shows them: ImageData-like {w,h,rgba} */
+function stageFigures() {
+  const kit = loadKit();
+  return [renderLook(kit, npcLook(kit, 'worker', 3)), renderLook(kit, npcLook(kit, 'merchant', 5))];
+}
+/** a copy of a scene picture with the figures standing on its `stand` row where the HUD puts them:
+ *  one figure in the middle, or the player and an NPC at 88 and 168 (FIGURES in check.mjs) */
+function onStage(img, figs) {
+  const out = { w: img.w, h: img.h, stand: img.stand, rgba: new Uint8ClampedArray(img.rgba) };
+  const SOLE = 93; // the bodies' sole row in the 64 x 96 sprite canvas
+  const centres = FIGURES[figs.length - 1];
+  figs.forEach((f, k) => {
+    const x0 = OX + centres[k] - 32, y0 = img.stand - SOLE;
+    for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
+      const q = (y * f.w + x) * 4, X = x0 + x, Y = y0 + y;
+      if (!f.rgba[q + 3] || X < 0 || Y < 0 || X >= img.w || Y >= img.h) continue;
+      out.rgba.set(f.rgba.subarray(q, q + 4), (Y * img.w + X) * 4);
+    }
+  });
+  return out;
 }

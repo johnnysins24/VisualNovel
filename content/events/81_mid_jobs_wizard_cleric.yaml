@@ -5,7 +5,7 @@
 
 - id: adult.mid_artificer_key
   stage: adult
-  scene: workshop
+  scene: golem_shop
   weight: 45
   when:
     age: [25, 32]
@@ -63,7 +63,7 @@
 
 - id: adult.mid_artificer_golems
   stage: adult
-  scene: workshop
+  scene: golem_shop
   weight: 45
   when:
     age: [33, 40]
@@ -233,7 +233,7 @@
 
 - id: adult.mid_hedge_offer
   stage: adult
-  scene: workshop
+  scene: healer
   weight: 45
   when:
     age: [25, 32]
@@ -283,7 +283,7 @@
 
 - id: adult.mid_hedge_glassman
   stage: adult
-  scene: workshop
+  scene: healer
   weight: 45
   when:
     age: [33, 40]

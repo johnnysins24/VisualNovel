@@ -1,38 +1,56 @@
-# A farming village in Arvel (world bible scene 1): thatched cottages, a small Isel chapel with the
-# lamp on its tower, ripe wheat, an airship far off, and the bone-pale sky pillar of the Arvel fields
-# on the horizon.
+# A farming village in Arvel (world bible scene 1): the village road running away down the valley
+# between thatched cottages, fences and ripe wheat, the well on the green, the small Isel chapel with
+# the lamp on its tower, a hay cart on the road, an airship far off and the bone-pale sky pillar of
+# the Arvel fields on the horizon. Everything is at its real size for its distance (scene.mjs).
 layers:
-  - sky: { horizon: 66 }
-  - stars: { count: 70, below: 55 }
-  - body: { day: [206, 16, 6], dusk: [52, 54, 9], night: [214, 18, 5] }
-  - clouds: { count: 5, y: [6, 28] }
-  - pillar: { x: 168, w: 5, base: 62 }
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 52 }
+  - body: { day: [206, 14, 6], dusk: [52, 48, 9], night: [214, 16, 5] }
+  - clouds: { count: 5, y: [4, 26] }
+  - pillar: { x: 186, w: 4, base: 59 }
     haze: 0.55
-  - prop: { art: airship, at: [72, 24] }
+  - prop: { art: airship, at: [52, 18] }
     haze: 0.45
-  - ridge: { mat: far, base: 66, amp: 18, scale: 0.025, seed: 1 }
+  - ridge: { mat: far, base: 61, amp: 15, scale: 0.025, seed: 1 }
     haze: 0.4
-  - ridge: { mat: mid, base: 71, amp: 9, scale: 0.04, seed: 2 }
+  - ridge: { mat: mid, base: 63, amp: 5, scale: 0.04, seed: 2 }
     haze: 0.15
-  - trees: { kind: round, mat: leaf, base: 70, every: 9, h: [6, 9], x: [0, 70] }
-    haze: 0.15
-  - trees: { kind: round, mat: leaf, base: 70, every: 11, h: [6, 10], x: [190, 260] }
-    haze: 0.15
-  - field: { y0: 70, y1: 86, mat: field }
-  - prop: { art: chapel, at: [140, 76] }
+  - trees: { kind: round, mat: leaf, base: 63, everym: 9, hm: [7, 11], seed: 3 }
+    haze: 0.2
+  - ground: { y: 63, mat: grass, tufts: 40 }
+  - field: { y0: 64, y1: 73, mat: field, x0: -256, x1: 96 }
+  - field: { y0: 64, y1: 73, mat: field, x0: 166, x1: 511 }
+  - road: { y: [61, 111], wm: 3.4, mat: dirt, ruts: true }
+  - furn: { kind: house, at: [0, 64.5], xm: 6.5, wm: 7, hm: 4, roof: 3.5, wall: stone, roof_mat: thatch, gable: true, tower: 6.5, light: true, door: false }
     outline: true
-  - prop: { art: cottage, at: [[96, 79], [176, 80]] }
+  - furn: { kind: haystack, at: [0, 67], xm: -8 }
     outline: true
-  - smoke: { at: [104, 66], puffs: 5 }
-  - prop: { art: barn, at: [30, 82] }
+  - furn: { kind: house, at: [0, 66], xm: 12, wm: 6, hm: 3, roof: 3, wall: plaster, timber: true, gable: true, chimney: 1.6 }
     outline: true
-  - ground: { y: 86, mat: grass, tufts: 40 }
-  - road: { y: [86, 111], top: [120, 136], bottom: [100, 156], mat: dirt }
-  - prop: { art: fence, at: [[8, 92], [24, 92], [190, 92], [206, 92]] }
+  - furn: { kind: house, at: [0, 68], xm: -14, wm: 7, hm: 3, roof: 3.2, wall: plaster, timber: true, chimney: -2 }
     outline: true
-  - prop: { art: well, at: [214, 104] }
+  - furn: { kind: cart, at: [0, 70], xm: 0.4, horse: bay, load: field }
     outline: true
-  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [-6, 0] }
+  - furn: { kind: tree, at: [0, 69], xm: -21, hm: 9 }
     outline: true
-  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [30, 34], x: [250, 256] }
+  - furn: { kind: house, at: [0, 71], xm: 10, wm: 7, hm: 3, roof: 3.2, wall: plaster, timber: true, gable: true, chimney: -1.8 }
     outline: true
+  - furn: { kind: tree, at: [0, 72.5], xm: 17, hm: 10 }
+    outline: true
+  - furn: { kind: house, at: [0, 74], xm: -11, wm: 7, hm: 3, roof: 3.2, wall: plaster, timber: true, gable: true, chimney: 2 }
+    outline: true
+  - furn: { kind: fence, at: [0, 66], xm: -2.6, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: fence, at: [0, 66], xm: 2.6, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: well, at: [0, 92], xm: 4.6 }
+    outline: true
+  - furn: { kind: chicken, at: [0, 97], xm: 3.4 }
+    only: [day, dusk]
+    outline: true
+  - furn: { kind: chicken, at: [0, 99], xm: 4.4, flip: true }
+    only: [day, dusk]
+    outline: true
+  - furn: { kind: fern, at: [0, 109], xm: -3.4, hm: 0.9, mat: field }
+  - furn: { kind: fern, at: [0, 111], xm: -3.9, hm: 1.0, mat: field }
+  - furn: { kind: fern, at: [0, 110], xm: 3.6, hm: 0.9, mat: field }

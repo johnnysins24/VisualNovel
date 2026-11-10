@@ -4,7 +4,7 @@
 
 - id: adult.job_artificer_hand
   stage: adult
-  scene: workshop
+  scene: golem_shop
   weight: 45
   when:
     age: [19, 24]
@@ -110,7 +110,7 @@
 
 - id: adult.job_hedge_doctor_glass
   stage: adult
-  scene: workshop
+  scene: healer
   weight: 45
   when:
     age: [19, 24]

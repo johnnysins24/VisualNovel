@@ -1,4 +1,5 @@
 import { computed, signal } from '@preact/signals';
+import { eventTime } from '../engine/timeOfDay';
 import { currentEvent, game, life } from '../store';
 
 /** ภาพฉากหลังจาก thread ศิลป์ (public/scenes) รายชื่อโหลดจาก index.json ครั้งเดียว */
@@ -24,14 +25,11 @@ export function sceneId(scene: string | undefined, location: string, have: Set<s
 }
 
 /**
- * ช่วงเวลาของภาพ: เนื้อเรื่องยังไม่บอกเวลา จึงสุ่มแบบคงที่จาก id เหตุการณ์
- * (เหตุการณ์เดิมได้เวลาเดิมทุกครั้ง) กลางวันบ่อยที่สุด
+ * ช่วงเวลาของภาพ: `time:` ของเหตุการณ์ → คำบอกเวลาในเนื้อเรื่อง (คืนนั้น ตอนบ่าย ตกค่ำ ...)
+ * → สุ่มแบบคงที่จาก id (เหตุการณ์เดิมได้เวลาเดิมทุกครั้ง กลางวันบ่อยที่สุด)
  */
 export function timeOf(eventId: string): TimeOfDay {
-  let h = 0;
-  for (let i = 0; i < eventId.length; i++) h = (h * 31 + eventId.charCodeAt(i)) >>> 0;
-  const r = h % 10;
-  return r < 6 ? 'day' : r < 8 ? 'dusk' : 'night';
+  return eventTime(game.events.find((e) => e.id === eventId), eventId);
 }
 
 /** ภาพของฉากตอนนี้ ใช้เหตุการณ์ปัจจุบัน หรือเหตุการณ์ล่าสุดถ้าชีวิตหยุดแล้ว */

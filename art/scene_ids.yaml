@@ -6,5 +6,5 @@ locations: [arvel_village, ventras, hordun, ileth, ashland]
 # a scene drawn once per location: <scene>_<location_tag>
 per_location: [home, market]
 # one picture wherever it happens
-shared: [temple, tavern, refinery, road, fort, noble_hall, workshop, ship_deck, mine, clan_hall, institute, belek_bank, star_hall]
+shared: [temple, tavern, refinery, road, fort, noble_hall, workshop, smithy, golem_shop, healer, ship_deck, mine, clan_hall, institute, belek_bank, star_hall]
 times: [day, dusk, night]
