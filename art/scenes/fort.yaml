@@ -1,43 +1,39 @@
-# A Seal Warden fort in the Ashland: inside the curtain wall, tents of the garrison (and of the coal
-# war camps), the order's banners, the seal stones beyond the gate.
+# A Seal Warden fort in the Ashland: inside the curtain wall with its battlements, the gate and the
+# order's banners, the keep's tower behind, tents of the garrison (and of the coal war camps),
+# braziers, crates and a supply cart on the ash. The yard is 26 m across, the wall 7 m high.
+ceiling: 7
+width: 26
+back: 72
 layers:
   - sky: { horizon: 60 }
-  - stars: { count: 90, below: 50 }
-  - body: { day: [40, 14, 6], dusk: [220, 40, 9], night: [210, 16, 5] }
-  - clouds: { count: 3, y: [6, 20], seed: 8, size: 30 }
-  - pillar: { x: 130, w: 10, base: 54, top: 26 }
-    haze: 0.45
-  - wall: { y0: 50, y1: 88, mat: stone, pattern: blocks }
-  - repeat: [-256, 256]
-    prop: { at: [0, 50], ascii: "n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n" }
-  - furn: { kind: door, at: [116, 88], w: 24, h: 30, arch: true, mat: wood }
+  - stars: { count: 50, below: 40 }
+  - body: { day: [200, 14, 6], dusk: [44, 40, 9], night: [190, 16, 5] }
+  - clouds: { count: 9, y: [2, 30], seed: 12, size: 30 }
+  - furn: { kind: tower, at: [72, 70], wm: 6, hm: 13, flag: red_cloth }
     outline: true
-  - furn: { kind: banner, at: [40, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
-  - furn: { kind: banner, at: [204, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
-    repeat: [-410, -330, 110, 190]
-  - rect: { x: -150, y: 26, w: 40, h: 62, mat: stone, lvl: 2.2 }
+  - wall: { y0: 18, y1: 72, mat: stone, pattern: blocks, battlements: [0.8, 1.6], skirt: dark_stone }
+  - floor: { y0: 73, mat: ash, pattern: earth }
+  - sides: { mat: stone, pattern: blocks, skirt: dark_stone, left: -1.1, right: -0.6 }
+  - furn: { kind: door, at: [128], wm: 4, hm: 3.6, arch: true, mat: wood, frame: stone }
     outline: true
-    repeat: [520]
-  - prop: { at: [[-152, 26], [368, 26]], ascii: "n.n.n.n.n.n.n.n.n.n.n.n\nnnnnnnnnnnnnnnnnnnnnnnn" }
+  - furn: { kind: banner, at: [98], on: 6.6, hm: 3.2, wm: 1.0, mat: red_cloth, sign: gold }
+  - furn: { kind: banner, at: [158], on: 6.6, hm: 3.2, wm: 1.0, mat: red_cloth, sign: gold }
+  - furn: { kind: fire_bowl, at: [106, 74] }
     outline: true
-  - pane: { x: -136, y: 40, w: 10, h: 14, arch: true, frame: stone, frame_bg: stone }
-    repeat: [520]
-  - ground: { y: 88, mat: ash, noise: 1, tufts: 30, tuft: silver_grass }
-  - furn: { kind: tent, at: [6, 104], w: 40, h: 22, mat: cloth }
+  - furn: { kind: fire_bowl, at: [150, 74] }
     outline: true
-  - furn: { kind: tent, at: [206, 102], w: 44, h: 22, mat: cloth }
+  - glow: { at: [106, 64], r: 10, colour: 'f39a45' }
+  - glow: { at: [150, 64], r: 10, colour: 'f39a45' }
+  - furn: { kind: tent, at: [0, 84], xm: -5.6 }
     outline: true
-  - furn: { kind: crate, at: [52, 106], w: 14, h: 12 }
+  - furn: { kind: tent, at: [0, 86], xm: 5.9 }
     outline: true
-  - prop: { art: dog, at: [210, 106], legend: { w: dirt@2, k: ink@0 } }
+  - furn: { kind: cart, at: [0, 96], xm: 4.4, load: wood, flip: true }
     outline: true
-  - furn: { kind: barrel, at: [190, 106], w: 10, h: 14 }
+  - furn: { kind: fern, at: [0, 98], xm: -3.0, hm: 0.4, mat: silver_grass }
+  - furn: { kind: crates, at: [0, 104], xm: -3.6 }
     outline: true
-  - furn: { kind: tent, at: [-110, 104], w: 44, h: 22, mat: cloth }
+  - furn: { kind: barrel, at: [0, 104], xm: 3.7 }
     outline: true
-    repeat: [-120, 420]
-  - furn: { kind: crates, at: [300, 104] }
+  - furn: { kind: barrel, at: [0, 108], xm: 3.4 }
     outline: true
-  - furn: { kind: cart, at: [-40, 104], w: 30, h: 13, load: dark_stone }
-    outline: true
-  - prop: { at: [[260, 104], [-200, 106]], ascii: "..m..\n.mMm.\n..w..\n..w..\n..w..\n..w..\n.www." }

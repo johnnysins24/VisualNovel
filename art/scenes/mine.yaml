@@ -1,48 +1,22 @@
-# Mine: a demon-coal tunnel, timber props, rails to a cart, red seams glowing in the rock, a lantern.
+# Mine: a demon-coal tunnel. Timber sets going back into the dark, rails to a cart heaped with coal,
+# red seams glowing in the rock, lanterns hung from the nearest cap, a pick against the wall. The tunnel is
+# 4.4 m wide and runs 30 m back.
 interior: true
+ceiling: 2.9
+width: 4.4
+back: 69
 layers:
-  - wall: { y0: 0, y1: 92, mat: dark_stone, pattern: plaster, noise: 1.4 }
-  - glow: { at: [128, 70], r: 34, colour: '120c18' }
-  - rect: { x: 100, y: 40, w: 56, h: 53, mat: ink, lvl: 0 }
-  - prop: { at: [[30, 50], [196, 34], [70, 80], [230, 70], [-60, 40], [-150, 70], [-220, 30], [300, 60], [380, 36], [470, 74]], ascii: ".f..\nfFf.\n..ff" }
-  - glow: { at: [32, 49], r: 8, colour: 'e0742f' }
-  - glow: { at: [198, 33], r: 8, colour: 'e0742f' }
-  - glow: { at: [72, 79], r: 8, colour: 'e0742f' }
-  - glow: { at: [232, 69], r: 8, colour: 'e0742f' }
-  - glow: { at: [-58, 39], r: 8, colour: 'e0742f' }
-    repeat: [-90, -160, 360, 440, 530]
-  - rect: { x: -20, y: 22, w: 6, h: 71, mat: wood, lvl: 2.4 }
-    repeat: [-150, 300, 450]
-  - rect: { x: -40, y: 20, w: 46, h: 5, mat: wood, lvl: 3 }
+  - wall: { y0: 0, y1: 69, mat: ink }
+  - ceiling: { mat: wood, board_mat: dark_stone, board: 22, every: 2.5 }
+  - floor: { y0: 70, mat: dark_stone, pattern: earth, track: 0.75 }
+  - sides: { mat: dark_stone, pattern: rock, seams: fire, left: -0.6, right: -0.3 }
+  - furn: { kind: rail_cart, at: [128, 76] }
     outline: true
-    repeat: [-150, 300, 450]
-  - rect: { x: 92, y: 30, w: 6, h: 63, mat: wood, lvl: 2.6 }
-  - rect: { x: 158, y: 30, w: 6, h: 63, mat: wood, lvl: 2.2 }
-  - rect: { x: 88, y: 26, w: 80, h: 6, mat: wood, lvl: 3 }
+  - furn: { kind: mine_set, at: [128, 72], along: { to: [128, 111], every: 2.5 }, wm: 4.1, hm: 2.75 }
     outline: true
-  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 30, depth: 50 }
-  - line: { from: [[112, 93], [70, 111]], mat: metal }
-  - line: { from: [[144, 93], [186, 111]], mat: metal }
-  - furn: { kind: rail_cart, at: [104, 94], w: 48, h: 16 }
+  - furn: { kind: lamp, at: [66, 111], on: 1.9, light: fire, glow: { r: 20, colour: 'f7b060' } }
+  - furn: { kind: lamp, at: [190, 111], on: 1.9, light: fire, glow: { r: 20, colour: 'f7b060' } }
+  - furn: { kind: pick, side: right, at: [0.2, 103] }
     outline: true
-  - furn: { kind: rail_cart, at: [-120, 106], w: 40, h: 14 }
-    outline: true
-  - furn: { kind: crates, at: [320, 104] }
-    outline: true
-  - furn: { kind: barrel, at: [-40, 104], w: 10, h: 14 }
-    outline: true
-  - furn: { kind: lamp, at: [-80, 30] }
-    repeat: [420]
-  - glow: { at: [-79, 32], r: 20, colour: 'f7d98a' }
-    repeat: [420]
-  - prop: { at: [[-200, 108], [400, 108]], ascii: "....dd....\n..ddDDd...\n.dDdddDdd.\ndddDddddDd" }
-    outline: true
-  - furn: { kind: lamp, at: [86, 34] }
-  - glow: { at: [87, 36], r: 20, colour: 'f7d98a' }
-  - prop: { art: bell, at: [196, 92] }
-    outline: true
-  - prop: { art: stove, at: [40, 100] }
-    outline: true
-  - glow: { at: [45, 95], r: 12, colour: 'f39a45' }
-  - prop: { art: cat, at: [54, 100] }
+  - furn: { kind: coal, side: left, at: [0.5, 104], wm: 1.0 }
   - vignette: { strength: 0.6 }

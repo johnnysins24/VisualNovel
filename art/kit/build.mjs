@@ -25,7 +25,7 @@ import { join } from 'node:path';
 import { loadKit, renderLook, readYaml, fitsBody, ART } from './kit.mjs';
 import { sheet, crop, savePNG } from './sheet.mjs';
 import { lockBare, lockFace, faceBox } from './lock.mjs';
-import { runChecks, classifier, diffRows, FACES } from './check.mjs';
+import { runChecks, classifier, diffRows, FACES, FIGURES } from './check.mjs';
 import { rampLike, follow } from './colour.mjs';
 import { npcLook } from './npc.mjs';
 import { loadScenes, renderScene, OX, MID, SW, SH, STAGE } from './scene.mjs';
@@ -183,12 +183,14 @@ function stageFigures() {
   const kit = loadKit();
   return [renderLook(kit, npcLook(kit, 'worker', 3)), renderLook(kit, npcLook(kit, 'merchant', 5))];
 }
-/** a copy of a scene picture with the figures standing on its `stand` row, like src/ui/SceneView */
+/** a copy of a scene picture with the figures standing on its `stand` row where the HUD puts them:
+ *  one figure in the middle, or the player and an NPC at 88 and 168 (FIGURES in check.mjs) */
 function onStage(img, figs) {
   const out = { w: img.w, h: img.h, stand: img.stand, rgba: new Uint8ClampedArray(img.rgba) };
   const SOLE = 93; // the bodies' sole row in the 64 x 96 sprite canvas
+  const centres = FIGURES[figs.length - 1];
   figs.forEach((f, k) => {
-    const x0 = MID + OX - 32 + (k ? 22 : -22), y0 = img.stand - SOLE;
+    const x0 = OX + centres[k] - 32, y0 = img.stand - SOLE;
     for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) {
       const q = (y * f.w + x) * 4, X = x0 + x, Y = y0 + y;
       if (!f.rgba[q + 3] || X < 0 || Y < 0 || X >= img.w || Y >= img.h) continue;

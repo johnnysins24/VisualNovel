@@ -1,40 +1,33 @@
-# Home in Hordun: a clan room cut from the rock, stone blocks and an arched door, a coal brazier
-# glowing red, shelves of tools and tankards, a heavy table.
+# Home in Hordun: a clan room cut from the rock, stone blocks under a low ceiling of beams, an
+# arched door with a lamp over it, the hearth burning demon coal red, clan banners, a heavy table and bench, a dresser of
+# tankards, the bed along the wall. The room is 7.5 m wide, its back wall 4 m behind the figures.
 interior: true
+ceiling: 2.6
+width: 7.5
 layers:
-  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks, beams: [-130, 120, 380], skirt: dark_stone }
-  - furn: { kind: door, at: [24, 92], w: 22, h: 40, arch: true, mat: wood }
+  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks, skirt: dark_stone }
+  - ceiling: { mat: wood, board_mat: dark_stone, board: 16 }
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16 }
+  - sides: { mat: stone, pattern: blocks, skirt: dark_stone }
+  - furn: { kind: door, at: [72], arch: true, mat: wood }
     outline: true
-  - furn: { kind: banner, at: [-60, 20], w: 14, h: 40, mat: red_cloth, sign: gold }
-  - furn: { kind: banner, at: [300, 20], w: 14, h: 40, mat: slate, sign: gold }
-  - prop: { at: [[-200, 60], [420, 60]], ascii: "..mm..mm..\n.mMMmmMMm.\nmMm.MM.mMm\n.m..MM..m.\n....MM....\n....MM....\n....MM....\n....MM....\n...mMMm..." }
+  - furn: { kind: banner, at: [104], on: 2.4, hm: 1.3, wm: 0.6, mat: red_cloth, sign: gold }
+  - furn: { kind: banner, at: [146], on: 2.4, hm: 1.3, wm: 0.6, mat: slate, sign: gold }
+  - furn: { kind: hearth, at: [180], wm: 1.8, fire: fire }
     outline: true
-  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16, depth: 80 }
-  - furn: { kind: hearth, at: [168, 92], w: 40, h: 34, chimney: true, fire: fire }
+  - glow: { at: [180, 85], r: 30, colour: 'f07040' }
+  - furn: { kind: sconce, at: [72], on: 2.2, light: fire, glow: { r: 14, colour: 'f39a45' } }
+  - furn: { kind: cupboard, side: left, at: [0.6, 100] }
     outline: true
-  - glow: { at: [188, 86], r: 26, colour: 'f07040' }
-  - furn: { kind: shelf, at: [64, 62], w: 30, h: 26, rows: 2 }
+  - furn: { kind: bed, side: right, at: [1.05, 101], mat: red_cloth, flip: true }
     outline: true
-  - furn: { kind: shelf, at: [218, 62], w: 30, h: 26, rows: 2 }
+  - furn: { kind: table, at: [128, 98], wm: 1.8, items: pots }
     outline: true
-    repeat: [-310, 200]
-  - furn: { kind: table, at: [-140, 106], w: 44, h: 16 }
+  - furn: { kind: bench, at: [128, 101], wm: 2.0 }
     outline: true
-  - furn: { kind: bench, at: [-146, 110], w: 56, h: 6 }
+  - furn: { kind: rug, at: [128, 111], wm: 2.6, dm: 2.4, mat: red_cloth, trim: gold }
+  - furn: { kind: crates, side: left, at: [0.7, 110] }
     outline: true
-  - furn: { kind: bed, at: [330, 100], w: 50, h: 14, mat: red_cloth }
-    outline: true
-  - furn: { kind: crates, at: [460, 104] }
-    outline: true
-  - furn: { kind: sconce, at: [100, 60] }
-    repeat: [-200, 300]
-  - glow: { at: [101, 55], r: 12, colour: 'f39a45' }
-    repeat: [-200, 300]
-  - furn: { kind: rug, at: [96, 99], w: 60, h: 6, mat: red_cloth, trim: gold, spread: 5 }
-  - furn: { kind: table, at: [46, 106], w: 34, h: 16 }
-    outline: true
-  - furn: { kind: barrel, at: [222, 106], w: 12, h: 16 }
-    outline: true
-  - prop: { art: cradle, at: [192, 106] }
+  - furn: { kind: barrel, side: right, at: [0.4, 109] }
     outline: true
   - vignette: { strength: 0.55 }

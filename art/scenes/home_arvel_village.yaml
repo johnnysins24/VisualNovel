@@ -1,48 +1,39 @@
-# Home in Arvel: a farm cottage room, plastered walls between dark beams, the stone hearth, a shelf
-# of crocks, the family table and a straw bed, a window onto the fields.
+# Home in Arvel: a farm cottage room, plastered walls in a dark timber frame under a low plank
+# ceiling. The stone hearth, the window and the door at the back, the family table in the middle
+# with the lamp over its end, a straw bed along one side wall and the dresser of crocks along the other.
+# Sizes are real ones (art/kit/things.mjs): the room is 7 m wide, its back wall 4 m behind the figures.
 interior: true
+ceiling: 2.5
+width: 7
 layers:
-  - wall: { y0: 0, y1: 92, mat: plaster, beams: [-200, -120, -40, 62, 150, 224, 300, 380, 460], rails: [6], noise: 0.6, skirt: wood }
-  - pane: { x: 160, y: 26, w: 24, h: 22 }
-    repeat: [-250, 180]
-  - furn: { kind: door, at: [-176, 92], w: 22, h: 42, mat: plank }
+  - wall: { y0: 0, y1: 92, mat: plaster, beams: [56, 101, 167, 197], noise: 0.6, skirt: wood }
+  - ceiling: { mat: wood, every: 1.0 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 12 }
+  - sides: { mat: plaster, beams: 1.4, skirt: wood, noise: 0.5 }
+  - pane: { at: [134], wm: 1.0, hm: 1.1 }
+  - furn: { kind: curtain, at: [134], on: 2.15, wm: 1.5, hm: 1.3, mat: red_cloth }
+  - furn: { kind: door, at: [183] }
     outline: true
-  - furn: { kind: shelf, at: [326, 64], w: 30, h: 14, rows: 1 }
+  - furn: { kind: hearth, at: [79], wm: 1.8 }
     outline: true
-  - prop: { at: [[-70, 54], [-62, 56], [-54, 54]], ascii: ".x.\nxVx\n.V.\n.V.\n.V.", legend: { x: field@4 } }
-  - furn: { kind: hearth, at: [8, 92], w: 44, h: 40, chimney: true }
+  - glow: { at: [79, 85], r: 30, colour: 'ffb060' }
+  - furn: { kind: herbs, at: [107], on: 2.44, wm: 0.6, n: 3 }
+  - furn: { kind: shelf, at: [158], on: 1.45, wm: 0.8 }
     outline: true
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 12, depth: 90 }
-  - glow: { at: [30, 86], r: 26, colour: 'ffb060' }
-  - furn: { kind: shelf, at: [76, 66], w: 40, h: 22, rows: 2 }
+  - furn: { kind: bed, side: left, at: [1.05, 101], mat: red_cloth }
     outline: true
-  - furn: { kind: lamp, at: [120, 36] }
-  - glow: { at: [121, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
-  - furn: { kind: bed, at: [196, 96], w: 50, h: 16, mat: red_cloth }
+  - furn: { kind: cupboard, side: right, at: [0.6, 101] }
     outline: true
-  - prop: { art: cradle, at: [226, 106] }
+  - furn: { kind: chair, at: [104, 99] }
     outline: true
-  - furn: { kind: table, at: [156, 100], w: 30, h: 16 }
+  - furn: { kind: table, at: [128, 99], wm: 1.4 }
     outline: true
-  - furn: { kind: barrel, at: [60, 104], w: 10, h: 16 }
+  - furn: { kind: chair, at: [152, 99], flip: true }
     outline: true
-  - furn: { kind: rug, at: [92, 99], w: 72, h: 6, mat: red_cloth, trim: field, spread: 5 }
-  - furn: { kind: table, at: [-120, 106], w: 40, h: 18 }
+  - furn: { kind: lamp, at: [146, 99], on: 2.15, glow: { r: 18, colour: 'f7d98a', only: [dusk, night] } }
+  - furn: { kind: rug, at: [128, 111], wm: 2.6, dm: 2.4, mat: red_cloth, trim: field }
+  - furn: { kind: barrel, side: left, at: [0.45, 109] }
     outline: true
-  - furn: { kind: chair, at: [-132, 106], w: 8, h: 18 }
+  - furn: { kind: sacks, side: right, at: [0.55, 110] }
     outline: true
-  - furn: { kind: crates, at: [-230, 104] }
-    outline: true
-  - furn: { kind: barrel, at: [-196, 100], w: 10, h: 14 }
-    outline: true
-  - furn: { kind: bench, at: [290, 104], w: 40, h: 8 }
-    outline: true
-  - furn: { kind: plant, at: [270, 100], w: 12, h: 18, mat: brick }
-    outline: true
-  - furn: { kind: bed, at: [400, 98], w: 50, h: 16, mat: cloth }
-    outline: true
-  - furn: { kind: lamp, at: [-80, 36] }
-  - glow: { at: [-79, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
-  - furn: { kind: lamp, at: [360, 36] }
-  - glow: { at: [361, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - vignette: { strength: 0.4 }

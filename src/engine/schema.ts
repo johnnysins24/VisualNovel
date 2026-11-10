@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { CLASS_IDS, FACTIONS, FOE_SIDES, GOD_IDS, WORLD_KEYS } from './balance';
+import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
 export type Stat = (typeof STATS)[number];
@@ -147,6 +148,8 @@ export const EventSchema = z.object({
   weight: z.number().positive().default(10),
   once: z.boolean().default(true),
   scene: z.enum(SCENES).optional(),
+  /** ช่วงเวลาของภาพฉาก ไม่ใส่ = อ่านจากคำบอกเวลาในเนื้อเรื่อง (src/engine/timeOfDay.ts) */
+  time: z.enum(TIMES).optional(),
   when: z
     .object({
       age: z.tuple([z.number().int(), z.number().int()]).optional(),

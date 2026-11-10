@@ -1,40 +1,32 @@
-# Ileth (world bible scene 5): a forest of huge old trees, elf houses on the branches, the Star
-# Counting Tower glowing on the tallest crown, Talis's and Ulwen's pillars far off.
+# Ileth: the elf city in the old forest. The great tree in the middle with houses on its trunk and
+# rope bridges out to the giants either side, blue lanterns hanging, ferns, a path between the roots.
 layers:
-  - sky: { horizon: 70 }
-  - stars: { count: 90, below: 60 }
-  - body: { day: [30, 14, 6], dusk: [200, 58, 9], night: [36, 14, 5] }
-  - pillar: { x: 64, w: 4, base: 60 }
-    haze: 0.6
-  - pillar: { x: 226, w: 4, base: 62 }
-    haze: 0.6
-  - pillar: { x: -160, w: 4, base: 64 }
-    haze: 0.65
-  - trees: { kind: pine, mat: pine, base: 72, every: 7, h: [16, 26], seed: 1 }
-    haze: 0.4
-  - ridge: { mat: mid, base: 80, amp: 4, scale: 0.05, seed: 7 }
-    haze: 0.3
-  - bigtree: { x: 168, base: 84, top: 14, trunk: 10, spread: 70, depth: 26, clumps: 12 }
-    haze: 0.12
-  - prop: { art: star_tower, at: [164, 15] }
-  - glow: { at: [168, 8], r: 12, colour: 'bad8fa' }
-  - bigtree: { x: 52, base: 88, top: 22, trunk: 8, spread: 56, depth: 20, clumps: 9 }
-    haze: 0.04
-  - bigtree: { x: -150, base: 88, top: 18, trunk: 10, spread: 64, depth: 22, clumps: 11 }
-    haze: 0.06
-  - bigtree: { x: 380, base: 88, top: 16, trunk: 10, spread: 64, depth: 22, clumps: 11 }
-    haze: 0.06
-  - prop: { art: branch_house, at: [[38, 58], [150, 50], [-166, 52], [364, 50]] }
+  - sky: { horizon: 60 }
+  - stars: { count: 60, below: 40 }
+  - body: { day: [200, 10, 6], dusk: [40, 34, 9], night: [190, 12, 5] }
+  - trees: { kind: round, mat: elf_leaf, base: 62, everym: 6, hm: [14, 20], seed: 41 }
+    haze: 0.35
+  - trees: { kind: round, mat: elf_leaf, base: 64, everym: 7, hm: [14, 22], seed: 42 }
+    haze: 0.2
+  - ground: { y: 63, mat: grass, tufts: 60, tuft: elf_leaf }
+  - road: { y: [64, 111], wm: 2.2, mat: dirt }
+  - furn: { kind: bigtree, at: [128, 64], wm: 7, hm: 34, flare: 1.4, crown: [0.55, 1.0], spread: 34, clumps: 18 }
     outline: true
-  - trees: { kind: pine, mat: pine, base: 86, every: 16, h: [22, 30], seed: 4 }
+  - furn: { kind: house, at: [118, 64], on: 7, wm: 4, hm: 2.4, roof: 2, wall: plank, roof_mat: elf_leaf, gable: true, door: false }
     outline: true
-  - ground: { y: 86, mat: grass, tufts: 50, tuft: leaf }
-  - road: { y: [86, 111], top: [118, 132], bottom: [104, 150], mat: dirt }
-  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [40, 46], x: [-8, 0], seed: 5 }
+  - furn: { kind: house, at: [142, 64], on: 13, wm: 3.6, hm: 2.2, roof: 2, wall: plank, roof_mat: elf_leaf, gable: true, door: false }
     outline: true
-  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [38, 44], x: [252, 256], seed: 6 }
+  - rope: { from: [[16, 44], [110, 46]], sag: 9 }
+  - rope: { from: [[146, 31], [242, 36]], sag: 8 }
+  - furn: { kind: bigtree, at: [0, 100], xm: -6.6, wm: 4, hm: 40, flare: 1.25, crown: [0.9, 1.2], clumps: 4 }
     outline: true
-    repeat: [-440, 200]
-  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [40, 46], x: [-8, 0], seed: 5 }
+  - furn: { kind: bigtree, at: [0, 100], xm: 6.6, wm: 4, hm: 40, flare: 1.25, crown: [0.9, 1.2], clumps: 4 }
     outline: true
-    repeat: [-120, 360]
+  - furn: { kind: lamp, at: [62, 94], on: 3.1, light: lamp }
+  - glow: { at: [62, 23], r: 14, colour: 'bad8fa', only: [dusk, night] }
+  - furn: { kind: lamp, at: [196, 94], on: 3.1, light: lamp }
+  - glow: { at: [196, 23], r: 14, colour: 'bad8fa', only: [dusk, night] }
+  - furn: { kind: fern, at: [0, 100], xm: -3.6, hm: 1.0, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 99], xm: 3.4, hm: 1.1, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 110], xm: -3.2, hm: 1.0, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 110], xm: 3.3, hm: 0.9, mat: elf_leaf }

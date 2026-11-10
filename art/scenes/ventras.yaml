@@ -1,38 +1,34 @@
-# Ventras street (world bible scene 2): crowded roofs with star-dew dishes, sky lamps along the
-# street, refinery chimneys and the airship tower over the river district, Verus's pillar behind it
-# all. Best at dusk and night, when every window and lamp is lit.
+# Ventras street (world bible scene 2): a brick street of tall houses running straight away, sky
+# lamps along both pavements, a carriage on the cobbles, roofs with star-dew dishes and the airship
+# tower over the river district at the far end, and Verus's pillar behind it all. Best at dusk and
+# night, when every window and lamp is lit. The street is 14 m wide between houses 13 m tall. The
+# pillar stands right of the middle and the lamps are placed by hand, so none rises behind a head.
+ceiling: 13
+width: 14
+back: 61.5
 layers:
-  - sky: { horizon: 70 }
-  - stars: { count: 40, below: 40 }
-  - body: { day: [40, 14, 6], dusk: [30, 60, 9], night: [44, 16, 5] }
-  - clouds: { count: 4, y: [4, 24], seed: 1 }
-  - pillar: { x: 120, w: 6, base: 66 }
-    repeat: [380]
-    haze: 0.55
-  - prop: { art: airship, at: [[180, 20], [36, 32], [-160, 26], [330, 14], [450, 34]] }
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 50 }
+  - body: { day: [50, 12, 6], dusk: [206, 40, 9], night: [60, 14, 5] }
+  - clouds: { count: 5, y: [4, 24], seed: 7 }
+  - pillar: { x: 152, w: 6, base: 59 }
     haze: 0.4
-  - skyline: { base: 66, h: [10, 26], w: [8, 14], wall: slate, roof: slate, windows: 0.25, gables: 0.2, chimneys: 0.3 }
-    haze: 0.5
-  - prop: { art: dock_tower, at: [[200, 62], [-180, 64]] }
+  - prop: { art: airship, at: [80, 10] }
+    haze: 0.4
+  - furn: { kind: tower, at: [0, 61.6], xm: -24, wm: 8, hm: 56 }
     haze: 0.35
-  - prop: { art: factory, at: [[150, 66], [20, 66], [-90, 66], [360, 66]] }
-    haze: 0.35
-  - smoke: { at: [158, 52], puffs: 7, drift: 2 }
-  - smoke: { at: [167, 52], puffs: 6, drift: 2 }
-  - smoke: { at: [28, 52], puffs: 6, drift: 2 }
-  - smoke: { at: [-82, 52], puffs: 6, drift: 2 }
-  - smoke: { at: [368, 52], puffs: 7, drift: 2 }
-  - skyline: { base: 84, h: [16, 30], w: [12, 20], wall: brick, roof: slate, windows: 0.55, gables: 0.5, dishes: 0.6, chimneys: 0.3, seed: 2 }
+  - skyline: { base: 61, w: [3, 7], h: [3, 9], gap: 0, wall: brick, roof: slate, windows: 0.5, chimneys: 0.4, dishes: 0.3 }
+    haze: 0.3
+  - floor: { y0: 61, mat: stone, pattern: flags, tile: 10 }
+  - road: { y: [61, 111], wm: 8.4, mat: dark_stone }
+  - sides: { mat: brick, pattern: brick, left: -0.9, right: -0.4, windows: { every: 4, w: 1.2, h: 1.8, storey: 3.4, sill: 0.9, frame: plaster }, skirt: dark_stone }
+  - furn: { kind: lamppost, side: left, at: [1.4, 65], at_rows: [65, 66.7, 76, 89.6] }
     outline: true
-  - ground: { y: 84, mat: stone, noise: 1.2 }
-  - road: { y: [90, 111], top: [-10, 266], bottom: [-40, 296], mat: dark_stone }
-  - prop: { art: sky_lamp, at: [[30, 92], [210, 92], [-60, 92], [-150, 92], [-240, 92], [300, 92], [390, 92], [480, 92]] }
+  - furn: { kind: lamppost, side: right, at: [1.4, 65], at_rows: [65, 66.7, 76, 89.6] }
     outline: true
-  - glow: { at: [32, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
-  - glow: { at: [-58, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
-    repeat: [-90, -180, 360, 450, 540]
-  - glow: { at: [212, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
-  - prop: { art: carriage, at: [4, 108] }
+  - furn: { kind: carriage, at: [0, 80], xm: 1.6, horse: black }
     outline: true
-  - prop: { art: horse, at: [27, 108], legend: { w: dark_stone@1 } }
+  - furn: { kind: crates, side: right, at: [0.8, 92] }
+    outline: true
+  - furn: { kind: barrel, side: left, at: [0.6, 96] }
     outline: true

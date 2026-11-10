@@ -1,42 +1,32 @@
-# Belek's bank (the temple is the bank): clerks' desks, walls of drawers ordered by year, the iron
-# scales on a chain above the counter grille, cold grey light.
+# Belek's bank (the temple is the bank): the counter behind its iron grille with the scales hanging
+# on a chain above it, walls of drawers ordered by year, clerks' desks, cold grey light from high
+# windows. The hall is 9 m wide, its back wall 5 m behind the figures.
 interior: true
+ceiling: 4.0
+width: 9
+back: 88
 layers:
-  - wall: { y0: 0, y1: 92, mat: slate, pattern: blocks, skirt: dark_stone }
-  - furn: { kind: drawers, at: [4, 92], w: 80, h: 84, cell: 11, cellh: 7 }
+  - wall: { y0: 0, y1: 88, mat: stone, pattern: blocks, skirt: dark_stone }
+  - ceiling: { mat: dark_stone, board_mat: stone, board: 16, every: 1.4 }
+  - floor: { y0: 89, mat: stone, pattern: flags, tile: 16 }
+  - sides: { mat: stone, pattern: blocks, skirt: dark_stone, left: -1.3, right: -0.9 }
+  - pane: { at: [128], wm: 1.6, hm: 0.7, on: 3.0, frame: metal }
+  - furn: { kind: drawers, at: [72], wm: 2.6, hm: 2.9 }
     outline: true
-  - furn: { kind: drawers, at: [172, 92], w: 80, h: 84, cell: 11, cellh: 7 }
+  - furn: { kind: drawers, at: [184], wm: 2.6, hm: 2.9 }
     outline: true
-  - furn: { kind: drawers, at: [-172, 92], w: 80, h: 84, cell: 11, cellh: 7 }
+  - furn: { kind: counter, at: [128, 90], wm: 3.2, items: false, mat: dark_stone }
     outline: true
-    repeat: [512]
-  - furn: { kind: column, at: [-84, 92], w: 8, h: 92, mat: dark_stone }
+  - furn: { kind: grille, at: [128, 90], wm: 3.2, mat: dark_stone }
+  - furn: { kind: scales, at: [128, 90], on: 2.45 }
     outline: true
-    repeat: [340, 504]
-  - furn: { kind: door, at: [-50, 92], w: 26, h: 46, arch: true, mat: wood, wall: slate }
+  - furn: { kind: table, side: left, at: [1.0, 100], wm: 1.4, items: books }
     outline: true
-  - furn: { kind: frame, at: [276, 30], w: 30, h: 22, mat: field, sky: plaster }
+  - furn: { kind: stool, side: left, at: [1.9, 101] }
     outline: true
-  - furn: { kind: counter, at: [-240, 100], w: 60, h: 18, mat: wood }
+  - furn: { kind: table, side: right, at: [1.0, 100], wm: 1.4, items: books }
     outline: true
-  - furn: { kind: counter, at: [430, 100], w: 60, h: 18, mat: wood }
+  - furn: { kind: stool, side: right, at: [1.9, 101] }
     outline: true
-  - furn: { kind: bench, at: [300, 106], w: 34, h: 8 }
-    outline: true
-  - furn: { kind: plant, at: [-20, 104], w: 12, h: 20, mat: brass }
-    outline: true
-  - prop: { at: [110, 40], ascii: "......M......\n......M......\n.MMMMMMMMMMM.\n.M....M....M.\n.M....M....M.\nMMM...M...MMM\n......M......\n.....MMM....." }
-    outline: true
-  - floor: { y0: 93, mat: stone, pattern: checker, mat2: slate, tile: 14, rows: 14, depth: 90 }
-  - furn: { kind: counter, at: [88, 94], w: 80, h: 22, mat: dark_stone, items: false }
-    outline: true
-  - prop: { at: [90, 70], ascii: "M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nM.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M.M\nMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM" }
-  - furn: { kind: lamp, at: [60, 14], light: lamp }
-  - furn: { kind: lamp, at: [196, 14], light: lamp }
-  - furn: { kind: lamp, at: [-120, 14], light: lamp }
-    repeat: [500]
-  - glow: { at: [-119, 16], r: 16, colour: 'aad6fb', only: [dusk, night] }
-    repeat: [500]
-  - glow: { at: [61, 16], r: 16, colour: 'aad6fb', only: [dusk, night] }
-  - glow: { at: [197, 16], r: 16, colour: 'aad6fb', only: [dusk, night] }
-  - vignette: { strength: 0.35 }
+  - furn: { kind: sconce, side: left, at: [0.05, 96], on: 1.8 }
+  - vignette: { strength: 0.4 }

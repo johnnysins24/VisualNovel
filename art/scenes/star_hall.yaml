@@ -1,39 +1,37 @@
-# The Star Counting Tower in Ileth: an observatory room in the crown of the great tree, the roof open
-# on the sky (stars at night, and their count), a brass telescope, a ledger of the count.
-interior: true
+# The Star Counting Tower in Ileth: an observatory room in the crown of the great tree. Walls of
+# living wood, the roof open on the sky (stars at night, and their count) with branches across it,
+# a brass telescope, the ledger of the count on its desk, star charts, blue lamps. The room is 8 m
+# wide; its walls stop at 3.4 m and the sky shows above them.
+ceiling: 3.4
+width: 8
+back: 90
 layers:
-  - wall: { y0: 0, y1: 92, mat: wood, pattern: logs }
-  - pane: { x: 40, y: 0, w: 176, h: 50, cross: false }
-  - rect: { x: 40, y: 50, w: 176, h: 3, mat: wood, lvl: 3.4 }
-  - pane: { x: -200, y: 6, w: 30, h: 40, arch: true, cross: false, frame_bg: wood }
-    repeat: [-60, 600, 660]
-  - line: { from: [[128, 0], [128, 50]], w: 2, mat: wood }
-  - line: { from: [[84, 0], [84, 50]], w: 2, mat: wood }
-  - line: { from: [[172, 0], [172, 50]], w: 2, mat: wood }
-  - trees: { kind: round, mat: elf_leaf, base: 92, every: 9, h: [12, 18], x: [-4, 40], seed: 1 }
-  - trees: { kind: round, mat: elf_leaf, base: 92, every: 9, h: [12, 18], x: [216, 260], seed: 2 }
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 10, depth: 80 }
-  - line: { from: [[150, 92], [196, 40]], w: 4, mat: brass }
+  - sky: { horizon: 40 }
+  - stars: { count: 90, below: 40 }
+  - clouds: { count: 2, y: [6, 18], seed: 4 }
+  - line: { from: [[-40, 2], [120, 22]], w: 3, mat: wood }
+  - line: { from: [[300, 4], [150, 20]], w: 3, mat: wood }
+  - wall: { y0: 25, y1: 90, mat: wood, pattern: logs, skirt: plank }
+  - floor: { y0: 91, mat: plank, pattern: boards, board: 8 }
+  - sides: { mat: wood, pattern: logs, skirt: plank, left: -1.0, right: -0.6 }
+  - canopy: { x: [-30, 70], y: 10, count: 9, r: [6, 11], mat: elf_leaf, seed: 1 }
+  - canopy: { x: [186, 286], y: 10, count: 9, r: [6, 11], mat: elf_leaf, seed: 2 }
+  - canopy: { x: [90, 170], y: 2, count: 3, r: [4, 7], mat: elf_leaf, seed: 3 }
+  - furn: { kind: chart, at: [76], on: 1.4, dm: 1.1, mat: slate }
     outline: true
-  - line: { from: [[172, 92], [170, 66]], w: 2, mat: wood }
-  - line: { from: [[180, 92], [176, 66]], w: 2, mat: wood }
-  - furn: { kind: table, at: [46, 104], w: 36, h: 18 }
+  - furn: { kind: chart, at: [180], on: 1.4, dm: 1.1, mat: slate }
     outline: true
-  - furn: { kind: bookcase, at: [-120, 92], w: 44, h: 70, rows: 5 }
+  - furn: { kind: sconce, at: [108], on: 1.7, light: star_dew, glow: { r: 12, colour: 'bad8fa' } }
+  - furn: { kind: sconce, at: [148], on: 1.7, light: star_dew, glow: { r: 12, colour: 'bad8fa' } }
+  - furn: { kind: telescope, at: [116, 96] }
     outline: true
-  - furn: { kind: bookcase, at: [330, 92], w: 44, h: 70, rows: 5 }
+  - furn: { kind: table, side: right, at: [0.95, 101], wm: 1.5, items: ledger }
     outline: true
-  - furn: { kind: frame, at: [-210, 56], w: 40, h: 28, mat: star_dew, sky: ink, frame: brass }
+  - furn: { kind: candles, side: right, at: [0.45, 101], on: 0.76, hm: 0.3 }
+  - furn: { kind: bookcase, side: left, at: [0.3, 94], along: { to: 103, every: 1.1 }, hm: 2.2 }
     outline: true
-  - furn: { kind: table, at: [420, 106], w: 50, h: 18 }
+  - furn: { kind: plant, side: right, at: [0.4, 109], hm: 1.2, mat: plank, leaf: elf_leaf }
     outline: true
-  - furn: { kind: plant, at: [-40, 104], w: 16, h: 26, mat: plank, leaf: elf_leaf }
-    outline: true
-    repeat: [300]
-  - furn: { kind: lamp, at: [-140, 30], light: lamp }
-    repeat: [500]
-  - glow: { at: [-139, 32], r: 16, colour: 'bad8fa', only: [dusk, night] }
-    repeat: [500]
-  - furn: { kind: lamp, at: [110, 58], light: lamp }
-  - glow: { at: [111, 60], r: 16, colour: 'bad8fa', only: [dusk, night] }
+  - furn: { kind: rug, at: [128, 111], wm: 3.0, dm: 3.0, mat: elf_leaf, trim: gold }
+  - glow: { at: [216, 74], r: 10, colour: 'ffd27a', only: [dusk, night] }
   - vignette: { strength: 0.35 }

@@ -1,38 +1,41 @@
-# Clan hall in Hordun: the dwarf council chamber, a long stone table, braziers, clan banners, and the
-# wall cut with the names of the coal-war debt, row on row.
+# Clan hall in Hordun: the dwarf council chamber cut in the mountain. A long stone table and its
+# benches, braziers, clan banners, square pillars, and the back wall cut with the names of the
+# coal-war debt, row on row. The hall is 10 m wide, its back wall 6 m behind the figures.
 interior: true
+ceiling: 4.2
+width: 10
+back: 86
 layers:
-  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks, skirt: dark_stone }
-  - rect: { x: 70, y: 14, w: 116, h: 50, mat: dark_stone, lvl: 2.4 }
+  - wall: { y0: 0, y1: 86, mat: stone, pattern: blocks, skirt: dark_stone }
+  - ceiling: { mat: dark_stone, board_mat: dark_stone, board: 18, every: 1.6 }
+  - floor: { y0: 87, mat: dark_stone, pattern: flags, tile: 18 }
+  - sides: { mat: stone, pattern: blocks, skirt: dark_stone, left: -1.3, right: -0.9 }
+  - furn: { kind: names, at: [128], on: 1.15, wm: 4.6, hm: 2.4 }
     outline: true
-  - prop: { at: [74, 48], ascii: "NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.NNNN.N.NNN.NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.N\n............................................................................................................\nNNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.NNN.NN.N.NNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.N\n............................................................................................................\nN.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.NN.NNNN..N.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.N\n............................................................................................................\nNN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.N.NNN.N.NN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.\n............................................................................................................\nNNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NNN.NN.NN.NNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NN\n............................................................................................................\nN.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNNN.NN.N..N.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNN\n............................................................................................................\nNN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN.NNN.NN.NN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN\n............................................................................................................\nNNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NN.NNN.N.NNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.N\n............................................................................................................\nN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NNNN.N.NN.N.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NN\n............................................................................................................\nNN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NNNN.N.NN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N" }
-  - furn: { kind: banner, at: [20, 52], w: 14, h: 44, mat: red_cloth, sign: gold }
-  - furn: { kind: banner, at: [222, 52], w: 14, h: 44, mat: cloth, sign: gold }
-  - furn: { kind: banner, at: [-80, 52], w: 14, h: 44, mat: slate, sign: gold }
-    repeat: [-100, 400, 500]
-  - furn: { kind: column, at: [-30, 92], w: 10, h: 92, mat: dark_stone }
+  - furn: { kind: banner, at: [70], on: 3.7, hm: 2.4, wm: 0.8, mat: red_cloth, sign: gold }
+  - furn: { kind: banner, at: [186], on: 3.7, hm: 2.4, wm: 0.8, mat: slate, sign: gold }
+  - furn: { kind: column, side: left, at: [0.5, 87], along: { to: 111, every: 3.2 }, wm: 0.9, mat: stone }
     outline: true
-    repeat: [-130, 306, 406]
-  - prop: { at: [[-224, 62], [270, 62], [470, 62]], ascii: "..mm..mm..\n.mMMmmMMm.\nmMm.MM.mMm\n.m..MM..m.\n....MM....\n....MM....\n....MM....\n....MM....\n...mMMm..." }
+  - furn: { kind: column, side: right, at: [0.5, 87], along: { to: 111, every: 3.2 }, wm: 0.9, mat: stone }
     outline: true
-  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16, depth: 90 }
-  - furn: { kind: hearth, at: [12, 92], w: 30, h: 22, fire: fire }
+  - furn: { kind: bench, at: [128, 89], wm: 3.6, mat: dark_stone }
     outline: true
-  - furn: { kind: hearth, at: [214, 92], w: 30, h: 22, fire: fire }
+  - furn: { kind: chair, at: [95, 93], mat: dark_stone }
     outline: true
-  - glow: { at: [27, 86], r: 20, colour: 'f07040' }
-  - glow: { at: [229, 86], r: 20, colour: 'f07040' }
-  - furn: { kind: table, at: [-190, 108], w: 120, h: 16, mat: wood }
+  - furn: { kind: chair, at: [161, 93], mat: dark_stone, flip: true }
     outline: true
-  - furn: { kind: bench, at: [-196, 111], w: 132, h: 5 }
+  - furn: { kind: table, at: [128, 93], wm: 3.6, hm: 0.8, mat: stone, items: false }
     outline: true
-  - furn: { kind: table, at: [330, 108], w: 120, h: 16, mat: wood }
+  - furn: { kind: fire_bowl, side: left, at: [1.6, 92] }
     outline: true
-  - furn: { kind: bench, at: [324, 111], w: 132, h: 5 }
+  - glow: { at: [61, 64], r: 18, colour: 'f39a45' }
+  - furn: { kind: fire_bowl, side: right, at: [1.6, 92] }
     outline: true
-  - furn: { kind: rug, at: [92, 98], w: 72, h: 7, mat: red_cloth, trim: gold, spread: 6 }
-  - prop: { art: anvil, at: [52, 102] }
+  - glow: { at: [195, 64], r: 18, colour: 'f39a45' }
+  - furn: { kind: fire_bowl, side: left, at: [1.7, 108] }
     outline: true
-  - prop: { art: drum, at: [190, 100] }
+  - glow: { at: [30, 70], r: 22, colour: 'f39a45' }
+  - furn: { kind: fire_bowl, side: right, at: [1.7, 108] }
     outline: true
-  - vignette: { strength: 0.5 }
+  - glow: { at: [226, 70], r: 22, colour: 'f39a45' }
+  - vignette: { strength: 0.55 }

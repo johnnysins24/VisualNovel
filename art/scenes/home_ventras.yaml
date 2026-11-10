@@ -1,47 +1,35 @@
-# Home in Ventras: a rented room under the roof, brick walls, a small iron stove, a narrow bed, crates
-# for furniture, and a window onto the rooftops and their star-dew dishes.
+# Home in Ventras: a rented room under the roof, plank walls under low rafters, a small iron stove
+# and its pipe, a narrow bed, crates for furniture, a window onto the rooftops of the city. The room
+# is 6 m wide, its back wall 4 m behind the figures.
 interior: true
+ceiling: 2.3
+width: 6
 layers:
   - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, skirt: wood }
-  - pane: { x: 150, y: 24, w: 30, h: 24 }
-    repeat: [-330, 230]
-  - furn: { kind: curtain, at: [148, 50], w: 34, h: 28, mat: cloth }
-    repeat: [-330, 230]
-  - furn: { kind: pipe, at: [-256, 14], to: [-60, 92], w: 3 }
-  - furn: { kind: pipe, at: [300, 18], to: [512, 18], w: 2 }
-  - furn: { kind: door, at: [-110, 92], w: 22, h: 42, mat: plank }
+  - ceiling: { mat: wood, every: 0.7 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plank, pattern: planks, skirt: wood }
+  - pane: { at: [140], wm: 1.0, hm: 1.1, roofs: slate }
+  - furn: { kind: curtain, at: [140], on: 2.05, wm: 1.4, hm: 1.2, mat: cloth }
+  - furn: { kind: door, at: [176] }
     outline: true
-  - furn: { kind: frame, at: [270, 40], w: 20, h: 16, mat: slate, sky: water, frame: wood }
+  - furn: { kind: frame, at: [108], on: 1.45, wm: 0.5, hm: 0.4, mat: slate, sky: water, frame: wood }
     outline: true
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 9, depth: 80 }
-  - furn: { kind: hearth, at: [20, 92], w: 22, h: 24, fire: fire }
+  - furn: { kind: stove, at: [71, 94] }
     outline: true
-  - rect: { x: 29, y: 0, w: 4, h: 68, mat: metal, lvl: 2 }
-  - glow: { at: [31, 86], r: 16, colour: 'ffb060' }
-  - furn: { kind: shelf, at: [60, 60], w: 26, h: 14, rows: 1 }
+  - glow: { at: [71, 86], r: 16, colour: 'ffb060' }
+  - furn: { kind: bed, side: left, at: [1.0, 101], mat: cloth }
     outline: true
-  - slope: { from: [[-256, 70], [96, 0]], mat: wood }
-  - furn: { kind: lamp, at: [128, 30], light: lamp }
-  - glow: { at: [129, 32], r: 16, colour: 'aad6fb', only: [dusk, night] }
-  - furn: { kind: bed, at: [196, 98], w: 46, h: 14, mat: cloth }
+  - furn: { kind: table, side: right, at: [0.6, 101], wm: 1.0 }
     outline: true
-  - furn: { kind: crate, at: [52, 104], w: 14, h: 12 }
+  - furn: { kind: lamp, side: right, at: [0.6, 101], on: 1.85, light: lamp, glow: { r: 16, colour: 'aad6fb', only: [dusk, night] } }
+  - furn: { kind: chair, side: right, at: [1.25, 101] }
     outline: true
-  - furn: { kind: crate, at: [68, 104], w: 16, h: 14 }
+  - furn: { kind: crate, at: [104, 97], wm: 0.5 }
     outline: true
-  - furn: { kind: table, at: [-30, 106], w: 36, h: 16 }
+  - furn: { kind: rug, at: [128, 111], wm: 2.2, dm: 2.0, mat: cloth, trim: plaster }
+  - furn: { kind: crates, side: left, at: [0.7, 110] }
     outline: true
-  - furn: { kind: chair, at: [8, 106], w: 8, h: 18 }
-    outline: true
-  - furn: { kind: crates, at: [-200, 104] }
-    outline: true
-  - furn: { kind: shelf, at: [320, 60], w: 40, h: 26, rows: 2 }
-    outline: true
-  - furn: { kind: bed, at: [420, 100], w: 46, h: 14, mat: red_cloth }
-    outline: true
-  - furn: { kind: rug, at: [98, 99], w: 60, h: 6, mat: cloth, trim: plaster, spread: 5 }
-  - furn: { kind: lamp, at: [330, 30], light: lamp }
-  - glow: { at: [331, 32], r: 16, colour: 'aad6fb', only: [dusk, night] }
-  - prop: { art: cradle, at: [178, 106] }
+  - furn: { kind: crate, side: right, at: [0.4, 109] }
     outline: true
   - vignette: { strength: 0.5 }

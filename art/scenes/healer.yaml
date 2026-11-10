@@ -1,28 +1,31 @@
-# The healer's room above the salted-fish shop: three narrow beds, a curtain between them, a shelf
-# of bottles, hanging herbs, a wash basin, a window on the street. Story: hedge doctor events.
+# The healer's room above the salted-fish shop: three narrow beds, a curtain between two of them, a
+# shelf of bottles, herbs drying from a beam, a wash basin, a window on the street. Story: hedge
+# doctor events. The room is 8 m wide, under a low plastered ceiling.
 interior: true
+ceiling: 2.4
+width: 8
 layers:
-  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, beams: [-120, 64, 192, 400], noise: 0.7, skirt: wood }
-  - slope: { from: [[-256, 40], [40, 0]], mat: wood }
-  - pane: { x: 112, y: 22, w: 30, h: 24 }
-  - furn: { kind: curtain, at: [110, 48], w: 34, h: 28, mat: plaster }
-  - prop: { art: herbs, at: [[108, 12], [-80, 14], [300, 14]] }
-  - furn: { kind: shelf, at: [154, 66], w: 36, h: 26, rows: 2 }
+  - wall: { y0: 0, y1: 92, mat: plaster, beams: [46, 104, 152, 208], noise: 0.7, skirt: wood }
+  - ceiling: { mat: wood, every: 1.0 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, beams: 1.5, skirt: wood, noise: 0.6 }
+  - pane: { at: [128], wm: 1.0, hm: 1.0, on: 1.0, roofs: slate }
+  - furn: { kind: curtain, at: [128], on: 2.15, wm: 1.4, hm: 1.25, mat: plaster }
+  - furn: { kind: herbs, at: [80], on: 2.36, wm: 0.9, n: 4 }
+  - furn: { kind: shelf, at: [178], on: 1.15, wm: 1.0, rows: 2 }
     outline: true
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 9, depth: 80 }
-  - furn: { kind: bed, at: [4, 100], w: 46, h: 14, mat: plaster }
+  - furn: { kind: basin, at: [178, 94] }
     outline: true
-  - furn: { kind: curtain, at: [52, 92], w: 8, h: 50, mat: cloth }
-  - furn: { kind: bed, at: [204, 100], w: 46, h: 14, mat: plaster }
+  - furn: { kind: bed, at: [84, 95], wm: 1.9, mat: plaster }
     outline: true
-  - furn: { kind: bed, at: [-90, 100], w: 46, h: 14, mat: plaster }
+  - furn: { kind: curtain, at: [111, 95], on: 2.1, wm: 0.56, hm: 1.9, mat: cloth }
+  - furn: { kind: bed, side: left, at: [1.0, 101], wm: 1.9, mat: plaster }
     outline: true
-  - prop: { art: basin, at: [64, 100] }
+  - furn: { kind: bed, side: right, at: [1.0, 101], wm: 1.9, mat: plaster, flip: true }
     outline: true
-  - furn: { kind: chair, at: [192, 104], w: 8, h: 18 }
+  - furn: { kind: lamp, at: [148, 100], on: 2.1, glow: { r: 18, colour: 'f7d98a', only: [dusk, night] } }
+  - furn: { kind: chair, side: right, at: [2.25, 104] }
     outline: true
-  - furn: { kind: table, at: [300, 104], w: 40, h: 16 }
+  - furn: { kind: table, side: left, at: [0.5, 110], wm: 0.8, items: pots }
     outline: true
-  - furn: { kind: lamp, at: [96, 30] }
-  - glow: { at: [97, 32], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - vignette: { strength: 0.45 }

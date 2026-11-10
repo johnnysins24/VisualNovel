@@ -1,42 +1,33 @@
-# Ship deck: on the deck of a royal ship or an airship, rail and rigging, the envelope overhead,
-# clouds and far land below.
+# Ship deck: on the deck of an airship (a royal ship flies the same way). The brass railing at the
+# deck's edge, the gas envelope overhead with its rigging, the wheel, cargo lashed down, and the sea
+# of clouds with far land below the horizon.
 layers:
-  - sky: { horizon: 90 }
-  - stars: { count: 80, below: 70 }
-  - body: { day: [200, 30, 6], dusk: [40, 70, 10], night: [214, 24, 5] }
-  - clouds: { count: 6, y: [30, 70], seed: 3, size: 30 }
-  - ridge: { mat: far, base: 92, amp: 6, scale: 0.03, seed: 9 }
+  - sky: { horizon: 62 }
+  - stars: { count: 80, below: 58 }
+  - body: { day: [210, 30, 7], dusk: [40, 56, 9], night: [190, 22, 5] }
+  - clouds: { count: 6, y: [24, 52], seed: 5, size: 26 }
+  - ridge: { mat: far, base: 64, amp: 3, scale: 0.02, seed: 3 }
     haze: 0.55
-  - ridge: { mat: cloth, base: 14, amp: 6, scale: 0.02, seed: 21, to: 18 }
+  - ground: { y: 66, mat: grass, noise: 1.2 }
+    haze: 0.6
+  - field: { y0: 70, y1: 80, mat: field, x0: -256, x1: 511 }
+    haze: 0.55
+  - clouds: { count: 9, y: [64, 82], seed: 7, size: 34 }
+  - floor: { y0: 86, mat: plank, pattern: boards, board: 9 }
+  - furn: { kind: railing, at: [128, 86], wm: 22 }
     outline: true
-  - line: { from: [[30, 18], [0, 80]], mat: wood }
-    repeat: [-256, 256]
-  - line: { from: [[90, 18], [70, 80]], mat: wood }
-    repeat: [-256, 256]
-  - line: { from: [[166, 18], [186, 80]], mat: wood }
-    repeat: [-256, 256]
-  - line: { from: [[226, 18], [256, 80]], mat: wood }
-    repeat: [-256, 256]
-  - rect: { x: -256, y: 80, w: 768, h: 3, mat: wood, lvl: 3.6 }
-  - repeat: [-256, 256]
-    prop: { at: [0, 92], ascii: "w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w\nw...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w...w" }
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 10, depth: 90 }
-  - furn: { kind: barrel, at: [2, 106], w: 12, h: 16 }
+  - envelope: { base: -6, sag: 28, rx: 150, mat: canvas }
+  - line: { from: [[50, 14], [8, 69]], mat: thatch }
+  - line: { from: [[74, 18], [44, 69]], mat: thatch }
+  - line: { from: [[182, 18], [212, 69]], mat: thatch }
+  - line: { from: [[206, 14], [248, 69]], mat: thatch }
+  - furn: { kind: helm, at: [190, 97] }
     outline: true
-  - prop: { art: cannon, at: [22, 100] }
+  - furn: { kind: barrel, at: [222, 98] }
     outline: true
-  - prop: { art: helm, at: [204, 100] }
+  - furn: { kind: crates, at: [40, 100] }
     outline: true
-  - furn: { kind: crate, at: [220, 106], w: 18, h: 14 }
+  - furn: { kind: cannon, at: [232, 109], flip: true }
     outline: true
-  - furn: { kind: crates, at: [-120, 104] }
+  - furn: { kind: barrel, at: [18, 110] }
     outline: true
-  - furn: { kind: barrel, at: [-60, 104], w: 12, h: 16 }
-    outline: true
-    repeat: [14, 380]
-  - rect: { x: -220, y: 18, w: 4, h: 88, mat: wood, lvl: 2.8 }
-    outline: true
-    repeat: [680]
-  - furn: { kind: banner, at: [-226, 24], w: 16, h: 20, mat: red_cloth, sign: gold }
-    repeat: [680]
-  - prop: { at: [[320, 106], [-180, 108]], ascii: "..wwww..\n.w....w.\nw..ww..w\n.w....w.\n..wwww.." }

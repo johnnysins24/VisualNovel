@@ -1,38 +1,35 @@
-# Royal Institute of magic: a hall of tall bookcases, a great star chart in a brass ring, arched
-# windows, a brass orrery on the desk.
+# Royal Institute of magic: a hall of tall bookcases, a great star chart in a brass ring between
+# arched windows, a desk with a brass orrery, a chandelier. The hall is 10 m wide, its back wall
+# 6 m behind the figures.
 interior: true
+ceiling: 4.5
+width: 10
+back: 86
 layers:
-  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, rails: [8], beams: [-190, -66, 66, 188, 322, 446], noise: 0.3, wainscot: [74, wood], skirt: wood }
-  - furn: { kind: bookcase, at: [4, 92], w: 58, h: 80, rows: 6 }
+  - wall: { y0: 0, y1: 86, mat: plaster, wainscot: [73, wood], skirt: wood }
+  - ceiling: { mat: wood, every: 1.5 }
+  - floor: { y0: 87, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, wainscot: [1.0, wood], skirt: wood }
+  - furn: { kind: bookcase, at: [55], wm: 1.0, hm: 2.6 }
     outline: true
-  - furn: { kind: bookcase, at: [194, 92], w: 58, h: 80, rows: 6 }
+  - furn: { kind: bookcase, at: [73], wm: 1.0, hm: 2.6 }
     outline: true
-  - furn: { kind: bookcase, at: [-124, 92], w: 58, h: 80, rows: 6 }
+  - furn: { kind: bookcase, at: [183], wm: 1.0, hm: 2.6 }
     outline: true
-    repeat: [-128, 452, 576]
-  - furn: { kind: frame, at: [-48, 26], w: 34, h: 26, mat: field, sky: plaster, frame: wood }
+  - furn: { kind: bookcase, at: [201], wm: 1.0, hm: 2.6 }
     outline: true
-  - furn: { kind: frame, at: [270, 26], w: 34, h: 26, mat: elf_leaf, sky: water, frame: wood }
+  - pane: { at: [98], wm: 0.9, hm: 2.2, on: 1.2, arch: true, frame: wood, frame_bg: plaster }
+  - pane: { at: [158], wm: 0.9, hm: 2.2, on: 1.2, arch: true, frame: wood, frame_bg: plaster }
+  - furn: { kind: chart, at: [128], on: 1.5, dm: 1.7 }
     outline: true
-  - pane: { x: 88, y: 16, w: 16, h: 36, arch: true, frame: brass, frame_bg: plaster }
-  - pane: { x: 152, y: 16, w: 16, h: 36, arch: true, frame: brass, frame_bg: plaster }
-  - prop: { at: [112, 52], ascii: "...yyyyyy...\n.yyCCCCCCyy.\nyCCCQCCCCCCy\nyCCCCCCQCCCy\nyCQCCCCCCCCy\nyCCCCCQCCQCy\nyCCQCCCCCCCy\n.yyCCCCCCyy.\n...yyyyyy..." }
+  - furn: { kind: bookcase, side: left, at: [0.3, 88], along: { to: 104, every: 1.1 }, hm: 2.6 }
     outline: true
-  - floor: { y0: 93, mat: plank, pattern: boards, board: 8, depth: 90 }
-  - furn: { kind: table, at: [-50, 108], w: 48, h: 18 }
+  - furn: { kind: bookcase, side: right, at: [0.3, 88], along: { to: 104, every: 1.1 }, hm: 2.6 }
     outline: true
-  - furn: { kind: chair, at: [-60, 108], w: 8, h: 18 }
+  - furn: { kind: table, at: [128, 95], wm: 2.0, items: books }
     outline: true
-  - furn: { kind: table, at: [276, 108], w: 48, h: 18 }
-    outline: true
-  - furn: { kind: chair, at: [326, 108], w: 8, h: 18 }
-    outline: true
-  - furn: { kind: table, at: [64, 100], w: 30, h: 14 }
-    outline: true
-  - prop: { at: [70, 86], ascii: "..yYy..\n.y...y.\ny..Q..y\n.y...y.\n..yyy..\n...y...\n..yyy.." }
-    outline: true
-  - furn: { kind: chandelier, at: [116, 6], w: 24 }
-    repeat: [-260, 260]
-  - glow: { at: [128, 8], r: 22, colour: 'f7d98a', only: [dusk, night] }
-    repeat: [-260, 260]
+  - furn: { kind: orrery, at: [142, 95], on: 0.77 }
+  - furn: { kind: chandelier, at: [128, 96], on: 3.2, wm: 1.2, light: lamp }
+  - glow: { at: [128, 33], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - furn: { kind: rug, at: [128, 111], wm: 3.0, dm: 3.0, mat: cloth, trim: gold }
   - vignette: { strength: 0.4 }

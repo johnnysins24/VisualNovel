@@ -1,39 +1,36 @@
-# Refinery floor: a brick hall with tall windows, a row of brass stills dripping star dew into glass,
-# pipes along the wall, a catwalk overhead.
+# Refinery floor: a brick hall with tall arched windows, a row of brass stills dripping star dew into
+# glass, pipes along the walls, an iron catwalk overhead. The hall is 11 m wide, its back wall 6 m
+# behind the figures; the roof is above the picture.
 interior: true
+ceiling: 6
+width: 11
+back: 86
 layers:
-  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick, skirt: dark_stone }
-  - pane: { x: 30, y: 10, w: 20, h: 30, frame: metal }
-  - pane: { x: 118, y: 10, w: 20, h: 30, frame: metal }
-  - pane: { x: 206, y: 10, w: 20, h: 30, frame: metal }
-    repeat: [-382, -294, 88, 176, 264]
-  - line: { from: [[-256, 46], [511, 46]], w: 3, mat: metal }
-  - line: { from: [[-256, 52], [511, 52]], w: 2, mat: brass }
-  - rect: { x: -256, y: 44, w: 768, h: 1, mat: metal, lvl: 1 }
-  - furn: { kind: pipe, at: [-60, 56], to: [-60, 92], w: 3, mat: brass }
-    repeat: [380]
-  - floor: { y0: 93, mat: stone, pattern: flags, tile: 22, depth: 80 }
-  - furn: { kind: still, at: [10, 94], w: 22, h: 34 }
+  - wall: { y0: 0, y1: 86, mat: brick, pattern: brick, skirt: dark_stone }
+  - floor: { y0: 87, mat: dark_stone, pattern: flags, tile: 16 }
+  - sides: { mat: brick, pattern: brick, rails: [1.3, 2.7], rail_mat: brass, skirt: dark_stone }
+  - pane: { at: [64], wm: 1.3, hm: 3.0, on: 1.4, arch: true, frame: metal, frame_bg: brick }
+  - pane: { at: [128], wm: 1.3, hm: 3.0, on: 1.4, arch: true, frame: metal, frame_bg: brick }
+  - pane: { at: [192], wm: 1.3, hm: 3.0, on: 1.4, arch: true, frame: metal, frame_bg: brick }
+  - pipe: { from: [45, 46], to: [211, 46], wm: 0.14, mat: brass }
+  - furn: { kind: still, at: [66, 89], wm: 0.85 }
     outline: true
-  - furn: { kind: still, at: [58, 94], w: 22, h: 34 }
+  - furn: { kind: still, at: [104, 89], wm: 0.85 }
     outline: true
-  - furn: { kind: still, at: [170, 94], w: 22, h: 34 }
+  - furn: { kind: still, at: [142, 89], wm: 0.85 }
     outline: true
-  - furn: { kind: still, at: [218, 94], w: 22, h: 34, pipe: 6 }
+  - furn: { kind: still, at: [180, 89], wm: 0.85 }
     outline: true
-  - furn: { kind: still, at: [-150, 94], w: 22, h: 34 }
+  - glow: { at: [80, 80], r: 10, colour: '9fd8f0' }
+  - glow: { at: [118, 80], r: 10, colour: '9fd8f0' }
+  - glow: { at: [156, 80], r: 10, colour: '9fd8f0' }
+  - glow: { at: [194, 80], r: 10, colour: '9fd8f0' }
+  - furn: { kind: catwalk, at: [128, 86], on: 3.5, wm: 9.6 }
     outline: true
-    repeat: [-90, 420, 480]
-  - furn: { kind: crates, at: [-30, 104] }
+  - furn: { kind: barrel, side: left, at: [0.45, 100], mat: metal, band: dark_stone }
     outline: true
-  - furn: { kind: barrel, at: [280, 104], w: 12, h: 16, mat: metal }
+  - furn: { kind: crates, side: right, at: [0.75, 101] }
     outline: true
-    repeat: [16]
-  - furn: { kind: board, at: [330, 80], w: 36, h: 26, notes: 6 }
+  - furn: { kind: barrel, side: left, at: [0.5, 110], mat: metal, band: dark_stone }
     outline: true
-  - glow: { at: [-117, 76], r: 10, colour: '97bdec' }
-    repeat: [-90, 420, 480]
-  - glow: { at: [43, 76], r: 10, colour: '97bdec' }
-  - glow: { at: [91, 76], r: 10, colour: '97bdec' }
-  - glow: { at: [203, 76], r: 10, colour: '97bdec' }
   - vignette: { strength: 0.4 }

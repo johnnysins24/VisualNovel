@@ -1,25 +1,23 @@
-# Market in Arvel: the village green on market day, stalls under striped awnings by the well.
-base: { scene: arvel_village, layers: 12 }
+# Market in Arvel: the village green on market day, stalls under striped awnings either side of the
+# road, the well, baskets, sacks and crates, chickens underfoot. The village behind is arvel_village.
+# Stalls and the well keep to the sides so the road between the figures stays open.
+base: { scene: arvel_village, layers: 22 }
 layers:
-  - ground: { y: 86, mat: grass, tufts: 30 }
-  - road: { y: [86, 111], top: [-100, 356], bottom: [-256, 511], mat: dirt }
-  - furn: { kind: stall, at: [10, 100], w: 40, h: 30, mat: red_cloth }
+  - furn: { kind: well, at: [0, 78], xm: 6.6 }
     outline: true
-  - furn: { kind: stall, at: [196, 100], w: 40, h: 30, mat: leaf }
+  - furn: { kind: stall, at: [0, 88], xm: -5.0, mat: field }
     outline: true
-  - furn: { kind: cart, at: [56, 100], w: 30, h: 13, load: field }
+  - furn: { kind: stall, at: [0, 94], xm: 5.4, mat: red_cloth, goods: produce }
     outline: true
-  - furn: { kind: stall, at: [-80, 100], w: 40, h: 30, mat: cloth }
+  - furn: { kind: sacks, at: [0, 96], xm: -3.4 }
     outline: true
-    repeat: [-90, 440]
-  - furn: { kind: stall, at: [290, 100], w: 40, h: 30, mat: field }
+  - furn: { kind: chicken, at: [0, 100], xm: 2.7 }
+    only: [day, dusk]
     outline: true
-  - furn: { kind: crates, at: [256, 104] }
+  - furn: { kind: chicken, at: [0, 103], xm: -2.8, flip: true }
+    only: [day, dusk]
     outline: true
-  - furn: { kind: barrel, at: [-120, 104], w: 10, h: 14 }
+  - furn: { kind: barrel, at: [0, 109], xm: -3.5 }
     outline: true
-  - prop: { art: well, at: [380, 100] }
-    outline: true
-  - prop: { art: chicken, at: [[206, 108], [214, 107]] }
-  - prop: { art: horse, at: [32, 100], flip: true }
+  - furn: { kind: crates, at: [0, 108], xm: 3.6 }
     outline: true
