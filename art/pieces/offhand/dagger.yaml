@@ -1,19 +1,12 @@
-# Dagger (A22) (redrawn bold 2026-11-10 so it reads at game size): a wide short blade held up and
-# out in the off hand, a brass guard.
+# Dagger (A22): a short blade held up and out in the off hand, a brass guard.
 z: 70
-colors: { metal: metal_iron, wood: wood, fitting: metal_brass, leather: leather_brown }
-legend: { F: fitting@4, G: metal@4, f: fitting@2, g: metal@3, v: fitting@1, x: metal@1 }
+colors: { metal: metal_iron, fitting: metal_brass }
 shapes:
-  - at: [ohand-2, hand-8]
+  - at: [ohand+1, hand-6]
     ascii: |
       .....G
-      ...GGx
-      ...Ggx
-      ..Ggx.
-      ..Ggx.
-      .Ggx..
-      .fFv..
-      ......
-      ......
-      ......
-      v.....
+      ....g.
+      ...g..
+      f.g...
+      .f....
+      ..f...

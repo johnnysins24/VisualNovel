@@ -1,20 +1,21 @@
-# Lute (A22) (redrawn bold 2026-11-10 so it reads at game size): a big round wooden body at the
-# off hand, a thick neck slanting up, a dark sound hole and a bent pegbox.
-z: 70
+# Lute (A22): the round wooden body at the off hand, the neck slanting up across the chest, a dark
+# sound hole and pegbox.
+z: 46
 colors: { wood: wood, leather: leather_black }
-legend: { L: leather@0, o: wood@2, y: wood@1 }
 shapes:
-  - at: [ohand-5, hand-8]
+  - at: [ohand-4, hand-10]
     ascii: |
-      ......LL
-      .....Ly.
-      ......oy
-      .....oy.
-      .....oy.
-      ....oy..
-      ...oooyy
-      .ooooyyy
-      .ooLLoyy
-      .ooLLoyy
-      ooooyyy.
-      .ooyyy..
+      ll........
+      lo........
+      ..o.......
+      ...o......
+      ....o.....
+      .....o....
+      ......o...
+      .......o..
+      ........o.
+      .......oo.
+      ......oooo
+      ......oloo
+      ......oooo
+      .......oo.

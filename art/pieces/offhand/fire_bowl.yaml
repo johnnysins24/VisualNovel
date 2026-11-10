@@ -1,16 +1,12 @@
-# Clay fire bowl (story item wedding_clay_bowl, Isel's bowl of fire) (redrawn bold 2026-11-10 so
-# it reads at game size): a wide red clay bowl in the off hand with a tall flame.
+# Clay fire bowl (story item wedding_clay_bowl, Isel's bowl of fire from the wedding): a red clay
+# bowl held in the off hand with a small flame in it.
 z: 70
 colors: { leather: leather_brown, fitting: metal_demoncoal }
-legend: { F: fitting@4, L: leather@0, f: fitting@2, l: leather@2, v: fitting@1 }
 shapes:
-  - at: [ohand-4, hand-5]
+  - at: [ohand-2, hand-3]
     ascii: |
       ...F...
-      ..FFv..
-      ..Ffv..
-      .FffvF.
+      ..FfF..
       lllllll
-      lllllll
-      .llllL.
+      .lllll.
       ..LLL..

@@ -1,15 +1,14 @@
-# Tome (A22) (redrawn bold 2026-11-10 so it reads at game size): a thick book held against the
-# hip, leather cover, brass corners and clasp, pale page edges.
+# Tome (A22): a thick leather-bound book held at the side by the off hand, a brass spine and clasp,
+# the page edges showing at the top.
 z: 70
-colors: { leather: leather_brown, fitting: metal_brass, metal: metal_silver }
-legend: { F: fitting@4, G: metal@4, L: leather@0, f: fitting@2, l: leather@2, v: fitting@1, x: metal@1 }
+colors: { leather: leather_brown, fitting: metal_brass }
 shapes:
-  - at: [ohand-4, hand-3]
+  - at: [ohand+1, hand-3]
     ascii: |
-      fllllLf
-      lllllll
-      llFfvll
-      llfFvll
-      lllllll
-      fllllLf
-      GGGGGGx
+      fwwww
+      fllll
+      fllll
+      fllfl
+      fllll
+      fllll
+      fllll

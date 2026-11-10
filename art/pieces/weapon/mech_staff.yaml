@@ -1,34 +1,36 @@
-# Mechanical staff (magitech, A22) (redrawn bold 2026-11-10 so it reads at game size): an iron
-# staff with brass collars, topped by a brass cage round a glowing phial of star dew (metal,
-# starsilver by default).
+# Mechanical staff (magitech, A22): an iron staff with brass collars, topped by a caged phial of
+# star dew (fitting cage, the glass in the metal ramp, starsilver by default).
 z: 70
 colors: { metal: metal_starsilver, fitting: metal_brass }
-legend: { G: metal@4, f: fitting@2, g: metal@3, v: fitting@1, x: metal@1 }
 shapes:
-  - at: [hand-8, hand-22]
+  - at: [hand-1, hand-22]
     ascii: |
-      .fvf.......
-      fGGgv......
-      .fGggv.....
-      .fggxv.....
-      ..fvf......
-      ....g......
-      ...fvf.....
-      ....gx.....
-      .....gx....
-      .....gx....
-      .....gx....
-      ......gx...
-      ......gx...
-      .....fvf...
-      .......gx..
-      .......gx..
-      .......gx..
-      ........gx.
-      ........gx.
-      ........gx.
-      .........gx
-      ...........
-      ...........
-      ...........
-      ........fvf
+      .f.
+      fff
+      gGg
+      gGg
+      f.f
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .f.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .g.
+      .f.
+      .g.
+      .g.
+      ...
+      ...
+      ...
+      .g.
+      .f.
+      .g.
+      .g.
+      .g.

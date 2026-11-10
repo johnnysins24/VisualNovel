@@ -1,17 +1,13 @@
-# Thick lamp glass (story item thick_lamp_glass, from Severin's family glassworks) (redrawn bold
-# 2026-11-10 so it reads at game size): a heavy glass lamp chimney held up in the off hand, two
-# fingers thick, catching the light.
+# Thick lamp glass (story item thick_lamp_glass, from Severin's family glassworks): a heavy glass
+# lamp chimney held up in the off hand, two fingers thick, catching the light.
 z: 70
 colors: { metal: metal_silver }
-legend: { G: metal@4, X: metal@0, g: metal@3, w: white@0, x: metal@1 }
 shapes:
-  - at: [ohand-3, hand-8]
+  - at: [ohand-1, hand-7]
     ascii: |
-      .GgX.
-      .GwX.
-      .G.X.
-      GG.XX
-      G.w.X
-      Gw..X
-      G...X
-      GGxXX
+      .ggg.
+      gG.Gg
+      g...g
+      gG.Gg
+      g...g
+      .ggg.

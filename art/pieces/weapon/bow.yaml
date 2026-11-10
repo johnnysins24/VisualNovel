@@ -1,29 +1,25 @@
-# Longbow (A22) (redrawn bold 2026-11-10 so it reads at game size): a thick wooden bow held
-# upright by its leather grip, the string on the inner side.
+# Bow (A22): a wooden longbow held by its leather grip beside the body, the string on the inner side.
 z: 70
 colors: { wood: wood, leather: leather_brown }
-legend: { l: leather@2, o: wood@2, w: white@0 }
 shapes:
-  - at: [hand-1, hand-10]
+  - at: [hand-3, hand-9]
     ascii: |
-      .oo.
-      o..w
-      o..w
-      .o.w
-      .o.w
-      .o.w
-      .o.w
-      .o.w
-      ..ow
-      ..lw
-      ..lw
-      ..lw
-      ..ow
-      .o.w
-      .o.w
-      .o.w
-      .o.w
-      .o.w
-      o..w
-      o..w
-      .oo.
+      ...ow
+      ...ow
+      ..o.w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      lo...
+      lo...
+      lo...
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      .o..w
+      ..o.w
+      ...ow
+      ...ow
