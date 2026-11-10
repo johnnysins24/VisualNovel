@@ -1,0 +1,254 @@
+# Colours and small pictures for the world map (art/kit/map.mjs). The map uses every material of the
+# scene palette (art/scenes/palette.yaml: grass, field, ash, bone, fire, star_dew, ...) and the same
+# times of day; the materials here are the ones only a map needs. Ramps are 5 steps, dark (0) to
+# light (4), soft and a little cool like the scenes. Quote colours.
+materials:
+  sea: { ramp: ['364a72', '3f557f', '49618b', '546d97', '607aa3'] } # open sea, deep to less deep
+  shoal: { ramp: ['6a8db6', '789bc1', '88a9cb', '9ab8d5', 'b2cbe2'] } # shallow water by the coast
+  river: { ramp: ['4f739c', '5c80a8', '6a8eb4', '7c9fc2', '97b6d4'] }
+  sand: { ramp: ['9c8a6c', 'ae9c7c', 'c0ae8c', 'd0c09e', 'ded0b2'] }
+  crop: { ramp: ['5b7845', '67864d', '749356', '83a162', '96b273'] } # green crops, pasture
+  heath: { ramp: ['67685e', '75766a', '848476', '939384', 'a5a594'] } # bare uplands, moor
+  rock: { ramp: ['47485b', '5a5b6e', '717286', '8d8ea0', 'aeafbf'] } # mountain stone
+  scree: { ramp: ['6d6670', '7c757e', '8b858d', '9b959c', 'aea8ae'] } # high slopes, grey-violet
+  rust: { ramp: ['6e4639', '835444', '966250', 'a8725e', 'ba8571'] } # rust-red furnace smoke (Hordun)
+  marsh: { ramp: ['50624f', '5c6e59', '687b64', '778a71', '899b82'] }
+  cinder: { ramp: ['3f3a43', '4a444e', '554f59', '615b65', '6e6872'] } # burnt ground round the stump
+  timber: { ramp: ['6b5240', '7d614b', '8f7157', 'a08264', 'b29475'] } # felled logs, clearings
+  sail: { ramp: ['b5aea3', 'c6bfb3', 'd5cec2', 'e2dccf', 'efeadf'] }
+
+# Small pictures (ascii) placed by places.yaml (`sprite:`). One character = one pixel; "." = nothing.
+# The legend is the scene palette's legend plus the entries below. `at` in places.yaml is the middle
+# of the bottom row. Sprites get a 1 px ink outline unless the place says `outline: false`.
+legend:
+  i: sand@3
+  I: sand@1
+  j: rock@3
+  J: rock@1
+  z: timber@3
+  Z: timber@1
+  s: slate@3
+  S: slate@1
+  t: thatch@3
+  T: thatch@1
+  ',': sail@4
+  ';': sail@2
+  '%': rust@3
+  '&': cinder@1
+  '+': fire@4
+  '-': fire@2
+  '*': star_dew@4
+  '~': lamp@3
+sprites:
+  # Arvel
+  village: |
+    .TT..TT.
+    TttTTttT
+    .aa..ao.
+  hamlet: |
+    .TT.
+    TttT
+    .ao.
+  farm: |
+    .RR.
+    RrrR
+    .ab.
+  town: |
+    ..SS.RR...
+    .SssRrrR..
+    .sAOrrRR..
+    SSaaAaoSS.
+    .aoaAaaao.
+  market_town: |
+    ....SS..RR....
+    ...SssSRrrR...
+    ..TTaoaRaobb..
+    .TttTaaaaaBB..
+    .aaoaaSSSaaa..
+    MMMMMMMMMMMMMM
+  mill: |
+    .w.w.
+    ..W..
+    .wTw.
+    TtttT
+    .aoa.
+  temple_isel: |
+    ...ff...
+    ..nnnn..
+    .nNooNn.
+    ttttttTT
+    .aaaaaa.
+    .aaPPaa.
+  shrine: |
+    .n.
+    nNn
+    NNN
+  manor: |
+    ..s....s..
+    .SsS..SsS.
+    SSSSSSSSSS
+    .aoaoaoao.
+    .aaaPPaaa.
+  lodge: |
+    .ww.
+    wWWw
+    .pP.
+  dish_field: |
+    m.m.m.m.m
+    M.M.M.M.M
+    .m.m.m.m.
+    .M.M.M.M.
+  checkpoint: |
+    e......
+    ww.wwww
+    w......
+  ruin: |
+    n..n.n
+    N.nN.N
+    NNnNNN
+  cathedral: |
+    ..L..
+    .nNn.
+    .nOn.
+    nNnNn
+    nnPnn
+  bank: |
+    ..NNN..
+    .NnnnN.
+    NNNNNNN
+    .n.n.n.
+    .n.n.n.
+    NNNNNNN
+  lighthouse: |
+    .F.
+    nNn
+    .n.
+    .N.
+    .n.
+    nNn
+  station: |
+    .SSSS.
+    SssssS
+    .aoao.
+  shipyard: |
+    m.....
+    mM....
+    .m.ww.
+    .wWwWw
+    pppppp
+  cottage: |
+    .TT.
+    TttT
+    .ap.
+  tents: |
+    .c...c.
+    cCc.cCc
+  well: |
+    .w.
+    nNn
+  # cities (Ventras and Kardin are drawn as districts, see places.yaml `district:`)
+  refinery: |
+    .B..B.
+    .b..b.
+    .bbbbb
+    BbqbqB
+  dock_tower: |
+    ..m..
+    .mMm.
+    ..M..
+    ..M..
+    .MMM.
+  # Hordun
+  mine: |
+    .jjj.
+    jJDJj
+    jDDDj
+  furnace: |
+    .%..
+    .BB.
+    BfFB
+  dwarf_gate: |
+    .jjjj.
+    jJDDJj
+    jDfFDj
+  hut: |
+    .J.
+    JjJ
+  weigh: |
+    m...m
+    mMMMm
+    .ddd.
+    .dod.
+  stakes: |
+    w.w.w
+    W.W.W
+  # Ileth
+  elf_village: |
+    ..l...l.
+    .vVv.vVv
+    vVlVvVvV
+    .vVvvVv.
+  star_tower: |
+    .Q.
+    .q.
+    .n.
+    .n.
+    nNn
+  camp: |
+    z.zz.z
+    .wWw..
+    zzZzzz
+  edge_village: |
+    .TT..TT..
+    TttTTttT.
+    .aawwao..
+  # Ashland
+  warden_fort: |
+    n.n.n.n
+    nnnnnnn
+    nNoNNoN
+    NNNPNNN
+  pit: |
+    .w...w.
+    .wWwWw.
+    &&D-D&&
+    .&&&&&.
+  stilt_village: |
+    .TT..TT.
+    TttTTttT
+    .w.ww.w.
+  black_rise: |
+    ...DD...
+    ..DdDD..
+    .DddddD.
+    DDDDDDDD
+  seal_stone: |
+    .h.
+    hHh
+    hHH
+  camp_abandoned: |
+    .c....C
+    cC.c.CC
+  scrap: |
+    m..M..m
+    .M.mM..
+    ..m...M
+  pit_sealed: |
+    .nnn.
+    nNDNn
+    .NNN.
+  # sea and sky
+  ship: |
+    ..,..
+    .,;,.
+    ,;,;,
+    wwwww
+    .WwW.
+  boat: |
+    .,.
+    w,w
+  airship: |
+    .cccc.
+    cCcccc
+    .cccc.
+    ..wM..

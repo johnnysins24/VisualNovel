@@ -12,7 +12,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "shots": "playwright test",
-    "scenes": "node art/kit/build.mjs scenes"
+    "scenes": "node art/kit/build.mjs scenes",
+    "map": "node art/kit/map.mjs",
+    "map:poster": "node art/kit/map.mjs && node art/kit/map-poster.mjs"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",

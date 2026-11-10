@@ -1,0 +1,607 @@
+# Every named place on the world map (art/kit/map.mjs), in the year 312 of the Sealed Era.
+#   at:       map pixel; for a sprite, the middle of its bottom row
+#   sprite:   a small picture from art/map/palette.yaml; extra: more pictures nearby
+#   district: a city drawn as packed roofs inside `poly` (wall: the old town's wall)
+#   pillar:   a sky pillar (w, h in px; broken: the stump), drawn over everything near it
+#   farms:    the fields round a village reach this far (px)
+#   lights:   lamps, windows and fires that light up at dusk and night (warm, star, fire, ember)
+#   smoke:    chimney smoke (mat: rust for the demon-coal furnaces of Hordun)
+#   label:    where the overlay writes the name (default: under the place); minor: small print;
+#             false: no name. note: one line of lore for the map's tooltip and the poster.
+#   tag:      the game's location tag (src: location_tag) the place stands for, if any
+#   pin:      the game's "you are here" pin for this tag (one place per tag)
+#   home:     origin flags (content/events/00_birth.yaml) of the children born here; while the
+#             player is back in their home tag the pin stands here instead
+# Names and notes are from the world bible and the story events; nothing here tells a secret.
+
+# ---------- ราชอาณาจักรอาร์เวล: เวนทราส ----------
+- id: ventras
+  th: เวนทราส
+  en: Ventras
+  kind: capital
+  region: arvel
+  tag: ventras
+  pin: true
+  home: [origin_marked_hidden]
+  at: [342, 324]
+  farms: 33
+  district:
+    poly: [[316, 322], [322, 312], [334, 305], [350, 304], [364, 310], [374, 320], [374, 330], [366, 336], [354, 336], [342, 338], [330, 338], [320, 336], [314, 330]]
+    wall: [[331, 316], [348, 313], [356, 322], [351, 331], [335, 332], [328, 325]]
+    roofs: [slate, roof_red, slate, brick]
+    gaps: 0.08
+    dishes: 0.55
+    windows: 0.3
+    docks: [{ at: [349, 338], len: 4 }, { at: [357, 338], len: 5 }, { at: [365, 339], len: 4 }, { at: [323, 341], len: 3 }]
+    lights: [{ count: 70, mat: lamp }, { count: 26, mat: window }]
+  lights: [{ at: [344, 322], r: 18, colour: star, power: 0.7 }]
+  label: { at: [352, 351], cls: capital }
+  note: เมืองหลวงที่ปากแม่น้ำริมทะเลใต้ กลางคืนสว่างทั้งเมืองด้วยตะเกียงสีฟ้าของน้ำค้างดาว ทุกหลังคามีจานโลหะหงายรับแสง
+- id: pillar_verus
+  th: เสาเวรัส
+  kind: pillar
+  region: arvel
+  at: [342, 322]
+  pillar: { w: 6, h: 86, shadow: 34, cloud: 0.2 }
+  extra: [{ sprite: cathedral, at: [342, 330] }]
+  label: { at: [352, 256], anchor: start }
+  note: เสาของเวรัส เทพแห่งคำสาบาน กฎหมาย และแสงสว่าง ศาสนจักรตะเกียงตั้งวิหารใหญ่ไว้ที่โคนเสา
+- id: ventras_refineries
+  th: ย่านโรงกลั่น
+  kind: quarter
+  region: arvel
+  tag: ventras
+  home: [origin_refinery]
+  at: [324, 318]
+  sprite: refinery
+  smoke: [{ at: [322, 312], puffs: 4, drift: -1 }, { at: [325, 312], puffs: 3, drift: -1 }]
+  lights: [{ r: 4, colour: star }]
+  label: { at: [312, 316], anchor: end, minor: true }
+  note: โรงกลั่นน้ำค้างดาวเรียงกันริมแม่น้ำ หม้อกลั่นต้องมีคนเฝ้าทั้งคืน เด็กแปดขวบก็ทำงานที่นี่
+- id: ventras_towers
+  th: หอท่าเรือเหาะ
+  kind: quarter
+  region: arvel
+  tag: ventras
+  at: [360, 314]
+  sprite: dock_tower
+  extra: [{ sprite: dock_tower, at: [366, 318] }]
+  lights: [{ at: [360, 309], r: 3, colour: star }, { at: [366, 313], r: 3, colour: star }]
+  label: { at: [372, 308], anchor: start, minor: true }
+  note: เรือเหาะผูกเรียงกันที่หอท่าริมแม่น้ำ ลมแรงเมื่อไร เรือก็ต้องรอที่หออยู่หลายวัน
+- id: navy_yard
+  th: อู่ราชนาวี
+  kind: quarter
+  region: arvel
+  tag: ventras
+  at: [378, 336]
+  sprite: shipyard
+  label: { at: [386, 332], anchor: start, minor: true }
+  note: อู่ต่อเรือเหาะและเรือรบของราชนาวี ไม้ไอเลธที่ล่องแม่น้ำซุงลงมามาจบที่นี่ทุกท่อน
+- id: east_cape
+  th: แหลมตะวันออก
+  kind: landmark
+  region: arvel
+  at: [397, 373]
+  sprite: lighthouse
+  lights: [{ at: [397, 368], r: 9, colour: warm, power: 1.2 }]
+  label: { at: [404, 384], anchor: start }
+  note: ประภาคารบนปลายแหลม มีคนเฝ้าสองคนกับแพะฝูงหนึ่ง
+- id: south_shore
+  th: ฝั่งใต้
+  kind: area
+  region: arvel
+  at: [334, 367]
+  sprite: hamlet
+  farms: 21
+  lights: [{ r: 3, colour: warm }]
+  label: { at: [350, 373] }
+  note: ชายฝั่งอีกด้านของอ่าว เรือที่ออกจากท่าเก่าของเวนทราสพายข้ามมาขึ้นที่นี่
+- { id: bay_ship_1, at: [364, 354], sprite: ship, label: false }
+- { id: bay_ship_2, at: [378, 358], sprite: ship, flip: true, label: false }
+- { id: bay_boat_1, at: [330, 350], sprite: boat, label: false }
+- { id: bay_boat_2, at: [318, 352], sprite: boat, label: false }
+- { id: sea_ship_1, at: [420, 386], sprite: ship, label: false }
+- { id: sea_boat_1, at: [244, 376], sprite: boat, label: false }
+- { id: sea_boat_2, at: [176, 374], sprite: boat, label: false }
+- { id: sea_boat_3, at: [140, 384], sprite: boat, label: false }
+- { id: sea_boat_4, at: [298, 390], sprite: boat, label: false }
+
+# ---------- the south-west coast ----------
+- { id: seaside_cottages, at: [258, 361], sprite: cottage, label: false }
+- { id: fishers_1, at: [226, 354], sprite: hamlet, farms: 10, label: false }
+- { id: fishers_2, at: [190, 362], sprite: hamlet, farms: 10, label: false }
+- { id: fishers_3, at: [134, 366], sprite: hamlet, farms: 10, label: false }
+- { id: south_farm_1, at: [212, 312], sprite: farm, farms: 14, label: false }
+- { id: south_farm_2, at: [270, 330], sprite: farm, farms: 14, label: false }
+- { id: south_farm_3, at: [170, 320], sprite: hamlet, farms: 14, label: false }
+- { id: south_farm_4, at: [110, 334], sprite: hamlet, farms: 12, label: false }
+
+# ---------- คาร์ดิน ----------
+- id: kardin
+  th: คาร์ดิน
+  en: Kardin
+  kind: city
+  region: arvel
+  at: [406, 258]
+  farms: 30
+  district:
+    poly: [[392, 250], [400, 242], [414, 242], [422, 250], [424, 262], [416, 272], [402, 272], [392, 266]]
+    roofs: [slate, brick, slate]
+    gaps: 0.1
+    dishes: 0.12
+    windows: 0.35
+    lights: [{ count: 28, mat: window }, { count: 10, mat: lamp }]
+  label: { at: [428, 278], anchor: start, cls: city }
+  note: เมืองเหล็กและเงินกู้ ทางรถไฟสามสายมาบรรจบกันที่นี่ หน้าวิหารเบเลคที่โคนเสาดูเหมือนธนาคาร เพราะข้างในคือธนาคารจริงๆ
+- id: pillar_belek
+  th: เสาเบเลค
+  kind: pillar
+  region: arvel
+  at: [406, 255]
+  pillar: { w: 6, h: 86, shadow: 34, cloud: 0.2 }
+  extra: [{ sprite: bank, at: [406, 263] }]
+  label: { at: [416, 190], anchor: start }
+  note: เสาของเบเลค เทพแห่งหนี้ สัญญา และเหล็ก สัญญาที่ลงชื่อต่อหน้าเบเลคผูกด้วยเวท คนผิดสัญญาจะหนาวเข้ากระดูกทีละนิด
+- id: kardin_foundries
+  at: [420, 270]
+  sprite: furnace
+  extra: [{ sprite: furnace, at: [426, 268] }]
+  smoke: [{ at: [419, 265], puffs: 5, drift: 1.2 }, { at: [425, 263], puffs: 4, drift: 1.2 }]
+  lights: [{ at: [420, 269], r: 4, colour: fire }, { at: [426, 267], r: 4, colour: fire }]
+  label: false
+- { id: kardin_farm_1, at: [432, 236], sprite: farm, farms: 15, label: false }
+# farmsteads across the open country north of the fields, up to the foothills
+- { id: north_farm_1, at: [266, 192], sprite: hamlet, farms: 14, label: false }
+- { id: north_farm_2, at: [256, 166], sprite: farm, farms: 12, label: false }
+- { id: north_farm_3, at: [392, 206], sprite: hamlet, farms: 14, label: false }
+- { id: north_farm_4, at: [378, 178], sprite: farm, farms: 12, label: false }
+- { id: north_farm_5, at: [326, 198], sprite: farm, farms: 13, label: false }
+- { id: north_farm_6, at: [300, 176], sprite: hamlet, farms: 12, label: false }
+- { id: north_farm_7, at: [430, 196], sprite: farm, farms: 12, label: false }
+- { id: north_farm_8, at: [214, 186], sprite: farm, farms: 12, label: false }
+- { id: kardin_farm_2, at: [380, 232], sprite: hamlet, farms: 15, label: false }
+- { id: kardin_farm_3, at: [436, 284], sprite: farm, farms: 14, label: false }
+
+# ---------- ถิ่นรอบเสาของอีเซล ----------
+- id: pillar_isel
+  th: เสาอีเซล
+  kind: pillar
+  region: arvel
+  at: [282, 262]
+  pillar: { w: 6, h: 86, shadow: 34, cloud: 0.2 }
+  label: { at: [292, 196], anchor: start }
+  note: เสาของอีเซล เทพแห่งเตาไฟ การเกิด และการรักษา ทุ่งรอบเสาเหลืองไปจนสุดตาเมื่อถึงหน้าเก็บเกี่ยว
+- id: isel_temple
+  th: วิหารใหญ่อีเซล
+  kind: temple
+  region: arvel
+  tag: arvel_village
+  home: [origin_marked_foundling]
+  at: [283, 271]
+  sprite: temple_isel
+  farms: 18
+  lights: [{ r: 5, colour: warm }]
+  label: { at: [276, 278], anchor: end }
+  note: วิหารที่โคนเสา กำแพงข้างมีช่องส่งขนมปัง เด็กหลายคนมาถึงวิหารนี้ในตะกร้า
+- id: ban_ngao_sao
+  th: บ้านเงาเสา
+  kind: village
+  region: arvel
+  tag: arvel_village
+  pin: true
+  home: [origin_farm]
+  at: [303, 280]
+  sprite: village
+  extra: [{ sprite: mill, at: [296, 276] }]
+  farms: 24
+  lights: [{ r: 4, colour: warm }]
+  note: หมู่บ้านชาวนาในเงาของเสาอีเซล ขบวนถ่านวิ่งผ่านวันละสองเที่ยว คนที่นี่ดูหัวคันไถบนฟ้าก่อนดูปฏิทินวิหาร
+- id: star_dishes
+  th: ทุ่งจานรับดาว
+  kind: industry
+  region: arvel
+  at: [315, 273]
+  sprite: dish_field
+  lights: [{ at: [315, 270], r: 6, colour: star, power: 0.7 }]
+  label: { at: [318, 266], minor: true }
+  note: ทุ่งฝั่งตะวันออกของบ้านเงาเสาเลิกปลูกข้าวมาปลูกเสาเหล็ก คืนไหนฟ้าเปิด จานบนยอดเสาก็เรืองฟ้าจางๆ ทั้งทุ่ง
+- id: market_town
+  th: เมืองตลาด
+  kind: town
+  region: arvel
+  tag: arvel_village
+  at: [313, 293]
+  sprite: market_town
+  farms: 18
+  lights: [{ r: 5, colour: warm }]
+  note: เมืองตลาดริมรางรถไฟ ห่างบ้านเงาเสาครึ่งวันเดิน ปลายฤดูเก็บเกี่ยวมีตลาดจ้างงาน และงานเลี้ยงปิดลานที่ลานนวดข้าวใหญ่
+- id: old_mill
+  th: โรงสีท่าน้ำวน
+  kind: mill
+  region: arvel
+  at: [291, 290]
+  sprite: mill
+  label: { minor: true }
+  note: โรงสีเก่าที่สุดในถิ่น อยู่ขึ้นไปตามแม่น้ำจากเมืองตลาด กงล้อน้ำหมุนช้าๆ เสียงไม้ลั่นทุกรอบ
+- id: ban_rongsi_bon
+  th: บ้านโรงสีบน
+  kind: village
+  region: arvel
+  tag: arvel_village
+  home: [origin_marked_kept]
+  at: [252, 281]
+  sprite: village
+  extra: [{ sprite: mill, at: [244, 276] }]
+  farms: 20
+  lights: [{ r: 4, colour: warm }]
+  note: หมู่บ้านต้นน้ำของถิ่นอีเซล เช้าๆ ผู้หญิงทั้งหมู่บ้านมาตักน้ำที่บ่อกลางบ้าน
+- id: ban_tha_kwian
+  th: บ้านท่าเกวียน
+  kind: village
+  region: arvel
+  at: [271, 289]
+  sprite: hamlet
+  farms: 16
+  lights: [{ r: 3, colour: warm }]
+  note: หมู่บ้านตรงที่ทางเกวียนลงข้ามแม่น้ำซุง เกวียนจากทางใต้มาจอดรอข้ามที่นี่
+- id: ban_nong_pla_lai
+  th: บ้านหนองปลาไหล
+  kind: village
+  region: arvel
+  at: [336, 272]
+  sprite: hamlet
+  farms: 15
+  lights: [{ r: 3, colour: warm }]
+  note: หมู่บ้านริมหนองทางตะวันออกของทุ่ง หนึ่งในหมู่บ้านรอบเสาของอีเซล
+- { id: isel_roadside, at: [291, 268], sprite: hamlet, label: false }
+- { id: isel_farm_1, at: [236, 246], sprite: farm, farms: 16, label: false }
+- { id: isel_farm_2, at: [262, 304], sprite: farm, farms: 16, label: false }
+- { id: isel_farm_3, at: [296, 308], sprite: farm, farms: 15, label: false }
+- { id: isel_farm_4, at: [214, 272], sprite: hamlet, farms: 16, label: false }
+- { id: isel_farm_5, at: [234, 214], sprite: hamlet, farms: 15, label: false }
+- { id: isel_farm_6, at: [196, 224], sprite: farm, farms: 14, label: false }
+- id: north_hill
+  th: เนินเหนือ
+  kind: landmark
+  region: arvel
+  at: [282, 232]
+  label: { at: [262, 226], anchor: end, minor: true }
+  note: เนินป่าทางเหนือของทุ่ง หน้าหนาวปีที่ยาวกว่าทุกปี หมาป่าลงจากเนินนี้มาถึงทุ่งรอบเสา
+- id: hunting_forest
+  th: ป่าล่าสัตว์
+  kind: landmark
+  region: arvel
+  at: [346, 257]
+  sprite: lodge
+  label: { at: [364, 258], minor: true }
+  note: ป่าทางเหนือของเมืองหลวง ห่างเวนทราสสองวันรถม้า ตระกูลขุนนางเก่าสร้างกระท่อมล่าสัตว์ไว้ในป่านี้
+- id: checkpoint
+  th: ด่านศาสนจักรตะเกียง
+  kind: checkpoint
+  region: arvel
+  at: [368, 298]
+  sprite: checkpoint
+  lights: [{ at: [366, 294], r: 5, colour: star }]
+  label: { at: [380, 300], anchor: start, minor: true }
+  note: ด่านตรวจบนทางเดียวที่เกวียนผ่านได้ ตะเกียงดวงใหญ่แขวนสว่างทั้งคืน คนที่ไม่อยากผ่านด่านต้องลุยน้ำเย็นถึงอกอ้อมไปครึ่งคืน
+
+# ---------- ทางเกวียนตะวันออก: สิบเอ็ดหมู่บ้าน ----------
+- { id: east_road_1, at: [382, 323], sprite: hamlet, farms: 12, label: false }
+- { id: east_road_2, at: [393, 312], sprite: hamlet, farms: 12, label: false }
+- { id: east_road_3, at: [404, 317], sprite: hamlet, farms: 12, label: false }
+- { id: east_road_4, at: [414, 306], sprite: hamlet, farms: 12, label: false }
+- { id: east_road_5, at: [424, 311], sprite: hamlet, farms: 12, label: false }
+- { id: east_road_6, at: [434, 302], sprite: hamlet, farms: 12, label: false }
+- id: east_road_7
+  th: หมู่บ้านที่เจ็ด
+  kind: village
+  region: arvel
+  at: [444, 308]
+  sprite: hamlet
+  farms: 12
+  label: { at: [444, 316], minor: true }
+  note: หมู่บ้านที่เจ็ดบนทางเกวียนตะวันออก ทั้งเส้นทางมีสิบเอ็ดหมู่บ้าน ไม่มีหมอและไม่มีนักบวชประจำสักแห่ง
+- { id: east_road_8, at: [454, 299], sprite: hamlet, farms: 10, label: false }
+- { id: east_road_9, at: [463, 306], sprite: hamlet, farms: 10, label: false }
+- { id: east_road_10, at: [472, 297], sprite: hamlet, farms: 9, label: false }
+- { id: east_road_11, at: [482, 303], sprite: hamlet, farms: 8, label: false }
+
+# ---------- ชายป่าไอเลธ ----------
+- id: ban_tin_mai
+  th: บ้านตีนไม้
+  kind: village
+  region: ileth
+  at: [163, 214]
+  sprite: edge_village
+  farms: 15
+  lights: [{ r: 4, colour: warm }]
+  label: { at: [160, 206], anchor: end }
+  note: หมู่บ้านมนุษย์ชายป่า อยู่กับเอลฟ์มาหลายร้อยปี ผู้ใหญ่บ้านต่อราคากับเอลฟ์เป็นภาษาเอลฟ์ แล้วนินทาเอลฟ์เป็นภาษามนุษย์
+- id: edge_market
+  th: ตลาดชายป่า
+  kind: town
+  region: arvel
+  at: [184, 228]
+  sprite: town
+  farms: 12
+  lights: [{ r: 4, colour: warm }]
+  label: { at: [190, 236], anchor: start }
+  note: ตลาดที่คนชายป่า คนตัดไม้ และพ่อค้าจากเมืองมาเจอกัน ทางรถไฟสายตะวันตกมาสุดทางที่นี่
+- id: army_camp
+  th: ค่ายทหาร
+  kind: camp
+  region: arvel
+  at: [176, 250]
+  sprite: tents
+  extra: [{ sprite: tents, at: [184, 252] }]
+  lights: [{ r: 3, colour: warm }]
+  label: { at: [180, 258], minor: true }
+  note: ค่ายทหารของราชสำนักที่ชายป่า ตั้งไว้คุ้มกันค่ายตัดไม้
+- id: logging_camp
+  th: ค่ายตัดไม้
+  kind: camp
+  region: ileth
+  at: [122, 216]
+  sprite: camp
+  smoke: [{ at: [124, 211], puffs: 3, drift: 1 }]
+  lights: [{ r: 3, colour: warm }]
+  label: { at: [128, 224], anchor: start }
+  note: ค่ายตัดไม้ของบริษัทขยับเข้าป่าลึกขึ้นทุกปี ปีนี้อยู่ห่างบ้านกิ่งลมแค่ครึ่งวันเดิน ถ้าลมพัดถูกทาง เสียงเลื่อยลอดป่าไปถึงหมู่บ้าน
+
+# ---------- ป่าไอเลธ ----------
+- id: pillar_ulwen
+  th: เสาอุลเวน
+  kind: pillar
+  region: ileth
+  at: [82, 188]
+  pillar: { w: 6, h: 86, shadow: 34, cloud: 0.2 }
+  label: { at: [74, 124], anchor: end }
+  note: เสาของอุลเวน เทพแห่งป่า ฤดูกาล และการล่า ลมรอบโคนเสาไม่เคยหยุดพัด
+- id: pillar_talis
+  th: เสาทาลิส
+  kind: pillar
+  region: ileth
+  at: [106, 194]
+  pillar: { w: 6, h: 86, shadow: 34, cloud: 0.2 }
+  label: { at: [116, 130], anchor: start }
+  note: เสาของทาลิส เทพแห่งทาง ลม เพลง และอิสรภาพ ตั้งห่างเสาของอุลเวนหนึ่งวันเดิน ระหว่างสองเสาลมไม่เคยหยุดพัด
+- id: ban_king_lom
+  th: บ้านกิ่งลม
+  kind: village
+  region: ileth
+  tag: ileth
+  pin: true
+  home: [origin_elf_bough]
+  at: [96, 208]
+  sprite: elf_village
+  lights: [{ r: 4, colour: warm, power: 0.7 }]
+  label: { at: [92, 214], anchor: end }
+  note: หมู่บ้านเอลฟ์บนกิ่งไม้ มีกันอยู่สามสิบกว่าคน ลมที่พัดอยู่ระหว่างเสาสองต้นลอดผ่านบ้านทุกหลัง
+- id: star_tower
+  th: หอนับดาว
+  kind: landmark
+  region: ileth
+  tag: ileth
+  at: [60, 211]
+  sprite: star_tower
+  lights: [{ at: [60, 207], r: 6, colour: star }]
+  label: { at: [47, 206], anchor: end }
+  note: หอบนยอดต้นไม้ที่สูงที่สุดในป่าไอเลธ ปีนขึ้นไปใช้เวลาครึ่งคืน ทุกปีหอนับดาวส่งจดหมายเตือนเรื่องดาวไปเวนทราส และได้คำตอบเดิมทุกปี
+
+# ---------- เทือกเขาฮอร์ดุน ----------
+- id: pillar_ossa
+  th: เสาออสซา
+  kind: pillar
+  region: hordun
+  at: [330, 60]
+  pillar: { w: 7, h: 90, shadow: 0, cloud: 0.48 }
+  label: { at: [342, 12], anchor: start }
+  note: เสาของออสซา เทพแห่งความตาย ประตู และความทรงจำ คนแคระฝังศพไว้ในผนังเสา ใกล้เทพแห่งความตายที่สุดเท่าที่คนตายจะไปถึงได้
+- id: tundar
+  th: ทุนดาร์
+  en: Tundar
+  kind: capital
+  region: hordun
+  tag: hordun
+  pin: true
+  home: [origin_dwarf_clan]
+  at: [330, 112]
+  sprite: dwarf_gate
+  lights: [{ at: [330, 84], r: 16, colour: warm, power: 0.55 }, { at: [330, 110], r: 4, colour: fire }]
+  label: { at: [300, 120], anchor: end, cls: capital }
+  note: เมืองหลวงของคนแคระ เจาะวนรอบโคนเสาของออสซาบนภูเขาลูกใหญ่ที่สุด ถนนวนแต่ละชั้นซ้อนกันขึ้นไปจนถึงเสา
+- id: lower_station
+  th: สถานีล่าง
+  kind: station
+  region: hordun
+  at: [345, 117]
+  sprite: station
+  lights: [{ r: 3, colour: warm }]
+  label: { at: [352, 112], anchor: start, minor: true }
+  note: สถานีปลายรางรถไฟไต่เขาและรถรางขนแร่ หิมะทับรางเมื่อไร ขบวนสุดท้ายก็ลงไม่ได้
+- id: debt_mouth
+  th: ปากหนี้
+  kind: station
+  region: hordun
+  at: [364, 129]
+  sprite: weigh
+  label: { at: [372, 128], anchor: start, minor: true }
+  note: ตาชั่งของบริษัทที่สถานีกลางเขา ถ่านมารทุกก้อนที่ผ่านปากหนี้ไป ตัวเลขหนี้บนกำแพงสภาลดลงนิดหนึ่ง
+- id: foothill_market
+  th: ตลาดตีนเขา
+  kind: town
+  region: hordun
+  at: [355, 150]
+  sprite: town
+  lights: [{ r: 5, colour: warm }]
+  label: { at: [348, 158], anchor: end }
+  note: ตลาดที่ตีนเขามีโรงเตี๊ยมของคนอาร์เวล พ่อค้าถ่านมารกับคนงานที่ลงมาจากเหมืองนั่งดื่มอยู่ด้วยกัน
+- id: old_mine
+  th: เหมืองเก่า
+  kind: mine
+  region: hordun
+  at: [298, 104]
+  sprite: mine
+  label: { at: [292, 110], anchor: end, minor: true }
+  note: เหมืองที่เจาะตั้งแต่ยุคเจ็ดเสา ลึกลงไปมีชั้นที่ก่อหินปิดตายไว้ตั้งแต่สงครามจอมมาร บนหินสลักคำเตือนที่คนแคระรุ่นนี้อ่านไม่ออก
+- { id: mine_2, at: [368, 98], sprite: mine, label: false }
+- { id: mine_3, at: [282, 86], sprite: mine, label: false }
+- { id: mine_4, at: [396, 88], sprite: mine, label: false }
+- id: furnaces
+  at: [312, 96]
+  sprite: furnace
+  extra: [{ sprite: furnace, at: [350, 98] }, { sprite: furnace, at: [320, 82] }]
+  smoke: [{ at: [311, 91], puffs: 5, drift: 1.2, mat: rust }, { at: [349, 93], puffs: 5, drift: 1.2, mat: rust }, { at: [319, 77], puffs: 4, drift: 1.2, mat: rust }]
+  lights: [{ at: [312, 95], r: 4, colour: fire }, { at: [350, 97], r: 4, colour: fire }, { at: [320, 81], r: 4, colour: fire }]
+  label: false
+- { id: dwarf_hut_1, at: [268, 100], sprite: hut, label: false }
+- { id: dwarf_hut_2, at: [410, 102], sprite: hut, label: false }
+- { id: dwarf_hut_3, at: [438, 112], sprite: hut, label: false }
+- { id: dwarf_hut_4, at: [218, 92], sprite: hut, label: false }
+- { id: dwarf_hut_5, at: [196, 104], sprite: hut, label: false }
+- id: west_pass
+  th: ช่องเขาตะวันตก
+  kind: pass
+  region: hordun
+  at: [250, 106]
+  sprite: stakes
+  label: { at: [242, 112], anchor: end }
+  note: ทางเกลือข้ามเขา พรานช่องเขาพาพ่อค้าเกลือข้ามไปส่งฝั่งอาร์เวล ริมผาที่โค้งหนึ่งมีไม้ปักเล็กๆ เรียงอยู่
+- id: fourth_pass
+  th: ช่องเขาชั้นสี่
+  kind: pass
+  region: hordun
+  at: [470, 115]
+  sprite: ruin
+  label: { at: [478, 112], anchor: start }
+  note: ช่องเขาที่ทหารผ่านศึกหลายคนเสียแขนขาไปในปีสุดท้ายของสงครามถ่าน
+
+# ---------- แดนเถ้า ----------
+- id: stump
+  th: ตอเสาอัสเทล
+  kind: pillar
+  region: ashland
+  at: [532, 214]
+  pillar: { w: 10, h: 46, broken: true, ashline: 6, cracks: [[2, 14, 4], [-3, 22, 3], [3, 28, 3], [0, 36, 2]] }
+  lights: [{ at: [532, 202], r: 11, colour: ember, power: 0.5, only: [night] }]
+  label: { at: [532, 160] }
+  note: ตอเสาของอัสเทล เทพแห่งดวงดาวและความรู้ที่สิ้นไปแล้ว ตอที่เหลือยังสูงเท่าภูเขา พื้นรอบตอเป็นเถ้าสีเทาลึกถึงเข่า
+- id: fallen_top
+  th: ท่อนบนของเสา
+  kind: landmark
+  region: ashland
+  at: [586, 196]
+  label: { at: [590, 184] }
+  note: ท่อนบนของเสาที่หักกลางลำ ล้มลงมานอนยาวเป็นแนวไปจนถึงทะเลตะวันออก
+- id: seal_ring
+  th: วงหินผนึก
+  kind: landmark
+  region: ashland
+  at: [532, 150]
+  label: { at: [548, 144], anchor: start }
+  note: หินผนึกเรียงเป็นวงรอบตอเสา ยาวจนมองไม่เห็นหัวท้าย แต่ละก้อนสูงเท่าคนสองคนต่อกัน สลักอักษรที่ไม่มีใครอ่านออกแล้ว
+- { id: fort_1, th: ป้อมหนึ่ง, kind: fort, region: ashland, at: [514, 155], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- { id: fort_2, th: ป้อมสอง, kind: fort, region: ashland, at: [474, 193], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- id: fort_3
+  th: ป้อมสาม
+  kind: fort
+  region: ashland
+  tag: ashland
+  at: [478, 247]
+  sprite: warden_fort
+  lights: [{ r: 4, colour: warm }]
+  label: { at: [474, 238], anchor: end }
+  note: ป้อมหินเตี้ยๆ ของภาคีผู้เฝ้าผนึก เถ้ากองสูงถึงขอบหน้าต่างชั้นล่าง ห่างบ้านหญ้าเงินครึ่งวันเดินบนแผ่นไม้
+- { id: fort_4, th: ป้อมสี่, kind: fort, region: ashland, at: [523, 277], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- { id: fort_5, th: ป้อมห้า, kind: fort, region: ashland, at: [574, 261], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- { id: fort_6, th: ป้อมหก, kind: fort, region: ashland, at: [594, 211], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- { id: fort_7, th: ป้อมเจ็ด, kind: fort, region: ashland, at: [567, 165], sprite: warden_fort, lights: [{ r: 3, colour: warm }], label: { minor: true }, note: ป้อมของภาคีผู้เฝ้าผนึก หนึ่งในเจ็ดแห่งรอบตอเสา }
+- id: ban_ya_ngoen
+  th: บ้านหญ้าเงิน
+  kind: village
+  region: ashland
+  tag: ashland
+  pin: true
+  home: [origin_ashland]
+  at: [468, 259]
+  sprite: stilt_village
+  lights: [{ r: 4, colour: warm }]
+  label: { at: [466, 267], anchor: end }
+  note: หมู่บ้านทีฟลิ่งกลางเถ้า หญ้าสีเงินรอบหมู่บ้านกินได้แต่ขม ป้อมสามอยู่ห่างไปครึ่งวันเดินบนแผ่นไม้
+- id: pit_nine
+  th: หลุมเก้า
+  kind: pit
+  region: ashland
+  at: [493, 254]
+  sprite: pit
+  lights: [{ r: 4, colour: fire }]
+  label: { at: [498, 262], anchor: start }
+  note: หลุมถ่านมารของบริษัท ห่างป้อมสามครึ่งวันเดิน พ่อของเด็กบ้านหญ้าเงินหลายคนลงหลุมนี้ทุกเช้า
+- id: railhead
+  th: ปลายราง
+  kind: station
+  region: ashland
+  at: [490, 228]
+  sprite: station
+  lights: [{ r: 4, colour: warm }]
+  label: { at: [492, 220] }
+  note: ปลายรางรถไฟสายถ่าน ขยับลึกเข้าไปในเถ้าทุกปี ปีนี้ห่างตอเสาแค่สองวันเดิน ตู้ที่กลับมาจากปลายรางร้อนจนเถ้าที่เกาะล้อหลอมเป็นแก้ว
+- id: stone_bend
+  th: โค้งหิน
+  kind: landmark
+  region: ashland
+  at: [458, 246]
+  extra: [{ sprite: hamlet, at: [452, 255] }]
+  label: { at: [452, 240], anchor: end, minor: true }
+  note: โค้งรางที่ขบวนถ่านต้องชะลอ หมู่บ้านริมรางอยู่ห่างไปไม่กี่ร้อยก้าว
+- id: new_coal_field
+  th: ทุ่งถ่านแห่งใหม่
+  kind: pit
+  region: ashland
+  at: [510, 236]
+  sprite: pit
+  lights: [{ r: 7, colour: ember, power: 0.8 }]
+  label: { at: [512, 244], minor: true }
+  note: ทุ่งถ่านที่บริษัทเพิ่งพบทางตะวันออกของปลายราง เถ้าแถบนี้อุ่นจนน้ำค้างไม่เกาะแม้ตอนตีห้า
+- id: pit_twelve
+  th: หลุมสิบสอง
+  kind: pit
+  region: ashland
+  at: [556, 252]
+  sprite: pit
+  lights: [{ r: 4, colour: fire }]
+  label: { minor: true }
+  note: หลุมถ่านมารลึกเข้าไปในแดนเถ้า คนขุดที่นี่ส่งเงินกลับบ้านแนบมากับจดหมายทุกสามเดือน
+- { id: pit_a, at: [502, 272], sprite: pit, lights: [{ r: 3, colour: fire }], label: false }
+- { id: pit_b, at: [546, 182], sprite: pit, lights: [{ r: 3, colour: fire }], label: false }
+- { id: pit_sealed, at: [466, 207], sprite: pit_sealed, label: false } # off the maps, on purpose
+- id: abandoned_camp
+  th: ค่ายร้าง
+  kind: camp
+  region: ashland
+  at: [572, 232]
+  sprite: camp_abandoned
+  label: { minor: true }
+  note: ค่ายของบริษัทเหมืองที่ร้างไปทั้งค่าย กระโจมยังกางอยู่สิบสองหลัง หม้อข้าวยังวางบนเตาที่ดับไปนานแล้ว ไม่มีคน ไม่มีรอยเท้า
+- id: ban_tor_mai
+  th: บ้านตอไหม้
+  kind: village
+  region: ashland
+  at: [520, 299]
+  sprite: stilt_village
+  lights: [{ r: 3, colour: warm }]
+  note: หมู่บ้านทีฟลิ่งห่างบ้านหญ้าเงินสองวันเดิน คนนำทางที่แก่ที่สุดในแดนเถ้าอยู่ที่นี่ แกเดินเท้าเปล่าบนเถ้าโดยไม่มองพื้น
+- { id: tiefling_village_1, at: [568, 294], sprite: stilt_village, lights: [{ r: 3, colour: warm }], label: false }
+- { id: tiefling_village_2, at: [588, 148], sprite: stilt_village, lights: [{ r: 3, colour: warm }], label: false }
+- { id: tiefling_village_3, at: [540, 120], sprite: stilt_village, lights: [{ r: 3, colour: warm }], label: false }
+- id: old_battlefield
+  th: สนามรบเก่า
+  kind: landmark
+  region: ashland
+  at: [500, 180]
+  sprite: scrap
+  extra: [{ sprite: scrap, at: [508, 186], flip: true }, { sprite: scrap, at: [494, 188] }]
+  fog: { r: 10 }
+  label: { at: [496, 172], anchor: end }
+  note: สนามรบสมัยสงครามจอมมาร พื้นเป็นเถ้าแข็งปนเศษเหล็ก หมอกลอยต่ำอยู่เหนือพื้น

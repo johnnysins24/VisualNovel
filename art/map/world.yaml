@@ -1,0 +1,243 @@
+# แผ่นดินเจ็ดเสา: the land and water of the world map (art/kit/map.mjs). Coordinates are map pixels
+# on a 640 x 400 picture, north up. One day on foot is about 25 px, so the continent is some twenty
+# days across. The layout follows the world bible's sketch map (Isel's pillar in the west of Arvel,
+# Belek's at Kardin in the east, Verus's at Ventras on the south coast, Ileth west, Hordun north,
+# the Ashland east) and the distances in the story: the temple of Isel three days along the rails
+# from Ventras, the market town half a day from บ้านเงาเสา, the railhead two days short of the stump
+# and seven from Ventras, Fort Three half a day from บ้านหญ้าเงิน, Ulwen's pillar a day from
+# บ้านกิ่งลม and a day from Talis's. Places and their pictures are in places.yaml.
+size: [640, 400]
+seed: 312
+snow: 1.1 # ground above this height is under snow all year
+shadow: [0.86, 0.5] # the pillars' shadows fall to the lower right: light from the upper left
+# small, low pictures (villages, farms, camps) get a soft shadow to the lower right instead of an ink ring
+soft: [hamlet, farm, cottage, village, well, stakes, scrap, tents, camp_abandoned, dish_field, edge_village, stilt_village, mill, hut, weigh, camp]
+
+coast:
+  warp: { amp: 7, scale: 46 }
+  # clockwise from Ileth's south-west cape
+  land:
+    [[70, 306], [58, 312], [46, 318], [34, 320], [26, 312], [30, 302], [40, 294], [44, 284], [42, 272], [48, 262],
+     [52, 250], [50, 238], [44, 228], [36, 222], [28, 216], [22, 206], [26, 196], [32, 190], [36, 184], [34, 172],
+     [38, 160], [36, 148], [42, 136], [48, 126], [46, 114], [40, 102], [42, 90], [52, 82], [64, 80], [74, 86],
+     [82, 94], [94, 98], [106, 102], [118, 108], [130, 112], [140, 108], [146, 98], [148, 86], [156, 76], [166, 66],
+     [178, 58], [190, 52], [202, 48], [214, 44], [226, 42], [236, 38], [244, 38], [247, 48], [251, 42], [255, 33],
+     [268, 29], [282, 26], [296, 22], [312, 20], [326, 18], [340, 20], [354, 18], [366, 22], [374, 26], [377, 37],
+     [383, 30], [390, 24], [404, 26], [418, 28], [432, 30], [444, 35], [456, 38], [466, 44], [476, 50], [484, 58],
+     [492, 66], [500, 74], [508, 80], [518, 82], [530, 80], [542, 82], [554, 88], [566, 96], [576, 106], [586, 116],
+     [594, 128], [600, 142], [604, 158], [606, 172], [606, 186], [608, 200], [611, 214], [607, 228], [609, 242],
+     [603, 256], [599, 270], [591, 282], [581, 292], [569, 300], [556, 306], [542, 312], [528, 318], [514, 320],
+     [500, 318], [488, 320], [478, 328], [470, 336], [462, 340], [450, 344], [440, 348], [430, 354], [420, 360],
+     [411, 366], [403, 372], [397, 377], [391, 373], [390, 365], [394, 357], [396, 349], [390, 343], [382, 340],
+     [374, 340], [366, 338], [358, 336], [350, 336], [342, 338], [334, 338], [326, 340], [318, 342], [311, 346],
+     [306, 352], [314, 356], [326, 358], [340, 358], [354, 358], [366, 360], [376, 362], [383, 366], [377, 371],
+     [362, 373], [346, 375], [330, 377], [314, 379], [298, 379], [284, 377], [270, 373], [256, 369], [242, 365],
+     [228, 363], [214, 365], [200, 367], [186, 365], [172, 359], [162, 356], [152, 362], [140, 370], [128, 374],
+     [118, 370], [114, 360], [110, 350], [102, 340], [92, 330], [84, 320], [76, 312]]
+  islands:
+    - { at: [196, 384], r: 3.4 } # the fishermen's isles off the south coast
+    - { at: [209, 387], r: 2.3 }
+    - { at: [233, 382], r: 2.4 }
+    - { at: [112, 386], r: 3 } # off the south-west point
+    - { at: [98, 380], r: 2.2 }
+    - { at: [438, 372], r: 3 } # off the East Cape
+    - { at: [452, 362], r: 2.4 }
+    - { at: [14, 250], r: 3 } # off Ileth's west coast
+    - { at: [12, 172], r: 2.6 }
+    - { at: [24, 334], r: 2.6 }
+    - { at: [58, 66], r: 3.2 } # the skerries off the north-west horn
+    - { at: [44, 74], r: 2.2 }
+    - { at: [122, 92], r: 2.6 } # a rock in the Cold Gulf
+    - { at: [518, 66], r: 2.6 } # a rock in the bight between Hordun and the Ashland
+    - { at: [601, 330], r: 2.8 }
+    - { at: [588, 342], r: 2.2 }
+  # Ventras bay: kept open water whatever the coast's wobble does, mouth to the south-east
+  cuts:
+    - { poly: [[312, 344], [388, 343], [393, 352], [389, 366], [395, 382], [384, 383], [380, 370], [368, 365], [340, 362], [314, 361], [308, 352]], warp: 2, scale: 10 }
+  # the fallen top of Astel's pillar runs out into the east sea as a long stone spit
+  adds:
+    - [[590, 200], [636, 191], [638, 201], [590, 210]]
+
+sea:
+  edge: 30
+  waves: 200
+  rocks: [[386, 386], [404, 390], [372, 392]] # outside the bay mouth: the pilots know them
+
+zones:
+  - { kind: meadow, poly: [[60, 300], [160, 296], [250, 316], [300, 336], [304, 384], [200, 372], [120, 380], [80, 330]], warp: 10 }
+  - { kind: farm, poly: [[158, 150], [260, 152], [360, 158], [440, 168], [472, 200], [468, 262], [462, 306], [420, 330], [380, 332], [300, 334], [240, 318], [170, 300], [150, 250], [150, 180]], warp: 12 }
+  - { kind: meadow, poly: [[300, 350], [388, 356], [386, 374], [296, 386], [284, 376]], warp: 4 } # ฝั่งใต้, the bay's south shore
+  - { kind: meadow, poly: [[392, 334], [470, 330], [480, 340], [420, 366], [396, 380]], warp: 5 } # the East Cape
+  - { kind: wood, poly: [[262, 226], [300, 220], [314, 234], [304, 246], [274, 248], [258, 240]], warp: 6, scale: 16 } # the woods north of Isel's fields
+  - { kind: wood, poly: [[318, 244], [356, 238], [374, 250], [362, 268], [330, 270], [314, 260]], warp: 6, scale: 16 } # the king's hunting forest
+  - { kind: wood, poly: [[198, 326], [232, 322], [246, 338], [222, 350], [194, 342]], warp: 6, scale: 14 }
+  - { kind: wood, poly: [[146, 336], [180, 342], [186, 356], [160, 358], [142, 348]], warp: 4, scale: 12 } # the beach forest
+  - { kind: ileth, poly: [[24, 88], [76, 84], [104, 104], [142, 112], [158, 120], [168, 160], [170, 200], [168, 250], [158, 300], [134, 332], [90, 320], [50, 300], [22, 240]], warp: 14, scale: 40 }
+  - { kind: clearing, poly: [[110, 212], [128, 212], [148, 220], [170, 226], [176, 246], [156, 244], [136, 238], [116, 228]], warp: 4, scale: 12 } # the logging front
+  - { kind: heath, poly: [[150, 64], [300, 66], [480, 46], [566, 98], [522, 140], [462, 152], [400, 158], [340, 162], [280, 162], [200, 154], [160, 130]], warp: 12 }
+  - { kind: pine, poly: [[168, 118], [250, 124], [300, 134], [380, 138], [440, 130], [484, 130], [474, 148], [420, 154], [360, 158], [300, 156], [240, 152], [180, 142]], warp: 14, scale: 40 }
+  - { kind: mountain, poly: [[156, 62], [230, 40], [330, 26], [420, 32], [486, 58], [536, 98], [512, 118], [462, 124], [404, 124], [368, 126], [346, 120], [312, 122], [260, 118], [204, 110], [166, 98]], warp: 10 }
+  - { kind: ash, poly: [[470, 120], [520, 100], [566, 102], [604, 130], [614, 200], [612, 262], [594, 292], [540, 316], [494, 316], [474, 298], [462, 262], [464, 204], [458, 162]], warp: 10 }
+  - { kind: cinder, poly: [[516, 196], [548, 194], [556, 212], [546, 230], [518, 230], [508, 212]], warp: 5, scale: 12 }
+  - { kind: marsh, poly: [[316, 274], [332, 272], [336, 284], [320, 287]], warp: 3, scale: 10 } # the eel marsh
+  - { kind: marsh, poly: [[356, 292], [372, 288], [378, 300], [362, 305]], warp: 3, scale: 10 } # cold water round the Lamp Church checkpoint
+
+ranges:
+  # the spine of Hordun; Tundar's mountain is the big peak drawn by itself below
+  - { line: [[166, 92], [204, 78], [244, 66], [288, 56], [330, 50], [372, 52], [414, 58], [456, 72], [494, 92], [524, 110]], width: 26, height: 0.95 }
+  - { line: [[190, 112], [236, 108], [276, 104]], width: 12, height: 0.32 }
+  - { line: [[380, 106], [430, 110], [470, 116], [506, 124]], width: 12, height: 0.36 }
+mountains:
+  every: 13
+  rows: 0.62
+  fill: 0.12
+  climb: 0.75
+  foot: 0.36
+  size: [6, 24]
+  snowline: 1.1
+  gaps:
+    - { at: [250, 104], r: 8 } # the western pass, where the salt road crosses
+    - { at: [354, 130], r: 14 } # the foot of Tundar: the cart road and the rail climb here
+    - { at: [330, 100], r: 30 } # Tundar's mountain, drawn below
+    - { at: [470, 114], r: 7 } # the fourth-tier pass into the Ashland
+hills:
+  - { kinds: [heath], every: 9, p: 0.45, size: [3, 6], mat: heath }
+  - { kinds: [mountain], every: 10, p: 0.5, size: [4, 8], mat: heath }
+  - { kinds: [meadow, farm], every: 16, p: 0.1, size: [3, 4], mat: grass }
+peaks:
+  - { at: [304, 110], w: 26, h: 40, snow: 0.14, rough: 1, summit: -0.2 } # its western shoulder
+  - { at: [357, 108], w: 24, h: 36, snow: 0.12, rough: 1, summit: 0.15 } # and its eastern one
+  - { at: [330, 116], w: 36, h: 66, snow: 0.1, rough: 1.3, spurs: 0.5, terraces: 7, span: [0.16, 0.5] } # Tundar's mountain: Ossa's pillar rises out of its top
+
+rivers:
+  # แม่น้ำสนิม: out of Hordun's snows past the furnaces (it runs rust-red after rain), through Kardin to Ventras
+  - { line: [[354, 104], [358, 124], [366, 146], [376, 170], [386, 196], [396, 222], [402, 244], [400, 262], [392, 280], [380, 294], [366, 306], [354, 318], [344, 330], [341, 340]], width: [1, 3.4] }
+  # แม่น้ำซุง: out of the old forest past the pillars; Ileth's logs ride it down to the shipyards
+  - { line: [[48, 178], [64, 192], [80, 204], [96, 214], [114, 220], [134, 226], [156, 232], [178, 240], [200, 250], [222, 260], [244, 268], [262, 276], [280, 282], [298, 290], [314, 300], [326, 312], [336, 324], [341, 334]], width: [1, 3] }
+  # the brook past the temple; the night train crosses it on a bridge north of บ้านเงาเสา
+  - { line: [[268, 150], [274, 178], [282, 204], [290, 230], [296, 250], [298, 264], [295, 276], [295, 289]], width: [1, 1.6], meander: 1.2 }
+  # a stream down from the eastern snows into the Rust at Kardin
+  - { line: [[452, 120], [446, 146], [436, 172], [424, 198], [412, 222], [403, 242]], width: [1, 1.8] }
+  # Ileth's brooks
+  - { line: [[40, 146], [54, 162], [66, 180], [78, 202]], width: [1, 1.2], meander: 1 }
+  - { line: [[70, 300], [86, 282], [100, 262], [110, 242], [116, 220]], width: [1, 1.4], meander: 1 }
+  # short streams off the northern snows, and one through the south-western woods
+  - { line: [[250, 74], [249, 58], [249, 44]], width: [1, 1], meander: 0.6 }
+  - { line: [[380, 70], [380, 52], [379, 36]], width: [1, 1], meander: 0.6 }
+  - { line: [[214, 304], [222, 324], [230, 344], [236, 362]], width: [1, 1.4], meander: 1 }
+lakes:
+  - { poly: [[344, 92], [356, 90], [360, 98], [350, 103], [343, 99]] }
+
+fields:
+  # the fields round Isel's pillar go yellow to the horizon at harvest; elsewhere the plough stays near the villages
+  - { poly: [[150, 156], [262, 160], [380, 168], [446, 200], [462, 262], [460, 324], [372, 334], [300, 334], [212, 326], [150, 288]], cell: [10, 6], angle: 14, reach: 1,
+      kinds: [field, field, crop, crop, crop, dirt, grass] }
+  - { poly: [[300, 350], [386, 358], [380, 372], [300, 382]], cell: [6, 4], angle: -8, reach: 1, kinds: [crop, grass, field, dirt] }
+  - { poly: [[392, 334], [470, 330], [470, 344], [420, 364], [398, 372]], cell: [6, 4], angle: 20, reach: 1, kinds: [crop, grass, field, dirt] }
+  - { poly: [[60, 300], [170, 300], [250, 320], [300, 340], [300, 380], [200, 370], [120, 376], [84, 330]], cell: [6, 5], angle: -6, reach: 1, kinds: [crop, grass, grass, field, dirt] }
+
+woods:
+  - { poly: [[26, 92], [76, 86], [104, 106], [140, 114], [156, 122], [166, 160], [168, 200], [166, 250], [156, 300], [132, 330], [92, 318], [52, 298], [26, 240]], r: [2.3, 3.6], every: 3, mat: elf_leaf, density: 0.93, clear: 0.2, warp: 14, scale: 40,
+      holes: [[[110, 212], [128, 212], [148, 220], [170, 226], [176, 246], [156, 244], [136, 238], [116, 228]]] }
+  # the old forest's ragged edge: copses and lone giants out into the fields, but not on the logging front
+  - { poly: [[150, 112], [176, 120], [188, 170], [190, 214], [188, 262], [180, 306], [152, 338], [140, 322], [160, 292], [166, 242], [168, 192], [160, 140]], r: [1.8, 2.8], every: 4, mat: elf_leaf, density: 0.34, clear: 0.35, warp: 12, scale: 30,
+      holes: [[[106, 208], [130, 208], [150, 216], [174, 222], [182, 250], [156, 248], [134, 242], [112, 232]]] }
+  # pines straggling down out of the foothills
+  - { poly: [[170, 138], [300, 150], [420, 148], [470, 144], [462, 164], [380, 166], [300, 166], [200, 160]], r: [1.4, 2], every: 4, kind: pine, mat: pine, density: 0.22, warp: 10, scale: 30 }
+  - { poly: [[262, 226], [300, 220], [314, 234], [304, 246], [274, 248], [258, 240]], r: [1.6, 2.4], every: 3, mat: leaf, density: 0.88 }
+  - { poly: [[318, 244], [356, 238], [374, 250], [362, 268], [330, 270], [314, 260]], r: [1.6, 2.6], every: 3, mat: leaf, density: 0.9 }
+  - { poly: [[198, 326], [232, 322], [246, 338], [222, 350], [194, 342]], r: [1.6, 2.4], every: 3, mat: leaf, density: 0.85 }
+  - { poly: [[146, 336], [180, 342], [186, 356], [160, 358], [142, 348]], r: [1.4, 2.2], every: 3, mat: leaf, density: 0.85 }
+  - { poly: [[168, 120], [250, 126], [300, 136], [380, 140], [440, 132], [482, 132], [472, 148], [420, 152], [360, 156], [300, 154], [240, 150], [180, 140]], r: [1.6, 2.4], every: 3, kind: pine, mat: pine, density: 0.6, clear: 0.4, warp: 14, scale: 40 }
+  - { poly: [[150, 104], [172, 98], [180, 122], [158, 128]], r: [1.6, 2.2], every: 3, kind: pine, mat: pine, density: 0.7 }
+  - { poly: [[440, 224], [458, 220], [462, 238], [446, 242]], r: [1.1, 1.7], every: 3, mat: leaf, density: 0.5 } # scrub at the Ashland's edge
+  - { poly: [[418, 334], [440, 330], [446, 342], [428, 348]], r: [1.4, 2], every: 3, mat: leaf, density: 0.8 }
+scatter:
+  - { kinds: [farm, meadow], every: 6, p: 0.16, r: [1, 1.7], mat: leaf }
+trees:
+  # Ileth's oldest giants; the tallest carries the star-counting tower
+  - { at: [60, 218], r: 10 }
+  - { at: [56, 168], r: 7 }
+  - { at: [84, 248], r: 6.5 }
+  - { at: [86, 146], r: 6.5 }
+  - { at: [66, 286], r: 7 }
+  - { at: [70, 112], r: 6 }
+  - { at: [42, 238], r: 6 }
+  - { at: [128, 270], r: 6 }
+  - { at: [132, 160], r: 5.5 }
+  - { at: [110, 300], r: 5.5 }
+
+roads:
+  # the west road: Ventras, the market town, past the temple of Isel, out to the forest edge
+  - { line: [[334, 318], [326, 306], [318, 296], [310, 288], [300, 282], [290, 276], [278, 270], [262, 264], [244, 257], [224, 250], [204, 243], [186, 236], [168, 230]] }
+  # south from the temple across the Log River at บ้านท่าเกวียน, down to the seaside cottages
+  - { line: [[282, 272], [272, 280], [264, 296], [258, 314], [254, 334], [254, 352], [256, 366]] }
+  # the king's road, Ventras to Kardin, through the Lamp Church checkpoint
+  - { line: [[348, 316], [360, 304], [368, 298], [376, 290], [384, 280], [392, 268], [398, 260]] }
+  # Kardin north to the foothill market, then three bends up to Tundar's gate; the third bend is the cliff
+  - { line: [[398, 248], [390, 228], [382, 208], [374, 188], [366, 170], [358, 152], [352, 140]] }
+  - { line: [[352, 140], [340, 134], [350, 128], [338, 122], [346, 116], [336, 112]], kind: pass }
+  # the salt road: north from the temple over the western pass to the cold coast
+  - { line: [[280, 256], [276, 232], [270, 206], [264, 180], [258, 154], [254, 130], [250, 108], [248, 90], [250, 70], [252, 52]], kind: track }
+  # the eastern cart road: eleven villages with no doctor and no priest, then the ash
+  - { line: [[362, 322], [378, 320], [392, 316], [406, 312], [420, 308], [434, 306], [448, 304], [462, 302], [476, 300], [490, 298]] }
+  # Kardin to the Ashland beside the coal line
+  - { line: [[414, 256], [430, 250], [446, 246], [460, 244], [474, 246]], kind: track }
+  # along the south-west coast to the seaside cottages and the beach forest
+  - { line: [[318, 340], [306, 344], [296, 350], [284, 356], [270, 362], [256, 366], [242, 362], [226, 358], [208, 360], [190, 360], [176, 354], [162, 350], [148, 356], [134, 364]], kind: track }
+  - { line: [[306, 352], [320, 362], [340, 366], [360, 366], [376, 367]], kind: track } # along ฝั่งใต้
+  - { line: [[396, 318], [398, 334], [400, 348], [398, 362], [396, 372]], kind: track } # out to the lighthouse
+  # into the forest: the logging road along the river, a path on to the elves and the star tower
+  - { line: [[168, 230], [152, 226], [136, 222], [122, 218], [112, 216]], kind: track }
+  - { line: [[112, 216], [100, 208], [86, 212], [72, 214]], kind: track }
+  # the mountain path east to the passes and down into the Ashland
+  - { line: [[358, 152], [384, 146], [412, 140], [440, 132], [458, 122], [470, 114], [486, 116], [498, 126], [506, 142]], kind: track }
+  # Ashland: plank ways over the soft ash, beaten paths between the villages
+  - { line: [[470, 256], [474, 250], [478, 246]], kind: planks }
+  - { line: [[478, 246], [486, 246], [491, 249]], kind: planks }
+  - { line: [[470, 256], [486, 270], [502, 284], [518, 294]], kind: ash }
+  - { line: [[518, 294], [544, 294], [566, 290]], kind: ash }
+  - { line: [[496, 228], [500, 210], [504, 190], [510, 172]], kind: planks }
+
+rails:
+  # the coal line: from the railhead in the ash, past the stone bend, through Kardin to Ventras
+  - { line: [[486, 228], [474, 234], [462, 242], [448, 248], [434, 252], [420, 256], [410, 262], [404, 274], [396, 286], [386, 298], [374, 308], [362, 316], [350, 322]] }
+  # the west line: Ventras, the market town, north of บ้านเงาเสา, behind the temple, to the forest edge
+  - { line: [[340, 320], [332, 310], [326, 300], [318, 290], [312, 282], [306, 272], [298, 264], [288, 258], [278, 254], [262, 250], [244, 246], [224, 240], [204, 234], [186, 228], [170, 224]] }
+  # the Hordun line: north from Kardin up the Rust valley, then climbing the mountain in steps
+  - { line: [[408, 250], [410, 232], [406, 212], [400, 192], [392, 172], [382, 154], [370, 140]] }
+  - { line: [[370, 140], [360, 136], [368, 130], [356, 126], [364, 120], [350, 116], [342, 114]] }
+  # the ore tramway down from the clan mines to the lower station
+  - { line: [[300, 98], [310, 108], [322, 116], [340, 118]], tram: true }
+  # the old branch to the first pits, given up to the ash
+  - { line: [[462, 242], [468, 224], [466, 206]], disused: true }
+
+routes:
+  # airships out of the Ventras towers
+  - { from: [338, 304], to: [404, 238], bend: 8, ships: [0.55] }
+  - { from: [334, 304], to: [168, 222], bend: 24, ships: [0.36] } # timber for the shipyards
+  - { from: [344, 304], to: [486, 222], bend: -26, ships: [0.62] }
+  - { from: [290, 394], to: [470, 378], bend: 10, ships: [0.45] } # the navy's patrol, half a day's flight off the coast
+
+clouds:
+  - { at: [206, 24], size: 14 }
+  - { at: [486, 362], size: 12 }
+  - { at: [72, 350], size: 10 }
+  - { at: [590, 62], size: 10 }
+
+# the Ashland: ash darker toward the stump; the seal stones in a ring round it; the fallen top
+ash: { centre: [532, 212], dark: 80 }
+ring: { at: [532, 212], r: 62, every: 4.6, gap: 6 }
+fallen: { from: [538, 211], to: [634, 195], w: 8, segment: 18 }
+winds:
+  - { between: [[82, 186], [106, 192]], count: 5, spread: 18, lift: 34 }
+
+texts:
+  - { id: arvel, th: ราชอาณาจักรอาร์เวล, cls: region, at: [345, 214] }
+  - { id: hordun, th: เทือกเขาฮอร์ดุน, cls: region, at: [212, 86] }
+  - { id: ileth, th: ป่าไอเลธ, cls: region, at: [84, 270] }
+  - { id: ashland, th: แดนเถ้า, cls: region, at: [566, 288] }
+  - { id: south_sea, th: ทะเลใต้, cls: sea, at: [180, 394] }
+  - { id: east_sea, th: ทะเลตะวันออก, cls: sea, at: [626, 290], angle: 90 }
+  - { id: rust_river, th: แม่น้ำสนิม, cls: river, at: [380, 184], angle: 64 }
+  - { id: log_river, th: แม่น้ำซุง, cls: river, at: [206, 252], angle: 24 }

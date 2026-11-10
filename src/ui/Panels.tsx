@@ -8,7 +8,10 @@ import { worldYear } from '../engine/state';
 import { equip, exportLife, game, importLife, life, meta, startLife, tab } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { SpriteView } from './SpriteView';
-import { PLACE_TH, signed } from './Hud';
+import { piecesOfItem } from '../sprites/looks';
+import { itemIconUrl } from '../sprites/render';
+import { WorldMap } from './WorldMap';
+import { signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
 
@@ -78,9 +81,14 @@ function SlotBox({ slot }: { slot: Slot }) {
   const id = l.equipped[slot];
   const it = id ? game.items.get(id) : undefined;
   const label = `${SLOT_TH[slot]}: ${it?.name ?? 'ว่าง'}`;
+  // ของที่มีภาพในชุด sprite ขึ้นรูปของชิ้นนั้นแทนไอคอนช่อง (Phupha เลือก 10 พ.ย. 2026) แตะ/ชี้ดูชื่อ
+  const icon = it ? itemIconUrl(piecesOfItem(it.id, game.items)) : null;
+  const [shown, setShown] = useState(false);
   return (
-    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img">
-      <Icon name={slot} />
+    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img"
+      onClick={() => it && setShown(!shown)} onMouseLeave={() => setShown(false)}>
+      {icon ? <img class="slot-art" src={icon} alt="" /> : <Icon name={slot} />}
+      {shown && it && <span class="slot-name">{it.name}</span>}
     </div>
   );
 }
@@ -125,9 +133,8 @@ export function WorldPanel() {
   return (
     <div class="panel-page">
       <section class="sec">
-        <h3><Icon name="place" />ที่อยู่</h3>
+        <h3><Icon name="world" />แผนที่</h3>
         <WorldMap here={l.locationTag} />
-        <p>{PLACE_TH[l.locationTag] ?? 'ยังไม่รู้'} · ปี <span class="num">{worldYear(l)}</span></p>
       </section>
       <section class="sec">
         <h3><Icon name="flag" />ชื่อเสียง</h3>
@@ -147,36 +154,8 @@ export function WorldPanel() {
   );
 }
 
-/** แผนที่ลายเส้นเรียบของ 4 แคว้น (ตำแหน่งตามคัมภีร์โลก) จุดแดงคือที่อยู่ */
-const REGIONS = [
-  { id: 'ileth', th: 'ป่าไอเลธ', d: 'M30 40 Q70 10 130 30 Q150 70 120 100 Q60 110 30 80Z', tone: 'forest', at: [80, 62] },
-  { id: 'hordun', th: 'ฮอร์ดุน', d: 'M160 20 Q230 5 290 30 Q300 80 250 90 Q180 95 160 60Z', tone: 'stone', at: [225, 52] },
-  { id: 'arvel', th: 'อาร์เวล', d: 'M60 110 Q130 95 200 110 Q220 160 170 185 Q90 190 60 150Z', tone: 'field', at: [130, 145] },
-  { id: 'ashland', th: 'แดนเถ้า', d: 'M220 110 Q280 100 300 130 Q300 180 250 185 Q215 160 220 110Z', tone: 'ash', at: [260, 148] },
-] as const;
-const DOT: Record<string, [number, number]> = { arvel_village: [110, 160], ventras: [160, 172], ileth: [80, 75], hordun: [225, 65], ashland: [260, 160] };
-
-export function WorldMap({ here, small }: { here: string; small?: boolean }) {
-  const dot = DOT[here];
-  return (
-    <div class={`map ${small ? 'small' : ''}`}>
-      <svg viewBox="0 0 320 200" role="img" aria-label={`แผนที่ · ${PLACE_TH[here] ?? ''}`}>
-        {REGIONS.map((r) => (
-          <g key={r.id}>
-            <path class={`region ${r.tone}`} d={r.d} />
-            {!small && <text x={r.at[0]} y={r.at[1]}>{r.th}</text>}
-          </g>
-        ))}
-        {dot && (
-          <g class="here">
-            <circle cx={dot[0]} cy={dot[1]} r="10" class="halo" />
-            <circle cx={dot[0]} cy={dot[1]} r="5" />
-          </g>
-        )}
-      </svg>
-    </div>
-  );
-}
+/** แผนที่โลกอยู่ใน WorldMap.tsx (ภาพพิกเซลจาก public/map) ส่งต่อชื่อเดิมให้ App ใช้ได้เหมือนเดิม */
+export { WorldMap };
 
 const THEMES: { id: ThemeChoice; th: string }[] = [
   { id: 'auto', th: 'ตามเครื่อง' },
