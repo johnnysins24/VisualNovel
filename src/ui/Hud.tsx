@@ -95,11 +95,13 @@ export function Scene() {
   const img = sceneImage.value;
   const npc = sceneNpc(currentEvent.value?.text ?? '');
   return (
-    <div class={`scene ${img ? `has-img ${img.time}` : ''}`} style={img ? { backgroundImage: `url(${img.url})` } : undefined}>
+    <div class={`scene ${img ? `has-img ${img.time}` : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
       {!img && <div class="hill" />}
       {!img && <div class="hill back" />}
-      <SpriteView />
-      {npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
+      <div class="actors">
+        <SpriteView />
+        {npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
+      </div>
       {place && <span class="scene-place"><Icon name="place" />{place}</span>}
     </div>
   );
