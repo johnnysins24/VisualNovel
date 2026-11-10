@@ -2,6 +2,7 @@
 // deploy: npm run build && npx wrangler@4 deploy
 {
   "name": "visualnovel",
+  "account_id": "f536538270eb19947af7e69523095bf4",
   "compatibility_date": "2026-11-01",
   "workers_dev": true,
   "preview_urls": true,

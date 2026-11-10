@@ -39,5 +39,5 @@ npm run shots     # Playwright ถ่ายจอ 3 ขนาดลงโฟล�
 
 - deploy เองจากเครื่อง: `npm run build && npx wrangler@4 deploy` (ครั้งแรกรัน `npx wrangler@4 login`)
 - อัตโนมัติ: `.github/workflows/deploy.yml` deploy ทุกครั้งที่ push main และทำลิงก์ทดลองให้ทุก PR (คอมเมนต์ลิงก์ไว้ใน PR)
-  ต้องมี repo secret 2 ตัว: `CLOUDFLARE_API_TOKEN` (สร้างจาก template "Edit Cloudflare Workers") และ `CLOUDFLARE_ACCOUNT_ID`
+  ต้องมี repo secret `CLOUDFLARE_API_TOKEN` (สร้างจาก template "Edit Cloudflare Workers") ส่วน account id อยู่ใน `wrangler.jsonc` แล้ว
   ถ้ายังไม่มี secret workflow จะข้ามไปโดยไม่ fail
