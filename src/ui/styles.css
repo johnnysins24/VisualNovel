@@ -67,10 +67,20 @@ ul { list-style: none; margin: 0; padding: 0; }
 .top-tabs button[aria-current='true'] { background: var(--subtle); color: var(--ink); }
 
 /* ---------- ฉาก ---------- */
-.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); min-height: 0; display: grid; place-items: end center; }
+.stage { display: contents; }
+/* ฉากคงสัดส่วนภาพ 256×112 เสมอ ไม่ครอปพื้นหลัง ตัวละครสูง 96/112 ของฉาก = พิกเซลขนาดเท่าพื้นหลัง */
+.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); aspect-ratio: 256 / 112; width: 100%; min-height: 0; }
+.actors { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 6%; }
 .scene .hill { position: absolute; left: -10%; right: -10%; bottom: -45%; height: 70%; background: var(--hill); border-radius: 50% 50% 0 0; }
 .scene .hill.back { left: 35%; right: -30%; bottom: -52%; background: var(--hill2); }
-.sprite { position: relative; image-rendering: pixelated; height: 88%; max-height: 288px; aspect-ratio: 64 / 96; margin-bottom: 4%; }
+.sprite { position: relative; image-rendering: pixelated; aspect-ratio: 64 / 96; }
+/*
+ * ตัวละคร (ผ้าใบ 64×96 เท้าที่แถว 93) วาดพิกเซลเท่าฉาก 256×112: สูง 96/112 ของฉาก
+ * แล้วยกขึ้นให้เท้าแตะแถว --stand ของภาพ (ค่าจาก thread ศิลป์ ค่าเริ่ม 106)
+ */
+.actors .sprite { height: calc(96 / 112 * 100%); transform: translateY(calc((var(--stand, 106) - 109) / 96 * 100%)); }
+.scene.has-img { background-size: cover; background-position: center bottom; background-repeat: no-repeat; image-rendering: pixelated; }
+.scene.has-img .scene-place { background: color-mix(in srgb, var(--bg) 82%, transparent); padding: 2px 8px; border-radius: 999px; }
 .scene-place { position: absolute; top: 8px; left: 12px; font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
 .scene-place .icon { width: 14px; height: 14px; }
 
@@ -202,6 +212,9 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node:focus-visible circle, .chart .node:hover circle { stroke: var(--accent); }
 .chart .node.me circle { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
 .chart .node.dead { opacity: .5; }
+.face { image-rendering: pixelated; }
+.avatar.face { background: var(--subtle); object-fit: cover; }
+.node.dead .face { filter: grayscale(1); opacity: .6; }
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
 .chart .node.me .initial { fill: var(--ink); font-weight: 600; }
 .chart .nm { text-anchor: middle; font-size: 12.5px; fill: var(--ink); }
@@ -279,11 +292,10 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
   padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
 }
 /* มือถือแนวตั้ง (ค่าเริ่ม) */
-.game { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 24% auto 1fr auto; grid-template-areas: 'top' 'scene' 'stats' 'read' 'nav'; }
+.game { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto 1fr auto; grid-template-areas: 'top' 'scene' 'stats' 'read' 'nav'; }
 .game { transition: grid-template-rows .25s ease; }
 @media (orientation: portrait) and (max-width: 1023px) {
-  .game[data-back] { grid-template-rows: auto 64px auto 1fr auto; }
-  .game[data-back] .sprite { height: 56px; margin-bottom: 2px; }
+  .game[data-back] .scene { aspect-ratio: auto; height: 64px; }
 }
 @media (prefers-reduced-motion: reduce) { .game { transition: none; } }
 .game:not([data-tab='story']) { grid-template-rows: auto 1fr auto; grid-template-areas: 'top' 'read' 'nav'; }
@@ -298,6 +310,7 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
   .game:not([data-tab='story']) .scene, .game:not([data-tab='story']) .stats { display: grid; }
   .top { border-right: 1px solid var(--line); padding-top: 6px; }
   .scene, .stats { border-right: 1px solid var(--line); }
+  .scene { aspect-ratio: auto; height: 100%; }
   .stats { border-bottom: 0; border-top: 1px solid var(--line); }
   .bottom-nav { grid-template-columns: 1fr; grid-template-rows: repeat(5, 1fr); border-top: 0; border-right: 1px solid var(--line); padding: max(6px, env(safe-area-inset-top)) 4px 6px; }
   .sheet { border-radius: 0; box-shadow: none; padding: 4px 10px 8px; }
@@ -307,19 +320,24 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 
 /* แท็บเล็ตและเดสก์ท็อป: ฉากเต็มความกว้าง ซ้ายตัวละคร กลางเรื่อง (ไม่เกิน 700 px) ขวาผู้คนและโลก */
 @media (min-width: 1024px) and (min-height: 501px) {
+  /* เวทีซ้าย (ฉาก ค่าสถานะ ผู้คน) หนังสือขวา (เรื่องและตัวเลือก) ทั้งคู่สูงเต็มจอ */
   .game, .game:not([data-tab='story']) {
-    grid-template-columns: 280px minmax(0, 1fr) 300px; grid-template-rows: auto 160px 1fr;
-    grid-template-areas: 'top top top' 'scene scene scene' 'left read right';
+    grid-template-columns: minmax(360px, 1fr) minmax(0, 760px); grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: 'top top' 'stage read';
   }
-  .game:not([data-tab='story']) .scene { display: grid; }
-  .scene .sprite { height: 136px; }
+  .stage { grid-area: stage; display: flex; flex-direction: column; gap: 22px; padding: 18px; overflow: auto; min-height: 0; border-right: 1px solid var(--line); }
+  .stage .scene, .game:not([data-tab='story']) .scene { display: block; flex: none; border-radius: 14px; }
   .game .stats, .bottom-nav { display: none !important; }
   .top-tabs { display: flex; }
-  .side { display: grid; align-content: start; gap: 18px; padding: 16px; overflow: auto; min-height: 0; }
-  .side.left { grid-area: left; border-right: 1px solid var(--line); }
-  .side.right { grid-area: right; border-left: 1px solid var(--line); }
-  .read { width: 100%; max-width: 700px; justify-self: center; }
-  .log, .page { padding: 18px 28px; }
-  .sheet { border: 1px solid var(--line); border-bottom: 0; box-shadow: none; }
+  .top { padding: 10px 20px; }
+  .name { font-size: 1.2rem; }
+  .side { display: grid; align-content: start; gap: 22px; }
+  .side.left { grid-template-columns: 1fr 1fr; align-items: start; }
+  .side.left > .sec:first-child { grid-column: 1 / -1; }
+  .game[data-tab='character'] .side.left { display: none; }
+  .read { width: 100%; }
+  .log, .page { padding: 22px 36px; }
+  .entry p { font-size: 1.06rem; }
+  .sheet { margin: 0 24px; border: 1px solid var(--line); border-bottom: 0; box-shadow: none; }
   .choice kbd { display: inline-block; }
 }
