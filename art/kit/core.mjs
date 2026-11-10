@@ -291,9 +291,10 @@ export function compose(kit, pieces, look = {}) {
 }
 
 /**
- * Held items (palette.yaml `item_outline`: weapons, off-hand things) get a 1 px light ring so they
- * read apart from the figure behind them: every pixel next to the item that is not the item turns
- * light, on the body as well as outside it, and the dark outline moves out around the new ring.
+ * Held items (palette.yaml `item_outline`: weapons, off-hand things) get a 1 px ring so they read
+ * apart from the figure behind them: every pixel next to the item that is not the item takes the ring
+ * colour, on the body as well as outside it. A ring lighter than the outline also moves the dark
+ * outline out around itself; a ring in the outline colour simply outlines the item over the body.
  */
 function itemOutline(kit, stack, top, out, set) {
   const isHeld = p => top[p] >= 0 && stack[top[p]].held;
@@ -302,6 +303,7 @@ function itemOutline(kit, stack, top, out, set) {
   for (let p = 0; p < W * H; p++) if (!isHeld(p) && near(p, isHeld)) ring[p] = 1;
   const light = rgb(kit.pal.item_outline.colour), dark = rgb(kit.pal.outline);
   for (let p = 0; p < W * H; p++) if (ring[p]) set(p, light);
+  if (kit.pal.item_outline.colour === kit.pal.outline) return;
   // the ring may stick out past the silhouette: outline it so it never melts into a light background
   for (let p = 0; p < W * H; p++) if (!ring[p] && top[p] < 0 && near(p, q => ring[q] && top[q] < 0)) set(p, dark);
 }
