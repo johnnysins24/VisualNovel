@@ -4,6 +4,21 @@ import type { LifeState, Person } from '../engine/state';
 import { CLOSENESS_CAP } from '../engine/engine';
 import { life } from '../store';
 import { Icon, PATHS, type IconName } from './icons';
+import type { Look } from '../../art/kit/core.mjs';
+import { personLook } from '../sprites/looks';
+import { faceUrl } from '../sprites/render';
+import { currentPlayerLook } from './SpriteView';
+
+/** หน้าของคนในวงกลม (ภาพ pixel จากชุด sprite) ตัดขอบเป็นวงกลม */
+function Face({ look, x, y, r, id }: { look: Look; x: number; y: number; r: number; id: string }) {
+  const clip = `face-${id}`;
+  return (
+    <>
+      <clipPath id={clip}><circle cx={x} cy={y} r={r - 1} /></clipPath>
+      <image class="face" href={faceUrl(look)} x={x - r} y={y - r} width={r * 2} height={r * 2} clip-path={`url(#${clip})`} preserveAspectRatio="xMidYMid slice" />
+    </>
+  );
+}
 
 const KIN_TH: Record<KinRole, (g?: 'm' | 'f') => string> = {
   father: () => 'พ่อ',
@@ -129,7 +144,7 @@ function PersonNode({ s, l, onPick }: { s: Slot; l: LifeState; onPick: (p: Perso
     <g class={`node ${me ? 'me' : ''} ${dead ? 'dead' : ''}`} tabIndex={0} role="button" aria-label={`${name} ${sub}`} onClick={() => onPick(s.p)}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPick(s.p)}>
       <circle cx={s.x} cy={s.y} r={me ? R + 4 : R} />
-      <text x={s.x} y={s.y + 5} class="initial">{initial(name)}</text>
+      <Face look={me ? currentPlayerLook() : personLook(p!, l)} x={s.x} y={s.y} r={me ? R + 4 : R} id={`t-${me ? 'me' : p!.id}`} />
       {dead && <path class="cross" d={`M${s.x + R - 4} ${s.y - R - 8}v12M${s.x + R - 8} ${s.y - R - 4}h8`} />}
       <text x={s.x} y={s.y + R + 17} class="nm">{name}</text>
       <text x={s.x} y={s.y + R + 31} class="sub">{sub}</text>
@@ -217,13 +232,13 @@ export function RelationMap() {
             <g key={p.id} class={`node ${p.alive ? '' : 'dead'}`} tabIndex={0} role="button" aria-label={`${p.name} ${BOND_TH[p.bond!]}`}
               onClick={() => setPicked(p)} onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && setPicked(p)}>
               <circle cx={x} cy={y} r={17} />
-              <text x={x} y={y + 5} class="initial">{initial(p.name)}</text>
+              <Face look={personLook(p, l)} x={x} y={y} r={17} id={`r-${p.id}`} />
               <text x={x} y={y + 33} class="nm">{p.name}</text>
             </g>
           ))}
           <g class="node me">
             <circle cx={C.x} cy={C.y} r={24} />
-            <text x={C.x} y={C.y + 6} class="initial">{initial(l.name)}</text>
+            <Face look={currentPlayerLook()} x={C.x} y={C.y} r={24} id="r-me" />
           </g>
         </svg>
       </div>
@@ -262,7 +277,7 @@ export function CloseList() {
       <ul class="people">
         {ppl.map((p) => (
           <li key={p.id}>
-            <span class="avatar">{initial(p.name)}</span>
+            <img class="avatar face" src={faceUrl(personLook(p, l))} alt="" />
             {p.name}
             <small class={`bond-${p.bond}`}><Icon name={BOND_ICON[p.bond!]} label={BOND_TH[p.bond!]} /></small>
           </li>
