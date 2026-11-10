@@ -2,7 +2,7 @@
 # for furniture, and a window onto the rooftops and their star-dew dishes.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick, rails: [4], skirt: wood }
+  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, skirt: wood }
   - pane: { x: 150, y: 24, w: 30, h: 24 }
     repeat: [-330, 230]
   - furn: { kind: curtain, at: [148, 50], w: 34, h: 28, mat: cloth }
@@ -20,6 +20,7 @@ layers:
   - glow: { at: [31, 86], r: 16, colour: 'ffb060' }
   - furn: { kind: shelf, at: [60, 60], w: 26, h: 14, rows: 1 }
     outline: true
+  - slope: { from: [[-256, 70], [96, 0]], mat: wood }
   - furn: { kind: lamp, at: [128, 30], light: lamp }
   - glow: { at: [129, 32], r: 16, colour: 'aad6fb', only: [dusk, night] }
   - furn: { kind: bed, at: [196, 98], w: 46, h: 14, mat: cloth }
@@ -41,4 +42,6 @@ layers:
   - furn: { kind: rug, at: [98, 99], w: 60, h: 6, mat: cloth, trim: plaster, spread: 5 }
   - furn: { kind: lamp, at: [330, 30], light: lamp }
   - glow: { at: [331, 32], r: 16, colour: 'aad6fb', only: [dusk, night] }
+  - prop: { art: cradle, at: [178, 106] }
+    outline: true
   - vignette: { strength: 0.5 }

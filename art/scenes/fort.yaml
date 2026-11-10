@@ -29,6 +29,8 @@ layers:
     outline: true
   - furn: { kind: crate, at: [52, 106], w: 14, h: 12 }
     outline: true
+  - prop: { art: dog, at: [210, 106], legend: { w: dirt@2, k: ink@0 } }
+    outline: true
   - furn: { kind: barrel, at: [190, 106], w: 10, h: 14 }
     outline: true
   - furn: { kind: tent, at: [-110, 104], w: 44, h: 22, mat: cloth }

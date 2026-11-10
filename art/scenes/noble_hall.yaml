@@ -20,9 +20,9 @@ layers:
   - repeat: [-256, 256]
     prop: { at: [0, 90], ascii: "WwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwwwWwwwwwwwwwwwwwww" }
   - floor: { y0: 93, mat: plaster, pattern: checker, mat2: dark_stone, tile: 16, rows: 14, depth: 90, carpet: [10, 26] }
-  - furn: { kind: chandelier, at: [116, 14], w: 25 }
+  - furn: { kind: chandelier, at: [116, 14], w: 25, light: lamp }
     repeat: [-250, 250]
-  - glow: { at: [128, 16], r: 24, colour: 'f7d98a', only: [dusk, night] }
+  - glow: { at: [128, 16], r: 24, colour: 'aad6fb', only: [dusk, night] }
     repeat: [-250, 250]
   - furn: { kind: chair, at: [-150, 100], w: 10, h: 22, mat: red_cloth }
     outline: true

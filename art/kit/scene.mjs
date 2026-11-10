@@ -440,7 +440,7 @@ export function renderScene(S, id, time = 'day') {
         case 'chandelier': { // `at` row = the candle tops
           for (let y = 0; y < yb; y++) put(x0 + Math.floor(w / 2), y, 'metal', 2);
           for (let i = 0; i < w; i++) { put(x0 + i, yb + 2, 'brass', 3); put(x0 + i, yb + 3, 'brass', 1.6); }
-          for (let i = 0; i < w; i += 3) { put(x0 + i, yb + 1, 'plaster', 3.8); put(x0 + i, yb, 'window', 4); }
+          for (let i = 0; i < w; i += 3) { put(x0 + i, yb + 1, p.light ? 'metal' : 'plaster', 3.8); put(x0 + i, yb, p.light ?? 'window', 4); }
           for (let i = 3; i < w - 3; i++) put(x0 + i, yb + 4 + Math.round(Math.abs(i - w / 2) < 3 ? 1 : 0), 'brass', 2.4);
           break;
         }
@@ -531,6 +531,18 @@ export function renderScene(S, id, time = 'day') {
       for (const [cx, cy, rad] of blobs) for (let y = Math.floor(cy - rad); y <= cy + rad; y++) for (let dx = -Math.ceil(rad); dx <= rad; dx++) {
         const d = Math.hypot(dx, (y - cy) * 1.15);
         if (d <= rad) put(cx + dx, y, p.mat ?? 'elf_leaf', d > rad - 1.2 ? (dx + (y - cy) < 0 ? 3.8 : 1.4) : dx + (y - cy) < -rad * 0.2 ? 3.2 : 2.2);
+      }
+    },
+    slope(p) {
+      // a sloping ceiling under the roof: fills everything above the line from `from` to `to` with
+      // rafters every `every` px (an attic room)
+      const [[x0, y0], [x1, y1]] = p.from;
+      for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) {
+        const yl = Math.round(y0 + ((y1 - y0) * (x - x0)) / (x1 - x0 || 1));
+        for (let y = 0; y <= yl; y++) {
+          const raft = ((x + OX) % (p.every ?? 14)) < 3;
+          put(x, y, p.mat ?? 'wood', y >= yl - 1 ? 3.6 : y === yl - 2 ? 1.2 : raft ? ((x + OX) % (p.every ?? 14) === 0 ? 3.2 : 1.6) : 2.2);
+        }
       }
     },
     line(p) {

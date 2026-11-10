@@ -30,6 +30,16 @@ layers:
   - glow: { at: [446, 91], r: 14, colour: 'f7d98a' }
   - furn: { kind: altar, at: [112, 92], w: 32, h: 16, mat: cloth }
     outline: true
+  - prop: { art: statue, at: [122, 76] }
+    outline: true
+  - prop: { art: fire_bowl, at: [[56, 102], [190, 102]] }
+    outline: true
+  - glow: { at: [60, 90], r: 12, colour: 'f39a45' }
+  - glow: { at: [194, 90], r: 12, colour: 'f39a45' }
+  - furn: { kind: bench, at: [4, 108], w: 44, h: 8 }
+    outline: true
+  - furn: { kind: bench, at: [208, 108], w: 44, h: 8 }
+    outline: true
   - furn: { kind: lamp, at: [127, 30], light: window }
   - furn: { kind: lamp, at: [-100, 30], light: window }
     repeat: [460]

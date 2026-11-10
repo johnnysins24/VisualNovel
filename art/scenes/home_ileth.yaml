@@ -38,4 +38,6 @@ layers:
   - glow: { at: [381, 28], r: 16, colour: 'bad8fa', only: [dusk, night] }
   - furn: { kind: crate, at: [-210, 104], w: 16, h: 14 }
     outline: true
+  - prop: { art: cradle, at: [226, 106] }
+    outline: true
   - vignette: { strength: 0.4 }

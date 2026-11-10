@@ -39,4 +39,9 @@ layers:
     outline: true
   - furn: { kind: lamp, at: [86, 34] }
   - glow: { at: [87, 36], r: 20, colour: 'f7d98a' }
+  - prop: { art: bell, at: [196, 92] }
+    outline: true
+  - prop: { art: stove, at: [40, 100] }
+    outline: true
+  - glow: { at: [45, 95], r: 12, colour: 'f39a45' }
   - vignette: { strength: 0.6 }

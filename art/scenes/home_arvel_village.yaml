@@ -20,6 +20,8 @@ layers:
   - glow: { at: [121, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - furn: { kind: bed, at: [196, 96], w: 50, h: 16, mat: red_cloth }
     outline: true
+  - prop: { art: cradle, at: [226, 106] }
+    outline: true
   - furn: { kind: table, at: [156, 100], w: 30, h: 16 }
     outline: true
   - furn: { kind: barrel, at: [60, 104], w: 10, h: 16 }

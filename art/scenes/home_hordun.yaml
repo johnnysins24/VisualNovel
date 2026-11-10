@@ -35,4 +35,6 @@ layers:
     outline: true
   - furn: { kind: barrel, at: [222, 106], w: 12, h: 16 }
     outline: true
+  - prop: { art: cradle, at: [192, 106] }
+    outline: true
   - vignette: { strength: 0.55 }
