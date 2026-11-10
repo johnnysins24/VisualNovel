@@ -5,9 +5,10 @@
 # Quote a colour that YAML could read as a number in e notation, such as '893e25'.
 
 outline: 2b2840
-# Held items (weapons, off-hand things) get a 1 px ring in this colour so they stand apart from the
-# figure (Phupha, 2026-11-10). Slots = piece folders that count as held.
-item_outline: { colour: ffffff, slots: [weapon, offhand] }
+# Held items (weapons, off-hand things) get a 1 px ring of the outline colour where they cross the
+# figure, so the hand, sleeve or cloak behind them never runs into the item (Phupha, 2026-11-10: a
+# white ring was tried first, then dark like the rest of the art). Slots = piece folders that count.
+item_outline: { colour: 2b2840, slots: [weapon, offhand] }
 
 ramps:
   # skin tones (A12), each with the lips and blush that go with it; peach is the locked skin

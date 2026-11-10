@@ -61,14 +61,14 @@ const feetFor = (wear: string): string | undefined =>
 
 /** ชิ้นของของที่สวมอยู่: art/items.yaml ก่อน แล้วค่อย field sprite ของ item */
 function itemPieces(l: LifeState, items: ItemIndex): string[] {
-  const out: string[] = [];
-  for (const id of Object.values(l.equipped)) {
-    if (!id) continue;
-    const mapped = (kit.data.items as Record<string, string[]>)[id];
-    const sprite = items.get(id)?.sprite;
-    out.push(...(mapped ?? (sprite ? [sprite] : [])));
-  }
-  return out;
+  return Object.values(l.equipped).flatMap((id) => (id ? piecesOfItem(id, items) : []));
+}
+
+/** ชิ้นภาพของของหนึ่งชิ้น: art/items.yaml ก่อน แล้วค่อย field sprite ของ item (ไม่มีภาพคืน []) */
+export function piecesOfItem(id: string, items: ItemIndex): string[] {
+  const mapped = (kit.data.items as Record<string, string[]>)[id];
+  const sprite = items.get(id)?.sprite;
+  return (mapped ?? (sprite ? [sprite] : [])).filter((p) => kit.pieces[p]);
 }
 
 /** สีหน้าจากสถานะ: สลบเมื่อตาย เจ็บเมื่อเลือดเหลือน้อย ยิ้มหรือเศร้าตามผลทอยล่าสุด */
@@ -151,10 +151,17 @@ export function playerLook(l: LifeState, items: ItemIndex, face = 'neutral'): Lo
     }
     pieces.push(p);
   }
-  return { body, pieces: dedupe(pieces.filter((p) => fits(p, body))), face, choices, colors };
+  return { body, pieces: unheld(dedupe(pieces.filter((p) => fits(p, body)))), face, choices, colors };
 }
 
 const dedupe = (a: string[]) => [...new Set(a)];
+
+/**
+ * ตัวละครในเกมไม่ถือของ: อาวุธและของในมือรองไม่วาดบนตัว (Phupha 10 พ.ย. 2026: ของที่ถือเฉียงออกจากตัว
+ * ไม่ผ่าน) ของที่สวมยังขึ้นเป็นรูปในช่องสวมใส่
+ */
+export const HELD_SLOTS = ['weapon', 'offhand'];
+const unheld = (a: string[]) => a.filter((p) => !HELD_SLOTS.includes(p.split('/')[0]!));
 
 /** กลุ่ม NPC (art/npcs.yaml) ที่คนรอบตัวในถิ่นกำเนิดนั้นมักเป็น */
 const HOME_GROUP: Record<string, string> = {
@@ -193,7 +200,7 @@ export function personAge(p: PersonLike, l: LifeState): number {
 /** NPC ที่มีชื่อ (npcs.yaml named) ใช้รูปที่กำหนดไว้ */
 export function namedLook(id: string, face = 'neutral'): Look | null {
   const n = kit.data.npcs.named?.[id];
-  return n ? { ...n.look, face } : null;
+  return n ? { ...n.look, pieces: unheld(n.look.pieces), face } : null;
 }
 
 /**
@@ -247,7 +254,7 @@ export function personLook(p: PersonLike, l: LifeState): Look {
   if (age >= OLD_FROM) {
     if (fits('mark/wrinkles', look.body) && !look.pieces!.includes('mark/wrinkles')) look.pieces!.push('mark/wrinkles');
   } else strip(['mark/wrinkles']);
-  return look;
+  return { ...look, pieces: unheld(look.pieces!) };
 }
 
 /** ชื่อไทยสั้นของ NPC ที่มีชื่อ (ส่วนก่อนวงเล็บใน npcs.yaml) ใช้หาว่าเหตุการณ์พูดถึงใคร */

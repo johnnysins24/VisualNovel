@@ -74,14 +74,11 @@ describe('player sprite from the life state', () => {
     expect(playerLook(life({ age: 20, flags: ['race_elf'] }), noItems).pieces).toContain('ears/elf');
   });
 
-  it('dresses by class, and a held item replaces the class weapon', () => {
-    const w = playerLook(life({ gender: 'm', age: 20, classId: 'warrior' }), noItems);
+  it('dresses by class but never draws held weapons or off-hand things', () => {
+    const w = playerLook(life({ gender: 'm', age: 20, classId: 'warrior', equipped: { weapon: 'navy_saber', accessory: 'healer_satchel' } }), noItems);
     expect(w.pieces).toContain('body/leather_armor');
-    expect(w.pieces).toContain('weapon/longsword');
-    const items: ItemIndex = new Map();
-    const held = playerLook(life({ gender: 'm', age: 20, classId: 'warrior', equipped: { weapon: 'navy_saber' } }), items);
-    expect(held.pieces).toContain('weapon/saber');
-    expect(held.pieces).not.toContain('weapon/longsword');
+    expect(w.pieces).toContain('acc/satchel');
+    expect(w.pieces!.some((p) => /^(weapon|offhand)\//.test(p))).toBe(false);
   });
 
   it('renders every race x sex x age x origin x class without errors', () => {
@@ -108,7 +105,8 @@ describe('player sprite from the life state', () => {
 
 describe('NPC sprites', () => {
   it('uses the fixed look for named characters and finds them in text', () => {
-    expect(namedLook('kedra')!.pieces).toContain('weapon/longsword');
+    expect(namedLook('kedra')!.pieces).toContain('body/chainmail');
+    expect(namedLook('kedra')!.pieces!.some((p) => p.startsWith('weapon/'))).toBe(false);
     expect(namedInText('เสียงของเคดราดังมาจากลาน')).toBe('kedra');
     expect(namedInText('ไม่มีใครเลย')).toBeNull();
   });
