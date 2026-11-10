@@ -25,6 +25,7 @@ export function makeKit({ palette, bodies, pieces, ...data }) {
   };
   for (const k of Object.keys(pal.ramps)) pal.ramps[k] = pal.ramps[k].map(hex);
   pal.outline = hex(pal.outline);
+  if (pal.item_outline) pal.item_outline = { ...pal.item_outline, colour: hex(pal.item_outline.colour) };
   const kit = { pal, pieces, bodies, mats: Object.keys(pal.materials), cache: {}, data };
   kit.matId = Object.fromEntries(kit.mats.map((m, i) => [m, i]));
   return kit;
@@ -258,11 +259,12 @@ function rampFor(kit, piece, matName, look = {}) {
  * Returns { w, h, rgba }.
  */
 export function compose(kit, pieces, look = {}) {
+  const heldSlots = kit.pal.item_outline?.slots ?? [];
   const stack = [];
   for (const pc of pieces) {
     for (const [name, L] of Object.entries(pc.layers)) {
       const ramps = kit.mats.map(m => (L.mat.includes(kit.matId[m]) ? rampFor(kit, pc, m, look) : null));
-      stack.push({ z: { back: pc.backZ, front: pc.frontZ }[name] ?? pc.z, cast: pc.cast, L, ramps });
+      stack.push({ z: { back: pc.backZ, front: pc.frontZ }[name] ?? pc.z, cast: pc.cast, L, ramps, held: heldSlots.includes(pc.id.split('/')[0]) });
     }
   }
   stack.sort((a, b) => a.z - b.z);
@@ -284,7 +286,26 @@ export function compose(kit, pieces, look = {}) {
     const ramp = ramps[L.mat[p]];
     set(p, ramp[Math.max(0, Math.min(ramp.length - 1, lv))]);
   }
+  if (stack.some(s => s.held)) itemOutline(kit, stack, top, out, set);
   return { w: W, h: H, rgba: out };
+}
+
+/**
+ * Held items (palette.yaml `item_outline`: weapons, off-hand things) get a 1 px ring so they read
+ * apart from the figure behind them: every pixel next to the item that is not the item takes the ring
+ * colour, on the body as well as outside it. A ring lighter than the outline also moves the dark
+ * outline out around itself; a ring in the outline colour simply outlines the item over the body.
+ */
+function itemOutline(kit, stack, top, out, set) {
+  const isHeld = p => top[p] >= 0 && stack[top[p]].held;
+  const near = (p, f) => { const x = p % W, y = (p / W) | 0; return N4.some(([dx, dy]) => { const X = x + dx, Y = y + dy; return X >= 0 && X < W && Y >= 0 && Y < H && f(Y * W + X); }); };
+  const ring = new Uint8Array(W * H);
+  for (let p = 0; p < W * H; p++) if (!isHeld(p) && near(p, isHeld)) ring[p] = 1;
+  const light = rgb(kit.pal.item_outline.colour), dark = rgb(kit.pal.outline);
+  for (let p = 0; p < W * H; p++) if (ring[p]) set(p, light);
+  if (kit.pal.item_outline.colour === kit.pal.outline) return;
+  // the ring may stick out past the silhouette: outline it so it never melts into a light background
+  for (let p = 0; p < W * H; p++) if (!ring[p] && top[p] < 0 && near(p, q => ring[q] && top[q] < 0)) set(p, dark);
 }
 
 /**

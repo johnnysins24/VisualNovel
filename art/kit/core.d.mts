@@ -18,3 +18,6 @@ export interface Look {
 export function makeKit(src: { palette: unknown; bodies: unknown; pieces: Record<string, unknown>; [k: string]: unknown }): Kit;
 export function fitsBody(spec: unknown, bodyKey: string, kit: Kit): boolean;
 export function renderLook(kit: Kit, look: Look): { w: number; h: number; rgba: Uint8ClampedArray };
+export interface Built { id: string; [k: string]: unknown }
+export function buildPiece(kit: Kit, id: string, bodyKey: string, opts?: { variant?: string }): Built;
+export function compose(kit: Kit, pieces: Built[], look?: Record<string, string>): { w: number; h: number; rgba: Uint8ClampedArray };
