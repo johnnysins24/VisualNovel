@@ -33,7 +33,11 @@ npm run shots     # Playwright ถ่ายจอ 3 ขนาดลงโฟล�
 
 ตัดสินใจแล้ว: canvas 64×96 และร่างฐาน 1 ร่าง (A2, A3) ยังเป็นค่าชั่วคราว: ธีม/ฟอนต์ใน `src/ui/styles.css` (A8, A9) ตรวจกับ docs/PLAN.md
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare Workers)
 
-ผูก repo กับ Cloudflare Pages ด้วยตัวเอง: build command `npm run build`, output `dist`, Node 22
-Pages จะสร้างลิงก์ทดลองให้ทุก PR เอง (ต้องใช้บัญชี Cloudflare ของ Phupha ผมไม่ได้ผูกให้)
+เว็บเกมเป็นไฟล์ static เสิร์ฟผ่าน Cloudflare Worker ชื่อ `visualnovel` (ตั้งค่าใน `wrangler.jsonc`)
+
+- deploy เองจากเครื่อง: `npm run build && npx wrangler@4 deploy` (ครั้งแรกรัน `npx wrangler@4 login`)
+- อัตโนมัติ: `.github/workflows/deploy.yml` deploy ทุกครั้งที่ push main และทำลิงก์ทดลองให้ทุก PR (คอมเมนต์ลิงก์ไว้ใน PR)
+  ต้องมี repo secret 2 ตัว: `CLOUDFLARE_API_TOKEN` (สร้างจาก template "Edit Cloudflare Workers") และ `CLOUDFLARE_ACCOUNT_ID`
+  ถ้ายังไม่มี secret workflow จะข้ามไปโดยไม่ fail
