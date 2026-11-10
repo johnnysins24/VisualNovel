@@ -213,6 +213,9 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node.me circle { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
 .chart .node.dead { opacity: .5; }
 .face { image-rendering: pixelated; }
+.slot { position: relative; }
+.slot-name { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; white-space: nowrap; font-size: .75rem; padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); pointer-events: none; }
+.slot-art { width: 80%; height: 80%; object-fit: contain; image-rendering: pixelated; }
 .avatar.face { background: var(--subtle); object-fit: cover; }
 .node.dead .face { filter: grayscale(1); opacity: .6; }
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
