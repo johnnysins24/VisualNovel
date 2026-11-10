@@ -1,0 +1,33 @@
+# Item icons adopted from the free packs in art/thirdparty/ (licences: CREDITS.md at the repo root).
+# Key = item id (content/items/). from = path under art/thirdparty/; cell = [x, y, w, h] for a sprite sheet;
+# drop = exact colours to clear before adopting. SVGs are drawn at `size` px and filled with `ramp` from art/palette.yaml.
+# Build: node art/kit/adopt.mjs (writes art/adopted/<id>.png and art/preview/adopted.png).
+
+healer_satchel: { from: shikashi/icons.png, cell: [0, 320, 32, 32] }
+navy_saber: { from: shikashi/icons.png, cell: [160, 160, 32, 32] }
+bullet_charm: { from: shikashi/icons.png, cell: [0, 192, 32, 32] }
+thick_lamp_glass: { from: shikashi/icons.png, cell: [32, 608, 32, 32] }
+flour_sack_scrap: { from: 7soul-496/I_Fabric.png }
+silver_saw_case: { from: game-icons/delapouite/hand-saw.svg, ramp: metal_silver, size: 30 }
+unit_tag: { from: game-icons/delapouite/price-tag.svg, ramp: wood }
+kedra_sword: { from: shikashi/icons.png, cell: [32, 160, 32, 32] }
+finnick_picks: { from: game-icons/delapouite/lockpicks.svg, ramp: metal_iron }
+black_music_box: { from: dungeon-crawl/item/misc/misc_box.png, drop: ['000000'] }
+blind_astronomer_notes: { from: shikashi/icons.png, cell: [256, 416, 32, 32] }
+hasken_longbow: { from: shikashi/icons.png, cell: [96, 192, 32, 32] }
+navy_star_pistol: { from: 7soul-496/W_Gun001.png }
+warden_grass_scarf: { from: shikashi/icons.png, cell: [224, 544, 32, 32] }
+haldan_goggles: { from: shikashi/icons.png, cell: [64, 352, 32, 32] }
+healer_oak_staff: { from: shikashi/icons.png, cell: [224, 192, 32, 32] }
+garven_lantern: { from: shikashi/icons.png, cell: [288, 320, 32, 32] }
+hunter_long_rifle: { from: 7soul-496/W_Gun003.png }
+grandma_knee_cloth: { from: shikashi/icons.png, cell: [480, 288, 32, 32] }
+miner_lamp_helmet: { from: shikashi/icons.png, cell: [64, 224, 32, 32] }
+smith_dwarf_hammer: { from: shikashi/icons.png, cell: [128, 320, 32, 32] }
+clerk_reading_lens: { from: shikashi/icons.png, cell: [256, 320, 32, 32] }
+wedding_clay_bowl: { from: shikashi/icons.png, cell: [384, 352, 32, 32] }
+cradle_bell: { from: game-icons/lorc/ringing-bell.svg, ramp: metal_brass, size: 30 }
+mother_shawl: { from: shikashi/icons.png, cell: [448, 224, 32, 32] }
+toren_oil_ladle: { from: game-icons/delapouite/ladle.svg, ramp: metal_iron }
+back_brace: { from: shikashi/icons.png, cell: [480, 224, 32, 32] }
+dim_night_vial: { from: shikashi/icons.png, cell: [96, 608, 32, 32] }

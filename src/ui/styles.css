@@ -155,6 +155,12 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sec { display: grid; gap: 8px; }
 .sec h3 { font-size: .78rem; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .sec h3 .icon { width: 14px; height: 14px; }
+.credits summary { cursor: pointer; list-style: none; }
+.credits summary::-webkit-details-marker { display: none; }
+.credits summary h3::after { content: "▸"; margin-left: auto; }
+.credits[open] summary h3::after { content: "▾"; }
+.credits ul { display: grid; gap: 6px; padding: 0; margin: 0; list-style: none; font-size: .78rem; line-height: 1.5; }
+.credits a { color: inherit; }
 .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 16px; }
 .stat-grid li { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
 .stat-grid li .icon { color: var(--muted); }

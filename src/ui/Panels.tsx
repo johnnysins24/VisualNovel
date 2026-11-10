@@ -11,6 +11,7 @@ import { SpriteView } from './SpriteView';
 import { PLACE_TH, signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
+import { CREDITS } from './credits';
 
 const FACTION_TH: Record<FactionId, string> = {
   crown: 'ราชสำนักอาร์เวล',
@@ -237,6 +238,17 @@ export function MorePanel() {
         <textarea id="save-code" rows={3} value={code} onInput={(e) => setCode((e.target as HTMLTextAreaElement).value)} placeholder="วางรหัสเซฟที่นี่" aria-label="รหัสเซฟ" />
         {msg && <p class="muted">{msg}</p>}
       </section>
+      <details class="sec credits">
+        <summary><h3><Icon name="book" />เครดิต</h3></summary>
+        <ul>
+          {CREDITS.map((c) => (
+            <li key={c.what}>
+              <a href={c.url} target="_blank" rel="noopener noreferrer">{c.what}</a>
+              <span class="muted"> · {c.by} · <a href={c.licenceUrl} target="_blank" rel="noopener noreferrer">{c.licence}</a></span>
+            </li>
+          ))}
+        </ul>
+      </details>
       <section class="sec">
         <button class="primary" onClick={() => { startLife(); tab.value = 'story'; }}>
           <Icon name="reborn" />เริ่มชีวิตใหม่
