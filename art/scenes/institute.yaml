@@ -2,20 +2,37 @@
 # windows, a brass orrery on the desk.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, rails: [8], beams: [66, 188], noise: 0.3 }
+  - wall: { y0: 0, y1: 92, mat: plaster, pattern: plaster, rails: [8], beams: [-190, -66, 66, 188, 322, 446], noise: 0.3, wainscot: [74, wood], skirt: wood }
   - furn: { kind: bookcase, at: [4, 92], w: 58, h: 80, rows: 6 }
     outline: true
   - furn: { kind: bookcase, at: [194, 92], w: 58, h: 80, rows: 6 }
+    outline: true
+  - furn: { kind: bookcase, at: [-124, 92], w: 58, h: 80, rows: 6 }
+    outline: true
+    repeat: [-128, 452, 576]
+  - furn: { kind: frame, at: [-48, 26], w: 34, h: 26, mat: field, sky: plaster, frame: wood }
+    outline: true
+  - furn: { kind: frame, at: [270, 26], w: 34, h: 26, mat: elf_leaf, sky: water, frame: wood }
     outline: true
   - pane: { x: 88, y: 16, w: 16, h: 36, arch: true, frame: brass, frame_bg: plaster }
   - pane: { x: 152, y: 16, w: 16, h: 36, arch: true, frame: brass, frame_bg: plaster }
   - prop: { at: [112, 52], ascii: "...yyyyyy...\n.yyCCCCCCyy.\nyCCCQCCCCCCy\nyCCCCCCQCCCy\nyCQCCCCCCCCy\nyCCCCCQCCQCy\nyCCQCCCCCCCy\n.yyCCCCCCyy.\n...yyyyyy..." }
     outline: true
   - floor: { y0: 93, mat: plank, pattern: boards, board: 8, depth: 90 }
-  - furn: { kind: table, at: [72, 110], w: 40, h: 18 }
+  - furn: { kind: table, at: [-50, 108], w: 48, h: 18 }
     outline: true
-  - prop: { at: [84, 92], ascii: "..yYy..\n.y...y.\ny..Q..y\n.y...y.\n..yyy..\n...y...\n..yyy.." }
+  - furn: { kind: chair, at: [-60, 108], w: 8, h: 18 }
+    outline: true
+  - furn: { kind: table, at: [276, 108], w: 48, h: 18 }
+    outline: true
+  - furn: { kind: chair, at: [326, 108], w: 8, h: 18 }
+    outline: true
+  - furn: { kind: table, at: [64, 100], w: 30, h: 14 }
+    outline: true
+  - prop: { at: [70, 86], ascii: "..yYy..\n.y...y.\ny..Q..y\n.y...y.\n..yyy..\n...y...\n..yyy.." }
     outline: true
   - furn: { kind: chandelier, at: [116, 6], w: 24 }
+    repeat: [-260, 260]
   - glow: { at: [128, 8], r: 22, colour: 'f7d98a', only: [dusk, night] }
+    repeat: [-260, 260]
   - vignette: { strength: 0.4 }

@@ -8,11 +8,20 @@ layers:
   - pillar: { x: 130, w: 10, base: 54, top: 26 }
     haze: 0.45
   - wall: { y0: 50, y1: 88, mat: stone, pattern: blocks }
-  - prop: { at: [0, 50], ascii: "n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n" }
+  - repeat: [-256, 256]
+    prop: { at: [0, 50], ascii: "n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n.n" }
   - furn: { kind: door, at: [116, 88], w: 24, h: 30, arch: true, mat: wood }
     outline: true
   - furn: { kind: banner, at: [40, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
   - furn: { kind: banner, at: [204, 52], w: 12, h: 26, mat: red_cloth, sign: plaster }
+    repeat: [-410, -330, 110, 190]
+  - rect: { x: -150, y: 26, w: 40, h: 62, mat: stone, lvl: 2.2 }
+    outline: true
+    repeat: [520]
+  - prop: { at: [[-152, 26], [368, 26]], ascii: "n.n.n.n.n.n.n.n.n.n.n.n\nnnnnnnnnnnnnnnnnnnnnnnn" }
+    outline: true
+  - pane: { x: -136, y: 40, w: 10, h: 14, arch: true, frame: stone, frame_bg: stone }
+    repeat: [520]
   - ground: { y: 88, mat: ash, noise: 1, tufts: 30, tuft: silver_grass }
   - furn: { kind: tent, at: [6, 104], w: 40, h: 22, mat: cloth }
     outline: true
@@ -22,3 +31,11 @@ layers:
     outline: true
   - furn: { kind: barrel, at: [190, 106], w: 10, h: 14 }
     outline: true
+  - furn: { kind: tent, at: [-110, 104], w: 44, h: 22, mat: cloth }
+    outline: true
+    repeat: [-120, 420]
+  - furn: { kind: crates, at: [300, 104] }
+    outline: true
+  - furn: { kind: cart, at: [-40, 104], w: 30, h: 13, load: dark_stone }
+    outline: true
+  - prop: { at: [[260, 104], [-200, 106]], ascii: "..m..\n.mMm.\n..w..\n..w..\n..w..\n..w..\n.www." }

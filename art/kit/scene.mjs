@@ -11,7 +11,14 @@ import { join } from 'node:path';
 import { ART, readYaml } from './kit.mjs';
 import { rng } from './npc.mjs';
 
-export const SW = 256, SH = 112; // scene canvas: wide, short; the figure (96 px canvas) stands at the bottom
+// The picture is a wide panorama, SW x SH. Scenes are written in stage coordinates: the middle
+// STAGE columns (x 0..255) are where the figure stands, and the wings (x -256..-1 and 256..511) reach
+// out to the sides, so a wide screen sees more of the place while a phone sees only the stage.
+// Layers that fill the picture (sky, walls, floors, ground, ridges, skylines) cover the whole width.
+export const STAGE = 256, SW = 768, SH = 112, OX = (SW - STAGE) / 2;
+const XL = -OX, XR = SW - OX - 1; // first and last stage column of the picture
+/** the row the figures' soles stand on (scene `stand:`), and where the stage's middle is */
+export const STAND = 106, MID = STAGE / 2;
 const rgbOf = h => [0, 2, 4].map(i => parseInt(String(h).padStart(6, '0').slice(i, i + 2), 16));
 const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
 const BAYER = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + 0.5) / 16);
@@ -55,7 +62,7 @@ export function renderScene(S, id, time = 'day') {
   if (!T) throw new Error(`no time "${time}"`);
   const out = new Uint8ClampedArray(SW * SH * 4);
   const horizonRgb = sc.interior ? rgbOf(pal.interior_haze) : T.skyRgb[T.skyRgb.length - 1];
-  let layer = {}, mask = null;
+  let layer = {}, mask = null, shift = 0; // shift: a repeated layer's offset (`repeat: [dx, ..]`)
 
   /** colour of material level after the time of day and the layer's haze */
   const colour = (matName, lvl) => {
@@ -69,7 +76,7 @@ export function renderScene(S, id, time = 'day') {
     return haze ? mix(c, horizonRgb, haze) : c;
   };
   const putRgb = (x, y, c) => {
-    x = Math.round(x); y = Math.round(y);
+    x = Math.round(x) + OX + shift; y = Math.round(y);
     if (x < 0 || y < 0 || x >= SW || y >= SH) return;
     const p = (y * SW + x) * 4;
     out[p] = c[0]; out[p + 1] = c[1]; out[p + 2] = c[2]; out[p + 3] = 255;
@@ -81,7 +88,7 @@ export function renderScene(S, id, time = 'day') {
   const draw = {
     sky(p) {
       const hz = p.horizon ?? 70, cols = T.skyRgb, n = cols.length - 1;
-      for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
+      for (let y = 0; y < SH; y++) for (let x = XL; x <= XR; x++) {
         const t = Math.min(1, y / hz) * n, i = Math.min(n - 1, Math.floor(t)), f = t - i;
         // dithered bands: 4 steps between each pair of sky colours
         const q = Math.floor(f * 4 + dither(x, y)) / 4;
@@ -91,8 +98,8 @@ export function renderScene(S, id, time = 'day') {
     stars(p) {
       if (!T.stars) return;
       const r = rng(`${id}:stars`);
-      for (let i = 0; i < (p.count ?? 60); i++) {
-        const x = Math.floor(r() * SW), y = Math.floor(r() * (p.below ?? 50)), b = r();
+      for (let i = 0; i < Math.round((p.count ?? 60) * SW / STAGE); i++) {
+        const x = XL + Math.floor(r() * SW), y = Math.floor(r() * (p.below ?? 50)), b = r();
         putRgb(x, y, mix(T.skyRgb[0], rgbOf(pal.star), b > 0.8 ? 1 : 0.55));
         if (b > 0.96) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) putRgb(x + dx, y + dy, mix(T.skyRgb[0], rgbOf(pal.star), 0.4));
       }
@@ -109,8 +116,8 @@ export function renderScene(S, id, time = 'day') {
     },
     clouds(p) {
       const r = rng(`${id}:clouds:${p.seed ?? 0}`);
-      for (let i = 0; i < (p.count ?? 4); i++) {
-        const cx = r() * SW, cy = (p.y ?? [8, 30])[0] + r() * ((p.y ?? [8, 30])[1] - (p.y ?? [8, 30])[0]);
+      for (let i = 0; i < Math.round((p.count ?? 4) * SW / STAGE); i++) {
+        const cx = XL + r() * SW, cy = (p.y ?? [8, 30])[0] + r() * ((p.y ?? [8, 30])[1] - (p.y ?? [8, 30])[0]);
         const w = 14 + r() * (p.size ?? 22), puffs = 3 + Math.floor(r() * 3), base = Math.round(cy + 3);
         const blobs = Array.from({ length: puffs }, (_, k) => [cx - w / 2 + (k + 0.5) * (w / puffs), cy - r() * 3, 3 + r() * 3]);
         for (let y = Math.floor(cy - 8); y <= base; y++) for (let x = Math.floor(cx - w / 2 - 6); x <= cx + w / 2 + 6; x++) {
@@ -122,12 +129,13 @@ export function renderScene(S, id, time = 'day') {
     ridge(p) {
       const n = noise1(`${id}:ridge:${p.seed ?? 0}`), sc = p.scale ?? 0.05, jag = p.jag ?? 0;
       const top = x => {
+        x += OX;
         let v = n(x * sc) * 0.65 + n(x * sc * 2.3 + 17) * 0.25 + n(x * sc * 5.1 + 33) * 0.1;
         if (jag) v = v * (1 - jag) + jag * (1 - Math.abs(((x * sc * 1.7) % 2) - 1)) * n(x * sc * 0.5 + 5);
         return Math.round((p.base ?? 70) - (p.amp ?? 10) * v);
       };
       const to = p.to ?? SH - 1;
-      for (let x = 0; x < SW; x++) {
+      for (let x = XL; x <= XR; x++) {
         const y0 = top(x), slope = top(x + 1) - top(x - 1);
         for (let y = y0; y <= to; y++) {
           const d = y - y0;
@@ -140,9 +148,9 @@ export function renderScene(S, id, time = 'day') {
     },
     ground(p) {
       const r = rng(`${id}:ground:${p.seed ?? 0}`);
-      for (let y = p.y; y < SH; y++) for (let x = 0; x < SW; x++) put(x, y, p.mat, y === p.y ? 3.4 : 2.6 + (r() - 0.5) * (p.noise ?? 0.9));
-      for (let i = 0; i < (p.tufts ?? 0); i++) {
-        const x = Math.floor(r() * SW), y = p.y + 2 + Math.floor(r() * (SH - p.y - 3));
+      for (let y = p.y; y < SH; y++) for (let x = XL; x <= XR; x++) put(x, y, p.mat, y === p.y ? 3.4 : 2.6 + (r() - 0.5) * (p.noise ?? 0.9));
+      for (let i = 0; i < Math.round((p.tufts ?? 0) * SW / STAGE); i++) {
+        const x = XL + Math.floor(r() * SW), y = p.y + 2 + Math.floor(r() * (SH - p.y - 3));
         put(x, y, p.tuft ?? p.mat, 4); put(x - 1, y + 1, p.tuft ?? p.mat, 3.5); put(x + 1, y + 1, p.tuft ?? p.mat, 3.5);
       }
     },
@@ -150,7 +158,7 @@ export function renderScene(S, id, time = 'day') {
       // rows that widen toward the viewer
       let y = p.y0, k = 0, step = 1;
       while (y <= p.y1) {
-        for (let j = 0; j < step && y <= p.y1; j++, y++) span(y, p.x0 ?? 0, p.x1 ?? SW - 1, p.mat, k % 2 ? 2.2 : 3.4);
+        for (let j = 0; j < step && y <= p.y1; j++, y++) span(y, p.x0 ?? XL, p.x1 ?? XR, p.mat, k % 2 ? 2.2 : 3.4);
         k++; step = 1 + Math.floor((y - p.y0) / 5);
       }
     },
@@ -164,7 +172,7 @@ export function renderScene(S, id, time = 'day') {
     rect(p) { for (let y = p.y; y < p.y + p.h; y++) span(y, p.x, p.x + p.w - 1, p.mat, p.lvl ?? 3); },
     trees(p) {
       const r = rng(`${id}:trees:${p.seed ?? 0}`);
-      for (let x = p.x?.[0] ?? -4; x < (p.x?.[1] ?? SW + 4); x += p.every * (0.6 + r() * 0.8)) {
+      for (let x = p.x?.[0] ?? XL - 4; x < (p.x?.[1] ?? XR + 4); x += p.every * (0.6 + r() * 0.8)) {
         const h = p.h[0] + r() * (p.h[1] - p.h[0]), base = p.base + Math.round((r() - 0.5) * (p.jitter ?? 2));
         if (p.kind === 'pine') {
           for (let d = 0; d < h; d++) {
@@ -183,8 +191,8 @@ export function renderScene(S, id, time = 'day') {
     },
     skyline(p) {
       const r = rng(`${id}:skyline:${p.seed ?? 0}`);
-      let x = p.x?.[0] ?? -2;
-      while (x < (p.x?.[1] ?? SW)) {
+      let x = p.x?.[0] ?? XL - 2;
+      while (x < (p.x?.[1] ?? XR + 1)) {
         const w = Math.round(p.w[0] + r() * (p.w[1] - p.w[0])), h = Math.round(p.h[0] + r() * (p.h[1] - p.h[0]));
         const top = p.base - h, gable = r() < (p.gables ?? 0.4);
         for (let y = top; y <= p.base; y++) span(y, x, x + w - 1, p.wall, y === top ? 3.4 : x % 2 ? 2.6 : 2.2);
@@ -211,8 +219,9 @@ export function renderScene(S, id, time = 'day') {
     },
     wall(p) {
       // a back wall with a surface pattern: planks, logs, blocks (stone), brick, plaster, weave
-      const [x0, x1] = p.x ?? [0, SW - 1], pat = p.pattern ?? 'plaster', r = rng(`${id}:wall:${p.y0}`);
-      for (let y = p.y0; y <= p.y1; y++) for (let x = x0; x <= x1; x++) {
+      const [x0, x1] = p.x ?? [XL, XR], pat = p.pattern ?? 'plaster', r = rng(`${id}:wall:${p.y0}`);
+      for (let y = p.y0; y <= p.y1; y++) for (let X = x0; X <= x1; X++) {
+        const x = X + OX; // patterns run on picture columns (never negative)
         let l = 2.6 + (r() - 0.5) * (p.noise ?? 0.5);
         if (pat === 'planks') { if (x % 7 === 0) l = 1.4; else if (x % 7 === 1) l = 3.4; if ((y * 3 + Math.floor(x / 7) * 11) % 37 === 0) l = 1.6; }
         if (pat === 'logs') { const k = (y - p.y0) % 6; l = k === 0 ? 1.2 : k === 1 ? 3.6 : k === 5 ? 1.8 : 2.8; }
@@ -222,17 +231,24 @@ export function renderScene(S, id, time = 'day') {
           if ((y - p.y0) % bh === 0 || Math.floor(x + off) % bw === 0) l = 1.2; else if ((y - p.y0) % bh === 1) l = 3.2;
         }
         if (pat === 'weave') l = ((x + y) % 4 < 2) !== ((x - y + 64) % 6 < 3) ? 3.2 : 2.2;
-        put(x, y, p.mat, l);
+        put(X, y, p.mat, l);
       }
       for (const bx of p.beams ?? []) for (let y = p.y0; y <= p.y1; y++) { put(bx, y, 'wood', 3.2); put(bx + 1, y, 'wood', 2.2); put(bx + 2, y, 'wood', 1.4); }
       for (const by of p.rails ?? []) for (let x = x0; x <= x1; x++) { put(x, by, 'wood', 3.4); put(x, by + 1, 'wood', 2.2); put(x, by + 2, 'wood', 1.2); }
+      // `skirt: <material>`: a skirting board where the wall meets the floor, so the room has a corner
+      if (p.skirt) for (let x = x0; x <= x1; x++) { put(x, p.y1 - 3, p.skirt, 3.6); put(x, p.y1 - 2, p.skirt, 2.6); put(x, p.y1 - 1, p.skirt, 2.2); put(x, p.y1, p.skirt, 1.2); }
+      // `wainscot: [row, material]`: panelling on the lower wall up to `row`
+      if (p.wainscot) {
+        const [wy, wm] = p.wainscot;
+        for (let y = wy; y <= p.y1; y++) for (let x = x0; x <= x1; x++) put(x, y, wm, y === wy ? 3.6 : y === wy + 1 ? 1.4 : ((x + OX) % 16 === 0 ? 1.6 : (x + OX) % 16 === 1 ? 3.2 : 2.6));
+      }
     },
     floor(p) {
       // a floor in perspective: board seams run to a vanishing point above the middle of the room
-      const vx = SW / 2, vy = p.y0 - (p.depth ?? 70), pat = p.pattern ?? 'boards';
+      const vx = MID, vy = p.y0 - (p.depth ?? 70), pat = p.pattern ?? 'boards';
       for (let y = p.y0; y < SH; y++) {
         const t = (y - vy) / (SH - vy); // grows toward the viewer
-        for (let x = 0; x < SW; x++) {
+        for (let x = XL; x <= XR; x++) {
           const u = (x - vx) / t; // floor coordinate across
           const v = 1 / t; // depth coordinate
           let l = 2.6, mat = p.mat;
@@ -242,7 +258,8 @@ export function renderScene(S, id, time = 'day') {
             const fu = (u / (p.tile ?? 14)) % 1, edge = Math.abs(fu) < 0.06 || Math.abs((v * (p.rows ?? 18)) % 1) < 0.08;
             if (pat === 'checker') { if ((cu + cv) % 2) mat = p.mat2; l = edge ? 2 : 3; } else l = edge ? 1.3 : 2.4 + (((cu * 7 + cv * 13) % 5) - 2) * 0.2;
           }
-          put(x, y, mat, l + (y === p.y0 ? -0.6 : 0));
+          // the corner where the wall meets the floor sits in shadow
+          put(x, y, mat, l + (y === p.y0 ? -0.8 : y === p.y0 + 1 ? -0.45 : y === p.y0 + 2 ? -0.2 : 0));
         }
       }
       if (p.carpet) {
@@ -267,11 +284,12 @@ export function renderScene(S, id, time = 'day') {
     vignette(p) {
       // darken toward the edges and the top: the room's corners fall out of the lamp's reach
       const k = p.strength ?? 0.35, dark = rgbOf(pal.outline);
-      for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
-        const dx = (x - SW / 2) / (SW / 2), dy = (y - SH * 0.62) / (SH * 0.62);
+      for (let y = 0; y < SH; y++) for (let x = XL; x <= XR; x++) {
+        // the light falls off from the stage outward, gently, so the wings still read
+        const dx = (x - MID) / (STAGE * 1.1), dy = (y - SH * 0.62) / (SH * 0.62);
         const d = Math.max(0, Math.hypot(dx * 0.9, dy) - 0.55) * k * 1.6 * (T.lights ? 1.3 : 1);
         if (d <= 0) continue;
-        const q = (y * SW + x) * 4, a = Math.min(0.75, Math.floor((d + dither(x, y) * 0.12) * 8) / 8);
+        const q = (y * SW + x + OX) * 4, a = Math.min(0.75, Math.floor((d + dither(x, y) * 0.12) * 8) / 8);
         putRgb(x, y, mix([out[q], out[q + 1], out[q + 2]], dark, a));
       }
     },
@@ -448,6 +466,56 @@ export function renderScene(S, id, time = 'day') {
           for (let j = Math.floor(h / 2); j < h; j++) { const half = ((j - h / 2) / h) * 4; for (let i = -half; i <= half; i++) put(x0 + w / 2 + i, y0 + j, 'dark_stone', 0.8); }
           break;
         }
+        case 'chair': {
+          box(x0, y0, 2, h, p.mat ?? 'wood', 3.4, 2.2); // back
+          box(x0, yb - Math.floor(h / 2), w, 2, p.mat ?? 'wood', 3.8, 2.6); // seat
+          box(x0 + w - 2, yb - Math.floor(h / 2) + 2, 2, Math.floor(h / 2) - 1, p.mat ?? 'wood', 2.4, 1.6);
+          break;
+        }
+        case 'plant': { // a pot with a leafy top; `mat` = the pot
+          const pw = Math.max(5, Math.round(w * 0.6)), px = x0 + Math.round((w - pw) / 2);
+          box(px, yb - 5, pw, 6, p.mat ?? 'brick', 3.6, 2.4);
+          const cx = x0 + w / 2, cy = yb - 5 - (h - 6) / 2, rx = w / 2, ry = (h - 6) / 2;
+          for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) {
+            const d = ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2;
+            if (d <= 1 && r() < 0.92) put(x, y, p.leaf ?? 'leaf', d > 0.7 ? (x < cx ? 3.6 : 1.6) : (x + y) % 3 === 0 ? 3.4 : 2.4);
+          }
+          break;
+        }
+        case 'rug': { // a rug lying on the floor in perspective: `at` = far left corner's bottom row, h = depth
+          for (let j = 0; j < h; j++) {
+            const grow = (j / Math.max(1, h - 1)) * (p.spread ?? 6);
+            for (let i = -grow; i < w + grow; i++) {
+              const edge = j === 0 || j === h - 1 || i < -grow + 1 || i >= w + grow - 1;
+              put(x0 + i, y0 + j, edge ? (p.trim ?? 'gold') : p.mat ?? 'red_cloth', edge ? 3 : (Math.floor((i + 40) / 3) + j) % 4 === 0 ? 3.4 : 2.6);
+            }
+          }
+          break;
+        }
+        case 'sconce': { // a lamp on the wall
+          box(x0, yb - 3, 3, 4, 'metal', 3.4, 2);
+          put(x0 + 1, yb - 4, p.light ?? 'window', 4); put(x0 + 1, yb - 5, p.light ?? 'window', 4);
+          break;
+        }
+        case 'frame': { // a picture or a map on the wall: `mat` = what is painted
+          box(x0, y0, w, h, p.frame ?? 'gold', 3.6, 2.2);
+          for (let j = 2; j < h - 2; j++) for (let i = 2; i < w - 2; i++) put(x0 + i, y0 + j, j < h * 0.55 ? (p.sky ?? 'water') : p.mat ?? 'leaf', j < h * 0.55 ? 3.4 - j * 0.1 : 2.6 + ((i * 3 + j) % 4 === 0 ? 0.8 : 0));
+          break;
+        }
+        case 'pipe': { // a pipe along a wall: `at` = start, `to` = [x, y] end (straight runs, one bend)
+          const [tx, ty] = p.to, t = p.w ?? 3;
+          for (let x = Math.min(x0, tx); x <= Math.max(x0, tx); x++) for (let k = 0; k < t; k++) put(x, yb + k, p.mat ?? 'metal', k === 0 ? 3.6 : k === t - 1 ? 1.4 : 2.6);
+          for (let y = Math.min(yb, ty); y <= Math.max(yb, ty); y++) for (let k = 0; k < t; k++) put(tx + k, y, p.mat ?? 'metal', k === 0 ? 3.6 : k === t - 1 ? 1.4 : 2.6);
+          for (let x = Math.min(x0, tx); x <= Math.max(x0, tx); x += p.joints ?? 14) for (let k = -1; k <= t; k++) put(x, yb + k, 'brass', 3);
+          break;
+        }
+        case 'crates': { // a stack: a big crate, a small one on top, a sack
+          box(x0, yb - 11, 14, 12, 'plank', 3.6, 2.6);
+          for (let y = yb - 8; y < yb; y += 4) span(y, x0 + 1, x0 + 12, 'plank', 1.4);
+          box(x0 + 3, yb - 19, 9, 8, 'plank', 3.6, 2.4);
+          for (let j = 0; j < 8; j++) span(yb - j, x0 + 15 + (j > 5 ? 1 : 0), x0 + 21 - (j > 5 ? 1 : 0), 'cloth', j === 7 ? 3.8 : 2.6 + (j % 3 === 0 ? 0.5 : 0));
+          break;
+        }
         default: throw new Error(`${id}: unknown furniture "${p.kind}"`);
       }
     },
@@ -491,11 +559,12 @@ export function renderScene(S, id, time = 'day') {
         const d = Math.hypot(x, y) / p.r;
         if (d > 1) continue;
         const X = p.at[0] + x, Y = p.at[1] + y;
-        if (X < 0 || Y < 0 || X >= SW || Y >= SH) continue;
+        const CX = X + OX + shift;
+        if (CX < 0 || Y < 0 || CX >= SW || Y >= SH) continue;
         // two soft rings: a solid inner wash, then a sparse dither at the rim
         const a = d < 0.45 ? 0.3 : d < 0.75 ? 0.18 : dither(X, Y) < 0.35 ? 0.12 : 0;
         if (!a) continue;
-        const q = (Y * SW + X) * 4;
+        const q = (Y * SW + CX) * 4;
         putRgb(X, Y, mix([out[q], out[q + 1], out[q + 2]], c, a * strength));
       }
     },
@@ -525,15 +594,29 @@ export function renderScene(S, id, time = 'day') {
     if (L.only && !L.only.includes(time)) continue;
     layer = { haze: L.haze ?? 0 };
     mask = L.outline ? new Uint8Array(SW * SH) : null;
-    draw[kind](L[kind] ?? {});
+    // `repeat: [dx, ..]` draws the same layer again further along (a row of shelves into the wings)
+    for (const dx of [0, ...(L.repeat ?? [])]) { shift = dx; draw[kind](L[kind] ?? {}); }
+    shift = 0;
     if (mask) {
       // a 1 px outline round the layer in the sprites' outline colour, softened by time and haze
       const c = colour('ink', 0), m = mask; mask = null;
+      // contact shadow: what stands on the ground throws a short shadow down and to the right
+      if (L.shadow !== false) {
+        const sh = [];
+        for (let y = 0; y < SH - 1; y++) for (let x = 0; x < SW; x++) {
+          if (!m[y * SW + x] || m[(y + 1) * SW + x] || y < (sc.floor ?? 84)) continue;
+          for (const [dx, dy, a] of [[1, 1, 0.38], [2, 1, 0.3], [3, 1, 0.18], [2, 2, 0.12]]) {
+            const X = x + dx, Y = y + dy;
+            if (X < SW && Y < SH && !m[Y * SW + X]) sh.push([X, Y, a]);
+          }
+        }
+        for (const [X, Y, a] of sh) { const q = (Y * SW + X) * 4; putRgb(X - OX, Y, mix([out[q], out[q + 1], out[q + 2]], c, a)); }
+      }
       for (let y = 0; y < SH; y++) for (let x = 0; x < SW; x++) {
         if (m[y * SW + x]) continue;
-        if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const X = x + dx, Y = y + dy; return X >= 0 && Y >= 0 && X < SW && Y < SH && m[Y * SW + X]; })) putRgb(x, y, c);
+        if ([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const X = x + dx, Y = y + dy; return X >= 0 && Y >= 0 && X < SW && Y < SH && m[Y * SW + X]; })) putRgb(x - OX, y, c);
       }
     }
   }
-  return { w: SW, h: SH, rgba: out };
+  return { w: SW, h: SH, rgba: out, stand: sc.stand ?? STAND };
 }

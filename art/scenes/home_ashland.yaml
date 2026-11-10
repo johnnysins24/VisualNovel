@@ -2,13 +2,27 @@
 # stones, sleeping mats, a water jar, a window onto the grey plain.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: silver_grass, pattern: weave, beams: [40, 128, 216] }
+  - wall: { y0: 0, y1: 92, mat: silver_grass, pattern: weave, beams: [-224, -136, -48, 40, 216, 304, 392, 480], skirt: wood }
   - pane: { x: 160, y: 30, w: 22, h: 16 }
-  - floor: { y0: 93, mat: ash, pattern: flags, tile: 20, depth: 60 }
-  - furn: { kind: hearth, at: [60, 98], w: 26, h: 14, fire: fire }
+    repeat: [-260, 200]
+  - furn: { kind: door, at: [-180, 92], w: 22, h: 40, mat: wood }
     outline: true
-  - glow: { at: [73, 92], r: 22, colour: 'ff9a50' }
-  - furn: { kind: shelf, at: [70, 56], w: 28, h: 14, rows: 1 }
+  - floor: { y0: 93, mat: ash, pattern: flags, tile: 20, depth: 60 }
+  - furn: { kind: hearth, at: [40, 98], w: 26, h: 14, fire: fire }
+    outline: true
+  - glow: { at: [53, 92], r: 22, colour: 'ff9a50' }
+  - furn: { kind: rug, at: [96, 99], w: 64, h: 6, mat: dirt, trim: silver_grass, spread: 5 }
+  - furn: { kind: shelf, at: [62, 56], w: 28, h: 14, rows: 1 }
+    outline: true
+    repeat: [-200, 260]
+  - prop: { at: [[-30, 70], [-20, 70], [300, 70]], ascii: "..x..\n.xxx.\nxxVxx\n..V..\n..V..\n..V..", legend: { x: silver_grass@4 } }
+  - furn: { kind: crates, at: [-110, 104] }
+    outline: true
+  - furn: { kind: barrel, at: [-150, 102], w: 10, h: 14 }
+    outline: true
+  - furn: { kind: table, at: [330, 106], w: 36, h: 16 }
+    outline: true
+  - furn: { kind: bed, at: [420, 104], w: 52, h: 10, mat: cloth }
     outline: true
   - furn: { kind: bed, at: [190, 104], w: 52, h: 10, mat: dirt }
     outline: true

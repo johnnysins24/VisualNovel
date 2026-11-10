@@ -5,6 +5,7 @@ layers:
   - wall: { y0: 0, y1: 92, mat: bone, pattern: blocks }
   - pane: { x: 40, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
   - pane: { x: 200, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
+    repeat: [-320, -440, 80, 200]
   - furn: { kind: banner, at: [92, 56], w: 12, h: 40, mat: cloth, sign: gold }
   - furn: { kind: banner, at: [152, 56], w: 12, h: 40, mat: cloth, sign: gold }
   - floor: { y0: 93, mat: stone, pattern: flags, tile: 18, depth: 90, carpet: [8, 22], carpet_mat: red_cloth }
@@ -16,9 +17,24 @@ layers:
     outline: true
   - furn: { kind: column, at: [234, 92], w: 8, h: 92 }
     outline: true
+  - furn: { kind: column, at: [-46, 92], w: 8, h: 92 }
+    outline: true
+    repeat: [-60, -120, -180, 340, 400, 460, 520]
+  - furn: { kind: bench, at: [-150, 106], w: 60, h: 8 }
+    outline: true
+    repeat: [-90, 470, 560]
+  - furn: { kind: altar, at: [-224, 98], w: 20, h: 12, mat: red_cloth }
+    outline: true
+  - prop: { at: [[-218, 83], [-210, 83], [440, 92], [446, 92], [452, 92]], ascii: "O\nm\nm" }
+  - glow: { at: [-214, 82], r: 14, colour: 'f7d98a' }
+  - glow: { at: [446, 91], r: 14, colour: 'f7d98a' }
   - furn: { kind: altar, at: [112, 92], w: 32, h: 16, mat: cloth }
     outline: true
   - furn: { kind: lamp, at: [127, 30], light: window }
+  - furn: { kind: lamp, at: [-100, 30], light: window }
+    repeat: [460]
+  - glow: { at: [-99, 32], r: 16, colour: 'f7d98a', only: [dusk, night] }
+    repeat: [460]
   - glow: { at: [128, 32], r: 22, colour: 'f7d98a' }
   - prop: { at: [[116, 75], [137, 75]], ascii: "O\nm\nm" }
   - vignette: { strength: 0.45 }

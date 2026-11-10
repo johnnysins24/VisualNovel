@@ -2,13 +2,16 @@
 # pipes along the wall, a catwalk overhead.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick }
+  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick, skirt: dark_stone }
   - pane: { x: 30, y: 10, w: 20, h: 30, frame: metal }
   - pane: { x: 118, y: 10, w: 20, h: 30, frame: metal }
   - pane: { x: 206, y: 10, w: 20, h: 30, frame: metal }
-  - line: { from: [[0, 46], [256, 46]], w: 3, mat: metal }
-  - line: { from: [[0, 52], [256, 52]], w: 2, mat: brass }
-  - rect: { x: 0, y: 44, w: 256, h: 1, mat: metal, lvl: 1 }
+    repeat: [-382, -294, 88, 176, 264]
+  - line: { from: [[-256, 46], [511, 46]], w: 3, mat: metal }
+  - line: { from: [[-256, 52], [511, 52]], w: 2, mat: brass }
+  - rect: { x: -256, y: 44, w: 768, h: 1, mat: metal, lvl: 1 }
+  - furn: { kind: pipe, at: [-60, 56], to: [-60, 92], w: 3, mat: brass }
+    repeat: [380]
   - floor: { y0: 93, mat: stone, pattern: flags, tile: 22, depth: 80 }
   - furn: { kind: still, at: [10, 94], w: 22, h: 34 }
     outline: true
@@ -18,6 +21,18 @@ layers:
     outline: true
   - furn: { kind: still, at: [218, 94], w: 22, h: 34, pipe: 6 }
     outline: true
+  - furn: { kind: still, at: [-150, 94], w: 22, h: 34 }
+    outline: true
+    repeat: [-90, 420, 480]
+  - furn: { kind: crates, at: [-30, 104] }
+    outline: true
+  - furn: { kind: barrel, at: [280, 104], w: 12, h: 16, mat: metal }
+    outline: true
+    repeat: [16]
+  - furn: { kind: board, at: [330, 80], w: 36, h: 26, notes: 6 }
+    outline: true
+  - glow: { at: [-117, 76], r: 10, colour: '97bdec' }
+    repeat: [-90, 420, 480]
   - glow: { at: [43, 76], r: 10, colour: '97bdec' }
   - glow: { at: [91, 76], r: 10, colour: '97bdec' }
   - glow: { at: [203, 76], r: 10, colour: '97bdec' }

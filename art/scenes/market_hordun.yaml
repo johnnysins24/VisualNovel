@@ -1,12 +1,19 @@
 # Market in Hordun: stalls at the foot of the mountain halls, furnace glow, carts of coal and ore.
-base: { scene: hordun, layers: 13 }
+base: { scene: hordun, layers: 17 }
 layers:
   - ground: { y: 92, mat: dark_stone, noise: 1.4, tufts: 10, tuft: snow }
   - furn: { kind: stall, at: [8, 106], w: 44, h: 32, mat: red_cloth }
     outline: true
   - furn: { kind: stall, at: [204, 106], w: 44, h: 32, mat: slate }
     outline: true
-  - furn: { kind: rail_cart, at: [60, 108], w: 30, h: 12 }
+  - furn: { kind: rail_cart, at: [56, 104], w: 30, h: 12 }
     outline: true
-  - furn: { kind: barrel, at: [180, 108], w: 10, h: 14 }
+  - furn: { kind: barrel, at: [180, 104], w: 10, h: 14 }
+    outline: true
+  - furn: { kind: stall, at: [-90, 106], w: 44, h: 32, mat: cloth }
+    outline: true
+    repeat: [-120, 440]
+  - furn: { kind: stall, at: [290, 106], w: 44, h: 32, mat: red_cloth }
+    outline: true
+  - furn: { kind: crates, at: [-30, 106] }
     outline: true

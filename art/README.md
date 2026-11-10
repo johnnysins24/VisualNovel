@@ -146,13 +146,16 @@ check ใส่ทุกชุดบนทุกร่างที่ใส่�
 
 ## ฉากหลัง (scene)
 
-ภาพฉากขนาด 256×112 วาดด้วยเครื่องมือของเกมเอง (`art/kit/scene.mjs`) จากไฟล์ `art/scenes/<id>.yaml` แต่ละฉากคือรายการชั้นที่วาดจากหลังมาหน้า เช่น ฟ้า ดาว เมฆ ดวงอาทิตย์หรือจันทร์ แนวเขา (`ridge`) แนวตึก (`skyline`) ต้นไม้ (`trees`, `bigtree`) ทุ่ง พื้น ถนน เสาฟ้า (`pillar`) ควัน แสง (`glow`) ของชิ้นเล็กวาดมือแบบ ascii (`prop`) และในห้องคือผนัง (`wall`) พื้นมีมุมมอง (`floor`) หน้าต่างที่เห็นฟ้าจริงของเวลานั้น (`pane`) เฟอร์นิเจอร์ขนาดเท่าตัวละคร (`furn`: table shelf bookcase drawers bed counter barrel crate hearth door board stall still altar column banner lamp chandelier curtain cart rail_cart tent) และขอบมืด (`vignette`)
+ภาพฉากขนาด 256×112 วาดด้วยเครื่องมือของเกมเอง (`art/kit/scene.mjs`) จากไฟล์ `art/scenes/<id>.yaml` แต่ละฉากคือรายการชั้นที่วาดจากหลังมาหน้า เช่น ฟ้า ดาว เมฆ ดวงอาทิตย์หรือจันทร์ แนวเขา (`ridge`) แนวตึก (`skyline`) ต้นไม้ (`trees`, `bigtree`) ทุ่ง พื้น ถนน เสาฟ้า (`pillar`) ควัน แสง (`glow`) ของชิ้นเล็กวาดมือแบบ ascii (`prop`) และในห้องคือผนัง (`wall`) พื้นมีมุมมอง (`floor`) หน้าต่างที่เห็นฟ้าจริงของเวลานั้น (`pane`) เฟอร์นิเจอร์ขนาดเท่าตัวละคร (`furn`: table shelf bookcase drawers bed counter barrel crate hearth door board stall still altar column banner lamp chandelier curtain cart rail_cart tent chair plant rug sconce frame pipe crates) และขอบมืด (`vignette`)
 
 - สีอยู่ใน `art/scenes/palette.yaml` เป็น ramp 5 ขั้นเหมือน sprite แต่หม่นและเย็นกว่าเล็กน้อย ตัวละครจึงเด่นกว่าฉากเสมอ ชั้นไกลผสมกับสีขอบฟ้า (`haze`) ชั้นใกล้มีเส้นขอบสีเดียวกับ sprite (`outline: true`)
 - เวลา 3 แบบ: `day` `dusk` `night` เปลี่ยนสีทุกอย่างยกเว้นไฟ หน้าต่างและตะเกียงติดเองตอนเย็นและกลางคืน ห้อง (`interior: true`) ใช้แสงในบ้านที่อุ่นแทนแสงจันทร์ ฟ้าเห็นได้แค่ทางหน้าต่าง
 - `base: { scene, layers }` เริ่มจากชั้นแรกๆ ของอีกฉาก เช่น ตลาดเวนทราสใช้ฟ้าและตึกของเวนทราส
+- เวทีกับปีก: ภาพที่เกมใช้คือเวที x 0–255 แต่เครื่องมือวาดกว้าง 768 (ปีกซ้าย x −256..−1 ปีกขวา 256..511) ชั้นที่เต็มภาพ (ฟ้า ผนัง พื้น แนวเขา) ยาวถึงปีกเอง ของในปีกตอนนี้เห็นแค่ใน preview เผื่อจอกว้างในอนาคต `repeat: [dx, ..]` วาดชั้นเดิมซ้ำที่ระยะ dx
+- ตัวละครยืนแถว `stand:` ของฉาก (ค่าเริ่ม 106 คือพื้นหน้าเฟอร์นิเจอร์) และอยู่กลางเวทีราว x 84–172 ของที่วางพื้นตรงนั้นต้องจบก่อนแถว ~100 ให้ดูอยู่ข้างหลังตัวละคร เกมอ่าน `stand` จาก `public/scenes/index.json`
+- ผนังห้อง: `skirt: <วัสดุ>` บัวเชิงผนัง `wainscot: [แถว, วัสดุ]` แผ่นไม้ผนังส่วนล่าง ชั้นที่มี `outline` บนพื้นได้เงาสั้นลงขวาเอง (`shadow: false` ปิด) มุมผนังชนพื้นมีเงาเสมอ
 - รายชื่อฉากที่เกมใช้อยู่ใน `art/scene_ids.yaml` (ตกลงกับฝั่งเนื้อเรื่อง) เหตุการณ์ใส่ `scene:` ได้ เกมหาภาพ `<scene>_<location_tag>` ก่อน แล้ว `<scene>` แล้วค่อย `<location_tag>`
-- `npm run scenes` เขียน `public/scenes/<id>_<เวลา>.png` ให้เกม และ `art/preview/scenes.png` ไว้ดูทั้งหมด check ตรวจว่ามีครบทุก id และทุกเวลาวาดเต็มภาพ
+- `npm run scenes` เขียน `public/scenes/<id>_<เวลา>.png` ให้เกม และ `art/preview/scenes.png` (เต็มกว้างรวมปีก) กับ `scenes_stage.png` (มีตัวละครยืนแบบในเกม) ไว้ดูทั้งหมด `node art/kit/build.mjs scenes <id>` ดูฉากเดียวทุกเวลา check ตรวจว่ามีครบทุก id และทุกเวลาวาดเต็มภาพ
 
 ## ไอคอนแอปและของในเรื่อง
 

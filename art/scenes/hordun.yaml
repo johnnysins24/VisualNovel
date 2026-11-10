@@ -11,15 +11,25 @@ layers:
     haze: 0.35
   - ridge: { mat: dark_stone, base: 74, amp: 26, scale: 0.05, jag: 0.4, snow: 52, seed: 4 }
     haze: 0.15
-  - prop: { art: dwarf_door, at: [[60, 70], [150, 66]] }
+  - prop: { art: dwarf_door, at: [[60, 70], [150, 66], [-120, 72], [330, 70], [440, 68]] }
     haze: 0.1
-  - prop: { art: furnace, at: [[96, 76], [190, 74]] }
+  - prop: { art: furnace, at: [[96, 76], [190, 74], [-180, 78], [380, 77]] }
     outline: true
   - glow: { at: [102, 72], r: 12, colour: 'f39a45' }
   - glow: { at: [196, 70], r: 12, colour: 'f39a45' }
+  - glow: { at: [-174, 74], r: 12, colour: 'f39a45' }
+  - glow: { at: [386, 73], r: 12, colour: 'f39a45' }
+  - smoke: { at: [-176, 64], puffs: 7, drift: 1, mat: smoke }
+  - smoke: { at: [384, 63], puffs: 7, drift: 1, mat: smoke }
   - smoke: { at: [100, 62], puffs: 7, drift: 1, mat: smoke }
   - smoke: { at: [194, 60], puffs: 7, drift: 1, mat: smoke }
-  - line: { from: [[0, 96], [256, 58]], w: 2, mat: metal, ties: 4, tie: wood }
+  - line: { from: [[-60, 105], [300, 52]], w: 2, mat: metal, ties: 4, tie: wood }
     outline: true
   - ground: { y: 92, mat: dark_stone, noise: 1.4, tufts: 12, tuft: snow }
   - road: { y: [92, 111], top: [110, 150], bottom: [90, 170], mat: stone }
+  - furn: { kind: rail_cart, at: [-220, 106], w: 34, h: 13 }
+    outline: true
+  - furn: { kind: crates, at: [420, 106] }
+    outline: true
+  - furn: { kind: barrel, at: [-150, 108], w: 12, h: 16, mat: metal }
+    outline: true

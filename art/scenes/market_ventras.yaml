@@ -1,15 +1,26 @@
 # Market in Ventras: a square under the sky lamps, stalls and crates among the brick houses.
-base: { scene: ventras, layers: 13 }
+base: { scene: ventras, layers: 15 }
 layers:
   - ground: { y: 84, mat: stone, noise: 1.2 }
   - floor: { y0: 90, mat: stone, pattern: flags, tile: 12, depth: 60 }
-  - prop: { art: sky_lamp, at: [[60, 92], [190, 92]] }
+  - prop: { art: sky_lamp, at: [[60, 92], [190, 92], [-70, 92], [-200, 92], [320, 92], [450, 92]] }
     outline: true
   - glow: { at: [62, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
   - glow: { at: [192, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
+  - glow: { at: [-68, 82], r: 9, colour: 'aad6fb', only: [dusk, night] }
+    repeat: [-130, 390, 520]
   - furn: { kind: stall, at: [6, 104], w: 44, h: 32, mat: cloth }
     outline: true
   - furn: { kind: stall, at: [206, 104], w: 44, h: 32, mat: red_cloth }
     outline: true
-  - furn: { kind: crate, at: [74, 108], w: 14, h: 12 }
+  - furn: { kind: crate, at: [70, 104], w: 14, h: 12 }
+    outline: true
+  - furn: { kind: stall, at: [-110, 104], w: 44, h: 32, mat: field }
+    outline: true
+    repeat: [-120, 460]
+  - furn: { kind: stall, at: [280, 104], w: 44, h: 32, mat: slate }
+    outline: true
+  - furn: { kind: crates, at: [-40, 104] }
+    outline: true
+  - furn: { kind: barrel, at: [400, 104], w: 12, h: 16, mat: metal }
     outline: true

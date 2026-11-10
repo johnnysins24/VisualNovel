@@ -2,8 +2,14 @@
 # of crocks, the family table and a straw bed, a window onto the fields.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: plaster, beams: [62, 150, 224], rails: [6], noise: 0.6 }
+  - wall: { y0: 0, y1: 92, mat: plaster, beams: [-200, -120, -40, 62, 150, 224, 300, 380, 460], rails: [6], noise: 0.6, skirt: wood }
   - pane: { x: 160, y: 26, w: 24, h: 22 }
+    repeat: [-250, 180]
+  - furn: { kind: door, at: [-176, 92], w: 22, h: 42, mat: plank }
+    outline: true
+  - furn: { kind: shelf, at: [326, 64], w: 30, h: 14, rows: 1 }
+    outline: true
+  - prop: { at: [[-70, 54], [-62, 56], [-54, 54]], ascii: ".x.\nxVx\n.V.\n.V.\n.V.", legend: { x: field@4 } }
   - furn: { kind: hearth, at: [8, 92], w: 44, h: 40, chimney: true }
     outline: true
   - floor: { y0: 93, mat: plank, pattern: boards, board: 12, depth: 90 }
@@ -14,8 +20,27 @@ layers:
   - glow: { at: [121, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - furn: { kind: bed, at: [196, 96], w: 50, h: 16, mat: red_cloth }
     outline: true
-  - furn: { kind: table, at: [150, 108], w: 34, h: 18 }
+  - furn: { kind: table, at: [156, 100], w: 30, h: 16 }
     outline: true
   - furn: { kind: barrel, at: [60, 104], w: 10, h: 16 }
     outline: true
+  - furn: { kind: rug, at: [92, 99], w: 72, h: 6, mat: red_cloth, trim: field, spread: 5 }
+  - furn: { kind: table, at: [-120, 106], w: 40, h: 18 }
+    outline: true
+  - furn: { kind: chair, at: [-132, 106], w: 8, h: 18 }
+    outline: true
+  - furn: { kind: crates, at: [-230, 104] }
+    outline: true
+  - furn: { kind: barrel, at: [-196, 100], w: 10, h: 14 }
+    outline: true
+  - furn: { kind: bench, at: [290, 104], w: 40, h: 8 }
+    outline: true
+  - furn: { kind: plant, at: [270, 100], w: 12, h: 18, mat: brick }
+    outline: true
+  - furn: { kind: bed, at: [400, 98], w: 50, h: 16, mat: cloth }
+    outline: true
+  - furn: { kind: lamp, at: [-80, 36] }
+  - glow: { at: [-79, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - furn: { kind: lamp, at: [360, 36] }
+  - glow: { at: [361, 38], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - vignette: { strength: 0.4 }

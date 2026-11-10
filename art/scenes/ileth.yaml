@@ -8,6 +8,8 @@ layers:
     haze: 0.6
   - pillar: { x: 226, w: 4, base: 62 }
     haze: 0.6
+  - pillar: { x: -160, w: 4, base: 64 }
+    haze: 0.65
   - trees: { kind: pine, mat: pine, base: 72, every: 7, h: [16, 26], seed: 1 }
     haze: 0.4
   - ridge: { mat: mid, base: 80, amp: 4, scale: 0.05, seed: 7 }
@@ -18,7 +20,11 @@ layers:
   - glow: { at: [168, 8], r: 12, colour: 'bad8fa' }
   - bigtree: { x: 52, base: 88, top: 22, trunk: 8, spread: 56, depth: 20, clumps: 9 }
     haze: 0.04
-  - prop: { art: branch_house, at: [[38, 58], [150, 50]] }
+  - bigtree: { x: -150, base: 88, top: 18, trunk: 10, spread: 64, depth: 22, clumps: 11 }
+    haze: 0.06
+  - bigtree: { x: 380, base: 88, top: 16, trunk: 10, spread: 64, depth: 22, clumps: 11 }
+    haze: 0.06
+  - prop: { art: branch_house, at: [[38, 58], [150, 50], [-166, 52], [364, 50]] }
     outline: true
   - trees: { kind: pine, mat: pine, base: 86, every: 16, h: [22, 30], seed: 4 }
     outline: true
@@ -28,3 +34,7 @@ layers:
     outline: true
   - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [38, 44], x: [252, 256], seed: 6 }
     outline: true
+    repeat: [-440, 200]
+  - trees: { kind: pine, mat: pine, base: 111, every: 60, h: [40, 46], x: [-8, 0], seed: 5 }
+    outline: true
+    repeat: [-120, 360]

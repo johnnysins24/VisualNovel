@@ -14,25 +14,32 @@ layers:
     haze: 0.4
   - ridge: { mat: mid, base: 71, amp: 9, scale: 0.04, seed: 2 }
     haze: 0.15
-  - trees: { kind: round, mat: leaf, base: 70, every: 9, h: [6, 9], x: [0, 70] }
+  - trees: { kind: round, mat: leaf, base: 70, every: 9, h: [6, 9], x: [-256, 70] }
     haze: 0.15
-  - trees: { kind: round, mat: leaf, base: 70, every: 11, h: [6, 10], x: [190, 260] }
+  - trees: { kind: round, mat: leaf, base: 70, every: 11, h: [6, 10], x: [190, 512] }
     haze: 0.15
   - field: { y0: 70, y1: 86, mat: field }
   - prop: { art: chapel, at: [140, 76] }
     outline: true
-  - prop: { art: cottage, at: [[96, 79], [176, 80]] }
+  - prop: { art: cottage, at: [[96, 79], [176, 80], [-120, 80], [-60, 79], [300, 79], [400, 80]] }
     outline: true
   - smoke: { at: [104, 66], puffs: 5 }
-  - prop: { art: barn, at: [30, 82] }
+  - smoke: { at: [-112, 67], puffs: 5 }
+  - smoke: { at: [408, 67], puffs: 4 }
+  - prop: { art: barn, at: [[30, 82], [-200, 82], [460, 81]] }
     outline: true
   - ground: { y: 86, mat: grass, tufts: 40 }
   - road: { y: [86, 111], top: [120, 136], bottom: [100, 156], mat: dirt }
-  - prop: { art: fence, at: [[8, 92], [24, 92], [190, 92], [206, 92]] }
+  - prop: { art: fence, at: [[8, 92], [24, 92], [190, 92], [206, 92], [-80, 94], [-64, 94], [-48, 94], [290, 94], [306, 94], [322, 94], [338, 94]] }
     outline: true
   - prop: { art: well, at: [214, 104] }
     outline: true
   - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [-6, 0] }
+    repeat: [-170, 380]
     outline: true
   - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [30, 34], x: [250, 256] }
+    repeat: [-420, 220]
+  - prop: { art: well, at: [-150, 104] }
+    outline: true
+  - furn: { kind: cart, at: [320, 104], w: 30, h: 13, load: field }
     outline: true

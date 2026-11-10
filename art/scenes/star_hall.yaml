@@ -5,6 +5,8 @@ layers:
   - wall: { y0: 0, y1: 92, mat: wood, pattern: logs }
   - pane: { x: 40, y: 0, w: 176, h: 50, cross: false }
   - rect: { x: 40, y: 50, w: 176, h: 3, mat: wood, lvl: 3.4 }
+  - pane: { x: -200, y: 6, w: 30, h: 40, arch: true, cross: false, frame_bg: wood }
+    repeat: [-60, 600, 660]
   - line: { from: [[128, 0], [128, 50]], w: 2, mat: wood }
   - line: { from: [[84, 0], [84, 50]], w: 2, mat: wood }
   - line: { from: [[172, 0], [172, 50]], w: 2, mat: wood }
@@ -15,8 +17,23 @@ layers:
     outline: true
   - line: { from: [[172, 92], [170, 66]], w: 2, mat: wood }
   - line: { from: [[180, 92], [176, 66]], w: 2, mat: wood }
-  - furn: { kind: table, at: [52, 108], w: 36, h: 18 }
+  - furn: { kind: table, at: [46, 104], w: 36, h: 18 }
     outline: true
+  - furn: { kind: bookcase, at: [-120, 92], w: 44, h: 70, rows: 5 }
+    outline: true
+  - furn: { kind: bookcase, at: [330, 92], w: 44, h: 70, rows: 5 }
+    outline: true
+  - furn: { kind: frame, at: [-210, 56], w: 40, h: 28, mat: star_dew, sky: ink, frame: brass }
+    outline: true
+  - furn: { kind: table, at: [420, 106], w: 50, h: 18 }
+    outline: true
+  - furn: { kind: plant, at: [-40, 104], w: 16, h: 26, mat: plank, leaf: elf_leaf }
+    outline: true
+    repeat: [300]
+  - furn: { kind: lamp, at: [-140, 30], light: lamp }
+    repeat: [500]
+  - glow: { at: [-139, 32], r: 16, colour: 'bad8fa', only: [dusk, night] }
+    repeat: [500]
   - furn: { kind: lamp, at: [110, 58], light: lamp }
   - glow: { at: [111, 60], r: 16, colour: 'bad8fa', only: [dusk, night] }
   - vignette: { strength: 0.35 }

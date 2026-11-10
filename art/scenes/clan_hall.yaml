@@ -2,12 +2,19 @@
 # wall cut with the names of the coal-war debt, row on row.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks }
+  - wall: { y0: 0, y1: 92, mat: stone, pattern: blocks, skirt: dark_stone }
   - rect: { x: 70, y: 14, w: 116, h: 50, mat: dark_stone, lvl: 2.4 }
     outline: true
   - prop: { at: [74, 48], ascii: "NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.NNNN.N.NNN.NN.NNN.NN.NNNN.NN.NNN.N.NNN.NN.NNNN.N.NN.NNN.NN.N\n............................................................................................................\nNNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.NNN.NN.N.NNN.NN.NNNN.N.NNN.NN.NNN.N.NN.NNNN.NN.N.NNN.NN.N.N\n............................................................................................................\nN.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.NN.NNNN..N.NNN.NN.N.NNNN.NN.NNN.NN.N.NNN.NN.NNNN.NN.NNN.N.N\n............................................................................................................\nNN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.N.NNN.N.NN.NNNN.N.NN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.N.NNN.NN.\n............................................................................................................\nNNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NNN.NN.NN.NNN.N.NN.NNN.NN.N.NNNN.NN.N.NNN.NNN.N.NN.NNNN.N.NN\n............................................................................................................\nN.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNNN.NN.N..N.NN.NNN.N.NNNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NN.NNN\n............................................................................................................\nNN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN.NNN.NN.NN.NNN.NN.N.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NNN.N.NN\n............................................................................................................\nNNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.NN.NNN.N.NNNN.N.NN.NNN.N.NN.NNN.NNNN.N.NN.NNN.N.NNNN.NN.N.N\n............................................................................................................\nN.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NNNN.N.NN.N.NNN.NNNN.N.NN.NNN.N.NN.NNNN.NNN.N.NN.N.NNN.NN.NN\n............................................................................................................\nNN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N.NNNN.N.NN.N.NNN.NN.NNNN.N.NNN.NN.N.NNN.NN.NNNN.N.NN.NNN.N" }
   - furn: { kind: banner, at: [20, 52], w: 14, h: 44, mat: red_cloth, sign: gold }
   - furn: { kind: banner, at: [222, 52], w: 14, h: 44, mat: cloth, sign: gold }
+  - furn: { kind: banner, at: [-80, 52], w: 14, h: 44, mat: slate, sign: gold }
+    repeat: [-100, 400, 500]
+  - furn: { kind: column, at: [-30, 92], w: 10, h: 92, mat: dark_stone }
+    outline: true
+    repeat: [-130, 306, 406]
+  - prop: { at: [[-224, 62], [270, 62], [470, 62]], ascii: "..mm..mm..\n.mMMmmMMm.\nmMm.MM.mMm\n.m..MM..m.\n....MM....\n....MM....\n....MM....\n....MM....\n...mMMm..." }
+    outline: true
   - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 16, depth: 90 }
   - furn: { kind: hearth, at: [12, 92], w: 30, h: 22, fire: fire }
     outline: true
@@ -15,6 +22,15 @@ layers:
     outline: true
   - glow: { at: [27, 86], r: 20, colour: 'f07040' }
   - glow: { at: [229, 86], r: 20, colour: 'f07040' }
-  - furn: { kind: table, at: [60, 108], w: 136, h: 16, mat: stone, items: false }
+  - furn: { kind: table, at: [-190, 108], w: 120, h: 16, mat: wood }
+    outline: true
+  - furn: { kind: bench, at: [-196, 111], w: 132, h: 5 }
+    outline: true
+  - furn: { kind: table, at: [330, 108], w: 120, h: 16, mat: wood }
+    outline: true
+  - furn: { kind: bench, at: [324, 111], w: 132, h: 5 }
+    outline: true
+  - furn: { kind: rug, at: [92, 98], w: 72, h: 7, mat: red_cloth, trim: gold, spread: 6 }
+  - furn: { kind: barrel, at: [60, 102], w: 10, h: 14 }
     outline: true
   - vignette: { strength: 0.5 }

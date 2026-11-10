@@ -10,17 +10,25 @@ layers:
     haze: 0.4
   - ridge: { mat: ash, base: 72, amp: 8, scale: 0.03, seed: 5 }
     haze: 0.35
-  - prop: { art: fort, at: [30, 80] }
+  - prop: { art: fort, at: [[30, 80], [-210, 78]] }
     outline: true
   - ridge: { mat: ash, base: 82, amp: 5, scale: 0.06, seed: 6 }
     haze: 0.1
-  - prop: { art: seal_stone, at: [[130, 84], [150, 86], [172, 88], [196, 90], [222, 92]] }
+  - prop: { art: seal_stone, at: [[130, 84], [150, 86], [172, 88], [196, 90], [222, 92], [250, 92], [280, 91], [312, 90], [346, 89], [380, 88], [-40, 88], [-80, 86], [-120, 85]] }
     outline: true
-  - trees: { kind: pine, mat: dark_stone, base: 92, every: 70, h: [10, 14], x: [100, 256], seed: 9 }
+  - trees: { kind: pine, mat: dark_stone, base: 92, every: 70, h: [10, 14], x: [-256, 512], seed: 9 }
     outline: true
   - ground: { y: 92, mat: ash, noise: 1.2, tufts: 60, tuft: silver_grass }
   - glow: { at: [40, 100], r: 8, colour: 'e0742f' }
   - glow: { at: [236, 106], r: 7, colour: 'e0742f' }
   - rect: { x: 36, y: 100, w: 8, h: 1, mat: fire, lvl: 3 }
   - rect: { x: 232, y: 106, w: 7, h: 1, mat: fire, lvl: 3 }
+  - glow: { at: [-100, 104], r: 8, colour: 'e0742f' }
+    repeat: [520]
+  - rect: { x: -104, y: 104, w: 8, h: 1, mat: fire, lvl: 3 }
+    repeat: [520]
+  - furn: { kind: tent, at: [-180, 104], w: 40, h: 22, mat: cloth }
+    outline: true
+  - furn: { kind: tent, at: [420, 106], w: 44, h: 22, mat: dirt }
+    outline: true
   - road: { y: [92, 111], top: [116, 128], bottom: [98, 150], mat: dirt }

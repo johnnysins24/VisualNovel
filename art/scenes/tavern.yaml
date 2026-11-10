@@ -2,10 +2,12 @@
 # (L18: work comes from the factions and the tavern boards), lamps and a hearth.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6, 52] }
+  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6, 52], beams: [-180, -60, 280, 420], skirt: wood }
   - furn: { kind: board, at: [22, 80], w: 44, h: 32, notes: 9 }
     outline: true
   - furn: { kind: shelf, at: [170, 48], w: 70, h: 18, rows: 1 }
+    outline: true
+  - furn: { kind: shelf, at: [256, 48], w: 70, h: 18, rows: 1 }
     outline: true
   - furn: { kind: barrel, at: [176, 78], w: 12, h: 16 }
     outline: true
@@ -13,15 +15,33 @@ layers:
     outline: true
   - furn: { kind: barrel, at: [212, 78], w: 12, h: 16 }
     outline: true
+  - furn: { kind: barrel, at: [230, 78], w: 12, h: 16 }
+    outline: true
+    repeat: [18, 36, 54, 72]
+  - furn: { kind: door, at: [-140, 92], w: 24, h: 44, mat: plank }
+    outline: true
+  - furn: { kind: hearth, at: [-236, 92], w: 40, h: 34, chimney: true, fire: fire }
+    outline: true
+  - glow: { at: [-216, 86], r: 24, colour: 'f39a45' }
+  - prop: { at: [[-60, 40], [440, 40]], ascii: "..mm..mm..\n.mMMmmMMm.\nmMm.MM.mMm\n.m..MM..m.\n....MM....\n....MM....\n....MM....\n....MM....\n...mMMm..." }
+    outline: true
   - floor: { y0: 93, mat: plank, pattern: boards, board: 10, depth: 80 }
-  - furn: { kind: counter, at: [164, 98], w: 92, h: 22 }
+  - furn: { kind: counter, at: [184, 96], w: 160, h: 22 }
     outline: true
   - furn: { kind: lamp, at: [90, 20] }
   - furn: { kind: lamp, at: [210, 16] }
+  - furn: { kind: lamp, at: [-100, 20] }
+    repeat: [460]
+  - glow: { at: [-99, 22], r: 18, colour: 'f7d98a', only: [dusk, night] }
+    repeat: [460]
   - glow: { at: [91, 22], r: 18, colour: 'f7d98a', only: [dusk, night] }
   - glow: { at: [211, 18], r: 18, colour: 'f7d98a', only: [dusk, night] }
-  - furn: { kind: table, at: [8, 108], w: 32, h: 16 }
+  - furn: { kind: table, at: [20, 106], w: 32, h: 16 }
     outline: true
-  - furn: { kind: bench, at: [4, 111], w: 40, h: 6 }
+    repeat: [-120, -210, 370]
+  - furn: { kind: bench, at: [16, 110], w: 40, h: 6 }
+    outline: true
+    repeat: [-120, -210, 370]
+  - furn: { kind: barrel, at: [480, 106], w: 12, h: 16 }
     outline: true
   - vignette: { strength: 0.45 }

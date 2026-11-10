@@ -2,18 +2,41 @@
 # a forge in the corner, a long workbench with things on it, shelves of jars.
 interior: true
 layers:
-  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6] }
+  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6], beams: [-100, 160, 300], skirt: wood }
   - rect: { x: 70, y: 28, w: 70, h: 30, mat: wood, lvl: 1.6 }
+    outline: true
   - prop: { at: [74, 52], ascii: "..mm.....M.......m......Mm.....mmm.....m.....M.\n..mm.....M......mMm.....Mm......m.....mMm....M.\n...w.....M.......w......w.......w......w.....M.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w." }
     outline: true
   - furn: { kind: shelf, at: [170, 60], w: 40, h: 28, rows: 2 }
+    outline: true
+    repeat: [-370, 200]
+  - furn: { kind: board, at: [-60, 70], w: 40, h: 30, notes: 7 }
+    outline: true
+  - furn: { kind: pipe, at: [300, 30], to: [480, 92], w: 3 }
+  - prop: { at: [[330, 70], [440, 72]], ascii: "..gg..\n.gGGg.\ngGmmGg\ngGmmGg\n.gGGg.\n..gg.." }
     outline: true
   - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 18, depth: 80 }
   - furn: { kind: hearth, at: [214, 92], w: 38, h: 34, chimney: true, fire: fire }
     outline: true
   - glow: { at: [233, 86], r: 24, colour: 'f39a45' }
-  - furn: { kind: table, at: [8, 106], w: 64, h: 20 }
+  - furn: { kind: table, at: [8, 104], w: 64, h: 20 }
+    outline: true
+  - furn: { kind: table, at: [-180, 106], w: 70, h: 20 }
+    outline: true
+  - furn: { kind: crates, at: [-240, 104] }
+    outline: true
+  - furn: { kind: barrel, at: [-80, 104], w: 12, h: 16 }
+    outline: true
+  - furn: { kind: table, at: [330, 106], w: 60, h: 20 }
+    outline: true
+  - furn: { kind: chair, at: [396, 106], w: 8, h: 18 }
+    outline: true
+  - furn: { kind: hearth, at: [450, 92], w: 38, h: 34, chimney: true, fire: fire }
+    outline: true
+  - glow: { at: [469, 86], r: 24, colour: 'f39a45' }
     outline: true
   - furn: { kind: lamp, at: [100, 14] }
+    repeat: [-240, 260]
   - glow: { at: [101, 16], r: 18, colour: 'f7d98a', only: [dusk, night] }
+    repeat: [-240, 260]
   - vignette: { strength: 0.45 }
