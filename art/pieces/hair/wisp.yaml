@@ -1,0 +1,11 @@
+# Baby hair (0-1): a curl on the crown and thin wisps over the head, in the hair colour. Babies wear
+# this instead of a hairstyle; the toddler body (2+) gets the real cuts.
+ages: [baby]
+z: 60
+shapes:
+  - at: [-4, head-1]
+    ascii: |
+      ....hh...
+      .hhhhhhh.
+      hhHhhhHhh
+      h.h...h.h

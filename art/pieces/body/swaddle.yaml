@@ -1,0 +1,10 @@
+# Newborn swaddle (age 0): a cloth wrapped round the whole body below the chin, arms inside, with the
+# hood of the same cloth framing the face from behind.
+ages: [baby]
+z: 30
+colors: { cloth: dye_white, trim: dye_mustard }
+shapes:
+  - { mat: cloth, sym: [[neck, 5], [shoulder, 7], [chest, 8], [hip, 8], [sole, 7]] }
+  - { mat: cloth@1, span: [[shoulder+1, -6, -6], [hip, 1, 1]] }
+  - { mat: cloth, layer: back, region: { parts: [skull, face], rows: [head, chin], grow: 2 } }
+  - { mat: cloth, layer: back, sym: [[head-1, 4]] }

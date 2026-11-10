@@ -2,6 +2,7 @@
 # hangs to the belly. Dark rows are the braid's crossings.
 body: m
 ages: [adult]
+grown: true
 z: 60
 shapes:
   - at: [-6, mouth-3]

@@ -2,6 +2,7 @@
 # (z 14), so the mouth of every expression shows over it.
 body: m
 ages: [adult]
+grown: true
 z: 14
 cast: false
 shapes:

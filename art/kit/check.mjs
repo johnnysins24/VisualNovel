@@ -123,6 +123,7 @@ export function runChecks(kit = loadKit()) {
     if (o?.feet && !kit.pieces[o.feet]) errors.push(`outfits.yaml: ${id} pairs with missing ${o.feet}`);
     const ages = [kit.pieces[id].ages ?? []].flat();
     if (group === 'child' && String(ages) !== 'child') errors.push(`${id}: child outfits need "ages: [child]"`);
+    if (group === 'baby' && String(ages) !== 'baby') errors.push(`${id}: baby things need "ages: [baby]"`);
     if (group === 'body' && String(ages) !== 'adult') errors.push(`${id}: grown-up clothes need "ages: [adult]"`);
   }
   for (const id of Object.keys(kit.pieces)) if (/^(body|feet|head|cloak|weapon|offhand|arm|over|acc|mark)\//.test(id) && !listedOutfits.includes(id)) errors.push(`${id} is missing from outfits.yaml`);
