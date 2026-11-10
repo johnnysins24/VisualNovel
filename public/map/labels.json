@@ -18,6 +18,10 @@
    "at": [
     342,
     324
+   ],
+   "pin": true,
+   "home": [
+    "origin_marked_hidden"
    ]
   },
   {
@@ -51,6 +55,9 @@
    "at": [
     324,
     318
+   ],
+   "home": [
+    "origin_refinery"
    ]
   },
   {
@@ -183,6 +190,9 @@
    "at": [
     283,
     271
+   ],
+   "home": [
+    "origin_marked_foundling"
    ]
   },
   {
@@ -200,6 +210,10 @@
    "at": [
     303,
     280
+   ],
+   "pin": true,
+   "home": [
+    "origin_farm"
    ]
   },
   {
@@ -266,6 +280,9 @@
    "at": [
     252,
     281
+   ],
+   "home": [
+    "origin_marked_kept"
    ]
   },
   {
@@ -475,6 +492,10 @@
    "at": [
     96,
     208
+   ],
+   "pin": true,
+   "home": [
+    "origin_elf_bough"
    ]
   },
   {
@@ -526,6 +547,10 @@
    "at": [
     330,
     112
+   ],
+   "pin": true,
+   "home": [
+    "origin_dwarf_clan"
    ]
   },
   {
@@ -800,6 +825,10 @@
    "at": [
     468,
     259
+   ],
+   "pin": true,
+   "home": [
+    "origin_ashland"
    ]
   },
   {

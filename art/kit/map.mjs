@@ -1031,6 +1031,7 @@ export function buildMap(M) {
     labels.push({
       id: p.id, th: p.th, en: p.en, kind: p.kind, cls: L.cls ?? p.kind, x: L.at?.[0] ?? p.at[0], y: L.at?.[1] ?? p.at[1] + 6,
       anchor: L.anchor ?? 'middle', minor: L.minor ?? false, note: p.note, region: p.region, tag: p.tag, at: p.at,
+      pin: p.pin, home: p.home, // the game's "you are here" pin (src/ui/mapLayout.ts pinFor)
     });
   }
   // for the poster: the airship routes (drawn there, not here) and the tall things names must not cover

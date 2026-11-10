@@ -252,13 +252,65 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .slot-row .slot { width: 38px; height: 38px; border-radius: 10px; }
 
 /* ---------- แผนที่ ---------- */
-.map { position: relative; aspect-ratio: 16 / 10; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; max-width: 520px; }
-.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.map .region { stroke: var(--line); }
-.map .region.forest { fill: var(--forest); } .map .region.stone { fill: var(--stone); } .map .region.field { fill: var(--field); } .map .region.ash { fill: var(--ash); }
-.map text { font-family: var(--f-body); font-size: 10.5px; fill: var(--muted); }
-.map .here circle { fill: var(--bad); }
-.map .here .halo { fill: none; stroke: var(--bad); opacity: .4; }
+/* แผนที่โลก (WorldMap.tsx): ภาพพิกเซลจาก public/map ชื่อวาดทับเป็นตัวอักษร สีชื่อตามโปสเตอร์ (art/kit/map-poster.mjs)
+   ภาพเป็นสีของโลกเอง ไม่เปลี่ยนตามธีม ชื่อจึงใช้ตัวสีอ่อนขอบเข้มที่อ่านออกทั้งบนทุ่งและบนทะเล */
+.map { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden;
+  background: #364a72; border: 1px solid var(--line); padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.map:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.map-img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; image-rendering: pixelated; pointer-events: none; }
+.map-labels { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.map-labels text { paint-order: stroke; stroke-linejoin: round; dominant-baseline: central; }
+.lbl { pointer-events: auto; cursor: pointer; outline: none; }
+.lbl .hit { fill: transparent; }
+.lbl:focus-visible .hit { stroke: #fff8e8; stroke-width: 2px; rx: 4px; }
+.lbl.pin:focus-visible rect, .lbl.sel:focus-visible rect { stroke: var(--accent); stroke-width: 2px; }
+.lbl.region, .lbl.sea, .lbl.river { pointer-events: none; }
+.lbl.region text { fill: #fbf6ea; stroke: rgb(43 40 64 / .78); stroke-width: 4px; }
+.lbl.sea text { fill: #d8e6f6; stroke: rgb(37 52 88 / .55); stroke-width: 3px; }
+.lbl.river text { fill: #e3eefa; stroke: rgb(43 40 64 / .75); stroke-width: 2.6px; }
+.lbl.capital text, .lbl.city text { fill: #fff8e8; stroke: #2b2840; stroke-width: 4px; }
+.lbl.pillar text { fill: #f6e6bd; stroke: #2b2840; stroke-width: 3.4px; }
+.lbl.town text, .lbl.name text { fill: #fffdf7; stroke: rgb(43 40 64 / .92); stroke-width: 3.4px; }
+.lbl.minor text { fill: #f3efe6; stroke: rgb(43 40 64 / .9); stroke-width: 3px; }
+.lbl.pin rect { fill: rgb(43 40 64 / .9); }
+.lbl.pin text { fill: #fff8e8; stroke: none; }
+.lbl.sel rect { fill: rgb(255 250 238 / .95); stroke: rgb(43 40 64 / .5); stroke-width: 1px; }
+.lbl.sel text { fill: #2b2840; stroke: none; }
+.map-pin path { fill: var(--bad); stroke: #fff; stroke-width: 1.5px; stroke-linejoin: round; }
+.map-pin .dot { fill: #fff; }
+.map-pin .pulse { fill: none; stroke: #fff; stroke-width: 2px; opacity: 0; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .map-pin .pulse { animation: map-pulse 2.2s ease-out infinite; }
+}
+@keyframes map-pulse { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.map-sel circle { fill: none; stroke: #fff8e8; stroke-width: 2px; }
+.map-sel .out { stroke: rgb(43 40 64 / .8); stroke-width: 4.5px; }
+.map.big { cursor: grab; touch-action: pan-y; }
+.map.big.dragging { cursor: grabbing; }
+/* แถวปุ่มมุมขวาล่าง ขนาดตรงกับ TOOL ใน WorldMap.tsx (ชื่อบนแผนที่หลบที่ตรงนี้) */
+.map-tools { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 6px; }
+.map-tools .icon-btn { width: 34px; height: 34px; background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 1px 4px rgb(20 18 30 / .18); }
+.map-tools .icon { width: 16px; height: 16px; }
+.map-tools .icon-btn:hover { background: var(--surface); }
+.map-tools .icon-btn:disabled { opacity: .4; cursor: default; }
+.world-map { display: grid; gap: 10px; }
+.place-card { display: grid; gap: 4px; padding: 10px 14px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.pc-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 32px; }
+.pc-head > .icon { width: 16px; height: 16px; color: var(--muted); }
+.place-card.here .pc-head > .icon { color: var(--bad); }
+.pc-head b { font-family: var(--f-head); font-weight: 600; font-size: 1.02rem; }
+.pc-head .muted { font-size: .78rem; }
+.pc-home { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 6px; font-size: .78rem; color: var(--accent); }
+.pc-home .icon { width: 14px; height: 14px; }
+.place-card p { margin: 0; line-height: 1.6; }
+.map-hint { margin: 0; font-size: .75rem; }
+.map.small { cursor: pointer; }
+.map.small:hover { border-color: var(--accent); }
+.map-here { position: absolute; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 4px; max-width: calc(100% - 16px);
+  padding: 2px 9px 2px 6px; border-radius: 999px; background: color-mix(in srgb, var(--bg) 86%, transparent); color: var(--ink); font-size: .75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-here .icon { width: 14px; height: 14px; color: var(--bad); }
+/* แท็บโลกเปิดอยู่ (เดสก์ท็อป) แผนที่ใหญ่อยู่ฝั่งขวาแล้ว ไม่ต้องมีแผนที่เล็กซ้ำ */
+.game[data-tab='world'] .side.right .sec:has(> .map.small) { display: none; }
 
 /* ---------- จบชีวิต / เรื่องยังมีต่อ ---------- */
 .end-card { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 18px 4px 8px; }
