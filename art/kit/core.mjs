@@ -25,6 +25,8 @@ export function makeKit({ palette, bodies, pieces, ...data }) {
   };
   for (const k of Object.keys(pal.ramps)) pal.ramps[k] = pal.ramps[k].map(hex);
   pal.outline = hex(pal.outline);
+  // each piece knows its slot (the folder: hair, weapon, acc...) for the bodies' `bare` lists
+  for (const [id, spec] of Object.entries(pieces)) if (spec && !('slot' in spec)) Object.defineProperty(spec, 'slot', { value: id.split('/')[0] });
   const kit = { pal, pieces, bodies, mats: Object.keys(pal.materials), cache: {}, data };
   kit.matId = Object.fromEntries(kit.mats.map((m, i) => [m, i]));
   return kit;
@@ -110,15 +112,30 @@ const has = (v, k) => (Array.isArray(v) ? v.includes(k) : v === k);
  */
 export const bodyIs = (kit, bodyKey, v) => has(v, bodyKey) || (!!kit?.bodies[bodyKey]?.like && has(v, kit.bodies[bodyKey].like));
 
-/** "child" for the child bodies (those with `like:`), else "adult". */
-export const ageOf = (kit, bodyKey) => (kit?.bodies[bodyKey]?.like ? 'child' : 'adult');
+/**
+ * A body's age stage (art/bodies.yaml `age`: baby, toddler, child, teen); a body without one is
+ * "child" when it has `like:` (cm, cf) and "adult" otherwise.
+ */
+export const ageOf = (kit, bodyKey) => {
+  const b = kit?.bodies[bodyKey];
+  return b?.age ?? (b?.like ? 'child' : 'adult');
+};
 
 /**
  * A piece with a top-level `body` (one name or a list) is only for those bodies, e.g. hair/m/short;
- * one with `ages` (adult, child) only for those ages, e.g. grown-up clothes and beards.
+ * one with `ages` (baby, toddler, child, teen, adult) only for bodies of those stages, or whose
+ * `wears` names one of them (a toddler wears the child clothes, a teen the grown-up ones). A piece
+ * with `grown: true` (beards, wrinkles) is for grown-up bodies only, whatever they wear. A body's
+ * `bare` list names slots it never wears unless the piece is made for its stage (a baby holds no
+ * sword and wears no hat; its basket is acc/ with `ages: [baby]`).
  */
-export const fitsBody = (spec, bodyKey, kit) =>
-  (!spec?.body || bodyIs(kit, bodyKey, spec.body)) && (!spec?.ages || has(spec.ages, ageOf(kit, bodyKey)));
+export const fitsBody = (spec, bodyKey, kit) => {
+  if (spec?.body && !bodyIs(kit, bodyKey, spec.body)) return false;
+  const b = kit?.bodies[bodyKey], age = ageOf(kit, bodyKey);
+  if (spec?.grown && age !== 'adult') return false;
+  if (spec?.ages) return [age, ...(b?.wears ?? [])].some(a => has(spec.ages, a));
+  return !(spec?.slot && b?.bare?.includes(spec.slot));
+};
 
 /**
  * Build one piece for one body. opts.variant picks variant-only shapes (e.g. a face expression).

@@ -1,0 +1,11 @@
+# Woven basket cradle (age 0): the newborn sits in it, seen from the front over the rim.
+ages: [baby]
+z: 70
+colors: { leather: leather_brown }
+shapes:
+  - { mat: leather, sym: [[waist, 10], [sole, 9]] }
+  - { mat: leather@0, sym: [[waist, 10]] }
+  - { mat: leather@3, span: [[waist+2, -9, -9], [sole-1, -8, -8]], mirror: true }
+  - { mat: leather@1, span: [[waist+2, -5, -5], [sole-1, -5, -5]], mirror: true }
+  - { mat: leather@1, span: [[waist+2, -1, -1], [sole-1, -1, -1]], mirror: true }
+  - { mat: leather@3, sym: [[waist+3, 9]] }

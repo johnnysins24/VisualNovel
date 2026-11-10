@@ -1,7 +1,11 @@
 // NPC looks from the recipes in art/npcs.yaml (A25): seeded random picks from the shared pieces.
 import { fitsBody } from './core.mjs';
 
-export const UNDER = { m: ['under/briefs'], f: ['under/bra', 'under/panties'], cm: ['under/briefs', 'under/vest'], cf: ['under/briefs', 'under/vest'] };
+export const UNDER = {
+  m: ['under/briefs'], f: ['under/bra', 'under/panties'], ym: ['under/briefs'], yf: ['under/bra', 'under/panties'],
+  cm: ['under/briefs', 'under/vest'], cf: ['under/briefs', 'under/vest'], tm: ['under/briefs', 'under/vest'], tf: ['under/briefs', 'under/vest'],
+  bm: ['under/briefs'], bf: ['under/briefs'],
+};
 
 /** A small seeded random source: the same string always gives the same numbers. */
 export function rng(seed) {
@@ -25,6 +29,7 @@ export function npcLook(kit, groupKey, seed, opts = {}, data = {}) {
   const r = rng(`${groupKey}:${seed}`), one = a => a[Math.floor(r() * a.length)];
   const body = opts.body ?? one(g.bodies ?? ['m', 'f']);
   const like = kit.bodies[body].like ?? body, adult = !kit.bodies[body].like;
+  if (!UNDER[body]) throw new Error(`npcLook: no underwear list for body "${body}"`);
   const fits = id => id && kit.pieces[id] && fitsBody(kit.pieces[id], body, kit);
   const race = opts.race ?? one(g.races ?? ['human']), rc = races[race];
   const pieces = ['face/basic', ...UNDER[body]];

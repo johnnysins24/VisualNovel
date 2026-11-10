@@ -1,6 +1,7 @@
 # Handlebar moustache (A26): a full line above the lip with the tips waxed upward. Under the face.
 body: m
 ages: [adult]
+grown: true
 z: 14
 cast: false
 shapes:
