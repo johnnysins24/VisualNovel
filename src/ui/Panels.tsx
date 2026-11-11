@@ -57,7 +57,7 @@ export function Equipment() {
         {l.inventory.map((id) => {
           const it = game.items.get(id);
           if (!it) return null;
-          const on = l.equipped[it.slot] === id;
+          const on = it.slot !== undefined && l.equipped[it.slot] === id;
           return (
             <li key={id}>
               <button class={`item ${on ? 'on' : ''}`} onClick={() => equip(id)} aria-pressed={on} title={it.passive?.description}>

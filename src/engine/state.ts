@@ -1,6 +1,6 @@
 import type { Bond, DeathCause, EncounterEnd, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type TechniqueKind, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type MaterialId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -30,6 +30,10 @@ export interface LifeState {
   habitOffers: Record<string, number>;
   inventory: string[];
   equipped: Partial<Record<Slot, string>>;
+  /** ของใช้แล้วหมดที่พกอยู่: รหัสของ → จำนวน (ไม่เกิน GEAR.stack ต่อชนิด) */
+  supplies: Record<string, number>;
+  /** จำนวนปีที่สวมของวัสดุนั้นข้ามปีมาแล้ว ใช้กับราคาของวัสดุ (เงินดาวทิ้งรอยดาว หินถ่านมารทำให้ศาสนจักรจับตา) */
+  worn: Partial<Record<MaterialId, number>>;
   locationTag: string;
   /** location_tag แรกที่ตั้ง (ถิ่นเกิด) ใช้กับพราน */
   homeTag: string | null;
@@ -78,10 +82,15 @@ export interface LifeState {
   encounter?: EncounterState;
 }
 
-/** แต้มพิเศษของหนึ่งจังหวะ: รับสัญญาณ ตรงจุดอ่อน ชนจุดแข็ง มีคนช่วย หรือท่าของอาชีพ */
+/**
+ * แต้มพิเศษของหนึ่งจังหวะ: รับสัญญาณ ตรงจุดอ่อน ชนจุดแข็ง มีคนช่วย ท่าของอาชีพ
+ * edge = วัสดุของของที่สวมได้เปรียบศัตรูฝ่ายนี้ · heavy = เกราะหนักถ่วงตอนหนี · supply = ของใช้แล้วหมดที่ใช้ในจังหวะนี้
+ * by = รหัสของที่ทำให้ได้แต้มนี้ (ป้ายของอาวุธที่ตรงจุดอ่อน ของที่ทำจากวัสดุที่ได้เปรียบ ของที่ใช้)
+ */
 export interface OddsPart {
-  kind: 'tell' | 'weak' | 'strong' | 'ally' | 'tech';
+  kind: 'tell' | 'weak' | 'strong' | 'ally' | 'tech' | 'edge' | 'heavy' | 'supply';
   amount: number;
+  by?: string;
 }
 
 /** ผลของหนึ่งจังหวะในการปะทะ */
@@ -108,6 +117,9 @@ export interface BeatRecord {
   tech?: TechniqueKind;
   /** ทอยใหม่หลังพลาดครั้งแรก (ท่าของนักรบ หรือของที่ให้ทอยใหม่) */
   rerolled?: boolean;
+  /** ของใช้แล้วหมดที่ใช้ในจังหวะนี้ และพลังชีวิตที่ของนั้นฟื้นให้ */
+  supply?: string;
+  healed?: number;
 }
 
 export interface EncounterState {
@@ -141,6 +153,8 @@ export interface EncounterLog {
   knew?: boolean;
   learned?: number;
   records: BeatRecord[];
+  /** ของหรือเหรียญที่ศัตรูทิ้งไว้เมื่อชนะ (ประโยคตอนเจออยู่ท้ายข้อความของการปะทะ) */
+  loot?: { item?: string; gold?: number };
 }
 
 export interface Partner {
@@ -179,6 +193,8 @@ export interface YearEnd {
   winter?: { d20: number; mod: number; dc: number; success: boolean; lost: number };
   /** id ของคนที่จากไปตามวัยในปีนี้ */
   passed?: string[];
+  /** สิ่งติดตัวที่ได้หรือที่ลุกลามในปีนี้เพราะของที่สวม (รอยดาวจากเงินดาว) */
+  marks?: string[];
   /** ประโยคที่ระบบเติมท้ายบันทึกของปีนี้ (เติมชื่อแล้ว) */
   lines?: string[];
 }
@@ -249,6 +265,8 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     habitOffers: {},
     inventory: [],
     equipped: {},
+    supplies: {},
+    worn: {},
     locationTag: 'village',
     homeTag: null,
     classId: null,

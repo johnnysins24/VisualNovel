@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadContent } from './content';
 import { lintContent } from '../src/engine/lint';
+import { itemIcons } from './item-icons';
 
 const content = loadContent();
 const problems = lintContent(content);
@@ -20,6 +21,9 @@ if (content.foes.length) {
   const pictures = existsSync(foeDir) ? readdirSync(foeDir).filter((f) => f.endsWith('.png')).map((f) => f.slice(0, -4)) : [];
   for (const id of new Set([...pictures, ...Object.keys(index)])) if (!ids.has(id)) problems.push(`public/foes/${id}: มีภาพแต่ไม่มีศัตรูนี้ใน foes.yaml`);
 }
+
+// ของทุกชิ้นต้องมีไอคอน: จากแบบกับวัสดุ หรือจากภาพที่ปรับมาจากชุดภาพฟรี
+problems.push(...itemIcons(content).problems);
 
 if (problems.length) {
   console.error(problems.map((p) => '✗ ' + p).join('\n'));

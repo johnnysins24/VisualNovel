@@ -1,4 +1,4 @@
-import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, PersonEffect, Requires, Stat } from './schema';
+import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, PersonEffect, Requires, Shop, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
 import {
@@ -15,7 +15,7 @@ import {
   worldYear,
 } from './state';
 import type { ItemIndex } from './items';
-import { activePassives, effectiveStats, maxHp } from './items';
+import { activePassives, effectiveStats, gearCheckBonus, maxHp } from './items';
 import {
   ADULT_AGE,
   ALIGN_CAP,
@@ -27,6 +27,7 @@ import {
   CLERIC_DRIFT_FLAG,
   DECLINE,
   ENCOUNTER,
+  GEAR,
   HP_REGEN,
   PROTECTED_AGE,
   RACES,
@@ -39,13 +40,17 @@ import {
   WORLD_CAP,
   WORLD_KEYS,
   type ClassId,
+  type ItemTag,
+  type MaterialId,
   type RaceId,
+  type Rarity,
 } from './balance';
 import { clericDrifted, situationalBonus } from './rules';
 import { bindCast, estimateBorn, livingChildren, personYears, yearlyPassings } from './people';
 import { mentionsOf, render, type Mention } from './text';
 import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitCheckBonuses, traitMaxHp, traitRegen, traitWinter, type TraitIndex, habitBlockers } from './traits';
 import { beginEncounter, openMoves } from './encounter';
+import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
 
 export interface Game {
   events: GameEvent[];
@@ -55,6 +60,8 @@ export interface Game {
   traits: TraitIndex;
   /** ศัตรูในการปะทะ */
   foes: Map<string, FoeDef>;
+  /** ร้านค้า (content/shops.yaml) */
+  shops: Shop[];
   /** ประโยคสั้นที่ระบบเติมในบันทึกชีวิต (ดู Content.lines) */
   lines: Record<string, string[]>;
   /** คนที่ข้อความของเหตุการณ์หรือตัวเลือกเอ่ยถึงด้วยชื่อตายตัว ({partner} {father} {mother} {child}) */
@@ -97,6 +104,7 @@ export function makeGame(content: Content): Game {
     names: new Map(content.names.map((n) => [n.race, n])),
     traits: new Map(content.traits.map((t) => [t.id, t])),
     foes: new Map((content.foes ?? []).map((f) => [f.id, f])),
+    shops: content.shops ?? [],
     lines: content.lines,
     mentions,
     fated,
@@ -114,6 +122,10 @@ interface StateConds {
   max_reputation?: Partial<Record<string, number>> | undefined;
   not_traits?: string[] | undefined;
   big_room?: boolean | undefined;
+  has_tag?: ItemTag | undefined;
+  wears?: MaterialId | undefined;
+  not_wears?: MaterialId[] | undefined;
+  wears_rarity?: Rarity | undefined;
 }
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
@@ -129,6 +141,10 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   for (const [f, max] of Object.entries(c.max_reputation ?? {})) if ((life.reputation[f] ?? 0) > (max ?? 0)) return false;
   if (c.not_traits?.some((t) => life.traits.includes(t))) return false;
   if (c.big_room !== undefined && hasBigRoom(life, game.traits) !== c.big_room) return false;
+  if (c.has_tag && !hasTag(game, life, c.has_tag)) return false;
+  if (c.wears && !wearsMaterial(game, life, c.wears)) return false;
+  if (c.not_wears?.some((m) => wearsMaterial(game, life, m))) return false;
+  if (c.wears_rarity && !wearsRarity(game, life, c.wears_rarity)) return false;
   return true;
 }
 
@@ -354,7 +370,7 @@ export function requiresMet(game: Game, life: LifeState, r: Requires | undefined
   if (r.trait && !life.traits.includes(r.trait)) return false;
   if (r.flag && !life.flags.includes(r.flag)) return false;
   if (r.not_flags?.some((f) => life.flags.includes(f))) return false;
-  if (r.item && !life.inventory.includes(r.item)) return false;
+  if (r.item && !owns(life, r.item)) return false;
   if (r.cast?.some((role) => !life.cast?.[role])) return false;
   if (r.min_gold !== undefined && life.gold < r.min_gold) return false;
   for (const [s, min] of Object.entries(r.min_stat ?? {})) {
@@ -395,9 +411,8 @@ export function traitBlock(game: Game, life: LifeState, choice: Choice, ev?: Gam
 /** โบนัสรวมของเช็ค (ค่า stat รวมของสวมใส่ + สถานการณ์ + สิ่งติดตัว + passive) */
 export function checkModifier(game: Game, life: LifeState, check: NonNullable<Choice['check']>): number {
   const stats = effectiveStats(life, game.items);
-  let mod = modifier(stats[check.stat]) + situationalBonus(life, check.stat) + traitCheckBonus(life, game.traits, check.stat, check.foe);
-  for (const p of activePassives(life, game.items)) if (p.kind === 'check_bonus' && p.stat === check.stat) mod += p.amount;
-  return mod;
+  const mod = modifier(stats[check.stat]) + situationalBonus(life, check.stat) + traitCheckBonus(life, game.traits, check.stat, check.foe);
+  return mod + gearCheckBonus(life, game.items, check.stat);
 }
 
 /** โอกาสสำเร็จ 0 ถึง 1 ตามกติกาเดียวกับ resolveChoice (20 ผ่านเสมอ 1 พลาดเสมอ ทอยใหม่ได้ถ้ามี passive) */
@@ -466,6 +481,8 @@ function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined 
   if (after.baseMaxHp !== before.baseMaxHp) c.maxHp = after.baseMaxHp - before.baseMaxHp;
   if (after.gold !== before.gold) c.gold = after.gold - before.gold;
   const items = after.inventory.filter((i) => !before.inventory.includes(i));
+  // ของใช้แล้วหมดที่ได้เพิ่ม ขึ้นป้ายหนึ่งครั้งต่อชิ้น
+  for (const [id, n] of Object.entries(after.supplies ?? {})) for (let k = before.supplies?.[id] ?? 0; k < n; k++) items.push(id);
   if (items.length) c.items = items;
   const traits = after.traits.filter((t) => !before.traits.includes(t));
   if (traits.length) c.traits = traits;
@@ -492,6 +509,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     traits: [...life.traits],
     traitSteps: { ...(life.traitSteps ?? {}) },
     inventory: [...life.inventory],
+    supplies: { ...(life.supplies ?? {}) },
     world: { ...life.world },
     alignment: { ...life.alignment },
     reputation: { ...life.reputation },
@@ -511,6 +529,8 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     if (next.traits.includes(t)) continue;
     // ของใหญ่เกินจำนวนที่ถือได้ไม่ติดตัว (เนื้อหาต้องกันด้วย big_room อยู่แล้ว ตรงนี้กันพลาด)
     if (game.traits.get(t)?.big && !hasBigRoom(next, game.traits)) continue;
+    // ผู้สวมเหล็กเย็นรับพรไม่ได้ (พรที่มีอยู่แล้วยังอยู่)
+    if (game.traits.get(t)?.kind === 'boon' && coldIron(game, life)) continue;
     next.traits.push(t);
   }
   for (const t of fx.lose_traits ?? []) {
@@ -525,7 +545,11 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   next.baseMaxHp += traitMaxHp(next, game.traits) - hpFromTraits;
   if (fx.max_hp) next.baseMaxHp += fx.max_hp;
 
-  for (const i of fx.items ?? []) if (!next.inventory.includes(i)) next.inventory.push(i);
+  for (const i of fx.items ?? []) {
+    const got = addItem(game, next, i);
+    next.inventory = got.inventory;
+    next.supplies = got.supplies;
+  }
   if (fx.location_tag) {
     next.locationTag = fx.location_tag;
     next.homeTag ??= fx.location_tag;
@@ -788,9 +812,13 @@ export function caredFor(life: LifeState): boolean {
   );
 }
 
-/** แต้มบวกของเช็คฤดูหนาว (อึด + สิ่งติดตัว + คนดูแล) */
+/**
+ * แต้มบวกของเช็คฤดูหนาว (อึดของร่างกาย + สิ่งติดตัว + คนดูแล + ของกันหนาว)
+ * ใช้ค่าอึดของร่างกายเอง ไม่นับโบนัสจากของที่สวม: ของช่วยให้ผ่านฤดูหนาวได้ทางเดียวคือของกันหนาว (ไม่เกิน GEAR.winterMax)
+ */
 export function winterModifier(game: Game, life: LifeState): number {
-  return modifier(effectiveStats(life, game.items).CON) + traitWinter(life, game.traits) + (caredFor(life) ? WINTER.care : 0);
+  const warm = activePassives(life, game.items).reduce((n, p) => n + (p.kind === 'winter' ? p.amount : 0), 0);
+  return modifier(life.stats.CON) + traitWinter(life, game.traits) + (caredFor(life) ? WINTER.care : 0) + Math.min(GEAR.winterMax, warm);
 }
 
 /** คนรอบตัวตายไปหนึ่งคน (ตามวัยหรือจากเนื้อหา) พร้อม flag ของคนสำคัญ */
@@ -843,6 +871,14 @@ export function endOfYear(game: Game, life: LifeState, rng: Rng, rec: YearEnd): 
         else line(['winter_fail']);
       }
     }
+  }
+
+  // ของที่สวมข้ามปีเก็บราคาของวัสดุ (เงินดาวทิ้งรอยดาว หินถ่านมารทำให้ศาสนจักรจับตา)
+  if (!next.dying) {
+    const wear = wearYear(game, next);
+    next = wear.life;
+    if (wear.traits.length) rec.marks = [...(rec.marks ?? []), ...wear.traits];
+    for (const key of wear.lines) line([key]);
   }
 
   for (const p of yearlyPassings(next, rng, game.fated)) {

@@ -31,3 +31,37 @@ mother_shawl: { from: shikashi/icons.png, cell: [448, 224, 32, 32] }
 toren_oil_ladle: { from: game-icons/delapouite/ladle.svg, ramp: metal_iron }
 back_brace: { from: shikashi/icons.png, cell: [480, 224, 32, 32] }
 dim_night_vial: { from: shikashi/icons.png, cell: [96, 608, 32, 32] }
+# ของใช้แล้วหมด (ชุด 2ข)
+boiled_bandage: { from: shikashi/icons.png, cell: [480, 288, 32, 32] }
+temple_salve: { from: shikashi/icons.png, cell: [384, 352, 32, 32] }
+moss_poultice: { from: shikashi/icons.png, cell: [416, 352, 32, 32] }
+pine_torch: { from: shikashi/icons.png, cell: [320, 320, 32, 32] }
+lamp_oil_flask: { from: shikashi/icons.png, cell: [224, 608, 32, 32] }
+water_skin: { from: 7soul-496/I_Water.png }
+smoke_pot: { from: shikashi/icons.png, cell: [384, 320, 32, 32] }
+feast_crackers: { from: shikashi/icons.png, cell: [384, 480, 32, 32] }
+salt_meat: { from: shikashi/icons.png, cell: [32, 480, 32, 32] }
+flash_powder: { from: shikashi/icons.png, cell: [352, 640, 32, 32] }
+whetstone: { from: shikashi/icons.png, cell: [32, 544, 32, 32] }
+hemp_rope: { from: shikashi/icons.png, cell: [416, 320, 32, 32] }
+death_roll: { from: shikashi/icons.png, cell: [352, 416, 32, 32] }
+calming_snuff: { from: shikashi/icons.png, cell: [32, 640, 32, 32] }
+ward_salt: { from: shikashi/icons.png, cell: [320, 480, 32, 32] }
+# ของใช้แล้วหมดชุดสอง และของที่ได้จากศัตรู (ชุด 2ข)
+dock_darts: { from: 7soul-496/W_Throw002.png }
+sling_stones: { from: 7soul-496/I_Rock01.png }
+iron_caltrops: { from: 7soul-496/W_Throw003.png }
+jaw_trap: { from: shikashi/icons.png, cell: [448, 320, 32, 32] }
+silver_grass_tea: { from: shikashi/icons.png, cell: [448, 480, 32, 32] }
+dwarf_fire_spirit: { from: 7soul-496/P_Orange06.png }
+honey_bread: { from: 7soul-496/I_C_Bread.png }
+lamp_blessed_water: { from: 7soul-496/P_Blue05.png }
+roast_coffee: { from: shikashi/icons.png, cell: [352, 480, 32, 32] }
+ossa_name_candle: { from: shikashi/icons.png, cell: [352, 320, 32, 32] }
+bone_broth: { from: shikashi/icons.png, cell: [288, 480, 32, 32] }
+apple_liquor: { from: shikashi/icons.png, cell: [480, 416, 32, 32] }
+signal_flare: { from: 7soul-496/S_Fire05.png }
+coal_ember: { from: 7soul-496/I_Coal.png }
+wolf_pelt_mantle: { from: 7soul-496/I_WolfFur.png }
+bear_fang_cord: { from: 7soul-496/I_Fang.png }
+hundred_eye_lens: { from: 7soul-496/I_Eye.png }

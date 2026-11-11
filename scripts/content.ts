@@ -37,5 +37,6 @@ export function loadContent(root = process.env.CONTENT_DIR ?? 'content'): Conten
     traits: loadFile<unknown[]>(join(root, 'traits.yaml'), []),
     foes: loadFile<unknown[]>(join(root, 'foes.yaml'), []),
     lines: loadFile<Record<string, string[]>>(join(root, 'lines.yaml'), {}),
+    shops: loadFile<unknown[]>(join(root, 'shops.yaml'), []),
   });
 }

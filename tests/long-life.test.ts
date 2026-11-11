@@ -98,9 +98,9 @@ describe('winter check from 65', () => {
   it('starts at 65 (70 for a tiefling): one harder every three years, every eight from 83, every two from 100', () => {
     expect(winterFrom(at(1))).toBe(WINTER.from);
     expect(winterFrom(at(1, 1, { raceApplied: 'tiefling' }))).toBe(70);
-    expect([65, 67, 68, 80, 83, 90, 91, 99, 100, 101, 102, 107, 115].map((h) => winterDc(at(1), h))).toEqual([7, 7, 8, 12, 13, 13, 14, 15, 15, 15, 16, 18, 22]);
+    expect([65, 67, 68, 80, 83, 90, 91, 99, 100, 101, 102, 107, 115].map((h) => winterDc(at(1), h))).toEqual([8, 8, 9, 13, 14, 14, 15, 16, 16, 16, 17, 19, 23]);
     // ทีฟลิ่งเริ่มช้ากว่าห้าปี เส้นเดียวกันเลื่อนไปทั้งเส้น
-    expect([70, 88, 96, 104, 105, 107].map((h) => winterDc(at(1, 1, { raceApplied: 'tiefling' }), h))).toEqual([7, 13, 14, 15, 15, 16]);
+    expect([70, 88, 96, 104, 105, 107].map((h) => winterDc(at(1, 1, { raceApplied: 'tiefling' }), h))).toEqual([8, 14, 15, 16, 16, 17]);
     for (let n = 1; n <= 200; n++) {
       expect(resolveChoice(game, old(63, n), 'adult.year', 'ok').entry.year?.winter).toBeUndefined();
       expect(resolveChoice(game, old(65, n), 'adult.year', 'ok').entry.year?.winter).toBeDefined();
@@ -113,7 +113,7 @@ describe('winter check from 65', () => {
       const before = old(85, n);
       const { life, entry } = resolveChoice(game, before, 'adult.year', 'ok');
       const w = entry.year!.winter!;
-      expect(w.dc).toBe(13);
+      expect(w.dc).toBe(14);
       expect(w.mod).toBe(0);
       expect(w.success).toBe(w.d20 === 20 || (w.d20 !== 1 && w.d20 + w.mod >= w.dc));
       expect(life.baseMaxHp).toBe(before.baseMaxHp - w.lost);
@@ -121,7 +121,7 @@ describe('winter check from 65', () => {
       expect(life.hp).toBeLessThanOrEqual(maxHp(life, game.items));
       if (!w.success) fails++;
     }
-    expect(Math.abs(fails / 2000 - 12 / 20)).toBeLessThan(0.04);
+    expect(Math.abs(fails / 2000 - 13 / 20)).toBeLessThan(0.04);
   });
   it('the last winter: max HP runs out, time stops, the death scene comes, then the life ends of old age', () => {
     let seen = 0;

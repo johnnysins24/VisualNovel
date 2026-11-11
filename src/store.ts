@@ -6,7 +6,8 @@ import { resolveMove } from './engine/encounter';
 import { newLife, type EndReason, type LifeState, type LogEntry } from './engine/state';
 import type { Stat } from './engine/schema';
 import { newSeed } from './engine/rng';
-import { equip as equipItem } from './engine/items';
+import { equip as equipItem, unequip as unequipItem } from './engine/items';
+import { buy, sell, useSupply } from './engine/gear';
 import { exportCode, importCode, loadMeta, loadSlot, saveMeta, saveSlot } from './engine/save';
 import { commitLife, newMeta, type Meta } from './engine/meta';
 
@@ -25,6 +26,8 @@ export const bigRoll = signal<{ entry: LogEntry; stat: Stat } | null>(null);
 
 /** ผู้เล่นแตะเตรียมท่าของอาชีพไว้สำหรับวิธีรับมือถัดไป (เฉพาะท่าที่ต้องเตรียม) */
 export const techArmed = signal(false);
+/** ของใช้แล้วหมดที่ผู้เล่นแตะหยิบไว้ใช้กับวิธีรับมือถัดไป (จังหวะละชิ้น) */
+export const supplyArmed = signal<string | null>(null);
 /** นับครั้งที่ศัตรูทำร้ายตัวละครได้ ภาพศัตรูบนเวทีใช้เปลี่ยนเป็นท่าเข้าตีครู่หนึ่ง */
 export const foeStruck = signal(0);
 
@@ -84,8 +87,9 @@ export function choose(choiceId: string) {
 /** เลือกวิธีรับมือในจังหวะปัจจุบันของการปะทะ ยังไม่จบ = อยู่ในเหตุการณ์เดิม จังหวะถัดไป · จบ = ปิดเหตุการณ์เหมือนตัวเลือกปกติ */
 export function chooseMove(moveId: string) {
   if (!life.value.encounter) return;
-  const res = resolveMove(game, life.value, moveId, techArmed.value);
+  const res = resolveMove(game, life.value, moveId, techArmed.value, supplyArmed.value ?? undefined);
   techArmed.value = false;
+  supplyArmed.value = null;
   bigRoll.value = null;
   if (!res.record.success && res.record.damage) foeStruck.value += 1;
   life.value = res.life;
@@ -115,12 +119,50 @@ export function resumeLife(): boolean {
 /** เซฟเก่าไม่มี endReason: ถ้ายังมี HP แปลว่าเรื่องหมด ไม่ใช่ตาย */
 export const endReasonOf = (l: LifeState): EndReason | null => (l.alive ? null : (l.endReason ?? (l.hp > 0 ? 'content_end' : 'death')));
 
-export function equip(itemId: string) {
+/** สวมของจากกระเป๋าลงช่องของมัน คืน false ถ้าสวมไม่ได้ (กลางการปะทะ หรือร่างกายยังพึ่งของที่สวมอยู่ในช่องนั้น) */
+export function equip(itemId: string): boolean {
   const item = game.items.get(itemId);
-  if (item) {
-    life.value = equipItem(life.value, item, game.items);
-    persist();
-  }
+  const next = item ? equipItem(life.value, item, game.items) : life.value;
+  if (next === life.value) return false;
+  life.value = next;
+  persist();
+  return true;
+}
+
+/** ถอดของออกจากช่อง (ของยังอยู่ในกระเป๋า) คืน false ถ้าถอดไม่ได้เพราะร่างกายยังพึ่งของชิ้นนั้นอยู่ */
+export function unequip(itemId: string): boolean {
+  const next = unequipItem(life.value, itemId, game.items);
+  if (next === life.value) return false;
+  life.value = next;
+  persist();
+  return true;
+}
+
+/** ซื้อของจากแผงของร้านในถิ่นนี้ คืน true ถ้าซื้อได้ */
+export function buyItem(shopId: string, itemId: string): boolean {
+  const next = buy(game, life.value, shopId, itemId);
+  if (next === life.value) return false;
+  life.value = next;
+  persist();
+  return true;
+}
+
+/** ขายของให้ร้านในถิ่นนี้ คืน true ถ้าขายได้ */
+export function sellItem(itemId: string): boolean {
+  const next = sell(game, life.value, itemId);
+  if (next === life.value) return false;
+  life.value = next;
+  persist();
+  return true;
+}
+
+/** ใช้ของใช้แล้วหมดนอกการปะทะ (ยา ผ้าพันแผล) คืนพลังชีวิตที่ฟื้น 0 = ใช้ไม่ได้ */
+export function useItem(itemId: string): number {
+  const res = useSupply(game, life.value, itemId);
+  if (!res) return 0;
+  life.value = res.life;
+  persist();
+  return res.healed;
 }
 
 /**
@@ -132,6 +174,7 @@ function adopt(saved: LifeState) {
   revealed.value = null;
   bigRoll.value = null;
   techArmed.value = false;
+  supplyArmed.value = null;
   sheetCollapsed.value = false;
   const fixed = repairLife(game, saved);
   life.value = fixed;

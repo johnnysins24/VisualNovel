@@ -1,0 +1,1349 @@
+# ของร้านและของช่าง (ชุด 2ข): ซื้อได้ที่ร้านของแต่ละถิ่น (content/shops.yaml) บางชิ้นได้จากศัตรู (content/foes.yaml loot)
+# ของหนึ่งชิ้น = แบบ (pattern ใน art/gear.yaml กำหนดช่องสวมและไอคอน) x วัสดุ x ระดับ ชื่อและเรื่องเขียนด้วยมือทุกชิ้น
+# งบของระดับ: ของบ้าน 0 ถึง 1 · ของช่าง 1 ถึง 2 · ของชั้นครู 2 ถึง 3 · ของอาบเวท 3 ถึง 4 (ดู GEAR ใน src/engine/balance.ts)
+# ป้ายของอาวุธ (edge pierce blunt ranged noise) กับของมือรอง (light fire noise) ใช้เทียบกับจุดอ่อนของศัตรูในการปะทะ
+
+# ---------- ตลาดนัดลานโบสถ์ (หมู่บ้านในอาร์เวล) ----------
+- id: reaper_cap
+  name: หมวกผ้าปีกกว้างของคนเกี่ยวข้าว
+  slot: head
+  pattern: cap
+  material: ileth_wood
+  price: 2
+  stats: { CON: 1 }
+  lore: ปีกหมวกขึงด้วยซี่ไม้ไอเลธเหลาบางเท่าก้านธูป เบาจนใส่ทั้งวันไม่เมื่อยคอ คนเกี่ยวข้าวในอาร์เวลใส่กันทั้งทุ่งมาตั้งแต่ก่อนมีเรือเหาะ
+
+- id: brass_button_shirt
+  name: เสื้อผ้าฝ้ายกระดุมทองเหลืองห้าเม็ด
+  slot: body
+  pattern: shirt
+  material: brass
+  price: 2
+  stats: { CHA: 1 }
+  lore: กระดุมหล่อจากปลอกกระสุนเก่าของสงครามถ่าน ช่างในหมู่บ้านขัดจนไม่เหลือรอยตีตรา
+
+- id: woodcutter_axe
+  name: ขวานผ่าฟืนด้ามไม้แอช
+  slot: weapon
+  pattern: axe
+  material: black_iron
+  tags: [edge]
+  price: 3
+  stats: { STR: 1 }
+  lore: หัวขวานตีที่โรงตีเหล็กประจำหมู่บ้าน เจ้าของคนก่อนลับกับหินแม่น้ำทุกเช้าวันตลาด
+
+- id: shepherd_staff
+  name: ไม้เท้าหัวงอของคนเลี้ยงแกะ
+  slot: weapon
+  pattern: staff
+  material: ileth_wood
+  tags: [blunt]
+  price: 2
+  stats: { WIS: 1 }
+  lore: หัวงอไว้เกี่ยวขาแกะที่ตกคูน้ำ คนเลี้ยงแกะบอกว่าเกี่ยวคอหมาป่าก็ได้ถ้ามือนิ่งพอ
+
+- id: tallow_lantern
+  name: ตะเกียงไขสัตว์ครอบสังกะสี
+  slot: offhand
+  pattern: lantern
+  material: brass
+  tags: [light]
+  price: 2
+  lore: ไส้ตะเกียงฟั่นจากเศษผ้าห่ม ควันเหม็นหืน แต่ลมทุ่งพัดไม่ดับ
+
+- id: cracked_cow_bell
+  name: กระดิ่งวัวทองเหลืองเสียงแตก
+  slot: offhand
+  pattern: bell
+  material: brass
+  tags: [noise]
+  price: 1
+  lore: ร้าวตั้งแต่วัวตัวที่ใส่มันตกเหว เสียงจึงแหบ และดังไปไกลกว่ากระดิ่งที่ยังดีอยู่
+
+- id: knit_wool_scarf
+  name: ผ้าพันคอขนแกะถักมือ กลัดเข็มทองเหลือง
+  slot: cloak
+  pattern: scarf
+  material: brass
+  price: 3
+  lore: แม่บ้านในหมู่บ้านถักขายช่วงหน้าเกี่ยว แถมเข็มกลัดทองเหลืองหัวรวงข้าวให้หนึ่งตัว คนในตลาดดูลายถักแล้วบอกได้ว่ามาจากบ้านไหน
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: butcher_knife
+  name: มีดชำแหละสันหนาของคนขายเนื้อ
+  slot: weapon
+  pattern: dagger
+  material: black_iron
+  tags: [edge]
+  price: 3
+  stats: { DEX: 1 }
+  lore: สันมีดหนาเท่านิ้วก้อย คมด้านเดียว ลับจนใบแคบลงกว่าตอนซื้อครึ่งนิ้ว
+
+- id: field_boots
+  name: รองเท้าบูตหนังวัวพื้นตอกหมุดสิบสองตัว
+  slot: feet
+  pattern: boots
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  stats: { CON: 1 }
+  lore: ช่างรองเท้าคนเดียวของหมู่บ้านตอกหมุดเองทุกตัว และรับประกันถึงหน้าเกี่ยวปีหน้า
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: hay_gloves
+  name: ถุงมือหนังแพะของคนขนฟาง
+  slot: hands
+  pattern: gloves
+  material: ileth_wood
+  price: 2
+  stats: { STR: 1 }
+  lore: หนังแพะฟอกน้ำเปลือกไอเลธจนเป็นสีน้ำตาลเข้ม ฝ่ามือเสริมสองชั้นตรงที่จับด้ามคราด ชั้นนอกสึกจนเห็นชั้นในแล้วหนึ่งข้าง
+
+# ---------- ตลาดท่าเรือเวนทราส ----------
+- id: dock_goggles
+  name: แว่นช่างกรอบทองเหลืองเลนส์เขียว
+  slot: head
+  pattern: goggles
+  material: brass
+  rarity: uncommon
+  price: 5
+  lore: ช่างอู่เรือเหาะใส่ตอนบัดกรีถังน้ำค้างดาว เลนส์เขียวตัดแสงฟ้าจนมองรอยรั่วได้ด้วยตาเปล่า
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: navigator_pistol
+  name: ปืนพกลูกโม่ของต้นหนเรือเหาะ
+  slot: weapon
+  pattern: pistol
+  material: brass
+  rarity: uncommon
+  tags: [ranged, noise]
+  price: 7
+  stats: { DEX: 1 }
+  lore: ต้นหนพกไว้ยิงสัญญาณเมื่อเรือหลงในเมฆ ลูกโม่หกช่องมีรอยสึกอยู่ช่องเดียว
+
+- id: brass_spanner
+  name: ประแจปากตายเบอร์สิบสองของอู่เรือเหาะ
+  slot: offhand
+  pattern: wrench
+  material: brass
+  tags: [tool]
+  price: 3
+  stats: { INT: 1 }
+  lore: ด้ามตอกเลขประจำตัวช่างไว้กันหาย เลขชุดนี้ไม่มีในทะเบียนอู่มาสิบปีแล้ว
+
+- id: clerk_long_coat
+  name: เสื้อคลุมยาวกระดุมสองแถวของเสมียนท่าเรือ
+  slot: body
+  pattern: robe
+  material: brass
+  price: 3
+  stats: { CHA: 1 }
+  lore: กระดุมทองเหลืองสิบสองเม็ดตอกตรากรมท่า ข้อศอกปะหนังกันสึกจากขอบโต๊ะ กระเป๋าด้านในเย็บลึกพิเศษสำหรับสมุดบัญชีเล่มที่สอง
+
+- id: harbor_short_sword
+  name: ดาบสั้นของนายท่าที่ปลดประจำการ
+  slot: weapon
+  pattern: short_sword
+  material: black_iron
+  rarity: uncommon
+  tags: [edge]
+  price: 7
+  stats: { STR: 1, DEX: 1 }
+  lore: ใบดาบสั้นกว่าดาบทหารหนึ่งคืบ เพราะบนดาดฟ้าเรือไม่มีที่ให้เหวี่ยง
+
+- id: shipping_seal_ring
+  name: แหวนตราประทับของบริษัทเดินเรือที่ล้มไปแล้ว
+  slot: accessory
+  pattern: ring
+  material: brass
+  rarity: uncommon
+  price: 6
+  lore: ตรารูปสมอไขว้ยังกดลงครั่งได้คมชัด เสมียนรุ่นเก่าเห็นแล้วยังเผลอลุกขึ้นยืน
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }
+
+- id: oilcloth_cloak
+  name: ผ้าคลุมเคลือบน้ำมันของคนเรือ
+  slot: cloak
+  pattern: cloak
+  material: brass
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: ผ้าใบเรือเก่าชุบน้ำมันสามรอบ ตาไก่ทองเหลืองตามชายผ้ายังอยู่ครบทุกรู ฝนเม็ดใหญ่แค่ไหนก็กลิ้งลงพื้นหมด
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: dew_watch_lantern
+  name: ตะเกียงน้ำค้างดาวของยามท่าเรือ
+  slot: offhand
+  pattern: lantern
+  material: star_silver
+  rarity: rare
+  tags: [light]
+  price: 14
+  stats: { INT: 1 }
+  lore: แสงฟ้าของมันไม่กะพริบและไม่ร้อน ยามที่ถือเดินกะดึกครบสิบปีมักเริ่มเห็นจุดสว่างเล็กๆ บนหลังมือตัวเอง
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: marine_musket
+  name: ปืนยาวราชนาวีรุ่นก่อนสงครามถ่าน
+  slot: weapon
+  pattern: musket
+  material: black_iron
+  rarity: rare
+  tags: [ranged, noise]
+  price: 16
+  stats: { DEX: 2 }
+  lore: พานท้ายสลักขีดนับยี่สิบเจ็ดขีด ทหารเรือที่ขายมันไม่ยอมบอกว่านับอะไร
+
+- id: institute_third_primer
+  name: ตำราเวทเล่มสามของสถาบัน ฉบับคัดลอกด้วยมือ
+  slot: offhand
+  pattern: tome
+  material: star_silver
+  rarity: enchanted
+  price: 40
+  stats: { INT: 2, WIS: -1 }
+  needs: { min_reputation: { royal_institute: 2 } }
+  needs_text: คนขายเปิดสมุดรายชื่อของสถาบันดูก่อน แล้วเลื่อนตำรากลับเข้าไปใต้แผง
+  toll: { world: { star: 2 } }
+  lore: นักเรียนปีสามคัดลอกขายเพื่อจ่ายค่าเทอม สันปกเย็บด้วยด้ายเงินดาวตามแบบต้นฉบับ
+  caveat: คนที่อ่านจบฝันเป็นตัวเลขทุกคืน และดาวดวงใหม่รู้ว่าใครเปิดมันอ่าน
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+  also:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+# ---------- ลานเหล็กตีนเขา (ฮอร์ดุน) ----------
+- id: double_ring_mail
+  name: เสื้อเกราะโซ่ห่วงคู่จากเตาชั้นล่าง
+  slot: body
+  pattern: mail
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { CON: 1 }
+  lore: ห่วงทุกห่วงคล้องกับอีกสี่ห่วงและย้ำหมุดด้วยมือ ช่างคนแคระนับได้ว่าทั้งตัวมีหมื่นสองพันห่วง
+  passive:
+    description: เสียพลังชีวิตน้อยลง 1 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 1 }
+
+- id: twice_forged_plate
+  name: เกราะอกตีสองชั้นของช่างตระกูลค้อนเงียบ
+  slot: body
+  pattern: plate
+  material: black_iron
+  rarity: rare
+  price: 20
+  stats: { CON: 1 }
+  lore: แผ่นนอกรับคม แผ่นในรับแรง ระหว่างสองแผ่นอัดขนแพะภูเขาไว้ ช่างไม่สลักชื่อ เพราะคนในฮอร์ดุนดูรอยค้อนก็รู้
+  passive:
+    description: เสียพลังชีวิตน้อยลง 2 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 2 }
+
+- id: seventh_level_helm
+  name: หมวกเหล็กของคนงานเหมืองชั้นเจ็ด
+  slot: head
+  pattern: helm
+  material: black_iron
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: มีรอยบุบขนาดกำปั้นที่ท้ายทอย เจ้าของคนก่อนขายมันในวันที่เลิกลงเหมือง
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: four_pound_hammer
+  name: ค้อนตีเหล็กหัวสี่ปอนด์
+  slot: weapon
+  pattern: hammer
+  material: black_iron
+  rarity: uncommon
+  tags: [blunt]
+  price: 6
+  stats: { STR: 1 }
+  lore: ลูกมือช่างตีเหล็กต้องเหวี่ยงค้อนขนาดนี้วันละพันครั้งอยู่เจ็ดปี ก่อนจะได้จับค้อนของตัวเอง
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+
+- id: clan_war_axe
+  name: ขวานศึกสลักชื่อตระกูลที่ลบออกแล้ว
+  slot: weapon
+  pattern: axe
+  material: black_iron
+  rarity: rare
+  tags: [edge]
+  price: 18
+  stats: { STR: 2 }
+  lore: ตระกูลที่แพ้คดีในสภาต้องขายอาวุธและขูดชื่อออก รอยขูดยังอ่านได้ถ้าเอียงใบขวานรับแสงเตา
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+
+- id: three_joint_gauntlets
+  name: ปลอกมือเหล็กข้อพับสามท่อน
+  slot: hands
+  pattern: gauntlets
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { STR: 1, CON: 1 }
+  lore: ข้อพับหยอดน้ำมันถ่านมารจนกำมือได้เงียบสนิท คนคุมเตาใช้หยิบเหล็กแดงออกจากไฟ
+
+- id: rivet_rim_shield
+  name: โล่เหล็กดำขอบหมุดของยามประตูเหมือง
+  slot: offhand
+  pattern: shield
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { CON: 1 }
+  lore: หนักจนยามวางพิงเข่าทั้งกะ หน้าโล่มีรอยจิกของอะไรบางอย่างที่มีเล็บห้าเล็บ
+  passive:
+    description: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ
+    effect: { kind: shield }
+
+- id: gate_mace
+  name: กระบองหัวหนามของยามประตูเหมือง
+  slot: weapon
+  pattern: mace
+  material: black_iron
+  rarity: uncommon
+  tags: [blunt]
+  price: 5
+  stats: { STR: 1 }
+  lore: หนามหักไปสองซี่ ยามบอกว่าหักคาอยู่ในของที่ไม่ควรขึ้นมาจากชั้นเก้า
+
+- id: tunnel_crossbow
+  name: หน้าไม้สั้นสำหรับยิงในอุโมงค์
+  slot: weapon
+  pattern: crossbow
+  material: black_iron
+  rarity: uncommon
+  tags: [ranged, pierce]
+  price: 7
+  stats: { DEX: 1 }
+  lore: คันสั้นแค่ศอกเดียวเพื่อไม่ให้ติดผนังอุโมงค์ ลูกดอกจึงไปได้ไม่ไกล แต่ในเหมืองไม่มีอะไรอยู่ไกล
+
+# ---------- แผงใต้ต้นไม้ของเอลฟ์ชายป่า (ไอเลธ) ----------
+- id: deer_gut_bow
+  name: ธนูไม้ไอเลธสายเอ็นกวาง
+  slot: weapon
+  pattern: bow
+  material: ileth_wood
+  rarity: uncommon
+  tags: [ranged]
+  price: 7
+  stats: { DEX: 1 }
+  lore: คันธนูเหลาจากกิ่งที่พายุหักลงมาเอง สายเอ็นมาจากกวางที่ตายตามอายุ เอลฟ์ที่ขายเล่าที่มาให้ฟังทุกครั้ง
+  passive:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+
+- id: leafing_staff
+  name: ไม้เท้ากิ่งไอเลธที่ยังแตกใบ
+  slot: weapon
+  pattern: staff
+  material: ileth_wood
+  rarity: rare
+  tags: [blunt]
+  price: 18
+  stats: { WIS: 2 }
+  lore: ตัดจากต้นมาสิบสองปีแล้วยังผลิใบอ่อนทุกต้นฤดูฝน คนถือต้องเด็ดออกเอง ไม่อย่างนั้นปลายไม้จะหนักข้างเดียว
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: bark_fibre_cloak
+  name: ผ้าคลุมทอใยเปลือกไม้ของคนเดินป่า
+  slot: cloak
+  pattern: cloak
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  stats: { DEX: 1 }
+  lore: ใยเปลือกไม้แช่น้ำค้างสามคืนก่อนทอ ผ้าจึงไม่ส่งเสียงเมื่อเกี่ยวกิ่งไม้
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: boar_spear
+  name: หอกล่าหมูป่าด้ามไอเลธ
+  slot: weapon
+  pattern: spear
+  material: ileth_wood
+  rarity: uncommon
+  tags: [pierce]
+  price: 6
+  stats: { STR: 1 }
+  lore: ใต้ใบหอกมีขวางไม้กันหมูป่าวิ่งทะลุด้ามเข้ามาถึงมือ ขวางอันนี้มีรอยเขี้ยวสองแห่ง
+
+- id: polished_root_ring
+  name: แหวนรากไม้ขัดมัน
+  slot: accessory
+  pattern: ring
+  material: ileth_wood
+  price: 3
+  stats: { WIS: 1 }
+  lore: รากฝอยของต้นไอเลธที่ขดเป็นวงเองใต้ดิน เอลฟ์แค่ขุดขึ้นมาแล้วขัด ไม่มีรอยต่อให้เห็น
+
+- id: bark_dye_hood
+  name: ผ้าคลุมหัวย้อมเปลือกไม้ไอเลธ
+  slot: head
+  pattern: hood
+  material: ileth_wood
+  price: 3
+  stats: { DEX: 1 }
+  lore: สีน้ำตาลของมันตรงกับสีลำต้นไม้ในป่าไอเลธตอนฝนเพิ่งหยุด คนตัดไม้จากอาร์เวลซื้อไม่ได้สักผืน
+
+- id: seven_ply_bark_shield
+  name: โล่เปลือกไม้อัดเจ็ดชั้น
+  slot: offhand
+  pattern: shield
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  stats: { DEX: 1 }
+  lore: เปลือกไม้เจ็ดชั้นวางขวางลายกันแล้วอัดด้วยยางสน เบาจนเด็กถือได้ และติดไฟง่ายพอกัน
+  passive:
+    description: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ
+    effect: { kind: shield }
+
+- id: tower_keeper_knife
+  name: มีดเงินดาวของคนเฝ้าหอนับดาว
+  slot: weapon
+  pattern: dagger
+  material: star_silver
+  rarity: rare
+  tags: [edge]
+  price: 14
+  stats: { DEX: 1, STR: 1 }
+  lore: ตีจากเศษโลหะที่ตกลงมาในคืนดาวหรี่ ใบมีดเย็นกว่าอากาศรอบตัวเสมอ และเย็นลงอีกเมื่อมีของจากแดนเถ้าอยู่ใกล้
+
+- id: star_count_pendant
+  name: สร้อยเงินดาวของคนนับดาวรุ่นก่อน
+  slot: accessory
+  pattern: amulet
+  material: star_silver
+  rarity: rare
+  price: 15
+  stats: { INT: 1, WIS: 1 }
+  lore: จี้เจาะรูเจ็ดรูตามตำแหน่งเสาฟ้า คนนับดาวส่องรูทีละรูเพื่อดูว่าดาวดวงไหนเคลื่อนจากที่เดิม
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: star_thread_robe
+  name: เสื้อคลุมปักด้ายเงินดาวของหอนับดาว
+  slot: body
+  pattern: robe
+  material: star_silver
+  rarity: enchanted
+  price: 45
+  stats: { INT: 2, CON: -1 }
+  needs: { min_reputation: { star_hall: 2 } }
+  needs_text: เอลฟ์ที่เฝ้าแผงบอกว่าเสื้อตัวนี้ไม่ได้วางขาย แค่วางให้คนของหอผ่านมาเห็น
+  toll: { world: { star: 2 } }
+  lore: ลายปักคือแผนที่ฟ้าของคืนที่ดาวดวงใหม่ปรากฏ ช่างปักสามคนทำอยู่สิบเอ็ดปี สองคนตาบอดก่อนเสร็จ
+  caveat: ลายปักเรืองแสงเมื่อดาวดวงใหม่ขึ้น คนสวมหลับไม่สนิทในคืนฟ้าเปิด
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+  also:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+# ---------- ตลาดหลังป้อมสาม (แดนเถ้า) ----------
+- id: ember_edge_dagger
+  name: มีดสั้นคมหินถ่านมาร
+  slot: weapon
+  pattern: dagger
+  material: demon_coal
+  rarity: uncommon
+  tags: [edge]
+  price: 7
+  stats: { DEX: 1 }
+  lore: คนขุดถ่านฝนเศษหินถ่านมารกับพื้นเหมืองจนคม ใบมีดอุ่นอยู่ตลอด เสียบฝักหนังไว้นานฝักจะไหม้เป็นรอย
+
+- id: bored_coal_pendant
+  name: สร้อยหินถ่านมารเจาะรูร้อยเชือกหนัง
+  slot: accessory
+  pattern: amulet
+  material: demon_coal
+  rarity: uncommon
+  price: 6
+  stats: { CHA: 1 }
+  lore: แม่ในแดนเถ้าแขวนให้ลูกที่เกิดหน้าหนาว ก้อนถ่านอุ่นพอให้เด็กไม่ต้องห่มผ้าผืนที่สอง
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: retired_warden_spear
+  name: หอกปลดประจำการของภาคีผู้เฝ้าผนึก
+  slot: weapon
+  pattern: spear
+  material: black_iron
+  rarity: uncommon
+  tags: [pierce]
+  price: 7
+  stats: { STR: 1, CON: 1 }
+  lore: ด้ามหอกสลักปีที่เข้าเวรไว้สิบเก้าปี ปีสุดท้ายสลักได้ครึ่งเดียว
+
+- id: ash_digger_hood
+  name: ผ้าคลุมหัวกันเถ้าของคนขุดถ่าน
+  slot: head
+  pattern: hood
+  material: demon_coal
+  price: 3
+  stats: { CON: 1 }
+  lore: ผ้ากระสอบที่เคยใส่ถ่านมาร ฝุ่นถ่านฝังอยู่ในเนื้อผ้าจนซักไม่ออก คนขุดชุบน้ำก่อนลงเหมือง ชายผ้ายาวพอดึงมาปิดปากได้เมื่อเถ้าฟุ้ง
+
+- id: overseer_coal_mace
+  name: กระบองหัวถ่านมารของคนคุมเหมือง
+  slot: weapon
+  pattern: mace
+  material: demon_coal
+  rarity: rare
+  tags: [blunt]
+  price: 18
+  stats: { STR: 2 }
+  lore: หัวกระบองคือก้อนถ่านมารทั้งก้อนรัดด้วยห่วงเหล็ก ตีโดนอะไรก็ทิ้งรอยไหม้รูปก้อนถ่านไว้
+  passive:
+    description: ทอยอึดได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CON, amount: 1 }
+
+- id: coal_fed_lantern
+  name: ตะเกียงถ่านมารที่ไม่ต้องเติมน้ำมัน
+  slot: offhand
+  pattern: lantern
+  material: demon_coal
+  rarity: uncommon
+  tags: [light, fire]
+  price: 7
+  stats: { CON: 1 }
+  lore: ข้างในมีถ่านมารก้อนเท่าหัวแม่มือ แดงอยู่ได้เจ็ดปี นักบวชตะเกียงยึดไปแล้วหลายร้อยดวง และยังมีขายอยู่ทุกปี
+
+- id: unmarked_cold_ring
+  name: แหวนเหล็กเย็นไม่มีตรา
+  slot: accessory
+  pattern: ring
+  material: cold_iron
+  rarity: rare
+  price: 16
+  stats: { CON: 1, WIS: 1 }
+  lore: ของที่หลุดมาจากเตาลับของภาคีเหล็กเย็น สวมแล้วนิ้วชาไปถึงข้อมือ เปลวเทียนใกล้ๆ เอนหนีมัน
+
+- id: lost_hunter_knife
+  name: มีดเหล็กเย็นของนักล่าที่ไม่ได้กลับมา
+  slot: weapon
+  pattern: dagger
+  material: cold_iron
+  rarity: rare
+  tags: [edge]
+  price: 18
+  stats: { DEX: 2 }
+  lore: คนเก็บของในแดนเถ้าพบมันปักอยู่กับพื้นเถ้า รอบใบมีดไม่มีเถ้าเกาะสักเม็ด ส่วนเจ้าของไม่มีใครพบ
+
+- id: ash_officer_breastplate
+  name: เกราะอกหินถ่านมารของนายทหารเถ้า
+  slot: body
+  pattern: plate
+  material: demon_coal
+  rarity: enchanted
+  price: 35
+  stats: { CON: 1, CHA: -1 }
+  toll: { reputation: { lamp_church: -2 }, world: { demon: 2 } }
+  lore: ถอดจากร่างของทหารเถ้าที่ล้มหน้าป้อมสาม ข้างในยังอุ่นเหมือนเพิ่งมีคนถอดออก ทั้งที่ทหารเถ้าไม่มีตัวอยู่ข้างในมาตั้งแต่แรก
+  caveat: ศาสนจักรตะเกียงจดชื่อคนซื้อ และคนแปลกหน้าถอยห่างเมื่อเห็นแสงแดงลอดรอยต่อเกราะ
+  passive:
+    description: เสียพลังชีวิตน้อยลง 2 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 2 }
+  also:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+# ==================== ของร้านชุดสอง ====================
+# ทุกถิ่นมีของครบทุกช่องสวม (หัว ตัว มือ ขา เท้า ผ้าคลุม เครื่องประดับ อาวุธ มือรอง) และมีของอาบเวทของถิ่นตัวเองหนึ่งชิ้น
+# ของผ้าและของหนังบอกวัสดุไว้ในชื่อหรือในเรื่อง (กระดุมทองเหลือง หมุดเหล็กดำ ฟอกเปลือกไอเลธ) เพราะวัสดุมีผลกับกติกาเสมอ
+
+# ---------- ตลาดนัดลานโบสถ์ (ชุดสอง) ----------
+- id: plough_trousers
+  name: กางเกงผ้ากระสอบปะเข่าหนัง
+  slot: legs
+  pattern: trousers
+  material: ileth_wood
+  price: 2
+  stats: { CON: 1 }
+  lore: ย้อมน้ำต้มเปลือกไม้ไอเลธจนเป็นสีดินเปียก เข่าสองข้างปะหนังวัวคนละสี เพราะวัวสองตัวนั้นตายห่างกันสามปี
+
+- id: wooden_sole_shoes
+  name: รองเท้าหนังพื้นไม้ไอเลธ
+  slot: feet
+  pattern: shoes
+  material: ileth_wood
+  price: 2
+  stats: { DEX: 1 }
+  lore: พื้นไม้ไอเลธเบากว่าพื้นไม้สนครึ่งหนึ่ง เสียงเดินบนพื้นโบสถ์จึงเบาพอให้คนมาสายเข้าไปนั่งได้โดยนักบวชไม่หันมอง
+
+- id: militia_longsword
+  name: ดาบยาวประจำกองอาสาหมู่บ้าน
+  slot: weapon
+  pattern: longsword
+  material: black_iron
+  rarity: uncommon
+  tags: [edge]
+  price: 6
+  stats: { STR: 1, CHA: 1 }
+  lore: ทั้งหมู่บ้านมีดาบอยู่เล่มเดียว แขวนไว้ข้างแท่นในโบสถ์ ใครเข้าเวรก็มาเบิก ปีที่กองอาสายุบ ผู้ใหญ่บ้านเอาออกมาขายใช้หนี้ค่าหล่อระฆัง
+
+- id: nail_club
+  name: กระบองไม้ไอเลธตอกตะปูของยามนา
+  slot: weapon
+  pattern: mace
+  material: ileth_wood
+  tags: [blunt]
+  price: 2
+  stats: { STR: 1 }
+  lore: ท่อนไม้ไอเลธหลุดจากแพซุงลอยมาติดฝายทุกหน้าน้ำ ยามนาเก็บมาตอกตะปูที่ถอนจากประตูยุ้งหลังเก่า ไว้ไล่หมูป่าออกจากแปลงข้าวสาลี
+
+- id: cowherd_bow
+  name: ธนูสั้นของเด็กเลี้ยงวัว
+  slot: weapon
+  pattern: bow
+  material: ileth_wood
+  tags: [ranged]
+  price: 3
+  stats: { DEX: 1 }
+  lore: คันธนูเหลาจากเศษไม้ไอเลธที่อู่เรือเหาะคัดทิ้ง ยิงได้ไกลสุดแค่ข้ามคันนา เด็กเลี้ยงวัวในอาร์เวลใช้ยิงกระต่ายกับไล่กา
+
+- id: soup_lid_shield
+  name: ฝาหม้อทองเหลืองใบใหญ่ของโรงทานวิหาร
+  slot: offhand
+  pattern: shield
+  material: brass
+  price: 3
+  lore: ตัวหม้อทะลุไปตั้งแต่ปีน้ำแล้ง เหลือฝาไว้ให้เด็กตีเล่น จนมีคนสังเกตว่าหูจับสอดแขนได้พอดี
+  passive:
+    description: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ
+    effect: { kind: shield }
+
+- id: isel_bowl_charm
+  name: จี้ชามไฟทองเหลืองของหมอตำแย
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: uncommon
+  price: 5
+  stats: { WIS: 1 }
+  lore: หมอตำแยแขวนให้เด็กทุกคนที่ตัวเองทำคลอด แล้วมาขอคืนเมื่อเด็กเดินได้ เจ้าของจี้อันนี้โตแล้วย้ายไปเวนทราส ไม่ได้กลับมาคืน
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: twice_offered_ring
+  name: แหวนทองเหลืองที่ใช้ขอแต่งงานมาแล้วสองครั้ง
+  slot: accessory
+  pattern: ring
+  material: brass
+  price: 2
+  stats: { CHA: 1 }
+  lore: ช่างบัดกรีตีจากปลอกตะเกียงเก่า เจ้าของเดิมพกไปขอแต่งงานสองหน แล้วเอามาขายคืนในราคาเท่าที่ซื้อ
+
+- id: sheepskin_coat
+  name: เสื้อหนังแกะกลับขนของคนเลี้ยงแกะ
+  slot: body
+  pattern: leather_coat
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: หนังแกะฟอกน้ำเปลือกไอเลธ หันด้านขนเข้าหาตัว คนเลี้ยงแกะใส่นอนกลางทุ่งทั้งเดือนที่แกะตกลูก
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: village_prayer_book
+  name: หนังสือสวดอีเซลเล่มเล็กขอบทองเหลือง
+  slot: offhand
+  pattern: tome
+  material: brass
+  price: 3
+  stats: { WIS: 1 }
+  lore: บทสวดขอไฟเตาสิบสองบท นักบวชประจำหมู่บ้านคัดเองทุกเล่ม หน้าที่เปิดจนกระดาษเปื่อยคือบทขอให้ลูกหายไข้
+
+- id: onion_pot_helm
+  name: หมวกเหล็กทหารเกณฑ์ที่เคยเป็นกระถางหอม
+  slot: head
+  pattern: helm
+  material: black_iron
+  rarity: uncommon
+  price: 4
+  lore: ทหารเกณฑ์จากหมู่บ้านใส่เดินกลับจากสงครามถ่าน แล้วหงายปลูกหอมไว้หน้าบ้านอยู่สิบเอ็ดปี กลิ่นหอมยังติดสายรัดคาง
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: fence_maul
+  name: ค้อนตอกเสารั้วด้ามยาว
+  slot: weapon
+  pattern: hammer
+  material: black_iron
+  tags: [blunt, tool]
+  price: 2
+  lore: หนักจนต้องเหวี่ยงสองมือ ทั้งหมู่บ้านมีสามด้าม ยืมกันไปมาจนไม่มีใครจำได้ว่าด้ามไหนของบ้านใคร
+
+- id: sister_fire_lantern
+  name: ตะเกียงชามไฟของแม่ชีเร่
+  slot: offhand
+  pattern: lantern
+  material: brass
+  rarity: enchanted
+  tags: [light, fire]
+  price: 30
+  stats: { WIS: 1, CHA: 1 }
+  needs: { god: isel }
+  needs_text: แม่ชีที่เฝ้าแผงถามว่า{name}จุดเตาที่บ้านด้วยชื่อของเทพองค์ไหน ฟังคำตอบแล้วก็ยกตะเกียงกลับไปวางหลังแผง
+  lore: แม่ชีเร่ของอีเซลต่อไฟจากชามหน้าแท่นใส่ตะเกียงดวงนี้ แล้วเดินไปจุดเตาให้บ้านที่ไฟดับกลางหน้าหนาว ไฟต้นเดิมยังไม่เคยดับมาสี่สิบปี
+  caveat: ไฟในตะเกียงหรี่ลงทุกครั้งที่คนถือเดินผ่านคนขอความช่วยเหลือ และจุดใหม่ได้ที่วิหารอีเซลเท่านั้น
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+  also:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+# ---------- ตลาดท่าเรือเวนทราส (ชุดสอง) ----------
+- id: distillery_coat
+  name: เสื้อหนังอบไขของคนงานโรงกลั่น
+  slot: body
+  pattern: leather_coat
+  material: brass
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: หนังวัวหนาอบไขจนแข็ง กระดุมทองเหลืองตอกเลขกะไว้ทุกเม็ด น้ำค้างดาวหยดใส่แล้วไม่กัดถึงเนื้อ เว้นแต่จะหยดซ้ำที่เดิม
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: rigger_gloves
+  name: ถุงมือเปิดปลายนิ้วของคนปีนเชือกเรือเหาะ
+  slot: hands
+  pattern: gloves
+  material: brass
+  rarity: uncommon
+  price: 5
+  stats: { DEX: 1 }
+  lore: ห่วงทองเหลืองที่ข้อมือมีไว้คล้องเชือกกันตก คนปีนเชือกรุ่นเก่าไม่ยอมคล้อง และรุ่นนั้นเหลืออยู่ไม่กี่คน
+
+- id: navy_stripe_trousers
+  name: กางเกงเครื่องแบบราชนาวีแถบทองเหลือง
+  slot: legs
+  pattern: trousers
+  material: brass
+  rarity: uncommon
+  price: 5
+  stats: { CHA: 1 }
+  lore: แถบข้างขาปักด้วยดิ้นทองเหลือง ทหารเรือปลดประจำการเอามาขายจ่ายค่าเช่าห้อง คนที่ซื้อไปใส่เดินท่าเรือมักเจอพลทหารยกมือทำความเคารพผิดตัว
+
+- id: bark_sole_shoes
+  name: รองเท้าพื้นเปลือกไม้ของหนูท่า
+  slot: feet
+  pattern: shoes
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  stats: { DEX: 1 }
+  lore: พื้นรองเท้าตัดจากเปลือกไม้ไอเลธที่อู่เรือเหาะคัดทิ้ง เดินบนหลังคาสังกะสีได้โดยหมาไม่เห่า หนูท่าไม่ขายให้คนที่ถามว่าเอาไปทำอะไร
+  passive:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+
+- id: customs_baton
+  name: กระบองทองเหลืองของยามศุลกากร
+  slot: weapon
+  pattern: mace
+  material: brass
+  tags: [blunt, noise]
+  price: 3
+  stats: { STR: 1 }
+  lore: หัวกระบองกลวง ข้างในมีลูกตะกั่วสามเม็ด เขย่าแล้วดังไปถึงท้ายโกดัง คนขนของเถื่อนจึงรู้ตัวก่อนยามเดินมาถึงทุกครั้ง
+
+- id: cadet_longsword
+  name: ดาบยาวโกร่งทองเหลืองของนักเรียนนายเรือ
+  slot: weapon
+  pattern: longsword
+  material: brass
+  rarity: rare
+  tags: [edge, pierce]
+  price: 15
+  stats: { DEX: 1, CHA: 1 }
+  lore: โกร่งดาบหล่อเป็นรูปสมอไขว้ นักเรียนนายเรือรับดาบในวันจบ และหลายคนเอาไปจำนำก่อนเรือลำแรกจะออกจากท่า
+
+- id: dew_tube_pistol
+  name: ปืนพกเวทหลอดน้ำค้างดาว
+  slot: weapon
+  pattern: pistol
+  material: star_silver
+  rarity: rare
+  tags: [ranged, light]
+  price: 20
+  stats: { DEX: 1, INT: 1 }
+  lore: ลำกล้องบุเงินดาว ยิงลำแสงฟ้าได้สามนัดก่อนหลอดหมด ช่างเวทที่ขายแถมหลอดสำรองให้หนึ่งหลอด แล้วกำชับว่าอย่ายิงในคืนฟ้าเปิด
+  passive:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+
+- id: whisper_mirror_shard
+  name: เศษกระจกกระซิบเลี่ยมเงินดาว
+  slot: accessory
+  pattern: amulet
+  material: star_silver
+  rarity: enchanted
+  price: 38
+  stats: { CHA: 1, INT: 1 }
+  needs: { min_reputation: { dock_rats: 2 } }
+  needs_text: คนขายบอกว่าบนแผงนี้ไม่มีของแบบนั้น และไม่เคยมี จนกว่าจะมีคนของท่ามายืนรับรอง{name}
+  toll: { world: { star: 1 } }
+  lore: กระจกกระซิบบานหนึ่งของธนาคารเบเลคแตกระหว่างขนขึ้นเรือเหาะ หนูท่าเก็บเศษใหญ่ที่สุดมาเลี่ยมขอบ อีกบานของคู่นี้ยังตั้งอยู่ในห้องของใครสักคน
+  caveat: บางคืนมีเสียงพูดลอดออกมาจากเศษกระจก และคนที่อยู่อีกฝั่งก็ได้ยินเสียงจากฝั่งนี้เหมือนกัน
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }
+  also:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: paid_debt_ring
+  name: แหวนเหล็กดำของลูกหนี้ที่ใช้หนี้หมด
+  slot: accessory
+  pattern: ring
+  material: black_iron
+  rarity: uncommon
+  price: 4
+  stats: { INT: 1 }
+  lore: ธนาคารเบเลคสวมแหวนนี้ให้ลูกหนี้ในวันจ่ายงวดสุดท้าย ด้านในสลักยอดหนี้ทั้งหมดไว้ เจ้าของเดิมขายทิ้งในวันเดียวกับที่ได้มา
+
+- id: harbour_hand_bell
+  name: ระฆังมือเรียกเรือของนายท่า
+  slot: offhand
+  pattern: bell
+  material: brass
+  rarity: uncommon
+  tags: [noise]
+  price: 5
+  stats: { CHA: 1 }
+  lore: สั่นสองทีคือเรือเหาะเข้าเทียบได้ สามทีคือให้ลอยรอ สั่นรัวไม่หยุดคือไฟไหม้ คนทั้งท่าเรือจำสามเสียงนี้ได้ตั้งแต่ยังเดินไม่แข็ง
+
+- id: mooring_crossbow
+  name: หน้าไม้ยิงเชือกของคนเทียบเรือเหาะ
+  slot: weapon
+  pattern: crossbow
+  material: brass
+  rarity: uncommon
+  tags: [ranged, pierce, rope]
+  price: 6
+  stats: { DEX: 1 }
+  lore: ยิงลูกดอกผูกเชือกจากหอท่าขึ้นไปหาเรือที่ลอยอยู่ คนเทียบเรือมือดียิงเข้าห่วงรับเชือกได้ในนัดแรก มือใหม่ยิงทะลุถุงน้ำค้าง แล้วต้องทำงานใช้หนี้ไปอีกสามปี
+
+- id: runner_cap
+  name: หมวกผ้าติดเลขของเด็กส่งสาร
+  slot: head
+  pattern: cap
+  material: brass
+  price: 2
+  stats: { DEX: 1 }
+  lore: แผ่นทองเหลืองหน้าหมวกตอกเลขประจำตัวเด็กส่งสาร ยามทุกประตูในเวนทราสเห็นเลขแล้วปล่อยผ่านโดยไม่ถาม
+
+- id: dish_head_staff
+  name: ไม้เท้าหัวจานรับดาวของช่างเวท
+  slot: weapon
+  pattern: staff
+  material: star_silver
+  rarity: rare
+  tags: [blunt, light]
+  price: 16
+  stats: { INT: 2 }
+  lore: หัวไม้เท้าเป็นจานเงินดาวกว้างเท่าฝ่ามือ หงายรับแสงคืนฟ้าเปิดเก็บไว้ใช้ตอนกลางวัน ช่างเวทรุ่นใหม่เลิกถือแล้ว เพราะเสียงหึ่งจากจานดังขึ้นทุกปี
+
+# ---------- ลานเหล็กตีนเขา ฮอร์ดุน (ชุดสอง) ----------
+- id: crawl_breeches
+  name: กางเกงหนังเข่าแผ่นเหล็กของคนคลานอุโมงค์
+  slot: legs
+  pattern: breeches
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  stats: { CON: 1 }
+  lore: แผ่นเหล็กที่เข่าสึกจนเป็นมันจากพื้นหิน คนงานชั้นแปดคลานวันละสามร้อยวากว่าจะถึงหน้าแร่
+
+- id: rail_layer_boots
+  name: รองเท้าบูตหัวเหล็กของคนวางราง
+  slot: feet
+  pattern: boots
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { STR: 1, CON: 1 }
+  lore: หัวเหล็กหนาพอรับหมอนรางที่หล่นใส่ คนวางรางบนทางไต่เขานับอายุงานของกันจากจำนวนรอยบุบบนหัวรองเท้า
+
+- id: seven_fold_longsword
+  name: ดาบยาวตีพับเจ็ดทบของตระกูลเตาแปด
+  slot: weapon
+  pattern: longsword
+  material: black_iron
+  rarity: rare
+  tags: [edge]
+  price: 19
+  stats: { STR: 1, DEX: 1 }
+  lore: เหล็กท่อนเดียวตีพับเจ็ดครั้ง ลายบนใบดาบจึงซ้อนกันเหมือนชั้นหินในผนังเหมือง ตระกูลเตาแปดตีได้ปีละเล่ม ปีไหนขายไม่ออก เล่มนั้นกลับเข้าเตา
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+
+- id: mesh_mine_lamp
+  name: ตะเกียงเหมืองครอบตาข่ายเหล็ก
+  slot: offhand
+  pattern: lantern
+  material: black_iron
+  rarity: uncommon
+  tags: [light]
+  price: 5
+  stats: { WIS: 1 }
+  lore: ตาข่ายเหล็กกั้นเปลวไฟไว้ไม่ให้เจอไอเหมือง เปลวที่เปลี่ยนเป็นสีฟ้าคือสัญญาณให้ทุกคนวางเครื่องมือแล้วเดินขึ้น ห้ามวิ่ง
+
+- id: arm_pattern_book
+  name: ตำราแบบแขนกลของช่างคนแคระ ปกแผ่นเหล็ก
+  slot: offhand
+  pattern: tome
+  material: black_iron
+  rarity: rare
+  tags: [tool]
+  price: 14
+  stats: { INT: 1 }
+  lore: แบบแขนกลสี่สิบสองแบบวาดขนาดเท่าของจริง ปกเป็นแผ่นเหล็กดำสองแผ่นร้อยห่วง ช่างรุ่นลูกใช้ทับกระดาษในวันที่ลมเขาพัดเข้าโรงงาน
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: forge_hand_coat
+  name: เสื้อหนังย้ำหมุดเหล็กของลูกมือเตา
+  slot: body
+  pattern: leather_coat
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  lore: หนังควายสองชั้นย้ำหมุดเหล็กดำทุกสองนิ้ว สะเก็ดไฟจากทั่งกระเด็นใส่แล้วดับเอง ทิ้งไว้แค่จุดดำเพิ่มอีกจุด
+  passive:
+    description: เสียพลังชีวิตน้อยลง 1 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 1 }
+
+- id: heirless_clan_ring
+  name: แหวนตราของตระกูลที่ขาดผู้สืบ
+  slot: accessory
+  pattern: ring
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { CON: 1, WIS: 1 }
+  lore: สภาเก็บแหวนของตระกูลที่ไม่เหลือใครไว้จนครบร้อยปีแล้วปล่อยขาย คนซื้อไม่ได้ชื่อตระกูลไปด้วย ได้ไปแค่น้ำหนักของแหวน
+
+- id: ossa_door_pendant
+  name: จี้ประตูปิดของออสซา หล่อจากหมุดปิดช่องศพ
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: rare
+  price: 18
+  lore: หล่อจากหมุดเหล็กที่เหลือจากพิธีปิดช่องศพในผนังเสาฟ้า นักบวชออสซาบอกว่าคนที่ห้อยไว้จะจำได้เสมอว่าตัวเองเคยพลาดตรงไหน
+  passive:
+    description: ทอยพลาดครั้งแรกในแต่ละเหตุการณ์ได้ทอยใหม่อีกครั้ง
+    effect: { kind: reroll_failed_check, once_per_event: true }
+
+- id: seam_pick
+  name: อีเต้อด้ามสั้นของคนขุดชั้นลึก
+  slot: weapon
+  pattern: axe
+  material: black_iron
+  tags: [pierce, tool]
+  price: 3
+  stats: { STR: 1 }
+  lore: ปลายด้านหนึ่งแหลม อีกด้านแบน ด้ามยาวแค่ศอกเดียว เพราะหน้าแร่ชั้นลึกเตี้ยกว่าความสูงของคนแคระ
+
+- id: furnace_keeper_gloves
+  name: ถุงมือหนังชุบน้ำมันถ่านมารของคนคุมเตา
+  slot: hands
+  pattern: gloves
+  material: demon_coal
+  rarity: uncommon
+  price: 6
+  stats: { STR: 1 }
+  lore: หนังแพะภูเขาแช่น้ำมันถ่านมารจนดำสนิท ข้างในอุ่นเหมือนมีคนกุมมือไว้ คนคุมเตาใส่กลับบ้านทุกหน้าหนาว และไม่เคยใส่เข้าวิหารตะเกียง
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: goat_hair_cloak
+  name: ผ้าคลุมขนแพะภูเขากลัดเข็มเหล็กดำ
+  slot: cloak
+  pattern: cloak
+  material: black_iron
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: ขนแพะภูเขาฮอร์ดุนยาวหนึ่งคืบ ทอทั้งที่ยังไม่ล้างไข หิมะเกาะแล้วร่วงเอง เข็มกลัดที่คอหนักเท่าลูกกุญแจประตูเหมือง
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: smoked_glass_goggles
+  name: แว่นกระจกรมควันของช่างเทเหล็ก
+  slot: head
+  pattern: goggles
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  lore: กระจกรมควันเทียนจนมองเหล็กหลอมได้โดยไม่ต้องหยีตา ช่างเทเหล็กที่ตายังดีตอนแก่ล้วนใส่แว่นแบบนี้มาตั้งแต่วันแรก
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: silent_hammer_gauntlets
+  name: ปลอกมือกลไขลานของตระกูลค้อนเงียบ
+  slot: hands
+  pattern: gauntlets
+  material: black_iron
+  rarity: enchanted
+  price: 42
+  stats: { STR: 1, DEX: 1 }
+  needs: { min_reputation: { dwarf_council: 2 } }
+  needs_text: ช่างเฒ่ามองมือของ{name}อยู่นาน แล้วบอกว่าของคู่นี้ทำไว้ให้คนที่สภาตระกูลรู้จักชื่อ
+  lore: ในปลอกมือแต่ละข้างมีเฟืองสี่สิบเอ็ดตัวกับลานหนึ่งขด นิ้วเหล็กขยับตามนิ้วจริงเร็วกว่าที่เจ้าของตั้งใจ ตระกูลค้อนเงียบทำแขนกลให้ทหารทั้งสองฝั่งของสงครามถ่าน
+  caveat: ต้องไขลานทุกเช้า วันไหนลืม นิ้วเหล็กทั้งสิบจะกำค้างอยู่อย่างนั้นจนกว่าจะหาช่างคนแคระเจอ
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+  also:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+
+# ---------- แผงใต้ต้นไม้ของเอลฟ์ชายป่า (ชุดสอง) ----------
+- id: single_deer_boots
+  name: รองเท้าหนังกวางเย็บเอ็นของพรานชายป่า
+  slot: feet
+  pattern: boots
+  material: ileth_wood
+  rarity: uncommon
+  price: 7
+  stats: { DEX: 1, WIS: 1 }
+  lore: หนังกวางฟอกเปลือกไอเลธ เย็บด้วยเอ็นของกวางตัวเดียวกัน พรานชายป่าเชื่อว่ารองเท้าที่มาจากสัตว์ตัวเดียวไม่ทะเลาะกันเอง จึงไม่ส่งเสียง
+
+- id: trunk_climber_breeches
+  name: กางเกงหนังพันแข้งของคนปีนต้นไม้
+  slot: legs
+  pattern: breeches
+  material: ileth_wood
+  rarity: uncommon
+  price: 5
+  stats: { STR: 1 }
+  lore: แข้งสองข้างพันเชือกเปลือกไม้ไว้เกี่ยวลำต้น เอลฟ์ที่โตบนกิ่งไม่ต้องใช้ กางเกงแบบนี้จึงทำขายให้มนุษย์อย่างเดียว
+
+- id: herb_picker_gloves
+  name: ถุงมือเก็บสมุนไพรปลายนิ้วเคลือบยางไม้
+  slot: hands
+  pattern: gloves
+  material: ileth_wood
+  price: 3
+  stats: { WIS: 1 }
+  lore: ปลายนิ้วเคลือบยางไม้ไอเลธกันพิษใบตำแย ฝ่ามือเปื้อนเขียวจากใบไม้เจ็ดชนิดที่ซักเท่าไรก็ไม่ออก
+
+- id: carved_antler_charm
+  name: จี้เขากวางสองกิ่งแกะจากไม้ไอเลธ
+  slot: accessory
+  pattern: amulet
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  stats: { WIS: 1 }
+  lore: พรานแกะจี้จากกิ่งไม้ที่กวางตัวแรกในชีวิตเดินชน ห้อยไว้จนถึงวันเลิกล่า แล้วฝากแผงนี้ขายให้พรานรุ่นถัดไป
+  passive:
+    description: ทอยอึดได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CON, amount: 1 }
+
+- id: star_counter_goggles
+  name: แว่นส่องดาวกรอบเงินดาวของผู้ช่วยหอนับดาว
+  slot: head
+  pattern: goggles
+  material: star_silver
+  rarity: rare
+  price: 15
+  stats: { WIS: 1 }
+  lore: เลนส์ฝนจากผลึกหินใสที่เอลฟ์เก็บจากโคนเสาของทาลิส ผู้ช่วยหอใส่นับดาวทีละดวงทุกคืน ปีนี้ต้องนับนานกว่าปีก่อนสองชั่วโมง
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: two_pillar_scarf
+  name: ผ้าพันคอใยเปลือกไม้ทอกลางลมสองเสา
+  slot: cloak
+  pattern: scarf
+  material: ileth_wood
+  price: 3
+  lore: กี่ทอผ้าตั้งอยู่กลางทางระหว่างเสาของอุลเวนกับเสาของทาลิส ตรงนั้นลมไม่เคยหยุดพัด ชายผ้าผืนนี้จึงไหวอยู่เสมอแม้ในห้องปิดหน้าต่าง
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: elder_bark_coat
+  name: เสื้อเกราะเกล็ดเปลือกไม้เฒ่า
+  slot: body
+  pattern: leather_coat
+  material: ileth_wood
+  rarity: rare
+  price: 18
+  stats: { DEX: 1, CON: 1 }
+  lore: ต้นไอเลธอายุพันปีลอกเปลือกเองร้อยปีครั้ง เอลฟ์เก็บมาเย็บซ้อนกันเป็นเกล็ด คมมีดเข้าได้ชั้นเดียวแล้วติดคาอยู่ตรงนั้น
+  passive:
+    description: เสียพลังชีวิตน้อยลง 1 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 1 }
+
+- id: old_star_ledger
+  name: สมุดนับดาวเล่มเก่าของหอ ปกหุ้มเงินดาว
+  slot: offhand
+  pattern: tome
+  material: star_silver
+  rarity: rare
+  price: 20
+  stats: { INT: 1, WIS: 1 }
+  lore: บันทึกตำแหน่งดาวทุกคืนตลอดสี่สิบปี หน้าท้ายๆ ตัวเลขแน่นจนล้นไปถึงขอบกระดาษ แผ่นเงินดาวที่หุ้มปกบางเท่าเปลือกไข่
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: firefly_root_lamp
+  name: โคมรากไม้สานขังหิ่งห้อย
+  slot: offhand
+  pattern: lantern
+  material: ileth_wood
+  tags: [light]
+  price: 3
+  lore: โคมสานจากรากฝอยขังหิ่งห้อยไว้ได้หนึ่งคืน เช้าแล้วต้องเปิดฝาปล่อย เอลฟ์ถือว่าใครลืมปล่อย ป่าจะจำหน้าคนนั้นไว้
+
+- id: fire_hardened_thorn
+  name: มีดหนามเถาไอเลธลนไฟ
+  slot: weapon
+  pattern: dagger
+  material: ileth_wood
+  tags: [pierce]
+  price: 3
+  stats: { DEX: 1 }
+  lore: หนามของเถาไอเลธยาวหนึ่งคืบ ลนไฟจนปลายแข็งเท่ากระดูก เอลฟ์ใช้แทงหนังตอนเย็บรองเท้า คนนอกป่าซื้อไปใช้อย่างอื่น
+
+- id: hollow_wood_clapper
+  name: กระดึงไม้กลวงไล่หมีของพราน
+  slot: offhand
+  pattern: bell
+  material: ileth_wood
+  tags: [noise]
+  price: 2
+  lore: ท่อนไม้กลวงแขวนลูกตุ้มกระดูก พรานผูกไว้กับเป้ตอนเดินผ่านดงผลไม้ป่า หมีได้ยินแล้วหลีกทางให้ก่อนจะได้เจอหน้ากัน
+
+- id: young_elf_longsword
+  name: ดาบยาวเงินดาวของเอลฟ์รุ่นหนุ่ม
+  slot: weapon
+  pattern: longsword
+  material: star_silver
+  rarity: rare
+  tags: [edge]
+  price: 18
+  stats: { STR: 1, DEX: 1 }
+  lore: เอลฟ์รุ่นหนุ่มที่ออกไปเผาค่ายตัดไม้พกดาบแบบนี้ เจ้าของเล่มนี้เอามาวางคืนไว้ที่แผงในวันที่รุ่นแก่เจรจากับราชสำนักได้ข้อตกลง แล้วยังไม่กลับมาเอา
+
+- id: first_tree_longbow
+  name: ธนูยาวกิ่งไม้ต้นแรกของป่า
+  slot: weapon
+  pattern: bow
+  material: ileth_wood
+  rarity: enchanted
+  tags: [ranged]
+  price: 38
+  stats: { DEX: 2, CHA: -1 }
+  needs: { class: ranger }
+  needs_text: เอลฟ์ขึ้นสายธนูให้{name}ดูหนึ่งครั้ง แล้วปลดสายออก บอกว่าคันนี้ขายให้เฉพาะคนที่เลี้ยงชีพด้วยการล่า
+  lore: กิ่งนี้หักจากต้นไอเลธที่เอลฟ์นับว่าเป็นต้นแรกของป่า ในคืนพายุเมื่อสองร้อยปีก่อน ช่างธนูสามรุ่นผลัดกันเหลา คนสุดท้ายขึ้นสายเสร็จแล้วไม่ยอมยิงสักดอก
+  caveat: สายธนูไม่ยอมตึงเมื่อเล็งสัตว์ที่กำลังเลี้ยงลูก และกลิ่นดินป่าติดตัวคนถือไปทุกที่จนคนเมืองขยับหนี
+  passive:
+    description: ทอยว่องไวได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: DEX, amount: 1 }
+  also:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+# ---------- ตลาดหลังป้อมสาม (ชุดสอง) ----------
+- id: ash_wader_boots
+  name: รองเท้าบูตลุยเถ้าพื้นแผ่นเหล็ก
+  slot: feet
+  pattern: boots
+  material: black_iron
+  price: 3
+  stats: { CON: 1 }
+  lore: เถ้ารอบตอเสาลึกถึงเข่า บูตคู่นี้จึงสูงเลยเข่าขึ้นไปอีกหนึ่งฝ่ามือ พื้นเหล็กกันเศษถ่านมารที่ยังร้อนอยู่ใต้เถ้า
+
+- id: coal_sack_trousers
+  name: กางเกงเย็บจากกระสอบขนถ่านมาร
+  slot: legs
+  pattern: trousers
+  material: demon_coal
+  price: 2
+  stats: { CON: 1 }
+  lore: ฝุ่นถ่านมารฝังอยู่ในเนื้อกระสอบจนซักไม่ออก ขาของคนใส่อุ่นตลอดกะ นักบวชตะเกียงเดินผ่านแล้วขมวดคิ้ว
+
+- id: warden_watch_breeches
+  name: กางเกงหนังเข้าเวรของผู้เฝ้าผนึก
+  slot: legs
+  pattern: breeches
+  material: black_iron
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: หนังสองชั้นเย็บห่วงเหล็กที่สะโพกไว้แขวนตะเกียงกับนกหวีด ผู้เฝ้าผนึกเข้าเวรครั้งละสามวันสามคืนโดยไม่ได้ถอด
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: horn_wrap_hood
+  name: ผ้าโพกพันเขาแบบทีฟลิ่ง กลัดเข็มทองเหลือง
+  slot: head
+  pattern: hood
+  material: brass
+  price: 2
+  stats: { CHA: 1 }
+  lore: ทีฟลิ่งที่ต้องเข้าเมืองโพกผ้าทรงนี้ซ่อนเขา คนแคว้นกลางเห็นทรงผ้าก็รู้อยู่ดี แต่ธรรมเนียมคือทำเป็นไม่รู้
+
+- id: fort_wall_shield
+  name: โล่สูงเท่าตัวของเวรกำแพงป้อมสาม
+  slot: offhand
+  pattern: shield
+  material: black_iron
+  rarity: rare
+  price: 18
+  stats: { STR: 1, CON: 1 }
+  lore: โล่เหล็กดำสูงถึงคาง หน้าโล่ทาสีขาวเป็นรูปประตูปิดของออสซา สีลอกตรงกลางเป็นรอยมือห้านิ้วที่ใหญ่กว่ามือคน
+  passive:
+    description: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ
+    effect: { kind: shield }
+
+- id: mage_hunter_gauntlets
+  name: ปลอกมือเหล็กเย็นของนักล่าจอมเวท
+  slot: hands
+  pattern: gauntlets
+  material: cold_iron
+  rarity: rare
+  price: 16
+  stats: { STR: 1, CON: 1 }
+  lore: ช่างของภาคีเหล็กเย็นตีในห้องใต้ดิน ไม่ใช้ไฟถ่านมาร และไม่ให้แสงดาวตกโดนเหล็ก มือที่สวมปลอกนี้จับข้อมือใครที่กำลังร่ายเวท เวทบทนั้นขาดกลางคำ
+
+- id: cold_ring_mail
+  name: เสื้อเกราะโซ่เหล็กเย็น
+  slot: body
+  pattern: mail
+  material: cold_iron
+  rarity: rare
+  price: 20
+  stats: { CON: 1, WIS: 1 }
+  lore: ห่วงเหล็กเย็นทุกห่วงผ่านมือช่างคนเดียว นักล่าจอมเวทสวมแล้วเดินผ่านวงเวทได้เหมือนเดินผ่านควัน แลกกับการที่เทพองค์ไหนก็ไม่ได้ยินเสียงสวดของเขาอีก
+  passive:
+    description: เสียพลังชีวิตน้อยลง 1 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 1 }
+
+- id: shift_change_pistol
+  name: ปืนพกดินดำของคนคุมเหมือง
+  slot: weapon
+  pattern: pistol
+  material: black_iron
+  rarity: uncommon
+  tags: [ranged, noise]
+  price: 6
+  stats: { DEX: 1 }
+  lore: ปืนดินดำแบบเก่า บรรจุได้ทีละนัด คนคุมเหมืองยิงขึ้นฟ้าบอกเวลาเปลี่ยนกะ นัดที่ไม่ได้ยิงขึ้นฟ้าไม่มีใครจดไว้
+
+- id: seal_tremor_bell
+  name: ระฆังมือเตือนผนึกของป้อมสาม
+  slot: offhand
+  pattern: bell
+  material: black_iron
+  rarity: uncommon
+  tags: [noise]
+  price: 5
+  stats: { WIS: 1 }
+  lore: ผู้เฝ้าผนึกสั่นระฆังใบนี้เมื่อพื้นใต้ป้อมสั่น ปีก่อนสั่นไปสี่ครั้ง ปีนี้ยังไม่ถึงกลางปีก็สั่นไปแล้วหกครั้ง
+
+- id: warden_grey_cloak
+  name: ผ้าคลุมสีเถ้าของผู้เฝ้าผนึก กลัดเข็มเงินดาว
+  slot: cloak
+  pattern: cloak
+  material: star_silver
+  rarity: rare
+  price: 14
+  stats: { CON: 1, WIS: 1 }
+  lore: ผ้าขนสัตว์ย้อมสีเดียวกับเถ้า คนที่ยืนนิ่งบนกำแพงป้อมจึงหายไปจากสายตาคนข้างล่าง เข็มกลัดเงินดาวรูปประตูปิดเย็นลงทุกครั้งที่ผนึกสั่น
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: dream_name_book
+  name: สมุดจดชื่อจากฝันของบ้านหญ้าเงิน
+  slot: offhand
+  pattern: tome
+  material: demon_coal
+  rarity: uncommon
+  tags: [name]
+  price: 6
+  stats: { WIS: 1 }
+  lore: พ่อแม่ในแดนเถ้าจดเสียงที่ได้ยินในฝันไว้ตั้งชื่อลูก เล่มนี้มีอยู่สามร้อยชื่อ ปกหนังรมควันถ่านมารจนอุ่นมือ บางหน้าคนจดขีดฆ่าชื่อทิ้งทั้งหน้า
+
+- id: coal_chip_ring
+  name: แหวนเศษถ่านมารฝังเรือนเหล็ก
+  slot: accessory
+  pattern: ring
+  material: demon_coal
+  rarity: uncommon
+  price: 5
+  stats: { STR: 1 }
+  lore: เศษถ่านมารเท่าเมล็ดถั่วฝังในเรือนเหล็ก คนขุดถ่านใส่กันนิ้วชาในหน้าหนาว และใช้จุดยาเส้นได้โดยไม่ต้องหาไฟ
+
+- id: fort_oath_blade
+  name: ดาบเงินดาวประจำป้อมของผู้เฝ้าผนึก
+  slot: weapon
+  pattern: longsword
+  material: star_silver
+  rarity: enchanted
+  tags: [edge]
+  price: 45
+  stats: { STR: 1, CON: 1 }
+  needs: { min_reputation: { wardens: 2 } }
+  needs_text: นายทหารพลาธิการเปิดสมุดเวรหาชื่อของ{name} ไม่พบ แล้วก็ปิดหีบดาบลงตามเดิม
+  toll: { world: { star: 1 } }
+  lore: ป้อมทั้งเจ็ดมีดาบแบบนี้ป้อมละสิบสองเล่ม ตีจากเงินดาวที่ตกลงบนเถ้าในคืนดาวหรี่ ป้อมสามเหลือคนเข้าเวรไม่ถึงสิบสอง จึงมีเล่มที่ว่างมือ
+  caveat: ชื่อคนถือเข้าไปอยู่ในสมุดเวรของป้อม ระฆังเตือนผนึกดังเมื่อไร คนถือต้องไปยืนบนกำแพงเมื่อนั้น
+  passive:
+    description: ทอยกำลังได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: STR, amount: 1 }
+  also:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }

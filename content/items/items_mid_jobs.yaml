@@ -12,7 +12,7 @@
   slot: cloak
   rarity: uncommon
   passive:
-    description: เลือดสูงสุด +2
+    description: พลังชีวิตสูงสุด +2
     effect: { kind: max_hp, amount: 2 }
 
 - id: haldan_goggles
@@ -45,7 +45,7 @@
   slot: legs
   rarity: uncommon
   passive:
-    description: เลือดสูงสุด +1
+    description: พลังชีวิตสูงสุด +1
     effect: { kind: max_hp, amount: 1 }
 
 - id: miner_lamp_helmet
@@ -53,7 +53,7 @@
   slot: head
   rarity: uncommon
   passive:
-    description: เลือดสูงสุด +2
+    description: พลังชีวิตสูงสุด +2
     effect: { kind: max_hp, amount: 2 }
 
 - id: smith_dwarf_hammer

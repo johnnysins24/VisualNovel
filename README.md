@@ -32,7 +32,7 @@ npm run audit     # เมื่อแก้สมดุล: จำลอง 2,0
 | `src/engine/` | schema (Zod), seed RNG, d20, เลือกเหตุการณ์, equipment + passive, เซฟ IndexedDB, ตัวตรวจเนื้อเรื่อง |
 | `src/sprites/` | ประกอบชั้น sprite ตาม z, เปลี่ยนสีด้วย palette role, แคช (ตอนนี้เป็นบล็อกสีชั่วคราว) |
 | `src/ui/` | Preact + Signals หน้าจอเดียว ปรับ layout 3 แบบด้วย CSS grid |
-| `content/` | เหตุการณ์ ของ ศัตรู และกลุ่มชื่อเป็น YAML (เนื้อหาทดสอบอยู่ใน `tests/fixtures/content`) |
+| `content/` | เหตุการณ์ ของ ร้านค้า ศัตรู และกลุ่มชื่อเป็น YAML (เนื้อหาทดสอบอยู่ใน `tests/fixtures/content`) |
 | `scripts/` | build/validate เนื้อหา |
 
 ตัดสินใจแล้ว: canvas 64×96 และร่างฐาน 1 ร่าง (A2, A3) ยังเป็นค่าชั่วคราว: ธีม/ฟอนต์ใน `src/ui/styles.css` (A8, A9) ตรวจกับ docs/PLAN.md

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, MOVE_KINDS, WORLD_KEYS } from './balance';
+import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, RARITIES, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -134,6 +134,14 @@ const StateConds = {
   world: WorldRange.optional(),
   min_reputation: RepMap.optional(),
   max_reputation: RepMap.optional(),
+  /** มีของที่ติดป้ายนี้อยู่กับตัว (สวมอยู่ อยู่ในกระเป๋า หรือเป็นของใช้แล้วหมด) เช่น ตะเกียงในเหมือง เชือกบนหน้าผา */
+  has_tag: z.enum(ITEM_TAGS).optional(),
+  /** สวมของที่ทำจากวัสดุนี้อยู่ (ป่าไอเลธไม่ต้อนรับเหล็กดำ ศาสนจักรห้ามพกหินถ่านมาร) */
+  wears: z.enum(MATERIAL_IDS).optional(),
+  /** ต้องไม่ได้สวมของที่ทำจากวัสดุเหล่านี้ */
+  not_wears: z.array(z.enum(MATERIAL_IDS)).optional(),
+  /** สวมของระดับนี้ขึ้นไปอย่างน้อยหนึ่งชิ้น (คนในเมืองทักต่างกัน โจรเลือกเหยื่อจากของที่สวม) */
+  wears_rarity: z.enum(RARITIES).optional(),
 };
 
 /**
@@ -288,6 +296,15 @@ export const FoeDefSchema = z
     hurt: z.array(z.string()).min(2),
     /** แผลที่ได้เมื่อเจ็บหนักจากศัตรูชนิดนี้ (รหัสสิ่งติดตัวชนิด wound) ได้อันแรกที่ยังไม่มี */
     wounds: z.array(z.string()).default(['wound_knee']),
+    /** ภูต ผี หรือผู้ใช้เวท: ของเหล็กเย็นได้เปรียบ (MATERIAL_EDGE) */
+    magic: z.boolean().default(false),
+    /**
+     * ของที่ศัตรูทิ้งไว้เมื่อชนะ ไล่ตามลำดับ ชิ้นแรกที่ทอยติดคือชิ้นที่ได้ (ไม่เกิน GEAR.lootMax ต่อการปะทะ)
+     * item = รหัสของ · gold = เหรียญ · chance = โอกาส 0 ถึง 1 · text = ประโยคตอนเจอของ (ไม่ใส่ = ไม่มีประโยค มีแต่ป้ายของที่ได้)
+     */
+    loot: z
+      .array(z.object({ item: z.string().optional(), gold: z.number().int().min(1).optional(), chance: z.number().gt(0).max(1), text: z.string().optional() }).strict())
+      .default([]),
   })
   .strict();
 export type FoeDef = z.infer<typeof FoeDefSchema>;
@@ -364,20 +381,81 @@ export const PassiveSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('armor'), amount: z.number().int().min(1).max(2) }),
   /** โล่: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ */
   z.object({ kind: z.literal('shield') }),
+  /** ของกันหนาว: แต้มบวกของเช็คฤดูหนาวในวัยชรา */
+  z.object({ kind: z.literal('winter'), amount: z.number().int().min(1).max(2) }),
 ]);
 export type Passive = z.infer<typeof PassiveSchema>;
 
-export const ItemSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  slot: SlotSchema,
-  rarity: z.enum(['common', 'uncommon', 'rare']).default('common'),
-  stats: z.partialRecord(StatSchema, z.number().int()).default({}),
-  passive: z.object({ description: z.string(), effect: PassiveSchema }).optional(),
-  /** sprite layer id; palette swaps are applied by the sprite system */
-  sprite: z.string().optional(),
-});
+const PassiveEntry = z.object({ description: z.string(), effect: PassiveSchema });
+
+/** ของใช้แล้วหมด: ใช้ได้ทีละชิ้น ในการปะทะใช้ได้จังหวะละชิ้น ป้ายของชิ้นนั้น (tags) คือสิ่งที่มันทำกับศัตรู */
+export const UseSchema = z
+  .object({
+    /** ฟื้นพลังชีวิตเท่านี้ ใช้นอกการปะทะได้ */
+    heal: z.number().int().min(1).max(6).optional(),
+    /** ในการปะทะ: วิธีชนิดเหล่านี้ได้แต้มเพิ่มในจังหวะที่ใช้ */
+    boost: z.object({ kinds: z.array(z.enum(MOVE_KINDS)).min(1), amount: z.number().int().min(1).max(3) }).strict().optional(),
+    /** ประโยคตอนใช้ หนึ่งประโยค */
+    text: z.string(),
+  })
+  .strict();
+
+export const ItemSchema = z
+  .object({
+    id: z.string(),
+    name: z.string(),
+    /** ช่องสวม ของใช้แล้วหมด (มี use) ไม่มีช่อง */
+    slot: SlotSchema.optional(),
+    rarity: z.enum(RARITIES).default('common'),
+    /** แบบ (art/gear.yaml) กำหนดไอคอน ของที่มีแบบต้องมีวัสดุ */
+    pattern: z.string().optional(),
+    /** วัสดุ กำหนดสีของไอคอน ข้อได้เปรียบ และข้อแม้ (MATERIALS) */
+    material: z.enum(MATERIAL_IDS).optional(),
+    /** ไอคอนเฉพาะชิ้น public/icons/item_<icon>.png ไม่ใส่ = ตามแบบกับวัสดุ ถ้าไม่มีแบบใช้ id ของชิ้นนั้น */
+    icon: z.string().optional(),
+    /** ป้ายลักษณะ: อาวุธกับของมือรองส่งป้ายให้การบุกและการใช้ของในการปะทะ และเหตุการณ์ถามหาได้ด้วย has_tag */
+    tags: z.array(z.enum(ITEM_TAGS)).default([]),
+    stats: z.partialRecord(StatSchema, z.number().int()).default({}),
+    passive: PassiveEntry.optional(),
+    /** ผลพิเศษอย่างที่สอง (ของอาบเวทขึ้นไป) */
+    also: PassiveEntry.optional(),
+    /** ราคาที่ร้าน (เหรียญ) ไม่ใส่ = ของที่มีเรื่องของตัวเอง ซื้อขายไม่ได้ */
+    price: z.number().int().min(1).optional(),
+    /** ใครซื้อได้ (ของอาบเวทต้องแลกด้วยอย่างอื่นนอกจากเงิน) และประโยคที่คนขายบอกเมื่อยังไม่ขายให้ */
+    needs: RequiresSchema.optional(),
+    needs_text: z.string().optional(),
+    /** สิ่งที่เสียเพิ่มตอนซื้อ นอกจากเงิน */
+    toll: EffectsSchema.optional(),
+    /** เรื่องของชิ้นนี้ หนึ่งหรือสองประโยค แสดงบนการ์ดของ */
+    lore: z.string().optional(),
+    /** ข้อแม้ของของอาบเวท หนึ่งประโยค แสดงบนการ์ดของ */
+    caveat: z.string().optional(),
+    use: UseSchema.optional(),
+    /** sprite layer id; palette swaps are applied by the sprite system */
+    sprite: z.string().optional(),
+  })
+  .strict();
 export type Item = z.infer<typeof ItemSchema>;
+
+/** ร้านค้าของถิ่นหนึ่ง (content/shops.yaml) */
+export const ShopSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/),
+    name: z.string(),
+    /** location_tag ของถิ่นที่ร้านอยู่ */
+    location: z.string(),
+    /** คำทักของคนขาย สุ่มหนึ่งประโยคต่อปี */
+    greet: z.array(z.string()).min(1),
+    /** ของที่มีขายทุกปี */
+    staples: z.array(z.string()).default([]),
+    /** ของหมุนเวียน ปีหนึ่งวางแผง GEAR.shelf ชิ้น */
+    stock: z.array(z.string()).default([]),
+    /** ร้านนี้ขายให้ใคร (ร้านของเอลฟ์ไม่ขายให้ทุกคน) และประโยคเมื่อไม่ขายให้ */
+    requires: RequiresSchema.optional(),
+    closed: z.string().optional(),
+  })
+  .strict();
+export type Shop = z.infer<typeof ShopSchema>;
 
 /** กลุ่มชื่อสำหรับตั้งชื่อตัวละครและพ่อแม่ตามเผ่า (thread เนื้อเรื่องเป็นคนเติม) */
 export const NamePoolSchema = z.object({
@@ -473,6 +551,8 @@ export const ContentSchema = z.object({
   traits: z.array(TraitSchema).default([]),
   /** ศัตรูในการปะทะ (content/foes.yaml) */
   foes: z.array(FoeDefSchema).default([]),
+  /** ร้านค้า (content/shops.yaml) */
+  shops: z.array(ShopSchema).default([]),
   /** ประโยคสั้นที่ระบบหยิบไปเติมในบันทึกชีวิต (ร่างกายโรย ฤดูหนาว ข่าวคนรอบตัวจากไป) กุญแจ → รายการให้สุ่ม */
   lines: z.record(z.string(), z.array(z.string())).default({}),
 });

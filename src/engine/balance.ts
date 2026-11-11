@@ -43,15 +43,17 @@ export const DECLINE = { from: 50, stats: ['STR', 'DEX'] as readonly Stat[], bas
 /**
  * เช็คฤดูหนาว: ตั้งแต่อายุ from (ทีฟลิ่งช้ากว่า 5 ปี) ทอยอึดปีละครั้ง ความยากเริ่มที่ dc แล้วเพิ่มทีละ 1 ตามจังหวะใน pace
  * pace = [ผ่านมากี่ปีนับจาก from, เพิ่ม 1 ทุกกี่ปี] สามช่วงของวัยชรา (อายุของมนุษย์):
- *   65 ถึง 83 เพิ่มทุก 3 ปี (ความยาก 7 ถึง 13) · 83 ถึง 100 เพิ่มทุก 8 ปี คนที่ผ่านมาถึงตรงนี้คือคนที่ทนจริง · 100 ขึ้นไปเพิ่มทุก 2 ปี เป็นเวลาที่ยืมมา
+ *   65 ถึง 83 เพิ่มทุก 3 ปี (ความยาก 8 ถึง 14) · 83 ถึง 100 เพิ่มทุก 8 ปี คนที่ผ่านมาถึงตรงนี้คือคนที่ทนจริง · 100 ขึ้นไปเพิ่มทุก 2 ปี เป็นเวลาที่ยืมมา
  * พลาดแล้วพลังชีวิตสูงสุดลดถาวร loss พลังชีวิตสูงสุดหมดเมื่อไรคือสิ้นอายุขัย
  * care = แต้มที่ได้เพิ่มเมื่อมีคู่ครองหรือลูกที่ยังอยู่และสนิทตั้งแต่ careCloseness ขึ้นไป (มีคนดูแล)
+ * แต้มของเช็คนี้มาจากอึดของร่างกายเอง (ไม่นับโบนัสจากของที่สวม) สิ่งติดตัว คนดูแล และของกันหนาว (GEAR.winterMax)
  * เป้าตามแผนชีวิต 100 ปี ข้อ D2: มนุษย์ส่วนใหญ่สิ้นอายุขัยช่วง 80 ถึง 90 และคนแก่ราวหนึ่งในหกอยู่ถึง 100 (tests/slow/audit.test.ts คุมเลขนี้)
+ * dc ตั้งให้เป้านี้จริงกับชีวิตที่มีของกันหนาวหนึ่งชิ้นปนอยู่กับชีวิตที่ไม่มี: คนไม่มีของกันหนาวอายุขัยกลางราว 89 มีหนึ่งชิ้นราว 93
  */
 export const WINTER = {
   from: 65,
   fromByRace: { tiefling: 70 } as Record<string, number>,
-  dc: 7,
+  dc: 8,
   pace: [[0, 3], [18, 8], [35, 2]] as readonly (readonly [number, number])[],
   loss: 2,
   care: 2,
@@ -250,6 +252,70 @@ export const TECHNIQUES = {
   none: { th: 'ของใกล้มือ', kind: 'at_hand', amount: 2 },
 } as const satisfies Record<ClassId | 'none', { th: string; kind: string; amount: number }>;
 export type TechniqueKind = (typeof TECHNIQUES)[keyof typeof TECHNIQUES]['kind'];
+
+// ---------- ของสวมใส่ ----------
+/**
+ * ของหนึ่งชิ้น = แบบ (art/gear.yaml กำหนดช่องสวมและภาพ) x วัสดุ (ได้เปรียบหรือเสียเปรียบกับอะไร) x ระดับ (งบค่าพลัง)
+ * ชื่อและเรื่องของแต่ละชิ้นเขียนด้วยมือ กติกาอยู่ใน src/engine/gear.ts ตัวเลขทั้งหมดอยู่ที่นี่
+ */
+export const RARITIES = ['common', 'uncommon', 'rare', 'enchanted', 'hero'] as const;
+export type Rarity = (typeof RARITIES)[number];
+export const RARITY_TH: Record<Rarity, string> = { common: 'ของบ้าน', uncommon: 'ของช่าง', rare: 'ของชั้นครู', enchanted: 'ของอาบเวท', hero: 'ของผู้กล้า' };
+
+export const MATERIAL_IDS = ['brass', 'black_iron', 'ileth_wood', 'star_silver', 'demon_coal', 'cold_iron'] as const;
+export type MaterialId = (typeof MATERIAL_IDS)[number];
+/** gives กับ costs คือข้อความบนการ์ดของ (costsOn = ข้อแม้นี้มีผลเฉพาะของในช่องนี้) ตัวกติกาอยู่ใน GEAR.edge และ gear.ts */
+export const MATERIALS: Record<MaterialId, { th: string; gives?: string; costs?: string; costsOn?: 'body' }> = {
+  brass: { th: 'ทองเหลือง' },
+  black_iron: { th: 'เหล็กดำ', costs: 'เกราะหนัก หนียากขึ้น 1', costsOn: 'body' },
+  ileth_wood: { th: 'ไม้ไอเลธ' },
+  star_silver: { th: 'เงินดาว', gives: '+2 เมื่อเผชิญฝ่ายจอมมาร', costs: 'สวมติดตัวหลายปี รอยดาวขึ้นบนผิว' },
+  demon_coal: { th: 'หินถ่านมาร', gives: '+2 เมื่อเผชิญสิ่งที่มาจากดาว', costs: 'จอมมารรู้ว่าใครถือ และศาสนจักรห้ามพก' },
+  cold_iron: { th: 'เหล็กเย็น', gives: '+2 เมื่อเผชิญภูตผีและผู้ใช้เวท', costs: 'ผู้สวมร่ายเวทและขอพรไม่ได้' },
+};
+
+/** ป้ายของของ: ป้ายลักษณะที่เทียบกับจุดอ่อนของศัตรู (FOE_TAGS) กับป้ายใช้งานที่เหตุการณ์ถามหา (requires.has_tag) */
+export const ITEM_TAGS = [...FOE_TAGS, 'rope', 'tool', 'medicine'] as const;
+export type ItemTag = (typeof ITEM_TAGS)[number];
+export const ITEM_TAG_TH: Record<ItemTag, string> = { ...FOE_TAG_TH, rope: 'เชือก', tool: 'เครื่องมือช่าง', medicine: 'ยา' };
+
+/**
+ * statCap  = โบนัสค่าพลังจากของทุกชิ้นรวมกันไม่เกินเท่านี้ต่อค่าพลังหนึ่งอย่าง · checkCap = แต้มทอยจากของ (check_bonus) รวมกันไม่เกินเท่านี้ต่อค่าพลัง
+ * budget   = งบของแต่ละระดับ [ต่ำสุดของของที่ร้านขาย, สูงสุด] นับแต้มตาม gear.ts itemBudget:
+ *            ค่าพลัง +1 = 1 · แต้มทอย +1 = 1 · พลังชีวิตสูงสุดทุก +2 = 1 · เกราะ 1 = 1 · โล่ = 1 · ทอยใหม่ = 2 · แต้มฤดูหนาว 1 = 1 (ป้ายและวัสดุไม่กินงบ)
+ * price    = ช่วงราคาที่ร้านของแต่ละระดับ ตั้งจากรายได้จริงในเกม (ชีวิตจำลอง: หาเงินได้ทั้งชีวิตราว 24 เหรียญ ถือติดตัวราว 9 เหรียญช่วงอายุ 30 ถึง 50)
+ *            เป้าคือชาวบ้านธรรมดาซื้อของช่างได้สองสามชิ้นทั้งชีวิต ของอาบเวทต้องแลกด้วยอย่างอื่นนอกจากเงิน (needs กับ toll ของชิ้นนั้น)
+ * supply   = ช่วงราคาของใช้แล้วหมด · stack = ของใช้แล้วหมดชนิดเดียวกันพกได้กี่ชิ้น
+ * sellShare= ร้านรับซื้อคืนที่สัดส่วนนี้ของราคา (ปัดลง ไม่ต่ำกว่า 1) ของที่ไม่มีราคาคือของที่มีเรื่องของตัวเอง ขายไม่ได้
+ * shelf    = ของหมุนเวียนที่ร้านวางแผงต่อปี (ไม่นับของประจำร้าน) · shopAge = อายุที่เดินเข้าร้านเองได้
+ * edge     = แต้มเมื่อสวมของที่ทำจากวัสดุที่ได้เปรียบศัตรูฝ่ายนั้น (บุก ชิงจังหวะ ตั้งรับ) ไม่ทบกันหลายชิ้น
+ * heavyFlee= เกราะตัวที่ทำจากเหล็กดำทำให้หนียากขึ้นเท่านี้ · thrown = ของขว้างที่ไม่ตรงจุดอ่อนยังได้แต้มเท่านี้
+ * starSilver = สวมเงินดาวครบ first ปีได้รอยดาว แล้วลุกลามหนึ่งขั้นทุก every ปีที่ยังสวม (ทีฟลิ่งไม่ติดรอยดาว)
+ * demonCoal  = สวมหินถ่านมารข้ามปี คะแนนจอมมารของโลก +demon ต่อปี และชื่อเสียงกับศาสนจักรตะเกียง −1 ทุก church ปี
+ * lootMax  = ชนะการปะทะหนึ่งครั้งได้ของจากศัตรูไม่เกินเท่านี้ชิ้น · winterMax = แต้มเช็คฤดูหนาวจากของกันหนาวรวมกันไม่เกินเท่านี้
+ */
+export const GEAR = {
+  statCap: 3,
+  checkCap: 2,
+  budget: { common: [0, 1], uncommon: [1, 2], rare: [2, 3], enchanted: [3, 4], hero: [4, 8] } as Record<Rarity, readonly [number, number]>,
+  price: { common: [1, 3], uncommon: [4, 7], rare: [12, 20], enchanted: [30, 50], hero: [0, 0] } as Record<Rarity, readonly [number, number]>,
+  supply: [1, 3] as readonly [number, number],
+  stack: 3,
+  sellShare: 0.4,
+  shelf: 5,
+  shopAge: 12,
+  edge: 2,
+  heavyFlee: 1,
+  thrown: 1,
+  starSilver: { first: 4, every: 6 },
+  demonCoal: { demon: 1, church: 3 },
+  lootMax: 1,
+  winterMax: 2,
+} as const;
+/** วัสดุที่ได้เปรียบศัตรูฝ่ายไหน เหล็กเย็นได้เปรียบศัตรูที่เป็นภูตผีหรือผู้ใช้เวท (FoeDef.magic) ไม่ว่าฝ่ายไหน */
+export const MATERIAL_EDGE: Partial<Record<MaterialId, FoeSide | 'magic'>> = { star_silver: 'demon', demon_coal: 'star', cold_iron: 'magic' };
+/** สิ่งติดตัวที่ได้จากการสวมเงินดาวนาน */
+export const STAR_MARKS_TRAIT = 'curse_star_marks';
 
 // ---------- ชื่อเสียงข้ามชีวิต ----------
 export const FACTIONS = [

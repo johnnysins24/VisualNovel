@@ -5,7 +5,7 @@
   name: ชามไฟดินเผาจากวันแต่งงาน
   slot: offhand
   passive:
-    description: เลือดสูงสุด +1
+    description: พลังชีวิตสูงสุด +1
     effect: { kind: max_hp, amount: 1 }
 
 - id: cradle_bell
@@ -25,7 +25,7 @@
   slot: offhand
   rarity: uncommon
   passive:
-    description: เลือดสูงสุด +2
+    description: พลังชีวิตสูงสุด +2
     effect: { kind: max_hp, amount: 2 }
 
 - id: back_brace

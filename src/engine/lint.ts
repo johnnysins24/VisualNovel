@@ -1,12 +1,13 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { CLERIC_DRIFT_FLAG, DEMON_MARK_TRAIT, RACES } from './balance';
+import { CLERIC_DRIFT_FLAG, DEMON_MARK_TRAIT, GEAR, RACES, RARITIES, RARITY_TH } from './balance';
 import { unknownPlaceholders } from './text';
 import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
 import { knowsFlag } from './encounter';
+import { itemBudget } from './gear';
 
 /** กุญแจของ Content.lines ที่ระบบใช้ (ขึ้นต้นด้วยคำเหล่านี้) */
-const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death'];
+const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death', 'gear'];
 
 const outcomes = (ch: Choice): (Effects | undefined)[] => [ch.effects, ch.success?.effects, ch.failure?.effects];
 /** ทางจบของการปะทะที่มีผล (ความตายไม่มีผล มีแต่ข้อความ) */
@@ -128,6 +129,80 @@ export function lintContent(c: Content): string[] {
     }
     for (const x of f.weak) if (f.strong.includes(x)) problems.push(`${where}: "${x}" เป็นทั้งจุดอ่อนและจุดแข็ง`);
     for (const t of [f.lore, ...f.strike, ...f.hurt]) for (const ph of unknownPlaceholders(t, ['foe'])) problems.push(`${where}: placeholder ไม่รู้จัก ${ph}`);
+  }
+
+  // ---- ของสวมใส่ ร้านค้า และของที่ศัตรูทิ้งไว้ ----
+  const given = new Set<string>();
+  const places = new Set<string>();
+  for (const e of c.events) {
+    for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) {
+      fx?.items?.forEach((i) => given.add(i));
+      if (fx?.location_tag) places.add(fx.location_tag);
+    }
+  }
+  const shops = c.shops ?? [];
+  const sold = new Set(shops.flatMap((sh) => [...sh.staples, ...sh.stock]));
+  const dropped = new Set((c.foes ?? []).flatMap((f) => f.loot.flatMap((l) => (l.item ? [l.item] : []))));
+  const inRange = (n: number, [lo, hi]: readonly [number, number]) => n >= lo && n <= hi;
+  if (itemIds.size !== c.items.length) problems.push('items: id ของซ้ำ');
+  for (const it of c.items) {
+    const where = `items/${it.id}`;
+    const th = RARITY_TH[it.rarity];
+    if (it.use) {
+      if (it.slot) problems.push(`${where}: ของใช้แล้วหมด (use) ไม่มีช่องสวม`);
+      if (Object.keys(it.stats).length || it.passive || it.also) problems.push(`${where}: ของใช้แล้วหมดไม่มีค่าพลังหรือผลพิเศษ ผลของมันอยู่ใน use กับ tags`);
+      if (!it.use.heal && !it.use.boost && !it.tags.length) problems.push(`${where}: ของใช้แล้วหมดต้องมีผลอย่างน้อยหนึ่งอย่าง (heal boost หรือป้าย)`);
+      if (it.price !== undefined && !inRange(it.price, GEAR.supply)) problems.push(`${where}: ราคา ${it.price} อยู่นอกช่วงของของใช้แล้วหมด (${GEAR.supply.join(' ถึง ')})`);
+    } else {
+      if (!it.slot) problems.push(`${where}: ของสวมใส่ต้องมีช่องสวม (slot)`);
+      const pts = itemBudget(it), [min, max] = GEAR.budget[it.rarity];
+      if (pts > max) problems.push(`${where}: ใช้งบ ${pts} แต้ม เกินงบของ${th} (ไม่เกิน ${max})`);
+      if (it.price !== undefined) {
+        if (pts < min) problems.push(`${where}: ใช้งบ ${pts} แต้ม น้อยกว่างบของ${th}ที่ร้านขาย (อย่างน้อย ${min})`);
+        if (it.rarity === 'hero') problems.push(`${where}: ของผู้กล้าไม่มีราคา`);
+        else if (!inRange(it.price, GEAR.price[it.rarity])) problems.push(`${where}: ราคา ${it.price} อยู่นอกช่วงของ${th} (${GEAR.price[it.rarity].join(' ถึง ')})`);
+      }
+      for (const [st, n] of Object.entries(it.stats)) if ((n ?? 0) > GEAR.statCap) problems.push(`${where}: ${st} +${n} เกินเพดานโบนัสของของ (${GEAR.statCap})`);
+      if (it.also && RARITIES.indexOf(it.rarity) < RARITIES.indexOf('enchanted')) problems.push(`${where}: ผลพิเศษอย่างที่สอง (also) มีได้ตั้งแต่ของอาบเวทขึ้นไป`);
+      if (it.rarity === 'enchanted') {
+        if (!it.caveat) problems.push(`${where}: ของอาบเวทต้องมีข้อแม้หนึ่งข้อ (caveat)`);
+        if (it.price !== undefined && !it.needs && !it.toll) problems.push(`${where}: ของอาบเวทที่ร้านขายต้องแลกด้วยอย่างอื่นนอกจากเงิน (needs หรือ toll)`);
+      }
+    }
+    if (it.pattern && !it.material) problems.push(`${where}: ของที่มีแบบ (pattern) ต้องมีวัสดุ (material)`);
+    if (!given.has(it.id) && !sold.has(it.id) && !dropped.has(it.id)) problems.push(`${where}: ไม่มีทางได้มา (ไม่มีเหตุการณ์ให้ ไม่มีร้านขาย ไม่มีศัตรูทิ้งไว้)`);
+    if (it.needs && !it.needs_text) problems.push(`${where}: มี needs ต้องมี needs_text บอกผู้เล่นว่าทำไมคนขายยังไม่ขายให้`);
+    if (it.needs?.flag && !setFlags.has(it.needs.flag)) problems.push(`${where}: needs flag "${it.needs.flag}" ที่ไม่เคยถูกตั้ง`);
+    if (it.needs?.trait && !setTraits.has(it.needs.trait)) problems.push(`${where}: needs trait "${it.needs.trait}" ที่ไม่เคยถูกให้`);
+    if (it.toll && (it.toll.die || it.toll.hp || it.toll.items || it.toll.gold || it.toll.people || it.toll.partner || it.toll.child || it.toll.class)) {
+      problems.push(`${where}: toll ใช้ได้กับสิ่งที่เสียนอกจากเงิน (max_hp reputation world alignment flags traits) ราคาเป็นเงินใส่ที่ price`);
+    }
+    for (const t of it.toll?.traits ?? []) knownTrait(where, t);
+    for (const t of [it.name, it.lore, it.caveat, it.needs_text, it.use?.text, it.passive?.description, it.also?.description]) {
+      for (const ph of unknownPlaceholders(t ?? '')) problems.push(`${where}: placeholder ไม่รู้จัก ${ph}`);
+    }
+  }
+  if (new Set(shops.map((sh) => sh.id)).size !== shops.length) problems.push('shops: id ร้านซ้ำ');
+  for (const sh of shops) {
+    const where = `shops/${sh.id}`;
+    if (places.size && !places.has(sh.location)) problems.push(`${where}: ไม่มีเหตุการณ์ไหนพาไปถิ่น "${sh.location}"`);
+    if (!sh.staples.length && !sh.stock.length) problems.push(`${where}: ร้านไม่มีของขาย`);
+    for (const id of [...sh.staples, ...sh.stock]) {
+      const it = c.items.find((x) => x.id === id);
+      if (!it) problems.push(`${where}: ไม่มีของ "${id}"`);
+      else if (it.price === undefined) problems.push(`${where}: "${id}" ไม่มีราคา ขายในร้านไม่ได้`);
+    }
+    for (const id of sh.staples) if (sh.stock.includes(id)) problems.push(`${where}: "${id}" อยู่ทั้งใน staples และ stock`);
+    if (sh.requires && !sh.closed) problems.push(`${where}: ร้านที่ไม่ขายให้ทุกคน (requires) ต้องมีประโยคตอนไม่ขายให้ (closed)`);
+    if (sh.requires?.flag && !setFlags.has(sh.requires.flag)) problems.push(`${where}: requires flag "${sh.requires.flag}" ที่ไม่เคยถูกตั้ง`);
+    for (const t of [...sh.greet, sh.closed]) for (const ph of unknownPlaceholders(t ?? '')) problems.push(`${where}: placeholder ไม่รู้จัก ${ph}`);
+  }
+  for (const f of foes.values()) {
+    for (const row of f.loot) {
+      if (!row.item === !row.gold) problems.push(`foes/${f.id}: loot แต่ละแถวต้องมี item หรือ gold อย่างใดอย่างหนึ่ง`);
+      if (row.item && !itemIds.has(row.item)) problems.push(`foes/${f.id}: loot อ้างถึงของ "${row.item}" ที่ไม่มี`);
+      for (const ph of unknownPlaceholders(row.text ?? '', ['foe'])) problems.push(`foes/${f.id}: loot placeholder ไม่รู้จัก ${ph}`);
+    }
   }
 
   // ---- ฉากตาย ----

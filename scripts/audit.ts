@@ -8,10 +8,11 @@ import { humanAge, newLife, stageAge, worldYear, type LifeState } from '../src/e
 import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
-import { maxHp } from '../src/engine/items';
-import { PROTECTED_AGE, RACES, REPEAT_GAP, STAT_CAP, type RaceId } from '../src/engine/balance';
+import { equip, maxHp } from '../src/engine/items';
+import { PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type RaceId, type Rarity } from '../src/engine/balance';
 import { foeOf, hitDamage, moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
-import type { Effects, EncounterEnd, GameEvent } from '../src/engine/schema';
+import { buy, buyBlock, fightSupplies, isSupply, itemBudget, sell, sellPrice, shelfOf, shopOpen, shopsHere, supplyCount, useSupply } from '../src/engine/gear';
+import type { Effects, EncounterEnd, GameEvent, Item } from '../src/engine/schema';
 
 const PARTNER = /\{partner\}|\{p:/;
 const bump = <K,>(m: Map<K, number>, k: K, n = 1) => m.set(k, (m.get(k) ?? 0) + n);
@@ -45,16 +46,21 @@ const newTally = (): FightTally => ({ n: 0, ends: {}, beats: 0, hits: 0, hpLost:
  */
 export type FightStyle = 'reads' | 'random';
 
-function pickMove(game: Game, l: LifeState, ev: GameEvent, r: Rng, style: FightStyle): { id: string; armed: boolean } {
+function pickMove(game: Game, l: LifeState, ev: GameEvent, r: Rng, style: FightStyle, shopper: boolean): { id: string; armed: boolean; supply?: string } {
   const open = openMoves(game, l, ev);
-  const tk = techniqueOf(l);
+  const tk = techniqueOf(l, game);
   const canArm = tk.armable && tk.ready;
-  if (style === 'random') return { id: open[r.int(0, open.length - 1)]!.id, armed: canArm && r.int(0, 1) === 1 };
+  // ของใช้แล้วหมด: คนกดสุ่มหยิบของมาถือราวหนึ่งในสามของจังหวะ คนอ่านเกมหยิบเมื่อของนั้นเพิ่มโอกาสได้จริง หรือเมื่อต้องกินยา
+  const held = shopper ? fightSupplies(game, l) : [];
+  if (style === 'random') {
+    const base = { id: open[r.int(0, open.length - 1)]!.id, armed: canArm && r.int(0, 1) === 1 };
+    return held.length && r.int(0, 2) === 0 ? { ...base, supply: held[r.int(0, held.length - 1)]!.item.id } : base;
+  }
   const foe = foeOf(game, ev)!;
   const dmg = hitDamage(game, l, foe);
   const flee = open.find((m) => m.kind === 'flee');
   if (flee && l.hp <= dmg) return { id: flee.id, armed: canArm && tk.kind !== 'spell' && tk.kind !== 'song' };
-  let best = { id: open[0]!.id, armed: false, chance: -1 };
+  let best: { id: string; armed: boolean; chance: number; supply?: string } = { id: open[0]!.id, armed: false, chance: -1 };
   for (const m of open) {
     if (m.kind === 'flee') continue;
     const plain = moveOdds(game, l, ev, m).chance;
@@ -64,7 +70,121 @@ function pickMove(game: Game, l: LifeState, ev: GameEvent, r: Rng, style: FightS
     const armed = tk.kind === 'ward' ? (l.hp <= dmg * 2 ? plain + 0.01 : -1) : moveOdds(game, l, ev, m, true).chance;
     if (armed > best.chance + (tk.kind === 'ward' ? 0 : 0.05)) best = { id: m.id, armed: true, chance: armed };
   }
-  return best;
+  // ของที่เพิ่มโอกาสของวิธีไหนก็ตามได้เกินหนึ่งในสิบ คุ้มที่จะใช้ ไม่อย่างนั้นเก็บไว้
+  let withSupply = best;
+  for (const m of open) {
+    if (m.kind === 'flee') continue;
+    for (const s of held) {
+      const chance = moveOdds(game, l, ev, m, false, s.item.id).chance;
+      if (chance > withSupply.chance && chance >= best.chance + 0.1) withSupply = { id: m.id, armed: false, chance, supply: s.item.id };
+    }
+  }
+  if (withSupply.supply) return withSupply;
+  // พลาดอีกครั้งเดียวจะล้มและไม่มีทางหนี: กินยาไปพร้อมกับวิธีที่ดีที่สุด
+  const heal = l.hp <= dmg ? held.find((s) => s.item.use?.heal) : undefined;
+  return heal ? { ...best, supply: heal.item.id } : best;
+}
+
+/** สิ่งที่ผู้เล่นจำลองแบบเข้าร้านทำกับของในหนึ่งชีวิต */
+export interface GearLife {
+  /** ของสวมใส่ที่ซื้อ แยกตามระดับ */
+  bought: Record<Rarity, number>;
+  /** ของใช้แล้วหมดที่ซื้อ */
+  supplies: number;
+  /** เงินที่จ่ายร้าน และเงินที่ได้จากการขายของเก่าคืน */
+  spent: number;
+  sold: number;
+  /** ของใช้แล้วหมดที่ใช้ในการปะทะ และยาที่ใช้นอกการปะทะ */
+  used: number;
+  healed: number;
+  /** ของที่ได้จากศัตรู */
+  loot: number;
+  /** ปีที่ถิ่นที่อยู่มีร้าน และปีที่ร้านนั้นไม่ขายให้ */
+  shopYears: number;
+  closedYears: number;
+  firstBuyAge: number | null;
+}
+const newGearLife = (): GearLife => ({
+  bought: { common: 0, uncommon: 0, rare: 0, enchanted: 0, hero: 0 },
+  supplies: 0, spent: 0, sold: 0, used: 0, healed: 0, loot: 0, shopYears: 0, closedYears: 0, firstBuyAge: null,
+});
+
+/** สวมของในกระเป๋าที่ดีกว่าของในช่องเดียวกัน (วัดด้วยแต้มงบของของ) */
+function wearBest(game: Game, life: LifeState): LifeState {
+  let l = life;
+  for (const id of l.inventory) {
+    const it = game.items.get(id);
+    if (!it?.slot || l.equipped[it.slot] === id) continue;
+    const cur = game.items.get(l.equipped[it.slot] ?? '');
+    if (!cur || itemBudget(it) > itemBudget(cur)) l = equip(l, it, game.items);
+  }
+  return l;
+}
+
+/**
+ * ปีละครั้ง ผู้เล่นจำลองแบบเข้าร้านจัดของ: สวมของที่ดีกว่า กินยาเมื่อพลังชีวิตหายไปเท่าที่ยาฟื้นได้ แล้วเดินเข้าร้านของถิ่น
+ * ซื้อของสวมใส่ปีละชิ้น เลือกชิ้นที่ดีขึ้นจากของในช่องมากที่สุดต่อเหรียญ ขายของเก่าคืน แล้วเติมยาให้มีติดตัวหนึ่งชิ้น
+ * คนที่อ่านเกม (careful) เหลือเงินติดตัวไว้สองเหรียญเสมอ และพกของขว้างอีกหนึ่งอย่าง
+ * ทุกอย่างคำนวณจากสถานะของชีวิต ไม่ใช้ตัวสุ่ม ผลจึงเหมือนเดิมทุกครั้ง
+ */
+function shopYear(game: Game, life: LifeState, g: GearLife, careful: boolean, boughtById: Map<string, number>): LifeState {
+  let l = wearBest(game, life);
+  for (const id of Object.keys(l.supplies ?? {})) {
+    const heal = game.items.get(id)?.use?.heal;
+    while (heal && supplyCount(l, id) > 0 && maxHp(l, game.items) - l.hp >= heal) {
+      const out = useSupply(game, l, id);
+      if (!out) break;
+      l = out.life;
+      g.healed++;
+    }
+  }
+  const shops = shopsHere(game, l);
+  if (!shops.length) return l;
+  g.shopYears++;
+  const open = shops.filter((s) => shopOpen(game, l, s));
+  if (!open.length) g.closedYears++;
+  const reserve = careful ? 2 : 0;
+  const pay = (shopId: string, it: Item): boolean => {
+    const next = buy(game, l, shopId, it.id);
+    if (next === l) return false;
+    l = next;
+    g.spent += it.price!;
+    g.firstBuyAge ??= l.age;
+    bump(boughtById, it.id);
+    return true;
+  };
+  for (const shop of open) {
+    const shelf = shelfOf(game, l, shop);
+    const can = (it: Item) => !buyBlock(game, l, shop, it) && l.gold - it.price! >= reserve;
+    let best: { item: Item; gain: number } | null = null;
+    for (const it of shelf) {
+      if (isSupply(it) || !it.slot || !can(it)) continue;
+      const cur = game.items.get(l.equipped[it.slot] ?? '');
+      const gain = itemBudget(it) - (cur ? itemBudget(cur) : 0);
+      if (gain > 0 && (!best || gain / it.price! > best.gain / best.item.price!)) best = { item: it, gain };
+    }
+    if (best && pay(shop.id, best.item)) {
+      g.bought[best.item.rarity]++;
+      const old = l.equipped[best.item.slot!];
+      l = equip(l, best.item, game.items);
+      const oldItem = old && old !== best.item.id ? game.items.get(old) : undefined;
+      if (oldItem && l.equipped[best.item.slot!] === best.item.id && sellPrice(oldItem) !== null) {
+        const after = sell(game, l, oldItem.id);
+        if (after !== l) { g.sold += after.gold - l.gold; l = after; }
+      }
+    }
+    const cheapest = (pick: (it: Item) => boolean) => shelf.filter((it) => isSupply(it) && pick(it) && can(it)).sort((a, b) => a.price! - b.price!)[0];
+    const carried = fightSupplies(game, l);
+    if (!carried.some((x) => x.item.use?.heal)) {
+      const heal = cheapest((it) => !!it.use?.heal);
+      if (heal && pay(shop.id, heal)) g.supplies++;
+    }
+    if (careful && !carried.some((x) => !x.item.use?.heal)) {
+      const thrown = cheapest((it) => !it.use?.heal && (it.tags.length > 0 || !!it.use?.boost));
+      if (thrown && pay(shop.id, thrown)) g.supplies++;
+    }
+  }
+  return l;
 }
 
 export interface AuditResult {
@@ -108,7 +228,16 @@ export interface AuditResult {
     byStyle: Record<FightStyle, FightTally>;
     /** เฉพาะการปะทะที่เอาถึงตาย */
     deadlyByStyle: Record<FightStyle, FightTally>;
+    /** การปะทะที่เอาถึงตายของผู้เล่นจำลองที่อ่านเกม แยกตามว่าชีวิตนั้นเข้าร้านและใช้ของหรือไม่ */
+    deadlyReadsByGear: Record<'shop' | 'none', FightTally>;
     perLife: number[];
+  };
+  /** ของและร้านค้า: ครึ่งหนึ่งของชีวิตเข้าร้าน สวมของ และใช้ของในการปะทะ อีกครึ่งไม่แตะของเลย (เทียบกันได้ว่าของมีผลแค่ไหน) */
+  gear: {
+    /** เรียงตรงกับ finals: null = ชีวิตที่ไม่แตะของ */
+    perLife: (GearLife | null)[];
+    boughtById: Map<string, number>;
+    lootById: Map<string, number>;
   };
 }
 
@@ -132,7 +261,11 @@ export function auditLives(game: Game, lives: number): AuditResult {
     counts: new Map(),
     traitLocks: new Map(),
     overlap: { sameOriginAndClass: 0, anyTwo: 0, eventsPerLife: 0 },
-    fights: { byFoe: new Map(), byEvent: new Map(), byEventReads: new Map(), byStyle: { reads: newTally(), random: newTally() }, deadlyByStyle: { reads: newTally(), random: newTally() }, perLife: [] },
+    fights: {
+      byFoe: new Map(), byEvent: new Map(), byEventReads: new Map(), byStyle: { reads: newTally(), random: newTally() },
+      deadlyByStyle: { reads: newTally(), random: newTally() }, deadlyReadsByGear: { shop: newTally(), none: newTally() }, perLife: [],
+    },
+    gear: { perLife: [], boughtById: new Map(), lootById: new Map() },
   };
   const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
@@ -144,11 +277,18 @@ export function auditLives(game: Game, lives: number): AuditResult {
     const inLife = new Map<string, number>();
     const couldMust = new Set<string>();
     const style: FightStyle = seed % 2 ? 'random' : 'reads';
+    // ชีวิตเลข 0 กับ 1 ในทุกสี่ชีวิตเข้าร้านและใช้ของ (อ่านเกมหนึ่ง กดสุ่มหนึ่ง) อีกสองชีวิตไม่แตะของ
+    const gearLife = seed % 4 < 2 ? newGearLife() : null;
+    let shoppedYear = -Infinity;
     let fought = 0;
     /** must ที่เข้าเงื่อนไขแล้วแต่ยังไม่ได้ออก → เรื่องที่แซงไปตอนมันเหลือโอกาสสุดท้าย (ถ้ามี) */
     const waiting = new Map<string, string | null>();
 
     for (let step = 0; step < 400 && l.alive; step++) {
+      if (gearLife && !l.dying && !l.encounter && worldYear(l) !== shoppedYear) {
+        shoppedYear = worldYear(l);
+        l = shopYear(game, l, gearLife, style === 'reads', res.gear.boughtById);
+      }
       const age = stageAge(l);
       const open = game.events.filter((e) => eligible(game, l, e));
       const pool = open.filter((e) => playable(game, l, e));
@@ -239,9 +379,10 @@ export function auditLives(game: Game, lives: number): AuditResult {
             bump(problems, `${ev.id}: จังหวะ ${b + 1} ไม่มีวิธีให้เลือก (ทางตัน)`);
             break;
           }
-          const pick = pickMove(game, l, ev, r, style);
-          const shown = moveOdds(game, l, ev, openMoves(game, l, ev).find((m) => m.id === pick.id)!, pick.armed);
-          const out = resolveMove(game, l, pick.id, pick.armed);
+          const pick = pickMove(game, l, ev, r, style, !!gearLife);
+          const shown = moveOdds(game, l, ev, openMoves(game, l, ev).find((m) => m.id === pick.id)!, pick.armed, pick.supply);
+          const out = resolveMove(game, l, pick.id, pick.armed, pick.supply);
+          if (out.record.supply && gearLife) gearLife.used++;
           if (out.record.mod !== shown.mod || out.record.dc !== shown.dc) bump(problems, `${ev.id}/${pick.id}: แต้มที่ทอยจริงไม่ตรงกับที่แสดงบนปุ่ม`);
           beats++;
           if (out.record.success) hits++;
@@ -258,7 +399,13 @@ export function auditLives(game: Game, lives: number): AuditResult {
           fights.byStyle[style],
           ...(style === 'reads' ? [fights.byEventReads.get(ev.id) ?? fights.byEventReads.set(ev.id, newTally()).get(ev.id)!] : []),
           ...(foe.deadly ? [fights.deadlyByStyle[style]] : []),
+          ...(foe.deadly && style === 'reads' ? [fights.deadlyReadsByGear[gearLife ? 'shop' : 'none']] : []),
         ];
+        const loot = l.log.at(-1)!.encounter!.loot;
+        if (loot?.item) {
+          bump(res.gear.lootById, loot.item);
+          if (gearLife) gearLife.loot++;
+        }
         for (const t of tallies) {
           t.n++;
           t.ends[end] = (t.ends[end] ?? 0) + 1;
@@ -346,6 +493,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
     }
     bump(res.endReasons, l.endReason ?? 'cap');
     res.finals.push(l);
+    res.gear.perLife.push(gearLife);
     fights.perLife.push(fought);
   }
 
@@ -511,6 +659,49 @@ export function formatReport(game: Game, res: AuditResult): string {
     out.push(`- ฉากปะทะที่เกิดซ้ำได้: ${repeats.length ? repeats.join(' · ') : 'ไม่มี'}`);
     const unused = [...game.foes.keys()].filter((id) => !game.events.some((e) => e.encounter?.foe === id));
     out.push(`- ศัตรูที่ยังไม่มีฉากปะทะ: ${unused.length ? `${unused.length} ชนิด (${unused.map((id) => game.foes.get(id)!.name).join(', ')})` : 'ไม่มี'}`);
+  }
+
+  h('ของและร้านค้า');
+  {
+    // เป้า (GEAR ใน balance.ts): ชาวบ้านธรรมดาซื้อของช่างได้สองสามชิ้นทั้งชีวิต ของชั้นครูเป็นของที่ต้องเก็บเงิน ของอาบเวทต้องแลกด้วยอย่างอื่นนอกจากเงิน
+    const rows = finals.map((l, i) => [l, res.gear.perLife[i] ?? null] as const).filter(([l]) => humanAge(l) >= 40);
+    const shoppers = rows.filter((x): x is readonly [LifeState, GearLife] => !!x[1]);
+    const plain = rows.filter(([, g]) => !g).map(([l]) => l);
+    const spread = (xs: number[]) => `กลาง ${median(xs)} ช่วง 10–90% ${quantile(xs, 0.1)}–${quantile(xs, 0.9)} สูงสุด ${Math.max(0, ...xs)}`;
+    const of = (pick: (g: GearLife) => number) => shoppers.map(([, g]) => pick(g));
+    out.push(`- ชีวิตที่เข้าร้านและถึงอายุ 40: ${shoppers.length} (อีก ${plain.length} ชีวิตไม่แตะของ ใช้เทียบ)`);
+    out.push(`- ปีที่ถิ่นที่อยู่มีร้าน: ${spread(of((g) => g.shopYears))} · ปีที่ร้านไม่ขายให้: ${spread(of((g) => g.closedYears))} · ไม่เคยอยู่ถิ่นที่มีร้านเลย ${pct(shoppers.filter(([, g]) => !g.shopYears).length, shoppers.length)}`);
+    const gearBought = (g: GearLife) => RARITIES.reduce((n, r) => n + g.bought[r], 0);
+    out.push(`- ของสวมใส่ที่ซื้อต่อชีวิต: ${spread(of(gearBought))} · ไม่ได้ซื้อเลย ${pct(shoppers.filter(([, g]) => !gearBought(g)).length, shoppers.length)} · อายุตอนซื้อชิ้นแรก กลาง ${median(shoppers.flatMap(([, g]) => (g.firstBuyAge === null ? [] : [g.firstBuyAge])))}`);
+    for (const r of RARITIES) {
+      const xs = of((g) => g.bought[r]);
+      if (r !== 'hero') out.push(`  - ${RARITY_TH[r]}: ${spread(xs)} · ซื้ออย่างน้อยหนึ่งชิ้น ${pct(xs.filter((n) => n > 0).length, xs.length)} · สองชิ้นขึ้นไป ${pct(xs.filter((n) => n > 1).length, xs.length)}`);
+    }
+    out.push(`- เงินที่จ่ายร้านต่อชีวิต: ${spread(of((g) => g.spent))} · ได้คืนจากการขายของเก่า: ${spread(of((g) => g.sold))}`);
+    out.push(`- ของใช้แล้วหมด: ซื้อ ${spread(of((g) => g.supplies))} · ใช้ในการปะทะ ${spread(of((g) => g.used))} · กินยานอกการปะทะ ${spread(of((g) => g.healed))}`);
+    out.push(`- ของที่ได้จากศัตรู: ${spread(of((g) => g.loot))} · ได้อย่างน้อยหนึ่งชิ้น ${pct(shoppers.filter(([, g]) => g.loot > 0).length, shoppers.length)}`);
+    const worn = (l: LifeState) => Object.keys(l.equipped).length;
+    const bonus = (l: LifeState) => Object.values(l.equipped).reduce((n, id) => n + (id && game.items.get(id) ? itemBudget(game.items.get(id)!) : 0), 0);
+    out.push(`- ตอนจบ: ช่องที่สวมอยู่ ${spread(shoppers.map(([l]) => worn(l)))} จาก 9 ช่อง · แต้มงบรวมของของที่สวม ${spread(shoppers.map(([l]) => bonus(l)))} · เงินเหลือ กลาง ${median(shoppers.map(([l]) => l.gold))} (คนไม่แตะของ กลาง ${median(plain.map((l) => l.gold))})`);
+    const marks = shoppers.filter(([l]) => l.traits.includes('curse_star_marks')).length;
+    out.push(`- ราคาของวัสดุ: ได้รอยดาวจากเงินดาว ${pct(marks, shoppers.length)} · สวมหินถ่านมารข้ามปีอย่างน้อยหนึ่งปี ${pct(shoppers.filter(([l]) => (l.worn?.demon_coal ?? 0) > 0).length, shoppers.length)} · สวมเหล็กเย็น ${pct(shoppers.filter(([l]) => (l.worn?.cold_iron ?? 0) > 0).length, shoppers.length)}`);
+    const share = (t: FightTally, k: EncounterEnd) => pct(t.ends[k] ?? 0, t.n);
+    const fight = (t: FightTally) => `${t.n} ครั้ง ชนะ ${share(t, 'win')} ตาย ${share(t, 'death')} สำเร็จต่อจังหวะ ${pct(t.hits, t.beats)} เสียพลังชีวิตเฉลี่ย ${(t.hpLost / Math.max(1, t.n)).toFixed(1)}`;
+    out.push(`- ของช่วยในการปะทะที่เอาถึงตายแค่ไหน (ผู้เล่นอ่านเกม): มีของ ${fight(res.fights.deadlyReadsByGear.shop)} · ไม่มีของ ${fight(res.fights.deadlyReadsByGear.none)}`);
+    const ages = (ls: LifeState[]) => median(ls.filter((l) => l.endReason === 'death').map((l) => Math.floor(humanAge(l))));
+    out.push(`- อายุตอนตาย (เทียบมนุษย์ ทุกชีวิต): คนเข้าร้าน กลาง ${ages(finals.filter((_, i) => res.gear.perLife[i]))} · คนไม่แตะของ กลาง ${ages(finals.filter((_, i) => !res.gear.perLife[i]))}`);
+    const name = (id: string) => game.items.get(id)?.name ?? id;
+    const sold = [...res.gear.boughtById].sort((a, b) => b[1] - a[1]);
+    out.push(`- ของที่ซื้อบ่อยสุด: ${sold.slice(0, 10).map(([id, n]) => `${name(id)} ${n}`).join(' · ') || 'ไม่มี'}`);
+    const onShelves = new Set(game.shops.flatMap((sh) => [...sh.staples, ...sh.stock]));
+    const unsold = [...onShelves].filter((id) => !res.gear.boughtById.has(id));
+    const tier = (r: Rarity) => unsold.filter((id) => !isSupply(game.items.get(id)) && game.items.get(id)?.rarity === r);
+    out.push(`- ของบนแผงที่ไม่มีชีวิตไหนซื้อ: ${unsold.length} จาก ${onShelves.size} ชิ้น (${RARITIES.filter((r) => tier(r).length).map((r) => `${RARITY_TH[r]} ${tier(r).length}`).join(' · ')} · ของใช้แล้วหมด ${unsold.filter((id) => isSupply(game.items.get(id))).length})`);
+    const loot = [...res.gear.lootById].sort((a, b) => b[1] - a[1]);
+    out.push(`- ของจากศัตรูที่ได้บ่อยสุด: ${loot.slice(0, 8).map(([id, n]) => `${name(id)} ${n}`).join(' · ') || 'ไม่มี'}`);
+    const drops = new Set([...game.foes.values()].flatMap((f) => f.loot.flatMap((row) => (row.item ? [row.item] : []))));
+    const undropped = [...drops].filter((id) => !res.gear.lootById.has(id));
+    out.push(`- ของจากศัตรูที่ไม่มีชีวิตไหนได้: ${undropped.length ? undropped.map(name).join(', ') : 'ไม่มี'}`);
   }
 
   h('เผ่าและอาชีพ');

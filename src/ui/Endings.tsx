@@ -134,7 +134,7 @@ export function BiographyPage() {
               const art = itemIconUrl(piecesOfItem(it.id, game.items));
               return (
                 <li key={it.id}>
-                  <span class="slot on">{art ? <img class="slot-art" src={art} alt="" /> : <Icon name={it.slot} />}</span>
+                  <span class="slot on">{art ? <img class="slot-art" src={art} alt="" /> : <Icon name={it.slot ?? 'bag'} />}</span>
                   {it.name}
                 </li>
               );

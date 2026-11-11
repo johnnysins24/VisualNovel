@@ -18,9 +18,9 @@ const beat = (n: number, extra: object = {}, more: RawMove[] = []): { text: stri
 const raw = {
   items: [
     { id: 'coat', name: 'เสื้อหนัง', slot: 'body', passive: { description: 'เกราะ', effect: { kind: 'armor', amount: 1 } } },
-    { id: 'plate', name: 'เกราะเหล็ก', slot: 'legs', passive: { description: 'เกราะ', effect: { kind: 'armor', amount: 2 } } },
+    { id: 'plate', name: 'เกราะเหล็ก', slot: 'legs', rarity: 'uncommon', passive: { description: 'เกราะ', effect: { kind: 'armor', amount: 2 } } },
     { id: 'board', name: 'โล่ไม้', slot: 'offhand', passive: { description: 'โล่', effect: { kind: 'shield' } } },
-    { id: 'coin', name: 'เหรียญนำโชค', slot: 'accessory', passive: { description: 'ทอยใหม่', effect: { kind: 'reroll_failed_check' } } },
+    { id: 'coin', name: 'เหรียญนำโชค', slot: 'accessory', rarity: 'rare', passive: { description: 'ทอยใหม่', effect: { kind: 'reroll_failed_check' } } },
   ],
   traits: [
     { id: 'wound_scar', name: 'แผลเป็น', kind: 'wound', how: 'x', costs: ['x'] },
@@ -66,6 +66,7 @@ const raw = {
       },
     },
     { id: 'youth.plain', stage: 'youth', once: false, text: 'x', choices: [{ id: 'ok', label: 'ok', text: 'ok' }] },
+    { id: 'adult.kit', stage: 'adult', when: { age: [90, 99] }, text: 'x', choices: [{ id: 'take', label: 'take', effects: { items: ['coat', 'plate', 'board', 'coin'] } }] },
     { id: 'death.any', stage: 'death', when: { dying: ['fight', 'wound', 'age', 'sacrifice'] }, text: 'x', choices: [{ id: 'go', label: 'go', effects: { mark: 'จบ', epitaph: 'จบ' } }] },
   ],
 };

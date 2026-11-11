@@ -6,13 +6,14 @@
  * ตัวเลขทั้งหมดอยู่ใน balance.ts (ENCOUNTER, TECHNIQUES) ไฟล์นี้มีแต่วิธีคิด
  */
 import type { Encounter, EncounterEnd, FoeDef, GameEvent, Move, Stat } from './schema';
-import { ENCOUNTER, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type TechniqueKind } from './balance';
+import { ENCOUNTER, GEAR, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type TechniqueKind } from './balance';
 import { modifier, type BeatRecord, type EncounterLog, type EncounterState, type LifeState, type LogEntry, type OddsPart } from './state';
 import { Rng } from './rng';
-import { activePassives, effectiveStats } from './items';
+import { activePassives, effectiveStats, gearCheckBonus } from './items';
 import { clericDrifted, situationalBonus } from './rules';
 import { traitCheckBonuses } from './traits';
 import { applyEffects, concludeEvent, requiresMet, type Game } from './engine';
+import { EDGE_KINDS, addItem, coldIron, gearEdge, gearTags, heavyArmour, rollLoot, spendSupplyInFight, supplyAid } from './gear';
 
 /** ศัตรูของฉากหนึ่ง: ค่าของชนิด ทับด้วยค่าที่ฉากกำหนดเอง */
 export interface FoeView {
@@ -44,20 +45,21 @@ export interface TechniqueView {
   armable: boolean;
   /** ยังใช้ได้ในการปะทะนี้ */
   ready: boolean;
-  /** เหตุที่ใช้ไม่ได้: ใช้ไปแล้ว เลยจังหวะแรก ห่างจากเทพ หรือไม่ได้อยู่ถิ่นเกิด */
-  why?: 'used' | 'late' | 'drifted' | 'away';
+  /** เหตุที่ใช้ไม่ได้: ใช้ไปแล้ว เลยจังหวะแรก ห่างจากเทพ ไม่ได้อยู่ถิ่นเกิด หรือสวมเหล็กเย็นอยู่ (ร่ายเวทและขอพรไม่ได้) */
+  why?: 'used' | 'late' | 'drifted' | 'away' | 'cold_iron';
 }
 
 const techniqueDef = (life: LifeState) => TECHNIQUES[(life.classId ?? 'none') as ClassId | 'none'] ?? TECHNIQUES.none;
 
-/** ท่าของอาชีพในการปะทะที่กำลังเดินอยู่ */
-export function techniqueOf(life: LifeState): TechniqueView {
+/** ท่าของอาชีพในการปะทะที่กำลังเดินอยู่ ส่ง game มาด้วยเพื่อดูของที่สวม (เหล็กเย็นปิดเวทและพร) */
+export function techniqueOf(life: LifeState, game?: Game): TechniqueView {
   const def = techniqueDef(life);
   const st = life.encounter;
   const view: TechniqueView = { kind: def.kind, th: def.th, armable: ARMED.includes(def.kind), ready: true };
   const off = (why: NonNullable<TechniqueView['why']>): TechniqueView => ({ ...view, ready: false, why });
   if (st?.techUsed) return off('used');
   if (def.kind === 'ambush' && (st?.beat ?? 0) > 0) return off('late');
+  if ((def.kind === 'spell' || def.kind === 'ward') && game && coldIron(game, life)) return off('cold_iron');
   if (def.kind === 'ward' && (!life.god || clericDrifted(life))) return off('drifted');
   if (def.kind === 'sense' && !(life.homeTag && life.homeTag === life.locationTag)) return off('away');
   return view;
@@ -112,12 +114,16 @@ function rerollLeft(game: Game, life: LifeState): 'tech' | 'item' | null {
   return null;
 }
 
-/** ความยาก แต้มบวก และโอกาสของวิธีหนึ่งในจังหวะปัจจุบัน armed = ผู้เล่นกดเตรียมท่าของอาชีพไว้ */
-export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move, armed = false): MoveOdds {
+/**
+ * ความยาก แต้มบวก และโอกาสของวิธีหนึ่งในจังหวะปัจจุบัน armed = ผู้เล่นกดเตรียมท่าของอาชีพไว้ · supply = ของใช้แล้วหมดที่จะใช้ในจังหวะนี้
+ * ของที่สวม: ป้ายของอาวุธ (บุก ชิงจังหวะ) และของมือรอง (ตั้งรับ ใช้ของ) นับเป็นป้ายของวิธีเมื่อเทียบจุดอ่อน ·
+ * วัสดุที่ได้เปรียบศัตรูฝ่ายนี้ได้แต้ม edge · เกราะตัวเหล็กดำถ่วงตอนหนี
+ */
+export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move, armed = false, supply?: string): MoveOdds {
   const foe = foeOf(game, ev)!;
   const st = life.encounter;
   const beat = ev.encounter!.beats[st?.beat ?? 0];
-  const tk = techniqueOf(life);
+  const tk = techniqueOf(life, game);
   const tech = armed && tk.ready && techniqueFits(tk.kind, move);
   const spell = tech && tk.kind === 'spell';
   const stat: Stat = spell ? 'INT' : (move.stat ?? MOVE_STAT[move.kind] ?? 'WIS');
@@ -125,8 +131,10 @@ export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move,
 
   const parts: OddsPart[] = [];
   if (beat?.answer && beat.answer === move.kind) parts.push({ kind: 'tell', amount: ENCOUNTER.tell });
-  const weak = !!st?.weakKnown && hits(foe.def.weak, move);
-  if (weak) parts.push({ kind: 'weak', amount: ENCOUNTER.weak });
+  const fromGear = gearTags(game, life, move.kind).find((g) => foe.def.weak.includes(g.tag));
+  const aid = supplyAid(game, life, foe.def, move, supply, ENCOUNTER.weak);
+  const weak = !!st?.weakKnown && (hits(foe.def.weak, move) || !!fromGear);
+  if (weak) parts.push({ kind: 'weak', amount: ENCOUNTER.weak, ...(!hits(foe.def.weak, move) && fromGear ? { by: fromGear.by } : {}) });
   // เวทหนึ่งบททะลุจุดแข็ง และนับเป็นการโดนจุดอ่อนแม้ยังไม่รู้จุดอ่อน
   if (!spell && hits(foe.def.strong, move)) parts.push({ kind: 'strong', amount: -ENCOUNTER.strong });
   if (move.ally && life.cast?.[move.ally]) parts.push({ kind: 'ally', amount: ENCOUNTER.ally });
@@ -134,11 +142,20 @@ export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move,
     const amount = spell ? (weak ? 0 : ENCOUNTER.weak) : tk.kind === 'ward' ? 0 : techniqueDef(life).amount;
     parts.push({ kind: 'tech', amount });
   }
+  const edge = EDGE_KINDS.includes(move.kind) ? gearEdge(game, life, foe.def) : null;
+  if (edge) parts.push({ kind: 'edge', amount: GEAR.edge, by: edge.id });
+  const heavy = move.kind === 'flee' ? heavyArmour(game, life) : null;
+  if (heavy) parts.push({ kind: 'heavy', amount: -GEAR.heavyFlee, by: heavy.id });
+  if (aid) {
+    // ของที่ตรงจุดอ่อนได้แต้มจุดอ่อนเต็ม ถ้าวิธีนี้ได้แต้มจุดอ่อนอยู่แล้ว (หรือเวทนับให้แล้ว) ไม่ได้ซ้ำ
+    const already = weak || (spell && tech);
+    const amount = aid.weak && already ? aid.amount - ENCOUNTER.weak : aid.amount;
+    if (amount || aid.heal) parts.push({ kind: 'supply', amount, by: aid.item.id });
+  }
 
   const traits = traitCheckBonuses(life, game.traits, stat, foe.def.side);
-  let mod = modifier(effectiveStats(life, game.items)[stat]) + situationalBonus(life, stat);
+  let mod = modifier(effectiveStats(life, game.items)[stat]) + situationalBonus(life, stat) + gearCheckBonus(life, game.items, stat);
   for (const t of traits) mod += t.amount;
-  for (const p of activePassives(life, game.items)) if (p.kind === 'check_bonus' && p.stat === stat) mod += p.amount;
   for (const p of parts) mod += p.amount;
 
   let wins = 0;
@@ -175,7 +192,7 @@ function stockLine(lines: string[], used: BeatRecord[], foe: FoeView, rng: Rng):
  * เดินหนึ่งจังหวะ: ทอย ใช้ผลกับแรงใจของศัตรูหรือพลังชีวิตของตัวละคร แล้วดูว่าการปะทะจบหรือยัง
  * ยังไม่จบ = คืนชีวิตที่จังหวะขยับไปหนึ่ง · จบ = ใช้ผลของแบบที่จบ ให้แผลถ้าเจ็บหนัก จดจุดอ่อนที่รู้ แล้วปิดเหตุการณ์เหมือนตัวเลือกปกติ
  */
-export function resolveMove(game: Game, life: LifeState, moveId: string, armed = false): MoveResult {
+export function resolveMove(game: Game, life: LifeState, moveId: string, armed = false, supply?: string): MoveResult {
   const ev = game.events.find((e) => e.id === life.currentEventId);
   const enc: Encounter | undefined = ev?.encounter;
   const st = life.encounter;
@@ -185,8 +202,11 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
   if (!move) throw new Error(`วิธี ${moveId} ยังใช้ไม่ได้`);
 
   const rng = Rng.fromState(life.rngState);
-  const odds = moveOdds(game, life, ev, move, armed);
-  const tk = techniqueOf(life);
+  const odds = moveOdds(game, life, ev, move, armed, supply);
+  const tk = techniqueOf(life, game);
+  // ของใช้แล้วหมดถูกใช้ไปเฉพาะเมื่อมันช่วยวิธีนี้ได้จริง (ได้แต้มหรือฟื้นพลังชีวิต)
+  const aid = odds.parts.some((p) => p.kind === 'supply') ? supplyAid(game, life, foe.def, move, supply, ENCOUNTER.weak) : null;
+  if (aid) life = { ...spendSupplyInFight(life, aid.item.id), hp: life.hp + aid.heal };
   const passes = (d: number) => d === 20 || (d !== 1 && d + odds.mod >= odds.dc);
 
   const state: EncounterState = { ...st, records: [...st.records] };
@@ -196,6 +216,15 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
   if (odds.tech) {
     record.tech = tk.kind;
     state.techUsed = true;
+  }
+  if (aid) {
+    record.supply = aid.item.id;
+    if (aid.heal) record.healed = aid.heal;
+    // ของที่ตรงจุดอ่อนทำให้ตัวละครเห็นจุดอ่อนของศัตรู ไม่ว่าจังหวะนี้จะสำเร็จหรือไม่
+    if (aid.weak && !state.weakKnown) {
+      state.weakKnown = true;
+      state.learned = st.beat;
+    }
   }
   if (!passes(record.d20)) {
     const again = rerollLeft(game, life);
@@ -287,7 +316,19 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
     if ((state.weakKnown || end === 'win') && !next.flags.includes(flag)) next = { ...next, flags: [...next.flags, flag] };
   }
 
+  // ของที่ศัตรูทิ้งไว้เมื่อชนะ
+  let loot: EncounterLog['loot'];
+  if (end === 'win' && !next.dying) {
+    for (const got of rollLoot(game, next, foe.def, rng)) {
+      if (got.item) next = addItem(game, next, got.item);
+      if (got.gold) next = { ...next, gold: next.gold + got.gold };
+      loot = { ...(got.item ? { item: got.item } : {}), ...(got.gold ? { gold: got.gold } : {}) };
+      if (got.text) texts.push(got.text.replaceAll('{foe}', foe.name));
+    }
+  }
+
   const log: EncounterLog = { foe: foe.def.id, name: foe.name, end, morale: foe.morale, records: state.records };
+  if (loot) log.loot = loot;
   if (state.knew) log.knew = true;
   if (state.learned !== undefined) log.learned = state.learned;
   const entry: LogEntry = { age: life.age, eventId: ev.id, choiceId: end, encounter: log };
