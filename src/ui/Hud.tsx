@@ -11,6 +11,7 @@ import { resolvedTheme, theme, toggleTheme } from './theme';
 import { sceneImage } from './scenes';
 import { namedInText, namedLook, namedName } from '../sprites/looks';
 import { EncounterChips, FoeSprite, encounterNow } from './Encounter';
+import { MoodDot } from './City';
 
 /** ชื่อไทยของ location_tag (ตามคัมภีร์โลก) */
 export const PLACE_TH: Record<string, string> = {
@@ -22,7 +23,7 @@ export const PLACE_TH: Record<string, string> = {
   ashland: 'แดนเถ้า',
 };
 
-/** ชื่อของที่ที่ตัวละครอยู่ตอนนี้: ชื่อเมืองถ้าอยู่ในเมือง ไม่อย่างนั้นชื่อถิ่น (แถบบนยังแสดงชื่อถิ่น รอ Phupha เลือกแบบหน้าเมืองก่อน) */
+/** ชื่อของที่ที่ตัวละครอยู่ตอนนี้: ชื่อเมืองถ้าอยู่ในเมือง ไม่อย่างนั้นชื่อถิ่น ใช้ทั้งบนแถบบนและป้ายมุมภาพฉาก */
 export const placeName = (l: { city: string | null; locationTag: string }): string | undefined => cityName(l as Parameters<typeof cityName>[0]) ?? PLACE_TH[l.locationTag];
 
 export const NAV: { id: Tab; th: string; icon: IconName }[] = [
@@ -64,7 +65,7 @@ export function Vitals() {
 export function TopBar() {
   const l = life.value;
   const cls = l.classId ? CLASSES[l.classId as ClassId]?.th : null;
-  const place = PLACE_TH[l.locationTag];
+  const place = placeName(l);
   return (
     <header class="top">
       <div class="who">
@@ -72,7 +73,7 @@ export function TopBar() {
         <p class="meta">
           <span title="อายุ"><Icon name="age" label="อายุ" /><b class="num">{l.age}</b></span>
           <span title="ปี"><Icon name="year" label="ปี" /><b class="num">{worldYear(l)}</b></span>
-          {place && <span class="shrink" title={place}><Icon name="place" label="ถิ่น" /><span class="t">{place}</span></span>}
+          {place && <span class="shrink" title={place}><Icon name="place" label="ถิ่น" /><span class="t">{place}</span><MoodDot l={l} /></span>}
           {cls && <span><Icon name="role" label="อาชีพ" />{cls}</span>}
         </p>
       </div>
@@ -97,7 +98,7 @@ function sceneNpc(text: string) {
 }
 
 export function Scene() {
-  const place = PLACE_TH[life.value.locationTag];
+  const place = placeName(life.value);
   const img = sceneImage.value;
   const npc = sceneNpc(currentEvent.value?.text ?? '');
   // ชีวิตจบแล้ว: ห้องยังอยู่ แต่ไม่มีใครยืนอยู่ในนั้น

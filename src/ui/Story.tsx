@@ -13,6 +13,8 @@ import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
 import { Steps, TraitChip } from './Traits';
 import { ItemChip } from './Gear';
+import { CooledChips, EventTag, OrgChanges, RefuseTag } from './Orgs';
+import { CityChanges, CityYearChips } from './City';
 import { autoSpeed, autoplay, cycleSpeed, fresh, justRead, revealAll, revealNext, revealing, scrolledBack, shownCount, tapNext } from './reading';
 
 /** อายุที่เปิดค้างไว้ อายุเก่ากว่านี้พับเป็นก้อนเดียว */
@@ -52,6 +54,8 @@ function Changes({ c }: { c: LifeChanges }) {
       {c.maxHp ? <span class={c.maxHp > 0 ? 'good' : 'bad'}><Icon name="heart" label="พลังชีวิตสูงสุด" />สูงสุด <span class="num">{signed(c.maxHp)}</span></span> : null}
       {c.gold ? <span class={c.gold > 0 ? 'gold' : 'bad'}><Icon name="coin" label="ทอง" /><span class="num">{signed(c.gold)}</span></span> : null}
       {c.items?.map((id) => <ItemChip key={id} id={id} />)}
+      <OrgChanges c={c} />
+      <CityChanges c={c} />
     </p>
   );
 }
@@ -75,7 +79,7 @@ function YearChanges({ y }: { y: YearEnd }) {
   const down = new Map<Stat, number>();
   for (const s of y.decline ?? []) down.set(s, (down.get(s) ?? 0) + 1);
   const marks = y.marks ?? [];
-  if (!lost && !down.size && !marks.length) return null;
+  if (!lost && !down.size && !marks.length && !y.cooled?.length && !y.rent && !y.income && !y.eased) return null;
   return (
     <p class="changes">
       {marks.map((id, i) => <TraitChip key={`${id}-${i}`} id={id} l={life.value} />)}
@@ -83,6 +87,8 @@ function YearChanges({ y }: { y: YearEnd }) {
       {[...down].map(([s, n]) => (
         <span key={s} class="bad"><Icon name={STAT_ICON[s]} label={STAT_TH[s]} /><span class="num">-{n}</span></span>
       ))}
+      <CooledChips y={y} />
+      <CityYearChips y={y} />
     </p>
   );
 }
@@ -105,6 +111,7 @@ function Entry({ e, old, limit }: { e: LogEntry; old: boolean; limit?: number })
   const allDone = after >= told.length + yearLines.length;
   return (
     <article class={`entry ${old ? 'old' : ''}`}>
+      {ev && <EventTag ev={ev} />}
       {ev && paragraphs(render(ev.text, l, cast, span)).map((p, i) => <p key={i}>{p}</p>)}
       {choice && <p class="picked"><Icon name="flag" />{render(choice.label, l, cast, span)}</p>}
       {e.roll && (
@@ -235,6 +242,7 @@ export function StoryLog() {
           {ev && age === l.age && fighting && (nowCount > 0 || l.encounter!.records.length > 0) && <EncounterNow count={nowCount} more={more} />}
           {ev && age === l.age && !fighting && nowShown.length > 0 && (
             <article class="entry current">
+              <EventTag ev={ev} />
               {nowShown.map((p, i) => <p key={i} class={i === nowShown.length - 1 && more ? 'just' : ''}>{p}</p>)}
             </article>
           )}
@@ -346,6 +354,7 @@ export function ChoiceSheet() {
             <span class="label two">
               <span class="l1"><kbd class="num">{n}</kbd>{render(c.label, l)}</span>
               <ChoiceTags c={c} />
+              {c.refuse && <RefuseTag />}
             </span>
             {c.check && p !== null && (
               <span class="check" title={`${STAT_TH[c.check.stat]} DC ${c.check.dc}`}>

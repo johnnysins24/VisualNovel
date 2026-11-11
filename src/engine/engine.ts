@@ -55,7 +55,7 @@ import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitChe
 import { beginEncounter, openMoves } from './encounter';
 import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
 import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
-import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, syncCity } from './cities';
+import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, standingIn, syncCity } from './cities';
 import { advanceCourse, applyCourseEffects, courseSlotOpen } from './course';
 
 export interface Game {
@@ -533,6 +533,8 @@ function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined 
   }
   for (const id of CITY_IDS as readonly CityId[]) {
     if (cityRank(before, id) !== cityRank(after, id)) (c.standing ??= {})[id] = cityRank(after, id);
+    const was = standingIn(before, id), now = standingIn(after, id);
+    if (was && now && now.merit !== was.merit) (c.cityMerit ??= {})[id] = now.merit - was.merit;
     if (moodOf(before, id) !== moodOf(after, id)) (c.moods ??= {})[id] = moodOf(after, id);
   }
   const homeWas = homeHere(before)?.kind ?? 'none', homeNow = homeHere(after)?.kind ?? 'none';

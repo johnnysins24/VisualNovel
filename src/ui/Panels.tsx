@@ -15,21 +15,8 @@ import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './readin
 import { CREDITS } from './credits';
 import { TraitsSection } from './Traits';
 import { BagSection, ItemIcon, SLOT_TH, ShopSection, WornCard, isOpenItem, openItem, showItem } from './Gear';
-
-const FACTION_TH: Record<FactionId, string> = {
-  crown: 'ราชสำนักอาร์เวล',
-  lamp_church: 'ศาสนจักรตะเกียง',
-  belek_bank: 'ธนาคารเบเลค',
-  royal_institute: 'สถาบันเวทหลวง',
-  distillers: 'สมาคมโรงกลั่น',
-  dwarf_council: 'สภาตระกูลคนแคระ',
-  star_hall: 'หอนับดาว',
-  wardens: 'ภาคีผู้เฝ้าผนึก',
-  dock_rats: 'หนูท่า',
-  ash_cult: 'ลัทธิเถ้า',
-  star_listeners: 'ผู้ฟังดาว',
-  fang_house: 'โรงรับเขี้ยว',
-};
+import { FACTION_TH, OrgSection } from './Orgs';
+import { CitySection } from './City';
 
 export function StatGrid() {
   const eff = effectiveStats(life.value, game.items);
@@ -115,6 +102,8 @@ export function WorldPanel() {
         <h3><Icon name="world" />แผนที่</h3>
         <WorldMap here={l.locationTag} />
       </section>
+      <CitySection />
+      <OrgSection />
       <section class="sec">
         <h3><Icon name="flag" />ชื่อเสียง</h3>
         {reps.length === 0 && <p class="muted">ยังไม่มีใครรู้จักชื่อนี้</p>}

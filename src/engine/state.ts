@@ -326,6 +326,8 @@ export interface LifeChanges {
   hunted?: Record<string, number>;
   /** ชั้นของคนเมืองที่เปลี่ยน: เมือง → ชั้นใหม่ (ย้ายเข้า = ชั้นแรก) */
   standing?: Partial<Record<CityId, number>>;
+  /** ผลงานต่อเมืองที่เปลี่ยน (แต้มที่ย่านจำได้) */
+  cityMerit?: Partial<Record<CityId, number>>;
   /** สภาพของเมืองที่เปลี่ยน: เมือง → สภาพใหม่ */
   moods?: Partial<Record<CityId, CityMood>>;
   /** ที่อยู่ที่เปลี่ยน: ชนิดใหม่ หรือ none = ไม่มีที่อยู่แล้ว */

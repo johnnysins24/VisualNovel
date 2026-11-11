@@ -16,6 +16,7 @@ import { Icon, STAT_ICON, type IconName } from './icons';
 import { justRead } from './reading';
 import { TraitChip } from './Traits';
 import { ItemIcon, brief } from './Gear';
+import { EventTag } from './Orgs';
 
 const signed = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 const pctClass = (p: number) => (p >= 0.7 ? 'good' : p >= 0.4 ? 'mid' : 'bad');
@@ -218,6 +219,7 @@ export function EncounterNow({ count, more }: { count: number; more: boolean }) 
   const just = (last: boolean) => (last && more ? 'just' : '');
   return (
     <article class="entry current">
+      <EventTag ev={ev} />
       {introShown.map((p, i) => <p key={`i${i}`} class={just(!mid && !tell.length && i === introShown.length - 1)}>{p}</p>)}
       {st.knew && introShown.length === intro.length && <Lore foe={foe.def} />}
       {st.records.map((r, i) => (

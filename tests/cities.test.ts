@@ -169,9 +169,12 @@ describe('เมือง', () => {
     const helped = town(l, 'help');
     expect(cityPromotionReady(helped)).toBe(true);
     expect(cityRank(helped)).toBe(1);
+    // บันทึกจำไว้ว่าย่านจำได้เพิ่มเท่าไร และขึ้นชั้นเมื่อไร ให้หน้าจอบอกผู้เล่น
+    expect(helped.log.at(-1)?.changes?.cityMerit).toEqual({ ventras: 3 });
     expect(next(helped)).toBe('adult.rise');
     const risen = play(helped, 'adult.rise', 'take');
     expect(cityRank(risen)).toBe(2);
+    expect(risen.log.at(-1)?.changes?.standing).toEqual({ ventras: 2 });
     expect(cityPromotionReady(risen)).toBe(false);
   });
 

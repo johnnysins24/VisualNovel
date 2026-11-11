@@ -281,6 +281,57 @@ test('the local shop sells a thing, the bag holds it, a slot wears it, and a sal
   await page.screenshot({ path: `shots/${info.project.name}-gear.png`, fullPage: true });
 });
 
+/** คนเมือง: เจ้าของร้านในทุนดาร์ปีจลาจล ผลงานถึงเกณฑ์ขึ้นชั้นแล้ว เป็นสมาชิกภาคีผู้เฝ้าผนึกยศขั้นสอง และมีลัทธิเถ้าตามล่า */
+const TOWN_LIFE = {
+  version: 3, seed: 7, name: 'ทดสอบ', gender: 'm', raceApplied: 'human', age: 30, birthYear: 294, hp: 12, baseMaxHp: 12, gold: 5,
+  locationTag: 'hordun', city: 'tundar', district: 'forge_levels',
+  home: { kind: 'shop', city: 'tundar', district: 'forge_levels', since: 318 },
+  standing: { tundar: { rank: 3, merit: 12, since: 310 } },
+  moods: { tundar: { mood: 'riot', since: 323 } },
+  // สมาชิกของภาคีผูกกับงาน ต้องมีธงของงานด้วย ไม่อย่างนั้นตอนโหลดเซฟระบบจะถือว่าเลิกงานแล้ว
+  flags: ['job_wardens'], orgs: { wardens: { rank: 2, joined: 315, merit: 5, done: 4, refused: 1 } },
+  hunted: { ash_cult: 2 },
+};
+/** นักเรียนปีสามของสถาบันเวทหลวง ยังไม่มีบ้านในเวนทราส */
+const STUDENT_LIFE = {
+  version: 3, seed: 7, name: 'ทดสอบ', gender: 'f', raceApplied: 'human', age: 18, birthYear: 294, hp: 12, baseMaxHp: 12,
+  locationTag: 'ventras', city: 'ventras', district: 'institute', standing: { ventras: { rank: 1, merit: 0, since: 309 } },
+  flags: ['institute_student', 'school_stars'], course: { id: 'institute', year: 3, since: 309, track: 'stars' },
+};
+
+test('the world tab shows the city, the roof, the order and the school years, and the top bar names the city', async ({ page }, info) => {
+  await loadLife(page, TOWN_LIFE);
+  // แถบบนบอกชื่อเมืองแทนชื่อถิ่น ปีที่เมืองไม่สงบมีจุดสีต่อท้าย
+  await expect(page.locator('.top .meta')).toContainText('ทุนดาร์');
+  await expect(page.locator('.top .mooddot.m-riot')).toHaveCount(1);
+  await tabButton(page, 3).click();
+  const city = page.locator('.citycard');
+  await expect(city.locator('.mood')).toHaveText('จลาจล');
+  await expect(city.locator('.ladder li.now')).toHaveText('คนมีหน้ามีตา');
+  await expect(city.locator('.districts li.now')).toContainText('ชั้นโรงหลอม');
+  await expect(city.locator('.ready')).toBeVisible();
+  await expect(city.locator('.homeline')).toContainText('ปิดร้านจนกว่าเมืองจะสงบ');
+  // การ์ดสังกัดบอกยศ และรายชื่อผู้ตามล่าอยู่ใต้การ์ด ยศไม่ขึ้นบนแถบบน
+  await expect(page.locator('.orgcard .rank')).toHaveText('ผู้นับหิน');
+  await expect(page.locator('.hunters li')).toHaveCount(1);
+  await expect(page.locator('.top .meta')).not.toContainText('ผู้นับหิน');
+  expect(await noSideScroll(page)).toBe(true);
+  await city.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `shots/${info.project.name}-town.png` });
+  // ช่วงเรียน: การ์ดการเรียนอยู่เหนือการ์ดเมือง นักเรียนที่ไม่มีบ้านอยู่ที่พักของนักเรียน เมืองสงบไม่มีจุดสี
+  await loadLife(page, STUDENT_LIFE);
+  await expect(page.locator('.top .mooddot')).toHaveCount(0);
+  await tabButton(page, 3).click();
+  const course = page.locator('.citycard.course');
+  await expect(course.locator('.rank')).toHaveText('ปี 3 จาก 6');
+  await expect(course.locator('.years i.now')).toHaveCount(1);
+  await expect(course).toContainText('สำนักดาราศาสตร์');
+  await expect(page.locator('.citycard').nth(1).locator('.homeline')).toContainText('ที่พักของนักเรียน');
+  expect(await noSideScroll(page)).toBe(true);
+  await course.scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `shots/${info.project.name}-student.png` });
+});
+
 test('a thing picked from the bag in an encounter shows what it adds and is spent when used', ONCE, async ({ page }) => {
   await loadLife(page, { ...BRAWL_LIFE, supplies: { test_dart: 1 } });
   const sheet = page.locator('.sheet.enc');
