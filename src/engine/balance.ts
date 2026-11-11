@@ -293,10 +293,12 @@ export const ITEM_TAG_TH: Record<ItemTag, string> = { ...FOE_TAG_TH, rope: 'เ�
  * starSilver = สวมเงินดาวครบ first ปีได้รอยดาว แล้วลุกลามหนึ่งขั้นทุก every ปีที่ยังสวม (ทีฟลิ่งไม่ติดรอยดาว)
  * demonCoal  = สวมหินถ่านมารข้ามปี คะแนนจอมมารของโลก +demon ต่อปี และชื่อเสียงกับศาสนจักรตะเกียง −1 ทุก church ปี
  * lootMax  = ชนะการปะทะหนึ่งครั้งได้ของจากศัตรูไม่เกินเท่านี้ชิ้น · winterMax = แต้มเช็คฤดูหนาวจากของกันหนาวรวมกันไม่เกินเท่านี้
+ * hpCap    = พลังชีวิตสูงสุดจากของทุกชิ้นรวมกันไม่เกินเท่านี้ (ของชิ้นละ +2 สวมได้ผลสามชิ้น) กันการสวมของเพิ่มพลังชีวิตทุกช่องจนการปะทะและฤดูหนาวไม่มีความหมาย
  */
 export const GEAR = {
   statCap: 3,
   checkCap: 2,
+  hpCap: 6,
   budget: { common: [0, 1], uncommon: [1, 2], rare: [2, 3], enchanted: [3, 4], hero: [4, 8] } as Record<Rarity, readonly [number, number]>,
   price: { common: [1, 3], uncommon: [4, 7], rare: [12, 20], enchanted: [30, 50], hero: [0, 0] } as Record<Rarity, readonly [number, number]>,
   supply: [1, 3] as readonly [number, number],

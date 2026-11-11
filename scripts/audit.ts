@@ -690,6 +690,14 @@ export function formatReport(game: Game, res: AuditResult): string {
     out.push(`- ของช่วยในการปะทะที่เอาถึงตายแค่ไหน (ผู้เล่นอ่านเกม): มีของ ${fight(res.fights.deadlyReadsByGear.shop)} · ไม่มีของ ${fight(res.fights.deadlyReadsByGear.none)}`);
     const ages = (ls: LifeState[]) => median(ls.filter((l) => l.endReason === 'death').map((l) => Math.floor(humanAge(l))));
     out.push(`- อายุตอนตาย (เทียบมนุษย์ ทุกชีวิต): คนเข้าร้าน กลาง ${ages(finals.filter((_, i) => res.gear.perLife[i]))} · คนไม่แตะของ กลาง ${ages(finals.filter((_, i) => !res.gear.perLife[i]))}`);
+    // เป้าข้อ D2 แยกกลุ่ม: ของยืดอายุได้แค่ไหน (ของกันหนาวกับของที่เพิ่มพลังชีวิตสูงสุด)
+    const d2 = (shop: boolean) => {
+      const humans = finals.filter((l, i) => !!res.gear.perLife[i] === shop && l.raceApplied === 'human');
+      const aged = humans.filter((l) => l.deathCause === 'age').map((l) => l.age);
+      const in80s = aged.filter((a) => a >= 80 && a <= 90).length;
+      return `กลาง ${median(aged)} ช่วง 10–90% ${quantile(aged, 0.1)}–${quantile(aged, 0.9)} ไปในช่วง 80 ถึง 90 ${pct(in80s, aged.length)} · ถึง 100 ปี ${pct(humans.filter((l) => l.age >= 100).length, humans.length)}`;
+    };
+    out.push(`- มนุษย์ที่สิ้นอายุขัย (เป้าข้อ D2): คนเข้าร้าน ${d2(true)} · คนไม่แตะของ ${d2(false)}`);
     const name = (id: string) => game.items.get(id)?.name ?? id;
     const sold = [...res.gear.boughtById].sort((a, b) => b[1] - a[1]);
     out.push(`- ของที่ซื้อบ่อยสุด: ${sold.slice(0, 10).map(([id, n]) => `${name(id)} ${n}`).join(' · ') || 'ไม่มี'}`);

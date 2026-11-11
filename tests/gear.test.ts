@@ -4,7 +4,7 @@ import { ContentSchema } from '../src/engine/schema';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, checkModifier, endOfYear, makeGame, pickEvent, requiresMet, winterModifier } from '../src/engine/engine';
 import { moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
-import { effectiveStats, equip, unequip } from '../src/engine/items';
+import { effectiveStats, equip, unequip, maxHp } from '../src/engine/items';
 import { addItem, buy, buyBlock, fightSupplies, itemBudget, sell, sellPrice, shelfOf, shopsHere, supplyCount, useSupply } from '../src/engine/gear';
 import { ENCOUNTER, GEAR, STAR_MARKS_TRAIT } from '../src/engine/balance';
 import { newLife, type LifeState } from '../src/engine/state';
@@ -20,6 +20,7 @@ const raw = {
     gear('lens_b', 'feet', { passive: { description: 'x', effect: { kind: 'check_bonus', stat: 'INT', amount: 1 } } }),
     gear('lens_c', 'legs', { passive: { description: 'x', effect: { kind: 'check_bonus', stat: 'INT', amount: 1 } } }),
     gear('charm', 'accessory', { rarity: 'uncommon', price: 5, passive: { description: 'x', effect: { kind: 'max_hp', amount: 4 } } }),
+    { id: 'charm_b', name: 'charm_b', slot: 'legs', rarity: 'uncommon', passive: { description: 'x', effect: { kind: 'max_hp', amount: 4 } } },
     gear('spear', 'weapon', { tags: ['pierce'], stats: { STR: 1 } }),
     gear('silver_knife', 'weapon', { pattern: 'dagger', material: 'star_silver', stats: { DEX: 1 } }),
     gear('coal_knife', 'weapon', { pattern: 'dagger', material: 'demon_coal', stats: { DEX: 1 } }),
@@ -72,6 +73,7 @@ const raw = {
         { id: 'fine', label: 'x', text: 'x', requires: { wears_rarity: 'uncommon' } },
         { id: 'iron', label: 'x', text: 'x', requires: { not_wears: ['black_iron'] } },
         { id: 'needs_oil', label: 'x', text: 'x', requires: { item: 'oil' } },
+        { id: 'gift', label: 'x', effects: { items: ['charm_b'] } },
       ],
     },
     { id: 'death.any', stage: 'death', when: { dying: ['fight', 'wound', 'age', 'sacrifice'] }, text: 'x', choices: [{ id: 'go', label: 'go', effects: { mark: 'จบ', epitaph: 'จบ' } }] },
@@ -103,11 +105,13 @@ const part = (life: LifeState, moveId: string, kind: string, supply?: string) =>
 describe('gear numbers', () => {
   it('the test content passes the linter', () => expect(lintContent(content)).toEqual([]));
 
-  it('gear adds at most +3 to one stat and +2 to one kind of roll', () => {
+  it('gear adds at most +3 to one stat, +2 to one kind of roll and +6 to max HP', () => {
     const strong = wearing(['ring_a', 'ring_b', 'ring_c']);
     expect(effectiveStats(strong, game.items).STR).toBe(10 + GEAR.statCap);
     const sharp = wearing(['lens_a', 'lens_b', 'lens_c']);
     expect(checkModifier(game, sharp, { stat: 'INT', dc: 10 })).toBe(GEAR.checkCap);
+    expect(maxHp(wearing(['charm']), game.items)).toBe(10 + 4);
+    expect(maxHp(wearing(['charm', 'charm_b', 'wand']), game.items)).toBe(10 + GEAR.hpCap);
   });
 
   it('budget counts stats, roll bonuses, hit points, armour, shields and rerolls', () => {

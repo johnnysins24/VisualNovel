@@ -37,9 +37,10 @@ export function gearCheckBonus(life: LifeState, items: ItemIndex, stat: Stat): n
   return Math.min(GEAR.checkCap, sum);
 }
 
+/** พลังชีวิตสูงสุด: ร่างกาย + ของที่สวม (max_hp รวมกันไม่เกิน GEAR.hpCap) + อาชีพ */
 export function maxHp(life: LifeState, items: ItemIndex): number {
   const bonus = activePassives(life, items).reduce((n, p) => n + (p.kind === 'max_hp' ? p.amount : 0), 0);
-  return life.baseMaxHp + bonus + classMaxHpBonus(life);
+  return life.baseMaxHp + Math.min(GEAR.hpCap, bonus) + classMaxHpBonus(life);
 }
 
 /** เปลี่ยนของที่สวมได้ไหมตอนนี้: กลางการปะทะไม่มีเวลาเปลี่ยน คนตายและคนที่กำลังจะตายก็เปลี่ยนไม่ได้ */
