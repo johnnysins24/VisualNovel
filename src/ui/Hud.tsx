@@ -3,10 +3,12 @@ import { STATS, type Stat } from '../engine/schema';
 import { effectiveStats, maxHp } from '../engine/items';
 import { modifier, worldYear } from '../engine/state';
 import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
-import { game, life, tab, type Tab } from '../store';
+import { currentEvent, game, life, tab, type Tab } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { SpriteView } from './SpriteView';
 import { resolvedTheme, theme, toggleTheme } from './theme';
+import { sceneImage } from './scenes';
+import { namedInText, namedLook, namedName } from '../sprites/looks';
 
 /** ชื่อไทยของ location_tag (ตามคัมภีร์โลก) */
 export const PLACE_TH: Record<string, string> = {
@@ -81,13 +83,23 @@ export function TopBar() {
   );
 }
 
+/** NPC ที่มีชื่อซึ่งเหตุการณ์ตอนนี้เอ่ยถึง ยืนข้างตัวผู้เล่นในฉาก */
+function sceneNpc(text: string) {
+  const id = namedInText(text);
+  const look = id ? namedLook(id) : null;
+  return id && look ? { id, look, name: namedName(id) } : null;
+}
+
 export function Scene() {
   const place = PLACE_TH[life.value.locationTag];
+  const img = sceneImage.value;
+  const npc = sceneNpc(currentEvent.value?.text ?? '');
   return (
-    <div class="scene">
-      <div class="hill" />
-      <div class="hill back" />
+    <div class={`scene ${img ? `has-img ${img.time}` : ''}`} style={img ? { backgroundImage: `url(${img.url})` } : undefined}>
+      {!img && <div class="hill" />}
+      {!img && <div class="hill back" />}
       <SpriteView />
+      {npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
       {place && <span class="scene-place"><Icon name="place" />{place}</span>}
     </div>
   );

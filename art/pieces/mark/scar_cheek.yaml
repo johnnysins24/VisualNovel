@@ -1,11 +1,9 @@
-# Cheek scar (A26): a slash down the left cheek (picture right), in the lip colour with a light
-# edge. Under the face (z 12).
-z: 12
+# Cheek scar (A26): a short slash on the left cheek (picture right), in the lip colour with a light
+# edge. Over the face (z 16) so the face's cheek pixels never hide it. It stops short of the mouth:
+# when it touched the lip it read as a crooked, broken mouth (Phupha, 2026-11-10).
+z: 16
 cast: false
 shapes:
-  - at: [1, brow+4]
-    ascii: |
-      ...n4
-      ..n4.
-      .n4..
-      n4...
+  - { body: m, at: [2, mouth-3], ascii: "..n4\n.n4." }
+  # the female face is narrower and its eyes sit lower: one stroke under the eye, clear of the mouth
+  - { body: f, at: [3, mouth-1], ascii: "n4" }
