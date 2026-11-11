@@ -84,11 +84,11 @@
 
 - id: adult.owl_first_words
   stage: adult
-  weight: 35
+  weight: 120
   scene: land_night
   time: night
   when:
-    age: [20, 62]
+    age: [20, 66]
     flags: [sat_under_the_owl]
   text: |
     {name}กลับไปนั่งที่เดิมอีกในคืนเดือนดับคืนหนึ่ง ไม่มีใครเรียก ตอบตัวเองไม่ได้ว่ากลับไปทำไม ลมอุ่นพัดลงมาจากข้างบนตั้งแต่หัวค่ำ ดาวดับไปครึ่งฟ้า แล้วไม่กลับมา มันไม่ได้บินผ่าน มันลงมาเกาะ
@@ -130,11 +130,11 @@
 
 - id: adult.owl_the_counting
   stage: adult
-  weight: 25
+  weight: 120
   scene: land_night
   time: night
   when:
-    age: [20, 62]
+    age: [20, 66]
     flags: [spoke_with_the_owl]
   text: |
     คืนเดือนดับอีกคืน เค้ากลางคืนลงมาเกาะเร็วกว่าเคย ลมอุ่นที่พัดลงมาวันนี้มีอะไรบางอย่างไม่เหมือนเดิม กระตุกเป็นช่วงๆ เหมือนลมหายใจของคนที่ข้อเท้าแพลง
@@ -175,12 +175,12 @@
 
 - id: adult.owl_the_sleep_pact
   stage: adult
-  weight: 40
+  weight: 120
   scene: land_night
   time: night
   mark: ได้ฟังสัญญาหลับ
   when:
-    age: [22, 64]
+    age: [22, 68]
     flags: [spoke_with_the_owl]
     taboo: { id: night, keeps: true }
     not_traits: [old_night]
@@ -306,11 +306,11 @@
 
 - id: adult.owl_asks_a_messenger
   stage: adult
-  weight: 30
+  weight: 120
   scene: land_night
   time: night
   when:
-    age: [24, 64]
+    age: [24, 68]
     flags: [heard_the_sleep_pact]
   text: |
     "ผู้เช่า" เค้ากลางคืนว่าตั้งแต่ลงมาเกาะ ไม่ปล่อยให้{name}ได้นั่งให้ขาชาก่อนเหมือนทุกคืน "ข้า ออก จาก ฟ้า นี้ ไม่ได้" มันเว้นไปนาน "ไกล เท่า เงา ตอ หมุด เท่านั้น"
@@ -343,9 +343,9 @@
 
 - id: adult.owl_question_laid_down
   stage: adult
-  weight: 35
+  weight: 120
   when:
-    age: [24, 66]
+    age: [24, 70]
     flags: [carries_the_owls_question]
   text: |
     คำถามติดอยู่ในปากมาตั้งแต่ขากลับ ท่องจนลิ้นจำเองได้ {name}รู้ว่าต้องไปวางมันที่ไหน ที่ที่คนรุ่นก่อนทำของแปลกๆ ที่ไม่มีใครอธิบายได้ ที่ที่ข้อห้ามของบ้านนี้ผูกไว้
@@ -396,11 +396,11 @@
 
 - id: adult.owl_answer_carried_back
   stage: adult
-  weight: 35
+  weight: 120
   scene: land_night
   time: night
   when:
-    age: [25, 68]
+    age: [25, 72]
     flags: [the_ground_answered]
   text: |
     {name}กลับไปที่เดิมอีกครั้งพร้อมคำตอบที่ไม่ใช่คำพูด คืนเดือนดับนั่งก้มหน้าที่เดิม เค้ากลางคืนลงมาเกาะเร็ว ไม่รอให้ขาชา ลมอุ่นพัดลงมาครั้งหนึ่งแล้วหยุดค้าง
@@ -485,12 +485,12 @@
 
 - id: adult.owl_the_price
   stage: adult
-  weight: 30
+  weight: 120
   scene: land_night
   time: night
   mark: ตอบคำถามของเค้ากลางคืน
   when:
-    age: [30, 70]
+    age: [30, 74]
     flags: [the_ground_answered, heard_what_the_ground_said]
   text: |
     คืนเดือนดับที่หนาวที่สุดของปี เค้ากลางคืนลงมาเกาะบนตอเสา ไม่ได้ทักทาย ไม่ได้ถามเรื่องค่าเช่า มันถามคำถามเดียว ช้ากว่าทุกคำที่เคยพูด

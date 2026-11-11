@@ -903,8 +903,8 @@ export function formatReport(game: Game, res: AuditResult): string {
 
   h('แผ่นดิน: ข้อห้ามและเส้นเรื่องยาว');
   {
-    // ชีวิตเลขคู่คือผู้เล่นที่ถือข้อห้ามทุกครั้งที่มีทางให้ถือ ชีวิตเลขคี่กดสุ่ม (เรียงตรงกับ finals)
-    const grown = finals.map((l, i) => ({ l, keen: i % 2 === 0 })).filter((x) => humanAge(x.l) >= 40);
+    // ชีวิตเลขคู่ (ลำดับคี่ใน finals เพราะชีวิตแรกคือเลข 1) คือผู้เล่นที่ถือข้อห้ามทุกครั้งที่มีทางให้ถือ ชีวิตเลขคี่กดสุ่ม
+    const grown = finals.map((l, i) => ({ l, keen: i % 2 === 1 })).filter((x) => humanAge(x.l) >= 40);
     const taught = TABOO_IDS.filter((id) => grown.some((x) => x.l.taboos?.[id]));
     if (!taught.length) out.push('- เนื้อหานี้ยังไม่มีข้อห้ามของแผ่นดิน');
     for (const id of taught) {
