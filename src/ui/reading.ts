@@ -93,7 +93,8 @@ export function revealAll() {
  * การแตะที่ตามมาติดๆ จึงไม่นับเป็นการเลือก (ปุ่มลัดบนแป้นไม่เกี่ยว)
  */
 const TAP_GUARD_MS = 300;
-let lastReadTap = 0;
+// ยังไม่เคยแตะอ่านต่อ = ไม่มีอะไรให้กัน (ถ้าตั้งต้นเป็น 0 การเลือกใน 300 มิลลิวินาทีแรกหลังเปิดหน้าจะถูกทิ้ง เพราะ performance.now() นับจากตอนเปิดหน้า)
+let lastReadTap = -Infinity;
 export function tapNext() {
   lastReadTap = performance.now();
   revealNext();
