@@ -34,6 +34,7 @@ import {
   RACES,
   REALM_CAP,
   REALM_KEYS,
+  type RealmKey,
   REPEAT_GAP,
   REPUTATION_CAP,
   STAT_CAP,
@@ -59,7 +60,7 @@ import { mentionsOf, render, type Mention } from './text';
 import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitCheckBonuses, traitMaxHp, traitRegen, traitWinter, type TraitIndex, habitBlockers } from './traits';
 import { beginEncounter, openMoves } from './encounter';
 import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
-import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
+import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, realmNow, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
 import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, standingIn, syncCity } from './cities';
 import { advanceCourse, applyCourseEffects, courseSlotOpen } from './course';
 import { advanceArc, arcDue, arcLastSteps, arcSlotOpen, closeArc, type ArcLast } from './arcs';
@@ -161,7 +162,8 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   if (c.class && life.classId !== c.class) return false;
   if (c.god && life.god !== c.god) return false;
   for (const [k, range] of Object.entries(c.world ?? {})) {
-    const v = life.world[k as keyof typeof life.world];
+    // สภาพของอาณาจักรอ่านรวมกับปีของประวัติศาสตร์ที่เดินเอง คะแนนโลกตัวอื่นอ่านตรงๆ
+    const v = (REALM_KEYS as readonly string[]).includes(k) ? realmNow(life, k as RealmKey) : life.world[k as keyof typeof life.world];
     if (range && (v < range[0] || v > range[1])) return false;
   }
   for (const [f, min] of Object.entries(c.min_reputation ?? {})) if ((life.reputation[f] ?? 0) < (min ?? 0)) return false;
@@ -250,7 +252,7 @@ export function eligible(game: Game, life: LifeState, ev: GameEvent, ignoreTime 
       if (y < w.year[0] || y > w.year[1]) return false;
     }
   }
-  if (w.location_tag && w.location_tag !== life.locationTag) return false;
+  if (w.location_tag && !(Array.isArray(w.location_tag) ? w.location_tag.includes(life.locationTag) : w.location_tag === life.locationTag)) return false;
   if (w.not_location_tag && w.not_location_tag === life.locationTag) return false;
   if (w.flags?.some((f) => !life.flags.includes(f))) return false;
   if (w.not_flags?.some((f) => life.flags.includes(f))) return false;

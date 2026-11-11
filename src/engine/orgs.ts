@@ -7,7 +7,7 @@
  *   ภัยตามล่า   life.hunted[ฝ่าย] = ระดับ 1 ถึง ORG.huntMax เหตุการณ์ที่มี hunt: <ฝ่าย> ออกถี่ขึ้นตามระดับ และระดับลดลงเองช้าๆ เมื่อรอยเย็นลง
  * ตัวเลขทั้งหมดอยู่ใน balance.ts (ORG, ORGS) ไฟล์นี้มีแต่วิธีคิด
  */
-import { ORG, ORGS, ORG_IDS, ORG_RANKS, ORG_TECHNIQUES, type FoeSide, type OrgId, type OrgTechLike } from './balance';
+import { ORG, ORGS, ORG_IDS, ORG_RANKS, ORG_TECHNIQUES, REALM_CAP, REALM_ERAS, type FoeSide, type OrgId, type OrgTechLike, type RealmKey } from './balance';
 import type { Effects, GameEvent, OrgCond } from './schema';
 import { worldYear, type LifeState, type Membership } from './state';
 import type { Rng } from './rng';
@@ -199,4 +199,14 @@ export function fadeHunts(life: LifeState, rng: Rng): { life: LifeState; cooled:
     cooled.push(by);
   }
   return { life: next, cooled };
+}
+
+/**
+ * สภาพของอาณาจักรที่เหตุการณ์อ่านในปีนี้: ค่าที่ชีวิตนี้กับชีวิตก่อนขยับไว้ บวกค่าเลื่อนของประวัติศาสตร์ที่มาถึงแล้ว (REALM_ERAS)
+ * life.world เก็บแต่ส่วนที่คนขยับ จึงส่งต่อให้ชีวิตถัดไปได้โดยปีร้ายของประวัติศาสตร์ไม่ทบซ้ำ
+ */
+export function realmNow(life: Pick<LifeState, 'world' | 'birthYear' | 'age'>, key: RealmKey): number {
+  const year = worldYear(life);
+  const drift = REALM_ERAS.reduce((n, era) => (year >= era.from ? n + (era.shift[key] ?? 0) : n), 0);
+  return Math.max(-REALM_CAP, Math.min(REALM_CAP, life.world[key] + drift));
 }

@@ -539,7 +539,8 @@ export const EventSchema = z.object({
       age: z.tuple([z.number().int(), z.number().int()]).optional(),
       /** ปีในโลก = birth_year + age */
       year: z.tuple([z.number().int(), z.number().int()]).optional(),
-      location_tag: z.string().optional(),
+      /** อยู่ถิ่นนี้ หรือถิ่นใดถิ่นหนึ่งในรายการ (เช่น แผ่นดินอาร์เวล = [arvel_village, ventras, kardin]) */
+      location_tag: z.union([z.string(), z.array(z.string()).min(2)]).optional(),
       /** ออกทุกถิ่นยกเว้นถิ่นนี้ (เรื่องที่เล่าการเดินทางไปถิ่นนั้น ต้องไม่ออกกับคนที่อยู่ที่นั่นอยู่แล้ว) */
       not_location_tag: z.string().optional(),
       flags: z.array(z.string()).optional(),

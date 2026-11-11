@@ -4,7 +4,7 @@ import { ContentSchema } from '../src/engine/schema';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, eligible, makeGame, resolveChoice } from '../src/engine/engine';
 import { beginEncounter, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
-import { huntLevel, membership } from '../src/engine/orgs';
+import { huntLevel, membership, realmNow } from '../src/engine/orgs';
 import { commitLife, newMeta } from '../src/engine/meta';
 import { ORG, REALM_CAP } from '../src/engine/balance';
 import { newLife, type LifeState } from '../src/engine/state';
@@ -49,6 +49,7 @@ const raw = {
     { id: 'adult.named', stage: 'adult', once: false, when: { org: { id: 'ash_cult', secret: false } }, text: 'x', choices: [{ id: 'ok', label: 'x', text: 'x' }] },
     { id: 'adult.pyre', stage: 'adult', once: false, hunt: 'lamp_church', text: 'x', choices: [{ id: 'hide', label: 'x', text: 'x' }] },
     { id: 'adult.lean_year', stage: 'adult', once: false, when: { world: { peace: [-20, -2] } }, text: 'x', choices: [{ id: 'ok', label: 'x', text: 'x' }] },
+    { id: 'adult.empty_chair', stage: 'adult', once: false, when: { location_tag: ['arvel_village', 'ventras'], world: { throne: [-8, -2] } }, text: 'x', choices: [{ id: 'ok', label: 'x', text: 'x' }] },
     fight('witch', 'witch'),
     fight('thug', 'thug'),
     { id: 'death.any', stage: 'death', when: { dying: ['fight', 'wound', 'age', 'sacrifice'] }, text: 'x', choices: [{ id: 'go', label: 'go', effects: { mark: 'จบ', epitaph: 'จบ' } }] },
@@ -132,6 +133,26 @@ describe('องค์กรลับและอาณาจักร', () => {
     expect(meta.realm).toEqual({ treasury: REALM_CAP, peace: -3 });
     const heir = newLife(8, meta);
     expect(heir.world).toMatchObject({ treasury: REALM_CAP, peace: -3, throne: 0, gods: 0 });
+  });
+
+  it('history moves the realm by itself from its year on, on top of what earlier lives left, and only where the story says it reaches', () => {
+    // ปี 318 บัลลังก์ว่าง: คนในแผ่นดินอาร์เวลเจอเรื่องของบัลลังก์ว่างตั้งแต่ปีนั้น คนนอกอาร์เวลไม่เจอ
+    const at = (year: number, extra: Partial<LifeState> = {}) => adult({ birthYear: year - 30, locationTag: 'ventras', ...extra });
+    const chair = ev('adult.empty_chair');
+    expect(eligible(game, at(317), chair)).toBe(false);
+    expect(eligible(game, at(318), chair)).toBe(true);
+    expect(eligible(game, at(318, { locationTag: 'arvel_village' }), chair)).toBe(true);
+    expect(eligible(game, at(318, { locationTag: 'hordun' }), chair)).toBe(false);
+    // ชีวิตก่อนที่ทำให้คนเชื่อบัลลังก์ขึ้นหนึ่งขีดทิ้งโลกที่ปี 318 เบาลงไว้ให้ และค่าที่ส่งต่อไม่รวมปีร้ายของประวัติศาสตร์
+    const mended = applyEffects(game, at(340), { world: { throne: 1 } });
+    expect(realmNow(mended, 'throne')).toBe(-1);
+    const meta = commitLife(newMeta(), mended);
+    expect(meta.realm).toEqual({ throne: 1 });
+    expect(eligible(game, { ...newLife(9, meta), age: 30, birthYear: 290, locationTag: 'ventras' }, chair)).toBe(false);
+    // ปี 332 หนี้สงครามถ่านครบกำหนด และค่าที่อ่านไม่เกินเพดาน
+    expect(realmNow(at(331), 'treasury')).toBe(0);
+    expect(realmNow(at(332), 'treasury')).toBe(-2);
+    expect(realmNow(applyEffects(game, at(332), { world: { treasury: -8 } }), 'treasury')).toBe(-REALM_CAP);
   });
 
   it('the linter refuses cult scenes that do not say whether the member is known, open entry to a cult, and a hunt that could reach the hunters own people', () => {
