@@ -167,10 +167,20 @@ export const CLERIC_DRIFT_FLAG = 'cleric_drift';
  * gods เทพ · demon จอมมาร · star ดาว · land แผ่นดิน (ชุด 4)
  * สามตัวแรกบอกว่าชีวิตนี้เอนไปทางฝ่ายไหน ส่วนแผ่นดินบอกว่าเจ้าเดิมพลิกตัวแค่ไหน:
  * ขึ้นเมื่อข้อห้ามของแผ่นดินโดนฝืน (เหมือง โรงงาน สงคราม หรือมือของตัวละครเอง) ลงเมื่อมีคนรักษาและทำพิธี
+ *
+ * สภาพของอาณาจักรอาร์เวล (ชุด อ) เก็บที่เดียวกันและซ่อนจากผู้เล่นเหมือนกัน:
+ * treasury คลัง · peace ความสงบ · throne ความชอบธรรมของราชวงศ์ (คนเชื่อแค่ไหนว่าราชวงศ์มีเลือดผู้กล้า)
+ * เริ่มที่ 0 ขยับด้วยมือของคนที่ไต่ขึ้นไปถึงชั้นอาณาจักร แล้วไหลลงมาถึงคนข้างล่างผ่านเงื่อนไข world ของเหตุการณ์
+ * สามค่านี้ติดไปถึงชีวิตถัดไป (REALM_KEYS ใน meta.ts) ส่วนคะแนนโลกสี่ตัวแรกเริ่มใหม่ทุกชีวิต
  */
-export const WORLD_KEYS = ['gods', 'demon', 'star', 'land'] as const;
+export const WORLD_KEYS = ['gods', 'demon', 'star', 'land', 'treasury', 'peace', 'throne'] as const;
 export type WorldKey = (typeof WORLD_KEYS)[number];
 export const WORLD_CAP = 20;
+export const REALM_KEYS = ['treasury', 'peace', 'throne'] as const satisfies readonly WorldKey[];
+export type RealmKey = (typeof REALM_KEYS)[number];
+export const REALM_TH: Record<RealmKey, string> = { treasury: 'คลัง', peace: 'ความสงบ', throne: 'ความชอบธรรมของราชวงศ์' };
+/** สภาพของอาณาจักรแคบกว่าคะแนนโลก: คนคนเดียวขยับได้ไม่เกินนี้ไม่ว่าจะนั่งสูงแค่ไหน */
+export const REALM_CAP = 8;
 
 // ---------- รอยจอมมาร ----------
 /** รหัสในทะเบียนสิ่งติดตัว (ตราร้อน) โบนัสทอยกับฝ่ายจอมมารและฝ่ายดาวเขียนไว้ในทะเบียน content/traits.yaml */
@@ -247,6 +257,10 @@ export const TECHNIQUE_HELP: Record<string, string> = {
   at_hand: 'แตะก่อนเลือกวิธี จังหวะนั้นได้ +2 จากของที่คว้าได้ใกล้ตัว',
   hold: 'เผชิญฝ่ายจอมมาร พลาดครั้งแรกทอยใหม่ให้เองหนึ่งครั้ง',
   quarry: 'เผชิญสิ่งที่ไม่ใช่คน สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่มอีกหนึ่งขีด',
+  black_lamp: 'เผชิญสิ่งที่มาจากดาว พลาดครั้งแรกทอยใหม่ให้เองหนึ่งครั้ง',
+  cut_spell: 'เผชิญภูต ผี หรือผู้ใช้เวท สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่มอีกหนึ่งขีด',
+  read_seal: 'เผชิญผู้ใช้เวทหรือเครื่องกล พลาดครั้งแรกทอยใหม่ให้เองหนึ่งครั้ง',
+  rank_file: 'เผชิญศัตรูที่เป็นคน พลาดครั้งแรกทอยใหม่ให้เองหนึ่งครั้ง',
 };
 
 export const TECHNIQUES = {
@@ -257,11 +271,21 @@ export const TECHNIQUES = {
   ranger: { th: 'รู้ทางสัตว์', kind: 'sense', amount: 2 },
   bard: { th: 'เพลงป่วนใจ', kind: 'song', amount: 3 },
   none: { th: 'ของใกล้มือ', kind: 'at_hand', amount: 2 },
-  /** ท่าขององค์กร (ดู ORGS) ทำงานเองเหมือนท่าของนักรบกับนักย่อง และใช้ได้เพิ่มจากท่าของอาชีพ */
-  wardens: { th: 'ยืนแนว', kind: 'hold', amount: 0 },
-  fang_house: { th: 'รู้ทางเขี้ยว', kind: 'quarry', amount: 1 },
-} as const satisfies Record<ClassId | 'none' | 'wardens' | 'fang_house', { th: string; kind: string; amount: number }>;
+  /**
+   * ท่าขององค์กร (ดู ORGS) ทำงานเองเหมือนท่าของนักรบกับนักย่อง และใช้ได้เพิ่มจากท่าของอาชีพ
+   * แต่ละองค์กรมีชื่อท่าและ kind ของตัวเอง ส่วนวิธีทำงานมีสองแบบ (like):
+   * hold = พลาดครั้งแรกทอยใหม่ · quarry = สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่ม amount ขีด องค์กรที่ไม่ได้ออกรบไม่มีท่า (ORG_TECHNIQUES)
+   */
+  wardens: { th: 'ยืนแนว', kind: 'hold', like: 'hold', amount: 0 },
+  fang_house: { th: 'รู้ทางเขี้ยว', kind: 'quarry', like: 'quarry', amount: 1 },
+  wick: { th: 'ตะเกียงดำ', kind: 'black_lamp', like: 'hold', amount: 0 },
+  cold_iron: { th: 'ตัดเวท', kind: 'cut_spell', like: 'quarry', amount: 1 },
+  reclaimers: { th: 'อ่านตรา', kind: 'read_seal', like: 'hold', amount: 0 },
+  crown_army: { th: 'ตั้งแถว', kind: 'rank_file', like: 'hold', amount: 0 },
+} as const satisfies Record<string, { th: string; kind: string; amount: number; like?: 'hold' | 'quarry' }>;
 export type TechniqueKind = (typeof TECHNIQUES)[keyof typeof TECHNIQUES]['kind'];
+/** วิธีทำงานของท่าขององค์กร */
+export type OrgTechLike = 'hold' | 'quarry';
 
 // ---------- ของสวมใส่ ----------
 /**
@@ -343,6 +367,7 @@ export const FACTIONS = [
   'ash_cult', // ลัทธิเถ้า
   'star_listeners', // ผู้ฟังดาว
   'fang_house', // โรงรับเขี้ยว
+  'cold_iron', // ภาคีเหล็กเย็น (ชุด อ)
 ] as const;
 export type FactionId = (typeof FACTIONS)[number];
 export const REPUTATION_CAP = 10;
@@ -355,20 +380,26 @@ export const REPUTATION_CARRY = 1;
  * ranks    = ชื่อยศสี่ขั้น ขั้นแรกคือวันที่เข้า
  * faction  = ฝ่ายที่ชื่อเสียงขององค์กรนี้ผูกอยู่ (FACTIONS)
  * jobs     = งานที่ทำให้เป็นสมาชิกเอง: ได้งานนี้เมื่อไรเป็นสมาชิกเมื่อนั้น เลิกงานคือออกจากองค์กร องค์กรที่ไม่มี jobs เข้าและออกด้วยผลของเหตุการณ์
- * enemy    = ฝ่ายที่ตามล่าสมาชิกขององค์กรนี้ เข้าองค์กรแล้วภัยตามล่าจากฝ่ายนั้นเริ่มที่ enemyLevel
- * foes     = ฝ่ายของศัตรูที่ท่าขององค์กร (TECHNIQUES[id]) ใช้ได้ผล
+ * enemy    = ฝ่ายที่ตามล่าสมาชิกขององค์กรนี้ เข้าองค์กรแล้วภัยตามล่าจากฝ่ายนั้นเริ่มที่ enemyLevel (สายงานของอาณาจักรไม่มี)
+ * foes     = ฝ่ายของศัตรูที่ท่าขององค์กร (ORG_TECHNIQUES[id]) ใช้ได้ผล 'magic' = ภูต ผี และผู้ใช้เวท ไม่ว่าฝ่ายไหน (FoeDef.magic)
+ *            องค์กรที่ foes ว่างคือองค์กรที่ไม่ได้ออกรบ สมาชิกไม่ได้ปะทะถี่ขึ้น
  * bounty   = true: ชนะการปะทะกับสิ่งที่ไม่ใช่คน องค์กรรับซื้อหลักฐานการล่า (ORG.bounty)
+ * covert   = true: องค์กรที่สมาชิกต้องปิดตัวตน (สองลัทธิ) เข้าได้แบบลับเท่านั้น และเงื่อนไข org ของทุกเหตุการณ์ต้องบอก secret ให้ชัด
+ *            เรื่องที่เขียนให้คนที่ยังไม่มีใครรู้จึงไม่ออกกับคนที่โดนเปิดโปงแล้ว และกลับกัน
+ * career   = true: สายงานของอาณาจักร เข้าแล้วงานเดิม (flag job_*) หมดไป งานของชีวิตนี้คือสายงานนี้
  */
-export const ORG_IDS = ['wardens', 'fang_house'] as const;
+export const ORG_IDS = ['wardens', 'fang_house', 'wick', 'cold_iron', 'reclaimers', 'ash_cult', 'star_listeners', 'crown_office', 'crown_army', 'crown_court'] as const;
 export type OrgId = (typeof ORG_IDS)[number];
 export interface OrgDef {
   th: string;
   ranks: readonly [string, string, string, string];
   faction: FactionId;
   jobs?: readonly string[];
-  enemy: FactionId;
-  foes: readonly FoeSide[];
+  enemy?: FactionId;
+  foes: readonly (FoeSide | 'magic')[];
   bounty?: boolean;
+  covert?: boolean;
+  career?: boolean;
 }
 export const ORGS: Record<OrgId, OrgDef> = {
   wardens: {
@@ -387,7 +418,78 @@ export const ORGS: Record<OrgId, OrgDef> = {
     foes: ['demon', 'star', 'machine', 'nature'],
     bounty: true,
   },
+  // ---- ชุด อ: องค์กรลับ ----
+  wick: {
+    th: 'หน่วยไส้ตะเกียง',
+    ranks: ['ผู้ถือน้ำมัน', 'ไส้', 'ผู้จุด', 'ผู้ดับ'],
+    faction: 'lamp_church',
+    enemy: 'star_listeners',
+    foes: ['star'],
+  },
+  cold_iron: {
+    th: 'ภาคีเหล็กเย็น',
+    ranks: ['มือเปล่า', 'คนถือกระดิ่ง', 'คนถือค้อน', 'ผู้เฒ่าเตา'],
+    faction: 'cold_iron',
+    enemy: 'royal_institute',
+    foes: ['magic'],
+  },
+  reclaimers: {
+    th: 'ผู้ทวงตำรา',
+    ranks: ['คนถือบัญชี', 'คนตามรอย', 'คนถือตราทวง', 'ผู้ปิดหีบ'],
+    faction: 'royal_institute',
+    enemy: 'star_listeners',
+    foes: ['magic', 'machine'],
+  },
+  ash_cult: {
+    th: 'ลัทธิเถ้า',
+    ranks: ['คนฝัน', 'คนเก็บเถ้า', 'คนถือถ่าน', 'ปากของเสียงทุ้ม'],
+    faction: 'ash_cult',
+    enemy: 'lamp_church',
+    foes: [],
+    covert: true,
+  },
+  star_listeners: {
+    th: 'ผู้ฟังดาว',
+    ranks: ['คนเงยหน้า', 'คนนั่งวง', 'คนจดคำตอบ', 'คนเปิดหลังคา'],
+    faction: 'star_listeners',
+    enemy: 'lamp_church',
+    foes: [],
+    covert: true,
+  },
+  // ---- ชุด อ: สายงานของอาณาจักรอาร์เวล ----
+  crown_office: {
+    th: 'ราชการอาร์เวล',
+    ranks: ['เสมียน', 'ปลัดอำเภอ', 'นายอำเภอ', 'ขุนคลัง'],
+    faction: 'crown',
+    foes: [],
+    career: true,
+  },
+  crown_army: {
+    th: 'กองทัพอาร์เวล',
+    ranks: ['พลทหาร', 'นายสิบ', 'นายร้อย', 'แม่ทัพ'],
+    faction: 'crown',
+    foes: ['human'],
+    career: true,
+  },
+  crown_court: {
+    th: 'ราชสำนักอาร์เวล',
+    ranks: ['ข้ารับใช้', 'มหาดเล็ก', 'ขุนนาง', 'ที่ปรึกษา'],
+    faction: 'crown',
+    foes: [],
+    career: true,
+  },
 };
+/** ท่าขององค์กร (องค์กรที่ไม่ได้ออกรบไม่มี) */
+export const ORG_TECHNIQUES: Partial<Record<OrgId, { th: string; kind: TechniqueKind; like: OrgTechLike; amount: number }>> = {
+  wardens: TECHNIQUES.wardens,
+  fang_house: TECHNIQUES.fang_house,
+  wick: TECHNIQUES.wick,
+  cold_iron: TECHNIQUES.cold_iron,
+  reclaimers: TECHNIQUES.reclaimers,
+  crown_army: TECHNIQUES.crown_army,
+};
+/** คำสาบานเหล็กเย็น: คนที่ถือคำสาบานนี้ร่ายเวทและขอพรไม่ได้ รับพรใหม่ก็ไม่ได้ เหมือนสวมเหล็กเย็นติดตัวตลอด */
+export const COLD_IRON_OATH = 'oath_cold_iron';
 /**
  * merit     = ผลงานสะสมที่ต้องมีก่อนฉากเลื่อนยศจะออก [ขึ้นยศ 2, ยศ 3, ยศ 4] ยศเลื่อนด้วยผลงาน ไม่ใช่ด้วยเวลา
  * done      = ผลงานที่ได้เมื่อทำงานที่องค์กรส่งมาสำเร็จ (ทอยผ่าน หรือชนะ เจรจาได้ ยันไว้ได้ในการปะทะ) พลาดหรือถอยไม่ได้ผลงาน

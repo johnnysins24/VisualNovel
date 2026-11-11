@@ -104,7 +104,7 @@ export function lintContent(c: Content): string[] {
     setFlags.add(def.student).add(def.done);
     for (const t of Object.keys(def.tracks)) setFlags.add(`${def.trackFlag}${t}`);
   }
-  for (const id of joinable) hunters.add(ORGS[id].enemy);
+  for (const id of joinable) if (ORGS[id].enemy) hunters.add(ORGS[id].enemy!);
   dupes.forEach((id) => problems.push(`id ซ้ำ: ${id}`));
   const namedPeople = new Set<string>(['father', 'mother', 'partner']);
   for (const e of c.events) {
@@ -311,9 +311,13 @@ export function lintContent(c: Content): string[] {
     if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !w.city && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร เมือง หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
     // ---- องค์กร: งานที่ส่งมา และเรื่องถูกตามล่า ----
     const orgOf = (cond: Requires['org']) => (typeof cond === 'string' ? cond : cond?.id);
-    const lintOrgConds = (cw: string, r: Pick<Requires, 'org' | 'not_orgs' | 'min_hunted' | 'max_hunted'> | undefined) => {
+    const lintOrgConds = (cw: string, r: Pick<Requires, 'org' | 'not_orgs' | 'min_hunted' | 'max_hunted'> | undefined, inherited?: OrgId) => {
       const id = orgOf(r?.org);
       if (id && !joinable.has(id)) problems.push(`${cw}: อ่านสถานะสมาชิกของ "${id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
+      // องค์กรที่ต้องปิดตัวตน: เรื่องที่เขียนให้คนที่ยังไม่มีใครรู้ต้องไม่ออกกับคนที่โดนเปิดโปงแล้ว เงื่อนไขจึงต้องบอก secret เสมอ
+      // (ตัวเลือกในเหตุการณ์ที่ when บอกไว้แล้วไม่ต้องบอกซ้ำ)
+      if (id && ORGS[id].covert && id !== inherited && (typeof r?.org !== 'object' || r.org.secret === undefined))
+        problems.push(`${cw}: "${id}" เป็นองค์กรที่สมาชิกต้องปิดตัวตน เงื่อนไข org ต้องบอก secret: true (ยังไม่มีใครรู้) หรือ secret: false (โดนเปิดโปงแล้ว)`);
       if (typeof r?.org === 'object' && r.org.min_rank !== undefined && r.org.max_rank !== undefined && r.org.min_rank > r.org.max_rank) problems.push(`${cw}: ช่วงยศของ org กลับด้าน`);
       for (const by of Object.keys(r?.min_hunted ?? {})) if (!hunters.has(by)) problems.push(`${cw}: min_hunted "${by}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
     };
@@ -373,6 +377,11 @@ export function lintContent(c: Content): string[] {
     for (const ch of e.choices) if (ch.refuse && !e.duty) problems.push(`${where}/${ch.id}: refuse ใช้ได้เฉพาะในงานขององค์กร (event.duty)`);
     if (e.hunt) {
       if (!hunters.has(e.hunt)) problems.push(`${where}: เรื่องถูกตามล่าโดย "${e.hunt}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
+      // คนในไม่โดนฝ่ายของตัวเองล่า: เรื่องที่ฝ่ายนี้ตามล่าต้องกันสมาชิกขององค์กรที่ขึ้นกับฝ่ายนี้ออก (เว้นองค์กรที่ศัตรูคือคนร่วมองค์กรเอง)
+      for (const id of joinable) {
+        if (ORGS[id].faction === e.hunt && ORGS[id].enemy !== e.hunt && !w.not_orgs?.includes(id) && orgOf(w.org) !== id)
+          problems.push(`${where}: ${ORGS[id].th}ขึ้นกับฝ่าย "${e.hunt}" เรื่องที่ฝ่ายนี้ตามล่าต้องมี not_orgs: [${id}] (หรือเขียนให้สมาชิกโดยมี when.org)`);
+      }
       if (e.must || e.years || e.stage === 'death') problems.push(`${where}: เรื่องถูกตามล่า (hunt) ใช้กับ must years หรือฉากตายไม่ได้`);
       // คนที่ถูกล่าต้องมีทางรอดเสมอ: ทางที่เลือกได้เสมอและไม่มีผลถึงตาย (การปะทะมีกติกาทางหนีอยู่แล้ว)
       if (!e.encounter && !e.choices.some((ch) => !ch.requires && !outcomes(ch).some((fx) => fx?.die))) problems.push(`${where}: เรื่องถูกตามล่าต้องมีทางรอดที่เลือกได้เสมอ (ไม่มี requires และไม่มีผล die)`);
@@ -424,7 +433,7 @@ export function lintContent(c: Content): string[] {
         if (!setTraits.has(r.trait)) problems.push(`${cw}: requires trait "${r.trait}" ที่ไม่เคยถูกให้`);
       }
       for (const t of r?.not_traits ?? []) knownTrait(cw, t);
-      lintOrgConds(cw, r);
+      lintOrgConds(cw, r, typeof w.org === 'object' && w.org.secret !== undefined ? w.org.id : undefined);
       lintCityCond(cw, r?.city);
       lintTabooCond(cw, r?.taboo);
       if (r?.item && !itemIds.has(r.item)) problems.push(`${cw}: requires ของ "${r.item}" ที่ไม่มี`);
@@ -453,6 +462,7 @@ export function lintContent(c: Content): string[] {
         if (ORGS[o.id].jobs && (o.join || o.leave)) problems.push(`${cw}: "${o.id}" เป็นองค์กรที่ผูกกับงาน เข้าและออกด้วย flag ของงาน (${ORGS[o.id].jobs!.join(', ')}) ใช้ org.join กับ org.leave ไม่ได้`);
         if (!o.join && !o.leave && !o.merit && !o.promote && o.secret === undefined) problems.push(`${cw}: effects.org ไม่มีผลอะไร`);
         if (o.secret === true && !o.join) problems.push(`${cw}: org.secret: true ใช้คู่กับ join เท่านั้น (เปิดเผยตัวใช้ secret: false)`);
+        if (o.join && ORGS[o.id].covert && o.secret !== true) problems.push(`${cw}: "${o.id}" เป็นองค์กรที่สมาชิกต้องปิดตัวตน เข้าได้แบบลับเท่านั้น (join: true คู่กับ secret: true)`);
         if (!o.join && !joinable.has(o.id)) problems.push(`${cw}: เปลี่ยนสถานะสมาชิกของ "${o.id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
       }
       if (fx?.city) {

@@ -6,7 +6,7 @@
  * ตัวเลขทั้งหมดอยู่ใน balance.ts (ENCOUNTER, TECHNIQUES) ไฟล์นี้มีแต่วิธีคิด
  */
 import type { Encounter, EncounterEnd, FoeDef, GameEvent, Move, Stat } from './schema';
-import { ENCOUNTER, GEAR, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type OrgId, type TechniqueKind } from './balance';
+import { ENCOUNTER, GEAR, MOVE_STAT, ORG_TECHNIQUES, PROTECTED_AGE, TECHNIQUES, type ClassId, type OrgId, type TechniqueKind } from './balance';
 import { modifier, type BeatRecord, type EncounterLog, type EncounterState, type LifeState, type LogEntry, type OddsPart } from './state';
 import { Rng } from './rng';
 import { activePassives, effectiveStats, gearCheckBonus } from './items';
@@ -46,13 +46,13 @@ export interface TechniqueView {
   armable: boolean;
   /** ยังใช้ได้ในการปะทะนี้ */
   ready: boolean;
-  /** เหตุที่ใช้ไม่ได้: ใช้ไปแล้ว เลยจังหวะแรก ห่างจากเทพ ไม่ได้อยู่ถิ่นเกิด หรือสวมเหล็กเย็นอยู่ (ร่ายเวทและขอพรไม่ได้) */
+  /** เหตุที่ใช้ไม่ได้: ใช้ไปแล้ว เลยจังหวะแรก ห่างจากเทพ ไม่ได้อยู่ถิ่นเกิด หรือถือเหล็กเย็นอยู่ (สวมของเหล็กเย็น หรือสาบานเหล็กเย็นไว้ ร่ายเวทและขอพรไม่ได้) */
   why?: 'used' | 'late' | 'drifted' | 'away' | 'cold_iron';
 }
 
 const techniqueDef = (life: LifeState) => TECHNIQUES[(life.classId ?? 'none') as ClassId | 'none'] ?? TECHNIQUES.none;
 
-/** ท่าของอาชีพในการปะทะที่กำลังเดินอยู่ ส่ง game มาด้วยเพื่อดูของที่สวม (เหล็กเย็นปิดเวทและพร) */
+/** ท่าของอาชีพในการปะทะที่กำลังเดินอยู่ ส่ง game มาด้วยเพื่อดูของที่สวมและคำสาบาน (เหล็กเย็นปิดเวทและพร) */
 export function techniqueOf(life: LifeState, game?: Game): TechniqueView {
   const def = techniqueDef(life);
   const st = life.encounter;
@@ -111,7 +111,7 @@ const hasReroll = (game: Game, life: LifeState) => activePassives(life, game.ite
 function rerollLeft(game: Game, life: LifeState, foe: FoeView): 'tech' | 'item' | OrgId | null {
   const st = life.encounter;
   if (techniqueDef(life).kind === 'reroll' && !st?.techUsed) return 'tech';
-  const org = orgTechnique(life, foe.def.side, 'hold');
+  const org = orgTechnique(life, foe.def, 'hold');
   if (org) return org;
   if (!st?.rerollUsed && hasReroll(game, life)) return 'item';
   return null;
@@ -241,7 +241,7 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
       else {
         // ท่าขององค์กร (ยืนแนว): ทอยใหม่ให้เองเหมือนท่าของนักรบ
         state.orgTechUsed = [...(state.orgTechUsed ?? []), again];
-        record.tech ??= TECHNIQUES[again].kind;
+        record.tech ??= ORG_TECHNIQUES[again]!.kind;
       }
     }
   }
@@ -259,11 +259,11 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
         record.tech = 'ambush';
       } else {
         // ท่าขององค์กร (รู้ทางเขี้ยว): สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่ม ไม่ทบกับแทงจากเงาในจังหวะเดียวกัน
-        const org = orgTechnique(life, foe.def.side, 'quarry');
+        const org = orgTechnique(life, foe.def, 'quarry');
         if (org) {
-          pips += TECHNIQUES[org].amount;
+          pips += ORG_TECHNIQUES[org]!.amount;
           state.orgTechUsed = [...(state.orgTechUsed ?? []), org];
-          record.tech ??= TECHNIQUES[org].kind;
+          record.tech ??= ORG_TECHNIQUES[org]!.kind;
         }
       }
       record.pips = Math.min(pips, state.morale);

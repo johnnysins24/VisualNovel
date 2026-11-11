@@ -7,7 +7,7 @@
  *   ภัยตามล่า   life.hunted[ฝ่าย] = ระดับ 1 ถึง ORG.huntMax เหตุการณ์ที่มี hunt: <ฝ่าย> ออกถี่ขึ้นตามระดับ และระดับลดลงเองช้าๆ เมื่อรอยเย็นลง
  * ตัวเลขทั้งหมดอยู่ใน balance.ts (ORG, ORGS) ไฟล์นี้มีแต่วิธีคิด
  */
-import { ORG, ORGS, ORG_IDS, ORG_RANKS, TECHNIQUES, type FoeSide, type OrgId, type TechniqueKind } from './balance';
+import { ORG, ORGS, ORG_IDS, ORG_RANKS, ORG_TECHNIQUES, type FoeSide, type OrgId, type OrgTechLike } from './balance';
 import type { Effects, GameEvent, OrgCond } from './schema';
 import { worldYear, type LifeState, type Membership } from './state';
 import type { Rng } from './rng';
@@ -58,12 +58,22 @@ function setHunt(life: LifeState, by: string, level: number): LifeState {
   return { ...life, hunted };
 }
 
-/** เข้าเป็นสมาชิกที่ยศแรก ศัตรูขององค์กรรู้จักหน้าตั้งแต่วันนั้น (เป็นสมาชิกอยู่แล้วไม่มีผล) */
+/** ศัตรูขององค์กรเริ่มตาม (องค์กรที่ไม่มีศัตรูประจำไม่มีผล) */
+function enemyNotices(life: LifeState, id: OrgId): LifeState {
+  const enemy = ORGS[id].enemy;
+  return enemy ? setHunt(life, enemy, Math.max(huntLevel(life, enemy), ORG.enemyLevel)) : life;
+}
+
+/**
+ * เข้าเป็นสมาชิกที่ยศแรก ศัตรูขององค์กรรู้จักหน้าตั้งแต่วันนั้น (เป็นสมาชิกอยู่แล้วไม่มีผล)
+ * องค์กรที่ต้องปิดตัวตน (covert) เข้าได้แบบลับเท่านั้น · สายงานของอาณาจักร (career) เข้าแล้วงานเดิมหมดไป
+ */
 export function joinOrg(life: LifeState, id: OrgId, secret = false): LifeState {
   if (isMember(life, id)) return life;
-  const next = withOrg(life, id, { rank: 1, joined: worldYear(life), merit: 0, done: 0, refused: 0, ...(secret ? { secret: true } : {}) });
-  const enemy = ORGS[id].enemy;
-  return secret ? next : setHunt(next, enemy, Math.max(huntLevel(next, enemy), ORG.enemyLevel));
+  const hidden = secret || !!ORGS[id].covert;
+  let next = withOrg(life, id, { rank: 1, joined: worldYear(life), merit: 0, done: 0, refused: 0, ...(hidden ? { secret: true } : {}) });
+  if (ORGS[id].career) next = { ...next, flags: next.flags.filter((f) => !f.startsWith('job_')) };
+  return hidden ? next : enemyNotices(next, id);
 }
 
 /** ออกจากองค์กร ยศและผลงานหายไป ส่วนศัตรูขององค์กรยังจำหน้าได้ (ภัยตามล่าค่อยๆ เย็นลงเอง) */
@@ -86,8 +96,7 @@ export function applyOrgEffects(life: LifeState, fx: Pick<Effects, 'org' | 'hunt
     if (o.secret === false && membership(next, o.id)?.secret) {
       // ตัวตนถูกเปิดเผย: เป็นสมาชิกอย่างเปิดหน้า และศัตรูขององค์กรเริ่มตาม
       next = changeMember(next, o.id, ({ secret: _s, ...m }) => m);
-      const enemy = ORGS[o.id].enemy;
-      next = setHunt(next, enemy, Math.max(huntLevel(next, enemy), ORG.enemyLevel));
+      next = enemyNotices(next, o.id);
     }
     if (o.leave && !linked) next = leaveOrg(next, o.id);
   }
@@ -144,22 +153,26 @@ export function dutiesDue(life: LifeState, duties: Duties): OrgId[] {
 
 // ---------- การปะทะ ----------
 
-/** สมาชิกขององค์กรที่ออกรบ ปะทะถี่เท่าสายถืออาวุธ */
-export const fightsForOrg = (life: LifeState) => memberOrgs(life).length > 0;
+/** สมาชิกขององค์กรที่ออกรบ (องค์กรที่มีศัตรูให้รับมือ) ปะทะถี่เท่าสายถืออาวุธ */
+export const fightsForOrg = (life: LifeState) => memberOrgs(life).some((id) => ORGS[id].foes.length > 0);
 
-/** ท่าขององค์กรที่ยังใช้ได้กับศัตรูฝ่ายนี้ในการปะทะที่เดินอยู่ (ยศถึง ORG.techRank ศัตรูเป็นฝ่ายที่องค์กรรับมือ และยังไม่ได้ใช้) */
-export function orgTechnique(life: LifeState, side: FoeSide, kind: TechniqueKind): OrgId | null {
+/** ศัตรูที่องค์กรนี้รับมือ: ฝ่ายของศัตรู หรือ 'magic' = ภูต ผี และผู้ใช้เวทไม่ว่าฝ่ายไหน */
+type Quarry = { side: FoeSide; magic?: boolean | undefined };
+const facesFoe = (id: OrgId, foe: Quarry) => ORGS[id].foes.some((f) => (f === 'magic' ? !!foe.magic : f === foe.side));
+
+/** ท่าขององค์กรที่ยังใช้ได้กับศัตรูตัวนี้ในการปะทะที่เดินอยู่ (ยศถึง ORG.techRank ศัตรูเป็นพวกที่องค์กรรับมือ และยังไม่ได้ใช้) */
+export function orgTechnique(life: LifeState, foe: Quarry, like: OrgTechLike): OrgId | null {
   const used = life.encounter?.orgTechUsed ?? [];
   for (const id of memberOrgs(life)) {
-    if (TECHNIQUES[id].kind !== kind || used.includes(id)) continue;
-    if (membership(life, id)!.rank >= ORG.techRank && ORGS[id].foes.includes(side)) return id;
+    if (ORG_TECHNIQUES[id]?.like !== like || used.includes(id)) continue;
+    if (membership(life, id)!.rank >= ORG.techRank && facesFoe(id, foe)) return id;
   }
   return null;
 }
 
 /** เหรียญที่องค์กรจ่ายเมื่อสมาชิกชนะศัตรูฝ่ายนี้ที่ระดับภัยนี้ (โรงรับเขี้ยวรับซื้อหลักฐานการล่าของสิ่งที่ไม่ใช่คน) */
 export function bountyFor(life: LifeState, side: FoeSide, threat: number): number {
-  return memberOrgs(life).some((id) => ORGS[id].bounty && ORGS[id].foes.includes(side)) ? (ORG.bounty[threat - 1] ?? 0) : 0;
+  return memberOrgs(life).some((id) => ORGS[id].bounty && facesFoe(id, { side })) ? (ORG.bounty[threat - 1] ?? 0) : 0;
 }
 
 // ---------- ภัยตามล่า ----------
@@ -175,7 +188,10 @@ export function fadeHunts(life: LifeState, rng: Rng): { life: LifeState; cooled:
   let next = life;
   const cooled: string[] = [];
   const floors = new Map<string, number>();
-  for (const id of memberOrgs(life)) if (!membership(life, id)!.secret) floors.set(ORGS[id].enemy, ORG.enemyLevel);
+  for (const id of memberOrgs(life)) {
+    const enemy = ORGS[id].enemy;
+    if (enemy && !membership(life, id)!.secret) floors.set(enemy, ORG.enemyLevel);
+  }
   for (const [by, level] of Object.entries(life.hunted ?? {})) {
     if (level <= (floors.get(by) ?? 0)) continue;
     if (rng.next() >= ORG.huntFade) continue;

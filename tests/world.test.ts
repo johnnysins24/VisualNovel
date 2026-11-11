@@ -221,7 +221,7 @@ describe('save migration', () => {
     const l = migrate(v1);
     expect(l.version).toBe(3);
     expect(l.gold).toBe(9);
-    expect(l.world).toEqual({ gods: 0, demon: 0, star: 0, land: 0 });
+    expect(l.world).toEqual({ gods: 0, demon: 0, star: 0, land: 0, treasury: 0, peace: 0, throne: 0 });
     expect(l.birthYear).toBe(newLife(5).birthYear);
   });
   it('rejects junk', () => expect(() => migrate({ seed: 1, version: 9 })).toThrow());

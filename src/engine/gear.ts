@@ -5,7 +5,7 @@
 import type { FoeDef, Item, Move, Passive, Shop } from './schema';
 import { STATS } from './schema';
 import {
-  DEMON_MARK_TRAIT, FOE_TAGS, GEAR, MATERIAL_EDGE, RARITIES, STAR_MARKS_TRAIT, WORLD_CAP, REPUTATION_CAP,
+  COLD_IRON_OATH, DEMON_MARK_TRAIT, FOE_TAGS, GEAR, MATERIAL_EDGE, RARITIES, STAR_MARKS_TRAIT, WORLD_CAP, REPUTATION_CAP,
   type FoeTag, type ItemTag, type MaterialId, type MoveKind, type Rarity,
 } from './balance';
 import { worldYear, type LifeState } from './state';
@@ -109,8 +109,8 @@ export const heavyArmour = (game: Game, life: LifeState): Item | null => {
   return body?.material === 'black_iron' ? body : null;
 };
 
-/** สวมเหล็กเย็นอยู่: ร่ายเวทและขอพรไม่ได้ รับพรใหม่ก็ไม่ได้ */
-export const coldIron = (game: Game, life: LifeState): boolean => wearsMaterial(game, life, 'cold_iron');
+/** ถือเหล็กเย็นอยู่ (สวมของเหล็กเย็น หรือสาบานเหล็กเย็นไว้): ร่ายเวทและขอพรไม่ได้ รับพรใหม่ก็ไม่ได้ */
+export const coldIron = (game: Game, life: LifeState): boolean => wearsMaterial(game, life, 'cold_iron') || life.traits.includes(COLD_IRON_OATH);
 
 export interface SupplyAid {
   item: Item;

@@ -118,7 +118,7 @@ describe('ข้อห้ามของแผ่นดิน', () => {
     delete old.taboos;
     delete old.arcs;
     const l = migrate(old);
-    expect(l.world).toEqual({ gods: 2, demon: -1, star: 4, land: 0 });
+    expect(l.world).toEqual({ gods: 2, demon: -1, star: 4, land: 0, treasury: 0, peace: 0, throne: 0 });
     expect(l.taboos).toEqual({});
     expect(l.arcs).toEqual({});
     expect(applyEffects(game, l, { world: { land: 3 } }).world.land).toBe(3);

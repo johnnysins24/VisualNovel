@@ -1,4 +1,4 @@
-import { ORG, ORGS, TECHNIQUES, TECHNIQUE_HELP, type FactionId, type OrgId } from '../engine/balance';
+import { ORG, ORGS, ORG_TECHNIQUES, TECHNIQUE_HELP, type FactionId, type OrgId } from '../engine/balance';
 import { memberOrgs, membership, meritForNext, promotionReady, rankName } from '../engine/orgs';
 import type { GameEvent } from '../engine/schema';
 import type { LifeChanges, LifeState, YearEnd } from '../engine/state';
@@ -19,6 +19,7 @@ export const FACTION_TH: Record<FactionId, string> = {
   ash_cult: 'ลัทธิเถ้า',
   star_listeners: 'ผู้ฟังดาว',
   fang_house: 'โรงรับเขี้ยว',
+  cold_iron: 'ภาคีเหล็กเย็น',
 };
 /** ชื่อของผู้ตามล่า: ส่วนใหญ่คือชื่อฝ่าย ยกเว้นโรงรับเขี้ยว คนที่ตามมาคือนักล่าร่วมโรง ไม่ใช่ตัวโรง */
 const HUNTER_TH: Partial<Record<FactionId, string>> = { fang_house: 'นักล่าร่วมโรง' };
@@ -51,7 +52,7 @@ export function Ladder({ steps, rank, label }: { steps: readonly string[]; rank:
 function OrgCard({ l, id }: { l: LifeState; id: OrgId }) {
   const m = membership(l, id)!;
   const need = meritForNext(m.rank);
-  const tech = TECHNIQUES[id];
+  const tech = ORG_TECHNIQUES[id];
   const open = m.rank >= ORG.techRank;
   return (
     <article class="orgcard">
@@ -75,13 +76,15 @@ function OrgCard({ l, id }: { l: LifeState; id: OrgId }) {
         <span>งานที่ทำ <b class="num">{m.done}</b></span>
         <span>งานที่ปัด <b class="num">{m.refused}</b></span>
       </p>
-      <p class={`orgtech ${open ? '' : 'locked'}`}>
-        <Icon name={open ? 'role' : 'lock'} />
-        <span>
-          <b>{tech.th}</b>
-          {open ? TECHNIQUE_HELP[tech.kind] : `ได้เมื่อขึ้นเป็น${rankName(id, ORG.techRank)}`}
-        </span>
-      </p>
+      {tech && (
+        <p class={`orgtech ${open ? '' : 'locked'}`}>
+          <Icon name={open ? 'role' : 'lock'} />
+          <span>
+            <b>{tech.th}</b>
+            {open ? TECHNIQUE_HELP[tech.kind] : `ได้เมื่อขึ้นเป็น${rankName(id, ORG.techRank)}`}
+          </span>
+        </p>
+      )}
     </article>
   );
 }

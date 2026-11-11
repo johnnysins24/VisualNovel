@@ -25,12 +25,15 @@ import {
   CLASS_PRIMARY_BONUS,
   CLASS_SECONDARY_BONUS,
   CLERIC_DRIFT_FLAG,
+  COLD_IRON_OATH,
   DECLINE,
   ENCOUNTER,
   GEAR,
   HP_REGEN,
   PROTECTED_AGE,
   RACES,
+  REALM_CAP,
+  REALM_KEYS,
   REPEAT_GAP,
   REPUTATION_CAP,
   STAT_CAP,
@@ -611,8 +614,8 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     if (next.traits.includes(t)) continue;
     // ของใหญ่เกินจำนวนที่ถือได้ไม่ติดตัว (เนื้อหาต้องกันด้วย big_room อยู่แล้ว ตรงนี้กันพลาด)
     if (game.traits.get(t)?.big && !hasBigRoom(next, game.traits)) continue;
-    // ผู้สวมเหล็กเย็นรับพรไม่ได้ (พรที่มีอยู่แล้วยังอยู่)
-    if (game.traits.get(t)?.kind === 'boon' && coldIron(game, life)) continue;
+    // ผู้ถือเหล็กเย็น (สวมอยู่ หรือสาบานไว้) รับพรไม่ได้ พรที่มีอยู่แล้วยังอยู่ และตัวคำสาบานเองรับได้เสมอ
+    if (game.traits.get(t)?.kind === 'boon' && t !== COLD_IRON_OATH && coldIron(game, life)) continue;
     next.traits.push(t);
   }
   for (const t of lost) {
@@ -644,7 +647,8 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     if (course) next.course = course;
     else delete next.course;
   }
-  for (const k of WORLD_KEYS) if (fx.world?.[k]) next.world[k] = clamp(next.world[k] + fx.world[k]!, WORLD_CAP);
+  // สภาพของอาณาจักรแคบกว่าคะแนนโลก (REALM_CAP)
+  for (const k of WORLD_KEYS) if (fx.world?.[k]) next.world[k] = clamp(next.world[k] + fx.world[k]!, (REALM_KEYS as readonly string[]).includes(k) ? REALM_CAP : WORLD_CAP);
   if (fx.alignment?.law) next.alignment.law = clamp(next.alignment.law + fx.alignment.law, ALIGN_CAP);
   if (fx.alignment?.moral) next.alignment.moral = clamp(next.alignment.moral + fx.alignment.moral, ALIGN_CAP);
   for (const [f, d] of Object.entries(fx.reputation ?? {})) {
@@ -656,6 +660,8 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     const o = syncJobOrgs(applyOrgEffects(next, fx));
     next.orgs = o.orgs;
     next.hunted = o.hunted;
+    // เข้าสายงานของอาณาจักร: งานเดิม (flag job_*) หมดไปพร้อมกัน
+    next.flags = o.flags;
   }
   if (fx.people?.length) next.people = applyPeople(next.people ?? [], fx.people, next.age, { life: next, cast: next.cast ?? {} });
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };

@@ -56,13 +56,14 @@ export function importCode(code: string): LifeState {
  * เซฟก่อนมีระบบองค์กร: คนที่ทำงานในป้อมผู้เฝ้าผนึกอยู่แล้วเป็นสมาชิกภาคีที่ยศแรก
  * เซฟก่อนมีระบบเมือง: ไม่มีเมือง ที่อยู่ ชั้นของคนเมือง และสภาพเมือง ค่าตั้งต้นมาจาก newLife แล้วให้เมืองตรงกับถิ่นที่อยู่
  * เซฟก่อนชุด 4: ไม่มีคะแนนแผ่นดิน รอยของข้อห้าม และเส้นเรื่องยาว เริ่มนับจากศูนย์
+ * เซฟก่อนชุด อ: ไม่มีสภาพของอาณาจักร (คลัง ความสงบ ความชอบธรรมของราชวงศ์) เริ่มนับจากศูนย์
  */
 export function migrate(raw: unknown): LifeState {
   const old = raw as Partial<Omit<LifeState, 'version'>> & { version?: number };
   if (!old || typeof old.seed !== 'number' || (old.version !== 1 && old.version !== 2 && old.version !== 3)) throw new Error('รหัสเซฟไม่ถูกต้อง');
   const fresh = newLife(old.seed);
   const life = { ...fresh, ...old, version: 3 } as LifeState;
-  // เซฟก่อนชุด 4: คะแนนโลกยังไม่มีค่าแผ่นดิน (ข้อห้ามกับเส้นเรื่องยาวได้ค่าว่างจาก newLife)
+  // เซฟก่อนชุด 4 กับชุด อ: คะแนนโลกยังไม่มีค่าแผ่นดินและสภาพของอาณาจักร (ข้อห้ามกับเส้นเรื่องยาวได้ค่าว่างจาก newLife)
   life.world = { ...fresh.world, ...(old.world ?? {}) };
   life.traits = [...new Set((life.traits ?? []).map((t) => TRAIT_RENAMES[t] ?? t))];
   life.people = (life.people ?? []).map((p) => (p.born === undefined ? { ...p, born: estimateBorn(p, life) } : p));

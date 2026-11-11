@@ -342,8 +342,8 @@ export interface LifeChanges {
 
 export const DEFAULT_NAME = 'ผู้เดินทาง';
 
-/** เพศและปีเกิดสุ่มจาก seed ทำให้ชีวิตเดียวกันเกิดซ้ำได้ ชื่อเสียงและสภาพของเมืองเริ่มจากที่ชีวิตก่อนทิ้งไว้ */
-export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<Pick<Meta, 'moods'>>): LifeState {
+/** เพศและปีเกิดสุ่มจาก seed ทำให้ชีวิตเดียวกันเกิดซ้ำได้ ชื่อเสียง สภาพของเมือง และสภาพของอาณาจักรเริ่มจากที่ชีวิตก่อนทิ้งไว้ */
+export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<Pick<Meta, 'moods' | 'realm'>>): LifeState {
   const rng = new Rng(seed);
   const gender: Gender = rng.int(0, 1) === 0 ? 'm' : 'f';
   const birthYear = rng.int(BIRTH_YEAR.min, BIRTH_YEAR.max);
@@ -379,7 +379,8 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<
     namePool: {},
     namesApplied: false,
     partner: null,
-    world: { gods: 0, demon: 0, star: 0, land: 0 },
+    // สภาพของอาณาจักรเริ่มจากที่ชีวิตก่อนทิ้งไว้ คะแนนโลกสี่ตัวแรกเริ่มใหม่ทุกชีวิต
+    world: { gods: 0, demon: 0, star: 0, land: 0, treasury: 0, peace: 0, throne: 0, ...(meta?.realm ?? {}) },
     alignment: { law: 0, moral: 0 },
     reputation: { ...(meta?.reputation ?? {}) },
     seen: [],
