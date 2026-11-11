@@ -13,9 +13,9 @@
 - id: adult.life_new_love
   stage: adult
   scene: market
-  weight: 10
+  weight: 35
   when:
-    age: [25, 33]
+    age: [25, 38]
     not_flags: [has_partner]
   text: |
     เตาอบรวมของถิ่นเปิดให้ใช้ทุกเช้าวันพักงาน ใครมีแป้งก็เอามาอบ ค่าฟืนหารกันตามจำนวนถาด คนมาต่อคิวตั้งแต่ฟ้ายังไม่สาง ส่วนใหญ่เป็นคนที่ไม่มีเตาในห้องเช่า {name}อบขนมปังที่นี่มาหลายปี ปีนี้เพิ่งสังเกตว่ามีสองคนที่มาตรงกับ{name}ทุกเช้า
@@ -49,9 +49,9 @@
 - id: adult.life_proposal
   stage: adult
   scene: home
-  weight: 20
+  weight: 60
   when:
-    age: [25, 34]
+    age: [23, 40]
     flags: [has_partner]
     not_flags: [married, stays_unwed]
   text: |
@@ -100,9 +100,9 @@
 - id: adult.life_first_child
   stage: adult
   scene: home
-  weight: 25
+  weight: 70
   when:
-    age: [26, 33]
+    age: [24, 41]
     flags: [married]
     not_flags: [has_child]
   text: |
@@ -144,9 +144,9 @@
 - id: adult.life_first_child_horned
   stage: adult
   scene: home
-  weight: 5
+  weight: 14
   when:
-    age: [26, 33]
+    age: [24, 41]
     flags: [married]
     not_flags: [has_child]
   text: |

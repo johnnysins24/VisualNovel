@@ -47,7 +47,7 @@
 
 - id: adult.love_meets
   stage: adult
-  weight: 10
+  weight: 35
   when:
     age: [19, 24]
     not_flags: [has_partner]
