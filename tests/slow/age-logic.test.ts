@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import { renderLook } from '../../art/kit/core.mjs';
 import { loadContent } from '../../scripts/content';
+import { openMoves, resolveMove } from '../../src/engine/encounter';
 import { choiceAvailable, makeGame, pickEvent, resolveChoice } from '../../src/engine/engine';
 import { humanAge, newLife, type LifeState } from '../../src/engine/state';
 import { Rng } from '../../src/engine/rng';
@@ -36,6 +37,21 @@ describe('age logic over whole lives (real content)', () => {
         const needsAway = (ev.when.flags ?? []).includes('father_away');
         if (PARTNER.test(ev.text) && !l.partner) problems.push(`${ev.id}: names a partner the player does not have`);
         if (ev.text.includes('{father}') && !needsAway && fatherGone(l)) problems.push(`${ev.id}: father is away or lost`);
+        if (ev.encounter) {
+          // การปะทะ: กดวิธีที่เปิดอยู่แบบสุ่มจนจบ ข้อความของแต่ละจังหวะต้องไม่พูดถึงคนที่ไม่อยู่เหมือนเหตุการณ์อื่น
+          for (const beat of ev.encounter.beats) if (PARTNER.test(beat.text) && !l.partner) problems.push(`${ev.id}: names a partner the player does not have`);
+          for (let b = 0; b < 8 && l.encounter; b++) {
+            const moves = openMoves(game, l, ev);
+            if (!moves.length) {
+              problems.push(`${ev.id}: beat ${b + 1} has no move`);
+              break;
+            }
+            for (const m of moves) if (PARTNER.test(m.label) && !l.partner) problems.push(`${ev.id}/${m.id}: offers the partner the player does not have`);
+            l = resolveMove(game, l, moves[r.int(0, moves.length - 1)]!.id, false).life;
+          }
+          if (l.encounter) break;
+          continue;
+        }
         const open = ev.choices.filter((c) => choiceAvailable(game, l, c, ev));
         if (!open.length) problems.push(`${ev.id}: no choice available`);
         for (const c of open) {

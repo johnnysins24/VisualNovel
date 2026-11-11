@@ -5,8 +5,8 @@ import { BiographyPage, RollDialog, bioOpen } from './Endings';
 import { TraitsStrip } from './Traits';
 import { Icon } from './icons';
 import { BottomNav, Scene, StatRow, TopBar } from './Hud';
-import { ChoiceSheet, StoryLog, playableChoices } from './Story';
-import { bigRoll, choose, endReasonOf, life, tab } from '../store';
+import { ChoiceSheet, StoryLog, hotkeyActions } from './Story';
+import { bigRoll, endReasonOf, life, tab } from '../store';
 import { revealNext, revealing, scrolledBack } from './reading';
 
 const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
@@ -26,10 +26,10 @@ function useHotkeys() {
       }
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > 9) return;
-      const c = playableChoices()[n - 1];
-      if (c) {
+      const act = hotkeyActions()[n - 1];
+      if (act) {
         e.preventDefault();
-        choose(c.id);
+        act();
       }
     };
     addEventListener('keydown', onKey);

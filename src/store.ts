@@ -2,6 +2,7 @@ import { computed, signal } from '@preact/signals';
 import content from './generated/content.json';
 import { ContentSchema } from './engine/schema';
 import { makeGame, pickEvent, repairLife, resolveChoice, type Game } from './engine/engine';
+import { resolveMove } from './engine/encounter';
 import { newLife, type EndReason, type LifeState, type LogEntry } from './engine/state';
 import type { Stat } from './engine/schema';
 import { newSeed } from './engine/rng';
@@ -21,6 +22,11 @@ export const tab = signal<Tab>('story');
 export const sheetCollapsed = signal(false);
 /** ผลทอยของเช็คสำคัญที่ยังไม่ปิด (กล่องเต๋ากลางจอ U4) */
 export const bigRoll = signal<{ entry: LogEntry; stat: Stat } | null>(null);
+
+/** ผู้เล่นแตะเตรียมท่าของอาชีพไว้สำหรับวิธีรับมือถัดไป (เฉพาะท่าที่ต้องเตรียม) */
+export const techArmed = signal(false);
+/** นับครั้งที่ศัตรูทำร้ายตัวละครได้ ภาพศัตรูบนเวทีใช้เปลี่ยนเป็นท่าเข้าตีครู่หนึ่ง */
+export const foeStruck = signal(0);
 
 /**
  * การแสดงทีละย่อหน้า (U3): จำนวนย่อหน้า "ใหม่" ที่เปิดแล้วหลังการเลือกครั้งล่าสุด
@@ -75,6 +81,23 @@ export function choose(choiceId: string) {
   persist();
 }
 
+/** เลือกวิธีรับมือในจังหวะปัจจุบันของการปะทะ ยังไม่จบ = อยู่ในเหตุการณ์เดิม จังหวะถัดไป · จบ = ปิดเหตุการณ์เหมือนตัวเลือกปกติ */
+export function chooseMove(moveId: string) {
+  if (!life.value.encounter) return;
+  const res = resolveMove(game, life.value, moveId, techArmed.value);
+  techArmed.value = false;
+  bigRoll.value = null;
+  if (!res.record.success && res.record.damage) foeStruck.value += 1;
+  life.value = res.life;
+  sheetCollapsed.value = false;
+  revealed.value = 1;
+  if (res.done) {
+    lastEntry.value = res.entry ?? null;
+    advance();
+  }
+  persist();
+}
+
 /**
  * ชีวิตที่หยุดเพราะเนื้อเรื่องหมด: ลองหาเหตุการณ์ใหม่อีกครั้ง (เช่นหลังเนื้อเรื่องชุดใหม่ออก)
  * คืน true ถ้าเล่นต่อได้
@@ -108,6 +131,7 @@ function adopt(saved: LifeState) {
   lastEntry.value = null;
   revealed.value = null;
   bigRoll.value = null;
+  techArmed.value = false;
   sheetCollapsed.value = false;
   const fixed = repairLife(game, saved);
   life.value = fixed;

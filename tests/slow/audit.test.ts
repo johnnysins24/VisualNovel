@@ -2,9 +2,9 @@
 // รายงานเต็มพร้อมตัวเลขสมดุล: npm run audit
 import { describe, expect, it } from 'vitest';
 import { loadContent } from '../../scripts/content';
-import { auditLives } from '../../scripts/audit';
+import { auditLives, type FightTally } from '../../scripts/audit';
 import { makeGame } from '../../src/engine/engine';
-import { RACES, type RaceId } from '../../src/engine/balance';
+import { ARMED_CLASSES, RACES, type ClassId, type RaceId } from '../../src/engine/balance';
 
 const game = makeGame(loadContent('content'));
 const res = auditLives(game, 400);
@@ -96,3 +96,36 @@ describe('life audit: the long life stays on target', () => {
   });
 });
 
+
+// สมดุลของการปะทะ: เป้าของชุด 2 ช่วงที่ยอมรับกว้างพอให้ฉากชุดใหม่ขยับได้ แต่จับได้เมื่อการปะทะกลับมาถี่หรือโหดเกิน
+describe('life audit: encounters stay rare enough and fair enough', () => {
+  const mid = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] ?? 0;
+  const fightsOf = (armed: boolean) =>
+    res.finals
+      .map((l, i) => [l, res.fights.perLife[i] ?? 0] as const)
+      .filter(([l]) => l.age >= 40 && (!!l.classId && ARMED_CLASSES.includes(l.classId as ClassId)) === armed)
+      .map(([, n]) => n);
+
+  it('a life that carries a weapon meets more fights than one that does not', () => {
+    const armed = mid(fightsOf(true));
+    const calm = mid(fightsOf(false));
+    expect(armed).toBeGreaterThan(calm);
+    expect(armed).toBeLessThanOrEqual(16);
+    expect(calm).toBeGreaterThanOrEqual(2);
+    expect(calm).toBeLessThanOrEqual(9);
+  });
+
+  it('a player who reads the foe rarely dies in a fight, and wins more than a player who taps at random', () => {
+    const rate = (t: FightTally, k: 'win' | 'death') => (t.ends[k] ?? 0) / Math.max(1, t.n);
+    const { reads, random } = res.fights.deadlyByStyle;
+    expect(reads.n).toBeGreaterThan(50);
+    expect(rate(reads, 'death')).toBeLessThan(0.05);
+    expect(rate(random, 'death')).toBeLessThan(0.1);
+    expect(rate(res.fights.byStyle.reads, 'win')).toBeGreaterThan(rate(res.fights.byStyle.random, 'win'));
+  });
+
+  it('every foe that has a scene is met by some life', () => {
+    const used = new Set(game.events.filter((e) => e.encounter).map((e) => e.encounter!.foe));
+    expect([...used].filter((id) => !res.fights.byFoe.has(id))).toEqual([]);
+  });
+});

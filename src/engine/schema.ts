@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, FACTIONS, FOE_SIDES, GOD_IDS, WORLD_KEYS } from './balance';
+import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, MOVE_KINDS, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -161,6 +161,22 @@ export const CastSpecSchema = z
   .strict();
 export type CastSpec = z.infer<typeof CastSpecSchema>;
 
+/** เงื่อนไขของตัวเลือก ใช้กับวิธีรับมือในการปะทะด้วย */
+export const RequiresSchema = z.object({
+  trait: z.string().optional(),
+  flag: z.string().optional(),
+  /** ตัวเลือกซ่อนถ้ามี flag ใดในนี้ (เช่น race_tiefling สำหรับงานที่ไม่รับคนมีเขา) */
+  not_flags: z.array(z.string()).optional(),
+  item: z.string().optional(),
+  /** ต้องมีคนเข้าบทเหล่านี้ (บทที่ optional ใน cast ของเหตุการณ์) */
+  cast: z.array(z.string()).optional(),
+  /** ตัวเลือกที่ต้องจ่ายเงิน (ซื้อ ให้ ฝาก) ซ่อนถ้าเงินไม่ถึง ข้อความที่บอกว่าจ่ายกี่เหรียญจึงตรงกับเงินที่มีจริง */
+  min_gold: z.number().int().min(1).optional(),
+  min_stat: z.partialRecord(StatSchema, z.number().int()).optional(),
+  ...StateConds,
+});
+export type Requires = z.infer<typeof RequiresSchema>;
+
 export const ChoiceSchema = z.object({
   id: z.string(),
   label: z.string(),
@@ -168,27 +184,113 @@ export const ChoiceSchema = z.object({
   habit: z.string().optional(),
   /** ข้อความหลังเลือก (ตัวเลือกที่ไม่มี check ก็แสดงได้) */
   text: z.string().optional(),
-  requires: z
-    .object({
-      trait: z.string().optional(),
-      flag: z.string().optional(),
-      /** ตัวเลือกซ่อนถ้ามี flag ใดในนี้ (เช่น race_tiefling สำหรับงานที่ไม่รับคนมีเขา) */
-      not_flags: z.array(z.string()).optional(),
-      item: z.string().optional(),
-      /** ต้องมีคนเข้าบทเหล่านี้ (บทที่ optional ใน cast ของเหตุการณ์) */
-      cast: z.array(z.string()).optional(),
-      /** ตัวเลือกที่ต้องจ่ายเงิน (ซื้อ ให้ ฝาก) ซ่อนถ้าเงินไม่ถึง ข้อความที่บอกว่าจ่ายกี่เหรียญจึงตรงกับเงินที่มีจริง */
-      min_gold: z.number().int().min(1).optional(),
-      min_stat: z.partialRecord(StatSchema, z.number().int()).optional(),
-      ...StateConds,
-    })
-    .optional(),
+  requires: RequiresSchema.optional(),
   check: CheckSchema.optional(),
   effects: EffectsSchema.optional(),
   success: OutcomeSchema.optional(),
   failure: OutcomeSchema.optional(),
 });
 export type Choice = z.infer<typeof ChoiceSchema>;
+
+// ---------- การปะทะ ----------
+const MoveKindSchema = z.enum(MOVE_KINDS);
+const FoeTagSchema = z.enum(FOE_TAGS);
+/** จุดอ่อนและจุดแข็งของศัตรู ระบุเป็นป้ายลักษณะ (ไฟ แสง ของทื่อ ...) หรือชนิดของวิธีรับมือ (บุก ชิงจังหวะ ...) */
+const FoeMatchSchema = z.enum([...FOE_TAGS, ...MOVE_KINDS]);
+
+/** วิธีรับมือหนึ่งวิธีในจังหวะหนึ่ง ความยากมาจากระดับภัยของศัตรู ฉากจึงไม่ใส่ตัวเลข */
+export const MoveSchema = z
+  .object({
+    id: z.string(),
+    label: z.string(),
+    kind: MoveKindSchema,
+    /** ค่าพลังที่ใช้ ไม่ใส่ = ตามชนิดของวิธี (MOVE_STAT) อ่านทางกับใช้ของต้องระบุ */
+    stat: StatSchema.optional(),
+    /** ป้ายลักษณะของวิธีนี้ เช่น คบไฟ = fire ใช้เทียบกับจุดอ่อนและจุดแข็งของศัตรู */
+    tags: z.array(FoeTagSchema).default([]),
+    /** คนในบทนี้เข้ามาช่วย: ได้แต้มเพิ่ม และวิธีนี้มีให้เลือกเมื่อมีคนเล่นบทนั้น */
+    ally: z.string().optional(),
+    /** ข่มหรือเจรจาที่สำเร็จแล้วการปะทะจบทันทีแบบเจรจา ใช้ได้กับศัตรูที่พูดรู้เรื่องเท่านั้น */
+    parley: z.boolean().optional(),
+    requires: RequiresSchema.optional(),
+    /** ข้อความเมื่อสำเร็จและเมื่อพลาด ไม่ใส่ = ใช้ประโยคประจำตัวของศัตรู (hurt กับ strike) */
+    success: z.string().optional(),
+    failure: z.string().optional(),
+  })
+  .strict();
+export type Move = z.infer<typeof MoveSchema>;
+
+export const BeatSchema = z
+  .object({
+    /** สัญญาณ: ศัตรูกำลังจะทำอะไร */
+    text: z.string(),
+    /** ชนิดของวิธีที่รับสัญญาณนี้ได้ วิธีชนิดนั้นได้แต้มเพิ่ม */
+    answer: MoveKindSchema.optional(),
+    moves: z.array(MoveSchema).min(2).max(6),
+  })
+  .strict();
+export type Beat = z.infer<typeof BeatSchema>;
+
+const OutcomeSchemaStrict = z.object({ text: z.string().optional(), effects: EffectsSchema.optional() }).strict();
+
+export const ENCOUNTER_ENDS = ['win', 'lose', 'flee', 'parley', 'stalemate', 'death'] as const;
+export type EncounterEnd = (typeof ENCOUNTER_ENDS)[number];
+
+export const EncounterSchema = z
+  .object({
+    /** รหัสศัตรูใน content/foes.yaml */
+    foe: z.string(),
+    /** ชื่อที่แสดง ถ้าต่างจากชื่อชนิด เช่น ฝูงหมาเถ้า */
+    name: z.string().optional(),
+    /** ทับค่าของชนิดเฉพาะฉากนี้ (ตัวที่บาดเจ็บ ตัวจ่าฝูง) */
+    threat: z.number().int().min(1).max(5).optional(),
+    morale: z.number().int().min(2).max(4).optional(),
+    /** พลังชีวิตหมดแล้วตายไหม ไม่ใส่ = ตามชนิดของศัตรู (lethal) */
+    deadly: z.boolean().optional(),
+    beats: z.array(BeatSchema).min(2).max(4),
+    /** แรงใจศัตรูหมด */
+    win: OutcomeSchemaStrict,
+    /** พลังชีวิตหมดแต่ไม่ตาย: หมดสติ โดนปล้น โดนลากออกมา */
+    lose: OutcomeSchemaStrict,
+    /** ครบทุกจังหวะแล้วยังไม่มีใครล้ม */
+    stalemate: OutcomeSchemaStrict,
+    /** หนีสำเร็จ ต้องมีถ้ามีวิธีชนิด flee */
+    flee: OutcomeSchemaStrict.optional(),
+    /** เจรจาสำเร็จ ต้องมีถ้ามีวิธีที่ parley: true */
+    parley: OutcomeSchemaStrict.optional(),
+    /** ตายในการปะทะ: ข้อความเล่าความตาย ไม่ใส่ = ฉากตายเล่าเอง */
+    death: z.object({ text: z.string() }).strict().optional(),
+  })
+  .strict();
+export type Encounter = z.infer<typeof EncounterSchema>;
+
+/** ศัตรูหนึ่งชนิด (content/foes.yaml) ฉากปะทะอ้างด้วย id แล้วเขียนแค่เนื้อเรื่องกับวิธีรับมือ */
+export const FoeDefSchema = z
+  .object({
+    id: z.string().regex(/^[a-z0-9_]+$/),
+    name: z.string(),
+    side: FoeSchema,
+    /** ระดับภัย 1 ถึง 5: ความยากของการทอยและพลังชีวิตที่เสียเมื่อพลาด */
+    threat: z.number().int().min(1).max(5),
+    /** แรงใจ 2 ถึง 4 ขีด สำเร็จหนึ่งครั้งลดหนึ่งขีด หมดเมื่อไรศัตรูล้ม หนี หรือยอม */
+    morale: z.number().int().min(2).max(4),
+    weak: z.array(FoeMatchSchema).min(1),
+    strong: z.array(FoeMatchSchema).default([]),
+    /** พูดรู้เรื่อง เจรจาได้ */
+    speaks: z.boolean().default(false),
+    /** เอาถึงตาย: พลังชีวิตหมดในการปะทะกับศัตรูชนิดนี้คือตาย */
+    lethal: z.boolean().default(true),
+    /** สิ่งที่คนในโลกเล่าต่อกันเรื่องจุดอ่อนของมัน หนึ่งประโยค แสดงเมื่อตัวละครรู้จุดอ่อน */
+    lore: z.string(),
+    /** ประโยคตอนศัตรูทำร้ายตัวละคร ใช้เมื่อวิธีที่พลาดไม่ได้เขียนข้อความเอง */
+    strike: z.array(z.string()).min(2),
+    /** ประโยคตอนศัตรูเสียแรงใจ ใช้เมื่อวิธีที่สำเร็จไม่ได้เขียนข้อความเอง */
+    hurt: z.array(z.string()).min(2),
+    /** แผลที่ได้เมื่อเจ็บหนักจากศัตรูชนิดนี้ (รหัสสิ่งติดตัวชนิด wound) ได้อันแรกที่ยังไม่มี */
+    wounds: z.array(z.string()).default(['wound_knee']),
+  })
+  .strict();
+export type FoeDef = z.infer<typeof FoeDefSchema>;
 
 /**
  * ฉากหลังของเหตุการณ์ (ภาพประกอบจาก thread ศิลป์) ไม่ใส่ = ใช้ภาพตาม location_tag
@@ -248,7 +350,9 @@ export const EventSchema = z.object({
     })
     .default({}),
   text: z.string(),
-  choices: z.array(ChoiceSchema).min(1),
+  /** เหตุการณ์ปกติต้องมีตัวเลือกอย่างน้อยหนึ่งข้อ เหตุการณ์ที่เป็นการปะทะ (encounter) ไม่มีตัวเลือก มีวิธีรับมือในแต่ละจังหวะแทน */
+  choices: z.array(ChoiceSchema).default([]),
+  encounter: EncounterSchema.optional(),
 });
 export type GameEvent = z.infer<typeof EventSchema>;
 
@@ -256,6 +360,10 @@ export const PassiveSchema = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('check_bonus'), stat: StatSchema, amount: z.number().int() }),
   z.object({ kind: z.literal('max_hp'), amount: z.number().int() }),
   z.object({ kind: z.literal('reroll_failed_check'), once_per_event: z.boolean().default(true) }),
+  /** เกราะ: ลดพลังชีวิตที่เสียในการปะทะ (รวมทุกชิ้นไม่เกิน ENCOUNTER.armorMax) */
+  z.object({ kind: z.literal('armor'), amount: z.number().int().min(1).max(2) }),
+  /** โล่: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ */
+  z.object({ kind: z.literal('shield') }),
 ]);
 export type Passive = z.infer<typeof PassiveSchema>;
 
@@ -363,6 +471,8 @@ export const ContentSchema = z.object({
   items: z.array(ItemSchema),
   names: z.array(NamePoolSchema).default([]),
   traits: z.array(TraitSchema).default([]),
+  /** ศัตรูในการปะทะ (content/foes.yaml) */
+  foes: z.array(FoeDefSchema).default([]),
   /** ประโยคสั้นที่ระบบหยิบไปเติมในบันทึกชีวิต (ร่างกายโรย ฤดูหนาว ข่าวคนรอบตัวจากไป) กุญแจ → รายการให้สุ่ม */
   lines: z.record(z.string(), z.array(z.string())).default({}),
 });

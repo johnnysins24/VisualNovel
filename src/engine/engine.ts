@@ -1,4 +1,4 @@
-import type { Choice, Content, DeathCause, Effects, GameEvent, NamePool, PersonEffect, Stat } from './schema';
+import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, PersonEffect, Requires, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
 import {
@@ -19,12 +19,14 @@ import { activePassives, effectiveStats, maxHp } from './items';
 import {
   ADULT_AGE,
   ALIGN_CAP,
+  ARMED_CLASSES,
   CHILD_CLOSENESS,
   CLASSES,
   CLASS_PRIMARY_BONUS,
   CLASS_SECONDARY_BONUS,
   CLERIC_DRIFT_FLAG,
   DECLINE,
+  ENCOUNTER,
   HP_REGEN,
   PROTECTED_AGE,
   RACES,
@@ -43,6 +45,7 @@ import { clericDrifted, situationalBonus } from './rules';
 import { bindCast, estimateBorn, livingChildren, personYears, yearlyPassings } from './people';
 import { mentionsOf, render, type Mention } from './text';
 import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitCheckBonuses, traitMaxHp, traitRegen, traitWinter, type TraitIndex, habitBlockers } from './traits';
+import { beginEncounter, openMoves } from './encounter';
 
 export interface Game {
   events: GameEvent[];
@@ -50,6 +53,8 @@ export interface Game {
   names: Map<string, NamePool>;
   /** ทะเบียนสิ่งติดตัว */
   traits: TraitIndex;
+  /** ศัตรูในการปะทะ */
+  foes: Map<string, FoeDef>;
   /** ประโยคสั้นที่ระบบเติมในบันทึกชีวิต (ดู Content.lines) */
   lines: Record<string, string[]>;
   /** คนที่ข้อความของเหตุการณ์หรือตัวเลือกเอ่ยถึงด้วยชื่อตายตัว ({partner} {father} {mother} {child}) */
@@ -68,6 +73,14 @@ export function makeGame(content: Content): Game {
     const m = mentionsOf(e.text);
     if (m.length) mentions.set(e, m);
     fate(e.people);
+    const enc = e.encounter;
+    if (enc) {
+      for (const out of [enc.win, enc.lose, enc.stalemate, enc.flee, enc.parley]) fate(out?.effects?.people);
+      // ข้อความของการปะทะเอ่ยถึงใคร เหตุการณ์ทั้งเรื่องต้องมีคนนั้นอยู่
+      const texts = [...enc.beats.flatMap((b) => [b.text, ...b.moves.flatMap((mv) => [mv.label, mv.success, mv.failure])]), ...[enc.win, enc.lose, enc.stalemate, enc.flee, enc.parley, enc.death].map((o) => o?.text)];
+      const all = [...new Set([...m, ...mentionsOf(...texts)])];
+      if (all.length) mentions.set(e, all);
+    }
     for (const c of e.choices) {
       for (const fx of [c.effects, c.success?.effects, c.failure?.effects]) fate(fx?.people);
       // ตัวเลือกที่พาคนรักหรือลูกเข้ามาในชีวิตเองเอ่ยชื่อคนนั้นได้
@@ -83,6 +96,7 @@ export function makeGame(content: Content): Game {
     items: new Map(content.items.map((i) => [i.id, i])),
     names: new Map(content.names.map((n) => [n.race, n])),
     traits: new Map(content.traits.map((t) => [t.id, t])),
+    foes: new Map((content.foes ?? []).map((f) => [f.id, f])),
     lines: content.lines,
     mentions,
     fated,
@@ -201,7 +215,7 @@ export function playable(game: Game, life: LifeState, ev: GameEvent): boolean {
   if (!eligible(game, life, ev)) return false;
   const cast = bindCast(life, ev) ?? {};
   const there = { ...life, cast };
-  if (!ev.choices.some((c) => choiceAvailable(game, there, c, ev))) return false;
+  if (ev.encounter ? !openMoves(game, there, ev, 0).length : !ev.choices.some((c) => choiceAvailable(game, there, c, ev))) return false;
   // เรื่องที่ต้องใช้เวลานานจริงไม่ออกในปีที่เวลาเดินได้สั้นกว่านั้น (ใกล้หมุดของโลก ใกล้ปีสุดท้าย)
   return !ev.min_years || spanOf(game, life, ev) >= ev.min_years;
 }
@@ -223,11 +237,25 @@ function recentlySeen(life: LifeState, ev: GameEvent): boolean {
   return life.log.slice(-REPEAT_GAP).some((e) => e.eventId === ev.id);
 }
 
+/**
+ * จังหวะของการปะทะในชีวิตหนึ่ง: ฉากปะทะพักเมื่อเพิ่งปะทะไปในช่วง ENCOUNTER.gap เหตุการณ์ล่าสุด (สายถืออาวุธพักสั้นกว่า)
+ * และฉากที่เกิดซ้ำได้พักถาวรเมื่อออกครบ ENCOUNTER.repeatMax ครั้งแล้ว
+ */
+export function fightResting(life: LifeState, ev: GameEvent): boolean {
+  if (!ev.encounter) return false;
+  const armed = !!life.classId && ARMED_CLASSES.includes(life.classId as ClassId);
+  const gap = armed ? ENCOUNTER.gap.armed : ENCOUNTER.gap.calm;
+  if (life.log.slice(-gap).some((e) => e.encounter)) return true;
+  return !ev.once && life.log.filter((e) => e.eventId === ev.id).length >= ENCOUNTER.repeatMax;
+}
+
 /** ตั้งเหตุการณ์ปัจจุบัน ผูกตัวแสดง และกำหนดจำนวนปีที่เหตุการณ์จะกินเวลา (เฉพาะเรื่องที่เล่าหลายปี) */
 function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
-  const { span: _span, ...rest } = life;
+  const { span: _span, encounter: _enc, ...rest } = life;
   const next: LifeState = { ...rest, currentEventId: ev.id, cast: bindCast(life, ev) ?? {} };
   if (ev.years) next.span = spanOf(game, life, ev);
+  const enc = beginEncounter(game, next, ev);
+  if (enc) next.encounter = enc;
   return next;
 }
 
@@ -235,7 +263,7 @@ function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
  * เลือกเหตุการณ์ถัดไป ลำดับคือ
  * 1. forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง) ใช้เหตุการณ์นั้นแทนการสุ่ม
  * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
- * 3. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป (ถ้าไม่มีเรื่องอื่นจึงยอมให้ซ้ำ)
+ * 3. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไปและฉากปะทะที่ยังพักอยู่ (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
  *    เหตุการณ์สำรอง (fallback) เข้ากองเฉพาะปีที่เรื่องปกติมีน้อยกว่า THIN_POOL
  * ตอนตัวละครกำลังจะตาย กองมีแต่ฉากตายของเหตุนั้น
  */
@@ -260,12 +288,15 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
     return { event: first, life: withEvent(game, life, first) };
   }
   const normal = all.filter((e) => !e.fallback);
-  const rested = normal.filter((e) => !recentlySeen(life, e));
+  const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e));
   let pool = rested;
   if (rested.length < THIN_POOL) {
     const spare = all.filter((e) => e.fallback);
     const fresh = spare.filter((e) => !recentlySeen(life, e));
-    pool = [...rested, ...(fresh.length || rested.length ? fresh : spare)];
+    pool = [...rested, ...fresh];
+    // ไม่มีเรื่องสดเลย: ให้ฉากปะทะที่ยังพักออกก่อน ถ้าไม่มีอีกจึงยอมให้เรื่องสำรองออกซ้ำ
+    if (!pool.length) pool = normal.filter((e) => !recentlySeen(life, e));
+    if (!pool.length) pool = spare;
   }
   if (!pool.length) pool = normal.length ? normal : all;
   const rng = Rng.fromState(life.rngState);
@@ -295,7 +326,16 @@ function finishDeath(life: LifeState): LifeState {
 export function repairLife(game: Game, life: LifeState): LifeState {
   if (!life.alive) return life;
   const ev = game.events.find((e) => e.id === life.currentEventId);
-  if (ev && ev.choices.some((c) => choiceAvailable(game, life, c, ev))) return life;
+  if (ev?.encounter) {
+    // การปะทะที่ค้างอยู่เล่นต่อได้เมื่อจังหวะปัจจุบันยังมีวิธีให้เลือก ถ้าเซฟไม่มีสถานะการปะทะ (เนื้อหาเปลี่ยน) เริ่มการปะทะนี้ใหม่
+    if (life.encounter && openMoves(game, life, ev).length) return life;
+    const enc = beginEncounter(game, life, ev);
+    if (enc && openMoves(game, { ...life, encounter: enc }, ev).length) return { ...life, encounter: enc };
+  } else if (ev && ev.choices.some((c) => choiceAvailable(game, life, c, ev))) {
+    if (!life.encounter) return life;
+    const { encounter: _stale, ...rest } = life;
+    return rest;
+  }
   const { event, life: next } = pickEvent(game, { ...life, currentEventId: null, cast: {} });
   if (event) return next;
   return next.dying ? finishDeath(next) : { ...next, alive: false, endReason: 'content_end' };
@@ -305,7 +345,11 @@ export function choiceAvailable(game: Game, life: LifeState, choice: Choice, ev?
   if (namesTheAbsent(game, life, choice, ev)) return false;
   // นิสัยที่ติดตัวแล้วปิดทางของนิสัยตรงข้าม (Trait.blocks)
   if (habitBlockers(life, game.traits, choice.habit).length) return false;
-  const r = choice.requires;
+  return requiresMet(game, life, choice.requires);
+}
+
+/** เงื่อนไข requires ของตัวเลือกหรือของวิธีรับมือในการปะทะ */
+export function requiresMet(game: Game, life: LifeState, r: Requires | undefined): boolean {
   if (!r) return true;
   if (r.trait && !life.traits.includes(r.trait)) return false;
   if (r.flag && !life.flags.includes(r.flag)) return false;
@@ -899,16 +943,25 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
     }
   }
   if (texts.length) entry.text = texts.join('\n\n');
+  return concludeEvent(game, ev, life, next, entry, rng, [outcome?.effects, choice.effects]);
+}
 
-  next = settle(game, next, rng);
-  const mark = outcome?.effects?.mark ?? choice.effects?.mark ?? ev.mark;
-  if (mark) entry.mark = render(mark, next, life.cast ?? {});
-  const epitaph = outcome?.effects?.epitaph ?? choice.effects?.epitaph;
-  if (epitaph) next = { ...next, epitaph: render(epitaph, next, life.cast ?? {}) };
-  const changes = diffLife(life, next);
+/**
+ * ปิดเหตุการณ์หลังผลของตัวเลือก (หรือของการปะทะ) ถูกใช้แล้ว: ชื่อและค่าที่ต้องคำนวณตามหลัง ป้ายบนเส้นชีวิต ประโยคสุดท้าย
+ * สิ่งที่เปลี่ยน ความตายและฉากตาย แล้วเดินเวลาพร้อมสิ่งที่เกิดเองตอนสิ้นปี
+ * before = ชีวิตก่อนผลนั้น ใช้เทียบว่าอะไรเปลี่ยน · fx = ผลที่เพิ่งใช้ เรียงจากที่เจาะจงที่สุด (ใช้หา mark epitaph survive)
+ */
+export function concludeEvent(game: Game, ev: GameEvent, before: LifeState, after: LifeState, entry: LogEntry, rng: Rng, fx: (Effects | undefined)[]): ChoiceResult {
+  let next = settle(game, after, rng);
+  const first = <K extends 'mark' | 'epitaph' | 'survive'>(k: K) => fx.find((f) => f?.[k] !== undefined)?.[k];
+  const mark = first('mark') ?? ev.mark;
+  if (mark) entry.mark = render(mark, next, before.cast ?? {});
+  const epitaph = first('epitaph');
+  if (epitaph) next = { ...next, epitaph: render(epitaph, next, before.cast ?? {}) };
+  const changes = diffLife(before, next);
   if (changes) entry.changes = changes;
 
-  const close = ({ span: _span, ...l }: LifeState): LifeState => ({
+  const close = ({ span: _span, encounter: _enc, ...l }: LifeState): LifeState => ({
     ...l,
     rngState: rng.state,
     seen: l.seen.includes(ev.id) ? l.seen : [...l.seen, ev.id],
@@ -918,7 +971,7 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   });
 
   // ฉากตายที่ตัวเลือกให้รอด (effects.survive): ความตายถอยไป ชีวิตเดินต่อจากปีนี้ ถ้าร่างยังมีพลังชีวิตสูงสุดเหลือ
-  const survives = ev.stage === 'death' && (outcome?.effects?.survive ?? choice.effects?.survive) && maxHp(next, game.items) > 0;
+  const survives = ev.stage === 'death' && first('survive') && maxHp(next, game.items) > 0;
   if (survives) {
     const { deathTold: _told, ...rest } = next;
     next = { ...rest, dying: null, hp: Math.max(1, next.hp) };
@@ -929,7 +982,7 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   if (next.dying) return { life: close(next), entry };
 
   // จำนวนปีกำหนดไว้ตั้งแต่ตอนเลือกเหตุการณ์ (ข้อความบอกผู้เล่นไปแล้วว่ากี่ปี) เซฟเก่าที่ไม่มีค่านี้คิดใหม่
-  const span = ev.years ? (life.span ?? spanOf(game, next, ev)) : 1;
+  const span = ev.years ? (before.span ?? spanOf(game, next, ev)) : 1;
   if (span > 1) entry.span = span;
   const rec: YearEnd = {};
   for (let i = 0; i < span && !next.dying; i++) {

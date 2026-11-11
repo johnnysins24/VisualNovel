@@ -3,13 +3,15 @@
  * ใช้ได้ทั้งจากคำสั่ง (scripts/audit-lives.ts) และจากเทสต์ (tests/slow/audit.test.ts)
  * ทุกอย่างคำนวณจาก seed จึงได้ผลเดิมทุกครั้ง
  */
-import { choiceAvailable, eligible, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';
+import { choiceAvailable, eligible, fightResting, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';
 import { humanAge, newLife, stageAge, worldYear, type LifeState } from '../src/engine/state';
 import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { maxHp } from '../src/engine/items';
-import { RACES, REPEAT_GAP, STAT_CAP, type RaceId } from '../src/engine/balance';
+import { PROTECTED_AGE, RACES, REPEAT_GAP, STAT_CAP, type RaceId } from '../src/engine/balance';
+import { foeOf, hitDamage, moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
+import type { Effects, EncounterEnd, GameEvent } from '../src/engine/schema';
 
 const PARTNER = /\{partner\}|\{p:/;
 const bump = <K,>(m: Map<K, number>, k: K, n = 1) => m.set(k, (m.get(k) ?? 0) + n);
@@ -23,6 +25,47 @@ const quantile = (xs: number[], q: number) => {
   const s = [...xs].sort((a, b) => a - b);
   return s.length ? s[Math.min(s.length - 1, Math.floor(s.length * q))]! : 0;
 };
+
+/** ผลของการปะทะที่นับรวม: จำนวนครั้ง วิธีที่จบ จำนวนจังหวะ จังหวะที่สำเร็จ พลังชีวิตที่เสีย และแผลที่ได้ */
+export interface FightTally {
+  n: number;
+  ends: Partial<Record<EncounterEnd, number>>;
+  beats: number;
+  hits: number;
+  hpLost: number;
+  /** ผลรวมพลังชีวิตตอนเริ่มการปะทะ (ใช้หาค่าเฉลี่ย) */
+  hpStart: number;
+  wounds: number;
+}
+const newTally = (): FightTally => ({ n: 0, ends: {}, beats: 0, hits: 0, hpLost: 0, hpStart: 0, wounds: 0 });
+
+/**
+ * ผู้เล่นจำลองสองแบบ สลับกันตามเลขชีวิต: แบบอ่านเกม (เลือกวิธีที่โอกาสสูงสุด ใช้ท่าของอาชีพเมื่อช่วยได้ ถอยเมื่อพลาดอีกครั้งเดียวจะล้ม)
+ * กับแบบสุ่ม (กดวิธีไหนก็ได้) ตัวเลขของสองแบบบอกว่าการอ่านสัญญาณมีผลแค่ไหน และคนที่กดมั่วตายบ่อยแค่ไหน
+ */
+export type FightStyle = 'reads' | 'random';
+
+function pickMove(game: Game, l: LifeState, ev: GameEvent, r: Rng, style: FightStyle): { id: string; armed: boolean } {
+  const open = openMoves(game, l, ev);
+  const tk = techniqueOf(l);
+  const canArm = tk.armable && tk.ready;
+  if (style === 'random') return { id: open[r.int(0, open.length - 1)]!.id, armed: canArm && r.int(0, 1) === 1 };
+  const foe = foeOf(game, ev)!;
+  const dmg = hitDamage(game, l, foe);
+  const flee = open.find((m) => m.kind === 'flee');
+  if (flee && l.hp <= dmg) return { id: flee.id, armed: canArm && tk.kind !== 'spell' && tk.kind !== 'song' };
+  let best = { id: open[0]!.id, armed: false, chance: -1 };
+  for (const m of open) {
+    if (m.kind === 'flee') continue;
+    const plain = moveOdds(game, l, ev, m).chance;
+    if (plain > best.chance) best = { id: m.id, armed: false, chance: plain };
+    if (!canArm) continue;
+    // พรของนักบวชไม่เพิ่มโอกาส ใช้เมื่อพลาดอีกสองครั้งจะล้ม ท่าอื่นใช้เมื่อเพิ่มโอกาสได้จริง
+    const armed = tk.kind === 'ward' ? (l.hp <= dmg * 2 ? plain + 0.01 : -1) : moveOdds(game, l, ev, m, true).chance;
+    if (armed > best.chance + (tk.kind === 'ward' ? 0 : 0.05)) best = { id: m.id, armed: true, chance: armed };
+  }
+  return best;
+}
 
 export interface AuditResult {
   lives: number;
@@ -56,6 +99,17 @@ export interface AuditResult {
   traitLocks: Map<string, number>;
   /** สัดส่วนเหตุการณ์ที่ซ้ำกันของสองชีวิต (0 ถึง 1) */
   overlap: { sameOriginAndClass: number; anyTwo: number; eventsPerLife: number };
+  /** การปะทะ: รวมตามศัตรู ตามฉาก ตามแบบของผู้เล่นจำลอง และจำนวนครั้งต่อชีวิต (เรียงตรงกับ finals) */
+  fights: {
+    byFoe: Map<string, FightTally>;
+    byEvent: Map<string, FightTally>;
+    /** ตามฉาก เฉพาะผู้เล่นจำลองที่อ่านเกม (ใช้เทียบกับเป้าอัตราตายของคนที่เตรียมตัว) */
+    byEventReads: Map<string, FightTally>;
+    byStyle: Record<FightStyle, FightTally>;
+    /** เฉพาะการปะทะที่เอาถึงตาย */
+    deadlyByStyle: Record<FightStyle, FightTally>;
+    perLife: number[];
+  };
 }
 
 export function auditLives(game: Game, lives: number): AuditResult {
@@ -78,8 +132,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
     counts: new Map(),
     traitLocks: new Map(),
     overlap: { sameOriginAndClass: 0, anyTwo: 0, eventsPerLife: 0 },
+    fights: { byFoe: new Map(), byEvent: new Map(), byEventReads: new Map(), byStyle: { reads: newTally(), random: newTally() }, deadlyByStyle: { reads: newTally(), random: newTally() }, perLife: [] },
   };
-  const { problems, collisions, counts } = res;
+  const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
   const mustEvents = game.events.filter((e) => e.must);
 
@@ -88,6 +143,8 @@ export function auditLives(game: Game, lives: number): AuditResult {
     const r = new Rng(seed * 7919 + 13);
     const inLife = new Map<string, number>();
     const couldMust = new Set<string>();
+    const style: FightStyle = seed % 2 ? 'random' : 'reads';
+    let fought = 0;
     /** must ที่เข้าเงื่อนไขแล้วแต่ยังไม่ได้ออก → เรื่องที่แซงไปตอนมันเหลือโอกาสสุดท้าย (ถ้ามี) */
     const waiting = new Map<string, string | null>();
 
@@ -133,6 +190,12 @@ export function auditLives(game: Game, lives: number): AuditResult {
         const others = pool.filter((e) => e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id));
         if (others.length) bump(problems, `${ev.id}: ออกซ้ำภายใน ${REPEAT_GAP} เหตุการณ์ทั้งที่มีเรื่องอื่นให้ออก`);
       }
+      // จังหวะของการปะทะ: ฉากปะทะที่ยังพักอยู่ออกได้เฉพาะเมื่อไม่มีเรื่องอื่นที่สดให้ออก
+      if (fightResting(l, ev)) {
+        const fresh = pool.filter((e) => !fightResting(l, e) && (e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id)));
+        if (fresh.length) bump(problems, `${ev.id}: การปะทะออกทั้งที่ยังอยู่ในช่วงพักและมีเรื่องอื่นให้ออก`);
+        bump(res.counts, 'การปะทะที่ออกทั้งที่ยังพัก');
+      }
 
       l = picked.life;
       bump(res.seenEvents, ev.id);
@@ -158,46 +221,103 @@ export function auditLives(game: Game, lives: number): AuditResult {
       }
       if (ev.stage === 'death') bump(res.deathScenes, ev.id);
 
-      const choices = ev.choices.filter((c) => choiceAvailable(game, l, c, ev));
-      for (const c of ev.choices) for (const t of traitBlock(game, l, c, ev)) bump(res.traitLocks, t);
-      if (!choices.length) {
-        bump(problems, `${ev.id}: ไม่มีตัวเลือกให้กด (ทางตัน)`);
-        break;
-      }
-      if (choices.length === 1 && ev.choices.length > 1) bump(counts, 'เหตุการณ์ที่เหลือตัวเลือกเดียว');
-      bump(counts, 'เหตุการณ์ทั้งหมด');
-
-      const c = choices[r.int(0, choices.length - 1)]!;
       const before = l;
-      l = resolveChoice(game, l, ev.id, c.id).life;
+      /** ชื่อของสิ่งที่เพิ่งเลือก ใช้ในรายงาน และผลที่เพิ่งใช้ */
+      let did: string;
+      let fxs: (Effects | undefined)[];
+      if (ev.encounter) {
+        const foe = foeOf(game, ev);
+        if (!foe || !l.encounter) {
+          bump(problems, `${ev.id}: การปะทะเริ่มไม่ได้ (ไม่มีศัตรูหรือไม่มีสถานะการปะทะ)`);
+          break;
+        }
+        let end: EncounterEnd | null = null;
+        let hits = 0;
+        let beats = 0;
+        for (let b = 0; b < 8 && !end; b++) {
+          if (!openMoves(game, l, ev).length) {
+            bump(problems, `${ev.id}: จังหวะ ${b + 1} ไม่มีวิธีให้เลือก (ทางตัน)`);
+            break;
+          }
+          const pick = pickMove(game, l, ev, r, style);
+          const shown = moveOdds(game, l, ev, openMoves(game, l, ev).find((m) => m.id === pick.id)!, pick.armed);
+          const out = resolveMove(game, l, pick.id, pick.armed);
+          if (out.record.mod !== shown.mod || out.record.dc !== shown.dc) bump(problems, `${ev.id}/${pick.id}: แต้มที่ทอยจริงไม่ตรงกับที่แสดงบนปุ่ม`);
+          beats++;
+          if (out.record.success) hits++;
+          l = out.life;
+          if (out.done) end = out.entry!.encounter!.end;
+        }
+        if (!end) break;
+        fought++;
+        const lost = l.log.at(-1)!.encounter!.records.reduce((n, rec) => n + (rec.damage ?? 0), 0);
+        const wounds = l.traits.filter((t) => !before.traits.includes(t) && foe.def.wounds.includes(t)).length;
+        const tallies = [
+          fights.byFoe.get(foe.def.id) ?? fights.byFoe.set(foe.def.id, newTally()).get(foe.def.id)!,
+          fights.byEvent.get(ev.id) ?? fights.byEvent.set(ev.id, newTally()).get(ev.id)!,
+          fights.byStyle[style],
+          ...(style === 'reads' ? [fights.byEventReads.get(ev.id) ?? fights.byEventReads.set(ev.id, newTally()).get(ev.id)!] : []),
+          ...(foe.deadly ? [fights.deadlyByStyle[style]] : []),
+        ];
+        for (const t of tallies) {
+          t.n++;
+          t.ends[end] = (t.ends[end] ?? 0) + 1;
+          t.beats += beats;
+          t.hits += hits;
+          t.hpLost += lost;
+          t.hpStart += before.hp;
+          t.wounds += wounds;
+        }
+        if (l.encounter) bump(problems, `${ev.id}: การปะทะจบแล้วแต่สถานะการปะทะยังค้าง`);
+        if (end === 'death' && !foe.deadly) bump(problems, `${ev.id}: ตายในการปะทะที่ไม่เอาถึงตาย`);
+        if (end === 'death' && before.age < PROTECTED_AGE) bump(problems, `${ev.id}: ตายในการปะทะก่อนวัย ${PROTECTED_AGE}`);
+        if (end !== 'death' && !l.dying && l.alive && l.hp < 1) bump(problems, `${ev.id}: จบการปะทะแบบ ${end} ด้วยพลังชีวิตต่ำกว่า 1`);
+        bump(counts, 'เหตุการณ์ทั้งหมด');
+        did = `${ev.id}/${end}`;
+        fxs = end === 'death' ? [{ die: true }] : [ev.encounter[end]?.effects];
+      } else {
+        const choices = ev.choices.filter((c) => choiceAvailable(game, l, c, ev));
+        for (const c of ev.choices) for (const t of traitBlock(game, l, c, ev)) bump(res.traitLocks, t);
+        if (!choices.length) {
+          bump(problems, `${ev.id}: ไม่มีตัวเลือกให้กด (ทางตัน)`);
+          break;
+        }
+        if (choices.length === 1 && ev.choices.length > 1) bump(counts, 'เหตุการณ์ที่เหลือตัวเลือกเดียว');
+        bump(counts, 'เหตุการณ์ทั้งหมด');
+
+        const c = choices[r.int(0, choices.length - 1)]!;
+        l = resolveChoice(game, l, ev.id, c.id).life;
+        did = `${ev.id}/${c.id}`;
+        fxs = [c.effects, c.success?.effects, c.failure?.effects];
+      }
 
       // ---- ตรวจผลของตัวเลือก ----
-      for (const fx of [c.effects, c.success?.effects, c.failure?.effects]) {
+      for (const fx of fxs) {
         for (const pe of fx?.people ?? []) {
           const was = before.people.find((p) => p.id === pe.id);
-          if (was && !was.alive && (pe.closeness || pe.dies)) bump(problems, `${ev.id}/${c.id}: ปรับความสนิทหรือสั่งตายกับ "${pe.id}" ที่ตายไปแล้ว`);
+          if (was && !was.alive && (pe.closeness || pe.dies)) bump(problems, `${did}: ปรับความสนิทหรือสั่งตายกับ "${pe.id}" ที่ตายไปแล้ว`);
         }
       }
       // ตัวเลือกที่ทำให้ล้มลง (เริ่มตาย) ชีวิตจบจริงหลังฉากตาย
       const cause = l.dying ?? l.deathCause;
       if (!before.dying && cause && (l.dying || !l.alive)) {
-        bump(res.deathBy, cause === 'age' ? 'ฤดูหนาว (สิ้นอายุขัย)' : `${ev.id}/${c.id}`);
+        bump(res.deathBy, cause === 'age' ? 'ฤดูหนาว (สิ้นอายุขัย)' : did);
         bump(res.deathCauses, cause);
-        if (cause !== 'age' && l.hp > 0 && !(c.effects?.die || c.success?.effects?.die || c.failure?.effects?.die)) bump(problems, `${ev.id}/${c.id}: ตายทั้งที่ HP เหลือและไม่มี die`);
+        if (cause !== 'age' && l.hp > 0 && !fxs.some((fx) => fx?.die)) bump(problems, `${did}: ตายทั้งที่ HP เหลือและไม่มี die`);
       }
-      if (!l.alive && l.endReason === 'death' && !l.deathCause) bump(problems, `${ev.id}/${c.id}: ตายโดยไม่มีเหตุของความตาย`);
-      if (l.alive && maxHp(l, game.items) < 1 && !l.dying) bump(problems, `${ev.id}/${c.id}: พลังชีวิตสูงสุดหมดแต่ยังไม่ตาย`);
-      if (l.age < before.age) bump(problems, `${ev.id}/${c.id}: อายุถอยหลัง`);
+      if (!l.alive && l.endReason === 'death' && !l.deathCause) bump(problems, `${did}: ตายโดยไม่มีเหตุของความตาย`);
+      if (l.alive && maxHp(l, game.items) < 1 && !l.dying) bump(problems, `${did}: พลังชีวิตสูงสุดหมดแต่ยังไม่ตาย`);
+      if (l.age < before.age) bump(problems, `${did}: อายุถอยหลัง`);
       for (const p of l.people) {
         if (p.alive && personHumanAge(p, l) > 125) bump(problems, `คนรอบตัวอายุเกิน 125 ปีแบบมนุษย์แล้วยังอยู่ (${p.kin ?? p.bond ?? 'คนรู้จัก'})`);
         if (p.born !== undefined && p.born > worldYear(l)) bump(problems, `${p.id}: เกิดหลังปีปัจจุบัน`);
       }
-      if (l.hp > Math.max(0, maxHp(l, game.items))) bump(problems, `HP เกินค่าสูงสุดหลัง ${ev.id}/${c.id}`);
-      for (const s of STATS) if (l.stats[s] < 1) bump(problems, `${s} ต่ำกว่า 1 หลัง ${ev.id}/${c.id}`);
-      if (l.gold < 0 && before.gold >= 0 && !(c.effects?.debt || c.success?.effects?.debt || c.failure?.effects?.debt)) {
-        bump(problems, `${ev.id}/${c.id}: เงินติดลบโดยไม่ใช่หนี้`);
+      if (l.hp > Math.max(0, maxHp(l, game.items))) bump(problems, `HP เกินค่าสูงสุดหลัง ${did}`);
+      for (const s of STATS) if (l.stats[s] < 1) bump(problems, `${s} ต่ำกว่า 1 หลัง ${did}`);
+      if (l.gold < 0 && before.gold >= 0 && !fxs.some((fx) => fx?.debt)) {
+        bump(problems, `${did}: เงินติดลบโดยไม่ใช่หนี้`);
       }
-      if (l.flags.includes('married') && !l.partner) bump(problems, `${ev.id}/${c.id}: แต่งงานแล้วแต่ไม่มีคู่`);
+      if (l.flags.includes('married') && !l.partner) bump(problems, `${did}: แต่งงานแล้วแต่ไม่มีคู่`);
       if (l.flags.includes('has_child') && !l.flags.includes('married') && !l.flags.includes('partner_died') && !before.flags.includes('has_child')) {
         bump(counts, 'มีลูกโดยไม่ได้แต่งงาน');
       }
@@ -226,6 +346,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
     }
     bump(res.endReasons, l.endReason ?? 'cap');
     res.finals.push(l);
+    fights.perLife.push(fought);
   }
 
   res.overlap = measureOverlap(res.finals);
@@ -278,6 +399,12 @@ export function traitSources(game: Game): Set<string> {
       take(c.success?.effects);
       take(c.failure?.effects);
       if (c.habit) ids.add(c.habit);
+    }
+    // การปะทะ: ผลของทางจบ และแผลของศัตรูชนิดนั้น
+    const enc = ev.encounter;
+    if (enc) {
+      for (const out of [enc.win, enc.lose, enc.stalemate, enc.flee, enc.parley]) take(out?.effects);
+      game.foes.get(enc.foe)?.wounds.forEach((w) => ids.add(w));
     }
   }
   return ids;
@@ -343,6 +470,48 @@ export function formatReport(game: Game, res: AuditResult): string {
   out.push(`- เหตุการณ์ที่เล่าหลายปีรวบเดียว: กลาง ${median(spans.map((x) => x.length))} เรื่องต่อชีวิต สูงสุด ${Math.max(0, ...spans.map((x) => x.length))} · กินเวลารวม กลาง ${median(spans.map((x) => x.reduce((n, e) => n + (e.span ?? 1), 0)))} ปี`);
   const marks = finals.filter((l) => l.endReason === 'death').map((l) => l.log.filter((e) => e.mark).length);
   out.push(`- ป้ายบนเส้นชีวิตของคนที่ตาย: กลาง ${median(marks)} ช่วง ${Math.min(0, ...marks)}–${Math.max(0, ...marks)}`);
+
+  h('การปะทะ');
+  const { fights } = res;
+  const total = fights.byStyle.reads.n + fights.byStyle.random.n;
+  if (!total) out.push('- เนื้อหานี้ยังไม่มีการปะทะ');
+  else {
+    const share = (t: FightTally, k: EncounterEnd) => pct(t.ends[k] ?? 0, t.n);
+    const row = (t: FightTally) =>
+      `${t.n} ครั้ง · ชนะ ${share(t, 'win')} ยัน ${share(t, 'stalemate')} หนี ${share(t, 'flee')} เจรจา ${share(t, 'parley')} แพ้ ${share(t, 'lose')} ตาย ${share(t, 'death')}` +
+      ` · สำเร็จต่อจังหวะ ${pct(t.hits, t.beats)} · พลังชีวิตตอนเริ่มเฉลี่ย ${(t.hpStart / Math.max(1, t.n)).toFixed(1)} เสียเฉลี่ย ${(t.hpLost / Math.max(1, t.n)).toFixed(1)} · ได้แผล ${pct(t.wounds, t.n)}`;
+    out.push(`- ผู้เล่นที่อ่านเกม: ${row(fights.byStyle.reads)}`);
+    out.push(`- ผู้เล่นที่กดสุ่ม: ${row(fights.byStyle.random)}`);
+    out.push(`- เฉพาะการปะทะที่เอาถึงตาย · อ่านเกม: ${row(fights.deadlyByStyle.reads)}`);
+    out.push(`- เฉพาะการปะทะที่เอาถึงตาย · กดสุ่ม: ${row(fights.deadlyByStyle.random)}`);
+    const armed = (l: LifeState) => l.classId === 'warrior' || l.classId === 'rogue' || l.classId === 'ranger';
+    const per = (keep: (l: LifeState) => boolean) => finals.map((l, i) => [l, fights.perLife[i] ?? 0] as const).filter(([l]) => humanAge(l) >= 40 && keep(l)).map(([, n]) => n);
+    const span = (xs: number[]) => `กลาง ${median(xs)} ช่วง 10–90% ${quantile(xs, 0.1)}–${quantile(xs, 0.9)} สูงสุด ${Math.max(0, ...xs)}`;
+    out.push(`- จำนวนการปะทะต่อชีวิต (ชีวิตที่ถึง 40): สายถืออาวุธ ${span(per(armed))} · สายอื่น ${span(per((l) => !armed(l)))}`);
+    out.push(`- การปะทะที่ออกทั้งที่ยังอยู่ในช่วงพัก เพราะไม่มีเรื่องอื่นให้ออก: ${res.counts.get('การปะทะที่ออกทั้งที่ยังพัก') ?? 0} ครั้ง`);
+    out.push('- แยกตามศัตรู:');
+    for (const [id, t] of [...fights.byFoe].sort((a, b) => b[1].n - a[1].n)) out.push(`  - ${game.foes.get(id)?.name ?? id} (ภัย ${game.foes.get(id)?.threat}): ${row(t)}`);
+    const never = game.events.filter((e) => e.encounter && !fights.byEvent.has(e.id)).map((e) => e.id);
+    out.push(`- ฉากปะทะที่ไม่มีชีวิตไหนได้เจอ: ${never.length ? never.join(', ') : 'ไม่มี'}`);
+    const unwon = [...fights.byEvent].filter(([, t]) => t.n >= 20 && !(t.ends.win ?? 0)).map(([id]) => id);
+    out.push(`- ฉากปะทะที่เจอเกิน 20 ครั้งแต่ไม่มีใครชนะ: ${unwon.length ? unwon.join(', ') : 'ไม่มี'}`);
+    const grim = [...fights.byEvent].filter(([, t]) => t.n >= 20 && (t.ends.death ?? 0) / t.n > 0.15).map(([id, t]) => `${id} ${share(t, 'death')}`);
+    out.push(`- ฉากปะทะที่ตายเกิน 15%: ${grim.length ? grim.join(' · ') : 'ไม่มี'}`);
+    const careful = [...fights.byEventReads].filter(([, t]) => t.n >= 10 && (t.ends.death ?? 0) / t.n > 0.08).map(([id, t]) => `${id} ${share(t, 'death')} จาก ${t.n} ครั้ง (ชนะ ${share(t, 'win')})`);
+    out.push(`- ฉากปะทะที่ผู้เล่นอ่านเกมยังตายเกิน 8%: ${careful.length ? careful.join(' · ') : 'ไม่มี'}`);
+    const hard = [...fights.byEventReads].filter(([, t]) => t.n >= 10 && (t.ends.win ?? 0) + (t.ends.parley ?? 0) < t.n * 0.35).map(([id, t]) => `${id} ชนะหรือเจรจา ${pct((t.ends.win ?? 0) + (t.ends.parley ?? 0), t.n)} จาก ${t.n} ครั้ง`);
+    out.push(`- ฉากปะทะที่ผู้เล่นอ่านเกมชนะหรือเจรจาได้ไม่ถึง 35%: ${hard.length ? hard.join(' · ') : 'ไม่มี'}`);
+    // ฉากที่เกิดซ้ำได้: ถ้าชีวิตเดียวเจอฉากเดิมหลายรอบเกินไป ผู้เล่นจะอ่านข้อความเดิมซ้ำ
+    const repeats = game.events
+      .filter((e) => e.encounter && !e.once)
+      .map((e) => {
+        const seen = finals.map((l) => l.log.filter((x) => x.eventId === e.id).length).filter((n) => n > 0);
+        return `${e.id} เจอ ${pct(seen.length, lives)} ของชีวิต กลาง ${median(seen)} ครั้ง สูงสุด ${Math.max(0, ...seen)}`;
+      });
+    out.push(`- ฉากปะทะที่เกิดซ้ำได้: ${repeats.length ? repeats.join(' · ') : 'ไม่มี'}`);
+    const unused = [...game.foes.keys()].filter((id) => !game.events.some((e) => e.encounter?.foe === id));
+    out.push(`- ศัตรูที่ยังไม่มีฉากปะทะ: ${unused.length ? `${unused.length} ชนิด (${unused.map((id) => game.foes.get(id)!.name).join(', ')})` : 'ไม่มี'}`);
+  }
 
   h('เผ่าและอาชีพ');
   const tally = (key: (l: LifeState) => string) => {

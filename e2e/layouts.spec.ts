@@ -122,6 +122,9 @@ const ENDED_LIFE = {
   ],
 };
 
+/** ชีวิตที่ค้างอยู่หน้าฉากปะทะของเนื้อหาทดสอบ สถานะการปะทะระบบเริ่มให้เองตอนโหลดเซฟ */
+const BRAWL_LIFE = { version: 3, seed: 7, name: 'ทดสอบ', gender: 'm', raceApplied: 'human', age: 18, birthYear: 294, hp: 12, baseMaxHp: 12, flags: ['test_brawl'], currentEventId: 'youth.test_brawl' };
+
 async function loadLife(page: Page, life: unknown) {
   await page.goto('/');
   await page.locator('.top').waitFor();
@@ -209,5 +212,37 @@ test('the family tree shows ages, and a person card with birth year and closenes
   await tabButton(page, 1).click();
   await page.locator('.read .trait').first().click();
   await expect(page.locator('.read .trait-card')).toContainText('คำสาป');
+  expect(await noSideScroll(page)).toBe(true);
+});
+
+test('an encounter plays beat by beat on the stage and hands back to the story when it ends', ONCE, async ({ page }, info) => {
+  await loadLife(page, BRAWL_LIFE);
+  const sheet = page.locator('.sheet.enc');
+  await expect(sheet).toBeVisible();
+  // ศัตรูขึ้นเวทีพร้อมชื่อ แรงใจ และจุดบอกจังหวะ วิธีรับมือของจังหวะแรกครบสามทาง
+  await expect(page.locator('.sprite.foe')).toBeVisible();
+  await expect(page.locator('.enc-chip.foe .foe-name')).toHaveText('[ทดสอบ] หมาเถ้า');
+  await expect(page.locator('.enc-chip.foe .pip.on')).toHaveCount(2);
+  await expect(sheet.locator('.choice')).toHaveCount(3);
+  expect(await noSideScroll(page)).toBe(true);
+  await page.screenshot({ path: `shots/${info.project.name}-encounter.png`, fullPage: true });
+
+  // จังหวะแรก: ผลการทอยขึ้นในบันทึก แล้วแผ่นเปลี่ยนเป็นวิธีของจังหวะสอง (หรือการปะทะจบถ้าเลือกแล้วจบเลย)
+  await sheet.locator('.choice').first().click();
+  await expect(page.locator('.entry .roll').first()).toBeVisible();
+  // กดต่อจนจบ ไม่เกินจำนวนจังหวะของฉาก
+  for (let i = 0; i < 3 && (await sheet.count()); i++) {
+    const skip = page.getByRole('button', { name: 'ข้ามไปตัวเลือก' });
+    if (await skip.isVisible()) await skip.click();
+    if (!(await sheet.count())) break;
+    await sheet.locator('.choice').first().click();
+    await page.waitForTimeout(350);
+  }
+  // จบแล้ว: บรรทัดผลอยู่ในบันทึก แผ่นการปะทะหายไป และเรื่องเดินต่อด้วยตัวเลือกของเหตุการณ์ถัดไป
+  await expect(sheet).toHaveCount(0);
+  await expect(page.locator('.entry .outcome')).toHaveCount(1);
+  const skip = page.getByRole('button', { name: 'ข้ามไปตัวเลือก' });
+  if (await skip.isVisible()) await skip.click();
+  await expect(page.locator(CHOICE).first()).toBeVisible();
   expect(await noSideScroll(page)).toBe(true);
 });

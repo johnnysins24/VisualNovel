@@ -9,6 +9,7 @@ import { SpriteView } from './SpriteView';
 import { resolvedTheme, theme, toggleTheme } from './theme';
 import { sceneImage } from './scenes';
 import { namedInText, namedLook, namedName } from '../sprites/looks';
+import { EncounterChips, FoeSprite, encounterNow } from './Encounter';
 
 /** ชื่อไทยของ location_tag (ตามคัมภีร์โลก) */
 export const PLACE_TH: Record<string, string> = {
@@ -96,15 +97,17 @@ export function Scene() {
   const npc = sceneNpc(currentEvent.value?.text ?? '');
   // ชีวิตจบแล้ว: ห้องยังอยู่ แต่ไม่มีใครยืนอยู่ในนั้น
   const ended = endReasonOf(life.value) === 'death';
+  // ระหว่างการปะทะ: ศัตรูยืนแทน NPC และป้ายสถานะของทั้งสองฝ่ายอยู่บนเวทีแทนป้ายชื่อถิ่น
+  const fight = encounterNow();
   return (
-    <div class={`scene ${img ? `has-img ${img.time}` : ''} ${ended ? 'ended' : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
+    <div class={`scene ${img ? `has-img ${img.time}` : ''} ${ended ? 'ended' : ''} ${fight ? 'enc-a' : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
       {!img && <div class="hill" />}
       {!img && <div class="hill back" />}
       <div class="actors">
         <SpriteView />
-        {npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
+        {fight ? <FoeSprite foe={fight.foe} /> : npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
       </div>
-      {place && <span class="scene-place"><Icon name="place" />{place}</span>}
+      {fight ? <EncounterChips foe={fight.foe} st={fight.st} /> : place && <span class="scene-place"><Icon name="place" />{place}</span>}
     </div>
   );
 }

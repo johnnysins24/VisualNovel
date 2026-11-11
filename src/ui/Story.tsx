@@ -5,12 +5,14 @@ import { STATS, type Stat } from '../engine/schema';
 import { paragraphs, render } from '../engine/text';
 import { traitCheckBonuses } from '../engine/traits';
 import { worldYear, type LifeChanges, type LogEntry, type YearEnd } from '../engine/state';
-import { choose, currentEvent, endReasonOf, game, lastEntry, life, sheetCollapsed } from '../store';
+import { openMoves } from '../engine/encounter';
+import { choose, chooseMove, currentEvent, endReasonOf, game, lastEntry, life, sheetCollapsed } from '../store';
+import { EncounterBeats, EncounterNow, EncounterSheet, lastBeatText } from './Encounter';
 import { Ending, bioOpen } from './Endings';
 import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
 import { Steps, TraitChip } from './Traits';
-import { autoSpeed, autoplay, cycleSpeed, fresh, revealAll, revealNext, revealing, scrolledBack, shownCount } from './reading';
+import { autoSpeed, autoplay, cycleSpeed, fresh, justRead, revealAll, revealNext, revealing, scrolledBack, shownCount, tapNext } from './reading';
 
 /** อายุที่เปิดค้างไว้ อายุเก่ากว่านี้พับเป็นก้อนเดียว */
 const OPEN_AGES = 2;
@@ -92,11 +94,14 @@ function Entry({ e, old, limit }: { e: LogEntry; old: boolean; limit?: number })
   const cast = e.cast ?? {};
   const span = e.span ?? 1;
   // ลำดับที่ผู้อ่านเห็น: ผลของตัวเลือก สิ่งที่เปลี่ยน แล้วจึงสิ่งที่เกิดตอนสิ้นปี (เช็คฤดูหนาว ประโยคของปี สิ่งที่ร่างกายเสีย)
+  // การปะทะ: ผลของจังหวะสุดท้าย (lead ย่อหน้า) เปิดก่อนข้อความปิด
+  const lead = lastBeatText(e, l).length;
   const told = e.text ? paragraphs(render(e.text, l, cast, span)) : [];
   const yearLines = e.year?.lines ?? [];
   const shown = limit ?? Infinity;
-  const toldDone = shown >= told.length;
-  const allDone = shown >= told.length + yearLines.length;
+  const after = Math.max(0, shown - lead);
+  const toldDone = after >= told.length;
+  const allDone = after >= told.length + yearLines.length;
   return (
     <article class={`entry ${old ? 'old' : ''}`}>
       {ev && paragraphs(render(ev.text, l, cast, span)).map((p, i) => <p key={i}>{p}</p>)}
@@ -112,10 +117,11 @@ function Entry({ e, old, limit }: { e: LogEntry; old: boolean; limit?: number })
           {e.roll.success ? 'สำเร็จ' : 'พลาด'}
         </p>
       )}
-      {told.slice(0, shown).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
+      {e.encounter && <EncounterBeats e={e} limit={shown} />}
+      {told.slice(0, after).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
       {e.changes && toldDone && <Changes c={e.changes} />}
-      {e.year?.winter && (yearLines.length ? shown > told.length : toldDone) && <WinterRoll w={e.year.winter} />}
-      {yearLines.slice(0, Math.max(0, shown - told.length)).map((p, i) => <p key={`y${i}`} class="aftermath">{p}</p>)}
+      {e.year?.winter && (yearLines.length ? after > told.length : toldDone) && <WinterRoll w={e.year.winter} />}
+      {yearLines.slice(0, Math.max(0, after - told.length)).map((p, i) => <p key={`y${i}`} class="aftermath">{p}</p>)}
       {e.year && allDone && <YearChanges y={e.year} />}
     </article>
   );
@@ -195,8 +201,11 @@ export function StoryLog() {
   const shown = shownCount.value;
   const { after, now } = fresh.value;
   const isFresh = (e: LogEntry) => e === lastEntry.value && l.log[l.log.length - 1] === e;
-  const nowShown = now.slice(0, Math.max(0, shown - after.length));
+  const nowCount = Math.max(0, shown - after.length);
+  const nowShown = now.slice(0, nowCount);
   const more = revealing.value;
+  // การปะทะที่กำลังเดิน: จังหวะที่ผ่านไปแล้วอยู่ในบันทึกเสมอ แม้ย่อหน้าใหม่ยังไม่เปิด
+  const fighting = !!ev?.encounter && !!l.encounter;
 
   useEffect(() => {
     end.current?.scrollIntoView?.({ block: 'end', behavior: shown === Infinity ? 'auto' : 'smooth' });
@@ -222,7 +231,8 @@ export function StoryLog() {
           {l.log.filter((e) => e.age === age).map((e, i) => (
             <Entry key={`${e.eventId}-${i}`} e={e} old={!!ev || l.log.indexOf(e) < l.log.length - 1} limit={isFresh(e) && shown !== Infinity ? shown : undefined} />
           ))}
-          {ev && age === l.age && nowShown.length > 0 && (
+          {ev && age === l.age && fighting && (nowCount > 0 || l.encounter!.records.length > 0) && <EncounterNow count={nowCount} more={more} />}
+          {ev && age === l.age && !fighting && nowShown.length > 0 && (
             <article class="entry current">
               {nowShown.map((p, i) => <p key={i} class={i === nowShown.length - 1 && more ? 'just' : ''}>{p}</p>)}
             </article>
@@ -244,11 +254,13 @@ export function StoryLog() {
 
 const pctClass = (p: number) => (p >= 0.7 ? 'good' : p >= 0.4 ? 'mid' : 'bad');
 
-/** ตัวเลือกที่กดได้ เรียงตามที่แสดง ใช้กับปุ่มลัด 1–9 */
-export function playableChoices() {
+/** สิ่งที่กดได้ตอนนี้ เรียงตามที่แสดง ใช้กับปุ่มลัด 1–9: ตัวเลือกของเหตุการณ์ หรือวิธีรับมือของจังหวะปัจจุบันในการปะทะ */
+export function hotkeyActions(): (() => void)[] {
   const ev = currentEvent.value;
-  if (!ev || !life.value.alive || revealing.value) return [];
-  return ev.choices.filter((c) => choiceLock(game, life.value, c, ev) === null);
+  const l = life.value;
+  if (!ev || !l.alive || revealing.value || sheetCollapsed.value) return [];
+  if (ev.encounter) return l.encounter ? openMoves(game, l, ev).map((m) => () => chooseMove(m.id)) : [];
+  return ev.choices.filter((c) => choiceLock(game, l, c, ev) === null).map((c) => () => choose(c.id));
 }
 
 /** ป้ายสิ่งติดตัวใต้ตัวเลือก: อะไรช่วยหรือถ่วงการทอยนี้ และตัวเลือกนี้เปิดได้เพราะอะไรติดตัวอยู่ */
@@ -288,6 +300,7 @@ export function ChoiceSheet() {
   if (revealing.value) return <ReadBar />;
   if (!l.alive) return endReasonOf(l) === 'death' ? <Farewell /> : null;
   if (!ev) return null;
+  if (ev.encounter) return <EncounterSheet />;
   const rows = ev.choices
     .map((c) => ({ c, lock: choiceLock(game, l, c, ev), blocked: traitBlock(game, l, c, ev) }))
     .filter((r) => r.lock !== 'hidden' || r.blocked.length > 0);
@@ -328,7 +341,7 @@ export function ChoiceSheet() {
         n += 1;
         const p = c.check ? checkChance(game, l, c.check) : null;
         return (
-          <button key={c.id} class="choice" onClick={() => choose(c.id)}>
+          <button key={c.id} class="choice" onClick={() => !justRead() && choose(c.id)}>
             <span class="label two">
               <span class="l1"><kbd class="num">{n}</kbd>{render(c.label, l)}</span>
               <ChoiceTags c={c} />
@@ -359,7 +372,7 @@ function ReadBar() {
       <button class="icon-btn" onClick={revealAll} aria-label="ข้ามไปตัวเลือก">
         <Icon name="skip" />
       </button>
-      <button class="primary next" onClick={revealNext}>
+      <button class="primary next" onClick={tapNext}>
         <Icon name="next" />อ่านต่อ
       </button>
     </div>

@@ -1,0 +1,301 @@
+/**
+ * การปะทะ: เหตุการณ์ที่เดินเป็นจังหวะ 2 ถึง 4 จังหวะกับศัตรูหนึ่งชนิด (content/foes.yaml)
+ * แต่ละจังหวะศัตรูส่งสัญญาณ ผู้เล่นเลือกวิธีรับมือหนึ่งวิธี ทอยหนึ่งครั้ง
+ *   สำเร็จ = ศัตรูเสียแรงใจหนึ่งขีด (ทอยได้ 20 เสียสองขีด) · พลาด = เสียพลังชีวิตเท่าระดับภัย ลบเกราะ
+ * จบได้หกแบบ: ชนะ (แรงใจหมด) แพ้ (พลังชีวิตหมดแต่ไม่ตาย) ตาย หนี เจรจา หรือยัน (ครบทุกจังหวะ)
+ * ตัวเลขทั้งหมดอยู่ใน balance.ts (ENCOUNTER, TECHNIQUES) ไฟล์นี้มีแต่วิธีคิด
+ */
+import type { Encounter, EncounterEnd, FoeDef, GameEvent, Move, Stat } from './schema';
+import { ENCOUNTER, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type TechniqueKind } from './balance';
+import { modifier, type BeatRecord, type EncounterLog, type EncounterState, type LifeState, type LogEntry, type OddsPart } from './state';
+import { Rng } from './rng';
+import { activePassives, effectiveStats } from './items';
+import { clericDrifted, situationalBonus } from './rules';
+import { traitCheckBonuses } from './traits';
+import { applyEffects, concludeEvent, requiresMet, type Game } from './engine';
+
+/** ศัตรูของฉากหนึ่ง: ค่าของชนิด ทับด้วยค่าที่ฉากกำหนดเอง */
+export interface FoeView {
+  def: FoeDef;
+  name: string;
+  threat: number;
+  morale: number;
+  /** พลังชีวิตหมดในการปะทะนี้คือตาย */
+  deadly: boolean;
+}
+
+export function foeOf(game: Game, ev: GameEvent): FoeView | null {
+  const enc = ev.encounter;
+  const def = enc ? game.foes.get(enc.foe) : undefined;
+  if (!enc || !def) return null;
+  return { def, name: enc.name ?? def.name, threat: enc.threat ?? def.threat, morale: enc.morale ?? def.morale, deadly: enc.deadly ?? def.lethal };
+}
+
+/** flag ที่บอกว่าตัวละครรู้จุดอ่อนของศัตรูชนิดนี้แล้ว ติดตัวไปทั้งชีวิต */
+export const knowsFlag = (foeId: string) => `knows_${foeId}`;
+
+/** ท่าที่ต้องกดเตรียมก่อนเลือกวิธี ท่าอื่นทำงานเอง */
+const ARMED: readonly TechniqueKind[] = ['spell', 'ward', 'sense', 'song', 'at_hand'];
+
+export interface TechniqueView {
+  kind: TechniqueKind;
+  th: string;
+  /** ต้องกดเตรียมก่อนเลือกวิธี (ท่าที่ไม่ต้องกดทำงานเองเมื่อถึงจังหวะของมัน) */
+  armable: boolean;
+  /** ยังใช้ได้ในการปะทะนี้ */
+  ready: boolean;
+  /** เหตุที่ใช้ไม่ได้: ใช้ไปแล้ว เลยจังหวะแรก ห่างจากเทพ หรือไม่ได้อยู่ถิ่นเกิด */
+  why?: 'used' | 'late' | 'drifted' | 'away';
+}
+
+const techniqueDef = (life: LifeState) => TECHNIQUES[(life.classId ?? 'none') as ClassId | 'none'] ?? TECHNIQUES.none;
+
+/** ท่าของอาชีพในการปะทะที่กำลังเดินอยู่ */
+export function techniqueOf(life: LifeState): TechniqueView {
+  const def = techniqueDef(life);
+  const st = life.encounter;
+  const view: TechniqueView = { kind: def.kind, th: def.th, armable: ARMED.includes(def.kind), ready: true };
+  const off = (why: NonNullable<TechniqueView['why']>): TechniqueView => ({ ...view, ready: false, why });
+  if (st?.techUsed) return off('used');
+  if (def.kind === 'ambush' && (st?.beat ?? 0) > 0) return off('late');
+  if (def.kind === 'ward' && (!life.god || clericDrifted(life))) return off('drifted');
+  if (def.kind === 'sense' && !(life.homeTag && life.homeTag === life.locationTag)) return off('away');
+  return view;
+}
+
+/** ท่าที่เตรียมไว้มีผลกับวิธีนี้ไหม (เวทใช้กับการหนีไม่ได้ เพลงใช้ได้กับการพูดเท่านั้น) */
+export function techniqueFits(kind: TechniqueKind, move: Move): boolean {
+  if (!ARMED.includes(kind)) return false;
+  if (kind === 'spell') return move.kind !== 'flee';
+  if (kind === 'song') return move.kind === 'talk';
+  return true;
+}
+
+export function beginEncounter(game: Game, life: LifeState, ev: GameEvent): EncounterState | null {
+  const foe = foeOf(game, ev);
+  if (!foe) return null;
+  // พรานอ่านสัตว์และสิ่งแปลกปลอมออกตั้งแต่แรกเห็น คนอื่นต้องเคยเจอหรืออ่านทางให้ออกก่อน
+  const knew = life.flags.includes(knowsFlag(foe.def.id)) || life.classId === 'ranger';
+  return { beat: 0, morale: foe.morale, hpStart: life.hp, techUsed: false, shieldUsed: false, rerollUsed: false, weakKnown: knew, knew, records: [] };
+}
+
+/** วิธีรับมือที่เลือกได้ในจังหวะหนึ่ง (ไม่ส่ง beat = จังหวะปัจจุบัน) */
+export function openMoves(game: Game, life: LifeState, ev: GameEvent, beat: number = life.encounter?.beat ?? 0): Move[] {
+  const foe = foeOf(game, ev);
+  const moves = ev.encounter?.beats[beat]?.moves;
+  if (!foe || !moves) return [];
+  return moves.filter((m) => (!m.ally || !!life.cast?.[m.ally]) && (!m.parley || foe.def.speaks) && requiresMet(game, life, m.requires));
+}
+
+const hits = (list: readonly string[], move: Move) => list.includes(move.kind) || move.tags.some((t) => list.includes(t));
+
+export interface MoveOdds {
+  stat: Stat;
+  dc: number;
+  /** แต้มบวกรวมทั้งหมด (ค่าพลัง ของสวมใส่ อาชีพ สิ่งติดตัว และแต้มพิเศษใน parts) */
+  mod: number;
+  parts: OddsPart[];
+  traits: { id: string; amount: number }[];
+  /** โอกาสสำเร็จ 0 ถึง 1 รวมการทอยใหม่ที่ยังเหลือ */
+  chance: number;
+  /** ท่าที่เตรียมไว้ถูกใช้กับวิธีนี้ */
+  tech: boolean;
+}
+
+const hasReroll = (game: Game, life: LifeState) => activePassives(life, game.items).some((p) => p.kind === 'reroll_failed_check');
+
+/** ทอยใหม่ได้อีกไหมในการปะทะนี้: ท่าของนักรบ หรือของที่ให้ทอยใหม่ อย่างละครั้ง */
+function rerollLeft(game: Game, life: LifeState): 'tech' | 'item' | null {
+  const st = life.encounter;
+  if (techniqueDef(life).kind === 'reroll' && !st?.techUsed) return 'tech';
+  if (!st?.rerollUsed && hasReroll(game, life)) return 'item';
+  return null;
+}
+
+/** ความยาก แต้มบวก และโอกาสของวิธีหนึ่งในจังหวะปัจจุบัน armed = ผู้เล่นกดเตรียมท่าของอาชีพไว้ */
+export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move, armed = false): MoveOdds {
+  const foe = foeOf(game, ev)!;
+  const st = life.encounter;
+  const beat = ev.encounter!.beats[st?.beat ?? 0];
+  const tk = techniqueOf(life);
+  const tech = armed && tk.ready && techniqueFits(tk.kind, move);
+  const spell = tech && tk.kind === 'spell';
+  const stat: Stat = spell ? 'INT' : (move.stat ?? MOVE_STAT[move.kind] ?? 'WIS');
+  const dc = ENCOUNTER.dc[foe.threat - 1]! - (move.kind === 'flee' ? ENCOUNTER.fleeEase : 0);
+
+  const parts: OddsPart[] = [];
+  if (beat?.answer && beat.answer === move.kind) parts.push({ kind: 'tell', amount: ENCOUNTER.tell });
+  const weak = !!st?.weakKnown && hits(foe.def.weak, move);
+  if (weak) parts.push({ kind: 'weak', amount: ENCOUNTER.weak });
+  // เวทหนึ่งบททะลุจุดแข็ง และนับเป็นการโดนจุดอ่อนแม้ยังไม่รู้จุดอ่อน
+  if (!spell && hits(foe.def.strong, move)) parts.push({ kind: 'strong', amount: -ENCOUNTER.strong });
+  if (move.ally && life.cast?.[move.ally]) parts.push({ kind: 'ally', amount: ENCOUNTER.ally });
+  if (tech) {
+    const amount = spell ? (weak ? 0 : ENCOUNTER.weak) : tk.kind === 'ward' ? 0 : techniqueDef(life).amount;
+    parts.push({ kind: 'tech', amount });
+  }
+
+  const traits = traitCheckBonuses(life, game.traits, stat, foe.def.side);
+  let mod = modifier(effectiveStats(life, game.items)[stat]) + situationalBonus(life, stat);
+  for (const t of traits) mod += t.amount;
+  for (const p of activePassives(life, game.items)) if (p.kind === 'check_bonus' && p.stat === stat) mod += p.amount;
+  for (const p of parts) mod += p.amount;
+
+  let wins = 0;
+  for (let d = 1; d <= 20; d++) if (d === 20 || (d !== 1 && d + mod >= dc)) wins++;
+  const p = wins / 20;
+  return { stat, dc, mod, parts, traits, chance: rerollLeft(game, life) ? 1 - (1 - p) * (1 - p) : p, tech };
+}
+
+/** พลังชีวิตที่เสียเมื่อพลาดหนึ่งจังหวะ ก่อนคิดโล่และพร */
+export function hitDamage(game: Game, life: LifeState, foe: FoeView): number {
+  const armor = activePassives(life, game.items).reduce((n, p) => n + (p.kind === 'armor' ? p.amount : 0), 0);
+  return Math.max(ENCOUNTER.minDamage, ENCOUNTER.damage[foe.threat - 1]! - Math.min(ENCOUNTER.armorMax, armor));
+}
+
+export interface MoveResult {
+  life: LifeState;
+  record: BeatRecord;
+  /** การปะทะจบแล้ว: entry คือบันทึกของทั้งการปะทะ */
+  done: boolean;
+  entry?: LogEntry;
+}
+
+/** ประโยคประจำตัวของศัตรูที่ยังไม่ถูกใช้ในการปะทะนี้ */
+function stockLine(lines: string[], used: BeatRecord[], foe: FoeView, rng: Rng): string | undefined {
+  const all = lines.map((t) => t.replaceAll('{foe}', foe.name));
+  const fresh = all.filter((t) => !used.some((r) => r.text === t));
+  // ใช้ครบทุกประโยคแล้ว: อย่างน้อยไม่ซ้ำกับจังหวะที่เพิ่งผ่านไป
+  const rest = all.filter((t) => t !== used.at(-1)?.text);
+  const from = fresh.length ? fresh : rest.length ? rest : all;
+  return from.length ? from[rng.int(0, from.length - 1)] : undefined;
+}
+
+/**
+ * เดินหนึ่งจังหวะ: ทอย ใช้ผลกับแรงใจของศัตรูหรือพลังชีวิตของตัวละคร แล้วดูว่าการปะทะจบหรือยัง
+ * ยังไม่จบ = คืนชีวิตที่จังหวะขยับไปหนึ่ง · จบ = ใช้ผลของแบบที่จบ ให้แผลถ้าเจ็บหนัก จดจุดอ่อนที่รู้ แล้วปิดเหตุการณ์เหมือนตัวเลือกปกติ
+ */
+export function resolveMove(game: Game, life: LifeState, moveId: string, armed = false): MoveResult {
+  const ev = game.events.find((e) => e.id === life.currentEventId);
+  const enc: Encounter | undefined = ev?.encounter;
+  const st = life.encounter;
+  const foe = ev ? foeOf(game, ev) : null;
+  if (!ev || !enc || !st || !foe) throw new Error('ไม่ได้อยู่ในการปะทะ');
+  const move = openMoves(game, life, ev).find((m) => m.id === moveId);
+  if (!move) throw new Error(`วิธี ${moveId} ยังใช้ไม่ได้`);
+
+  const rng = Rng.fromState(life.rngState);
+  const odds = moveOdds(game, life, ev, move, armed);
+  const tk = techniqueOf(life);
+  const passes = (d: number) => d === 20 || (d !== 1 && d + odds.mod >= odds.dc);
+
+  const state: EncounterState = { ...st, records: [...st.records] };
+  const record: BeatRecord = { moveId, stat: odds.stat, d20: rng.d20(), mod: odds.mod, dc: odds.dc, success: false };
+  if (odds.parts.length) record.parts = odds.parts;
+  if (odds.traits.length) record.traits = odds.traits;
+  if (odds.tech) {
+    record.tech = tk.kind;
+    state.techUsed = true;
+  }
+  if (!passes(record.d20)) {
+    const again = rerollLeft(game, life);
+    if (again) {
+      record.d20 = Math.max(record.d20, rng.d20());
+      record.rerolled = true;
+      if (again === 'tech') {
+        state.techUsed = true;
+        record.tech = 'reroll';
+      } else state.rerollUsed = true;
+    }
+  }
+  record.success = passes(record.d20);
+
+  let next = life;
+  let end: EncounterEnd | null = null;
+  if (record.success) {
+    if (move.kind === 'flee') end = 'flee';
+    else if (move.parley) end = 'parley';
+    else {
+      let pips = record.d20 === 20 ? ENCOUNTER.critPips : 1;
+      if (tk.kind === 'ambush' && tk.ready) {
+        pips += techniqueDef(life).amount;
+        record.tech = 'ambush';
+      }
+      record.pips = Math.min(pips, state.morale);
+      state.morale -= record.pips;
+      if (move.kind === 'read' && !state.weakKnown) {
+        state.weakKnown = true;
+        state.learned = st.beat;
+      }
+      if (state.morale <= 0) end = 'win';
+    }
+    const text = move.success ?? (end ? undefined : stockLine(foe.def.hurt, state.records, foe, rng));
+    if (text) record.text = text;
+  } else {
+    const text = move.failure ?? stockLine(foe.def.strike, state.records, foe, rng);
+    if (text) record.text = text;
+    if (odds.tech && tk.kind === 'ward') record.blocked = 'ward';
+    else if (!state.shieldUsed && activePassives(life, game.items).some((p) => p.kind === 'shield')) {
+      record.blocked = 'shield';
+      state.shieldUsed = true;
+    } else {
+      const damage = hitDamage(game, life, foe);
+      if (life.hp - damage > 0) next = { ...next, hp: life.hp - damage };
+      else if (!foe.deadly) {
+        // ศัตรูที่ไม่เอาถึงตาย: ล้มลงตรงนั้นด้วยพลังชีวิตเดียว
+        next = { ...next, hp: Math.min(life.hp, 1) };
+        end = 'lose';
+      } else {
+        // เอาถึงตาย: เด็กก่อนวัย PROTECTED_AGE กับคนที่มีสิ่งกันตายรอดมาด้วยพลังชีวิตเดียว นอกนั้นตาย
+        next = applyEffects(game, next, { hp: -damage }, 'fight');
+        end = next.dying ? 'death' : 'lose';
+        if (next.dying) next = { ...next, deathTold: !!enc.death?.text };
+      }
+      record.damage = life.hp - next.hp;
+    }
+  }
+  // แทงจากเงาใช้ได้เฉพาะจังหวะแรก ไม่ว่าจะเข้าหรือไม่
+  if (tk.kind === 'ambush') state.techUsed = true;
+  state.records.push(record);
+  state.beat += 1;
+  if (!end && state.beat >= enc.beats.length) end = 'stalemate';
+
+  if (!end) return { life: { ...next, rngState: rng.state, encounter: state }, record, done: false };
+
+  // ---- การปะทะจบ ----
+  // สิ่งที่เทียบว่าเปลี่ยนคือผลหลังการปะทะ (ของที่ได้ แผล เงิน) พลังชีวิตที่เสียรายจังหวะบอกไว้ในแต่ละจังหวะแล้ว
+  const before: LifeState = { ...life, hp: next.hp };
+  if (ev.people) next = applyEffects(game, next, { people: ev.people });
+  const outcome = end === 'death' ? undefined : enc[end];
+  next = applyEffects(game, next, outcome?.effects, 'fight');
+  const texts: string[] = [];
+  const closing = end === 'death' ? enc.death?.text : outcome?.text;
+  if (closing) texts.push(closing);
+
+  if (!next.dying) {
+    // แผลติดตัว: แพ้ หรือเสียพลังชีวิตในการปะทะนี้เกินสัดส่วน heavy ของที่มีตอนเริ่ม ได้แผลแรกของศัตรูชนิดนี้ที่ยังไม่มี
+    const lost = st.hpStart - before.hp;
+    if (end === 'lose' || lost > st.hpStart * ENCOUNTER.heavy) {
+      const wound = foe.def.wounds.find((w) => !next.traits.includes(w) && game.traits.has(w));
+      if (wound) {
+        next = applyEffects(game, next, { traits: [wound] });
+        const gained = game.traits.get(wound)?.gained;
+        if (gained) texts.push(gained);
+      }
+    }
+    const flag = knowsFlag(foe.def.id);
+    if ((state.weakKnown || end === 'win') && !next.flags.includes(flag)) next = { ...next, flags: [...next.flags, flag] };
+  }
+
+  const log: EncounterLog = { foe: foe.def.id, name: foe.name, end, morale: foe.morale, records: state.records };
+  if (state.knew) log.knew = true;
+  if (state.learned !== undefined) log.learned = state.learned;
+  const entry: LogEntry = { age: life.age, eventId: ev.id, choiceId: end, encounter: log };
+  if (Object.keys(life.cast ?? {}).length) entry.cast = { ...life.cast };
+  if (texts.length) entry.text = texts.join('\n\n');
+  const result = concludeEvent(game, ev, before, next, entry, rng, [outcome?.effects]);
+  return { life: result.life, record, done: true, entry: result.entry };
+}
+
+/** อายุที่การปะทะเอาถึงตายได้ (ก่อนหน้านี้ล้มได้แต่ไม่ตาย) ให้หน้าจอใช้บอกผู้เล่น */
+export const canDieInFight = (life: LifeState, foe: FoeView) => foe.deadly && life.age >= PROTECTED_AGE;

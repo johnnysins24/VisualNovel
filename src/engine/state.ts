@@ -1,6 +1,6 @@
-import type { Bond, DeathCause, KinRole, Slot, Stat } from './schema';
+import type { Bond, DeathCause, EncounterEnd, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type TechniqueKind, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -74,6 +74,73 @@ export interface LifeState {
   span?: number;
   /** ลูกที่เพิ่งเกิดจากผลของตัวเลือก รอ settle ตั้งชื่อและใส่ลงผัง (ไม่ค้างข้ามเหตุการณ์) */
   pendingChildren?: { gender?: 'm' | 'f' | undefined; horned?: boolean | undefined }[];
+  /** การปะทะที่กำลังเดินอยู่ (เหตุการณ์ปัจจุบันมี encounter) ไม่มี = ไม่ได้อยู่ในการปะทะ */
+  encounter?: EncounterState;
+}
+
+/** แต้มพิเศษของหนึ่งจังหวะ: รับสัญญาณ ตรงจุดอ่อน ชนจุดแข็ง มีคนช่วย หรือท่าของอาชีพ */
+export interface OddsPart {
+  kind: 'tell' | 'weak' | 'strong' | 'ally' | 'tech';
+  amount: number;
+}
+
+/** ผลของหนึ่งจังหวะในการปะทะ */
+export interface BeatRecord {
+  moveId: string;
+  stat: Stat;
+  d20: number;
+  mod: number;
+  dc: number;
+  success: boolean;
+  /** แต้มพิเศษที่รวมอยู่ใน mod แล้ว */
+  parts?: OddsPart[];
+  /** สิ่งติดตัวที่บวกหรือลบแต้มในการทอยนี้ (รวมอยู่ใน mod แล้ว) */
+  traits?: { id: string; amount: number }[];
+  /** ข้อความผลของจังหวะ ยังไม่เติมชื่อ */
+  text?: string;
+  /** พลังชีวิตที่เสียในจังหวะนี้ */
+  damage?: number;
+  /** แรงใจของศัตรูที่ลดในจังหวะนี้ */
+  pips?: number;
+  /** สิ่งที่กันไม่ให้เสียพลังชีวิต: โล่ หรือพรของนักบวช */
+  blocked?: 'shield' | 'ward';
+  /** ท่าของอาชีพที่ใช้ในจังหวะนี้ */
+  tech?: TechniqueKind;
+  /** ทอยใหม่หลังพลาดครั้งแรก (ท่าของนักรบ หรือของที่ให้ทอยใหม่) */
+  rerolled?: boolean;
+}
+
+export interface EncounterState {
+  /** จังหวะปัจจุบัน เริ่มที่ 0 */
+  beat: number;
+  /** แรงใจของศัตรูที่เหลือ */
+  morale: number;
+  /** พลังชีวิตตอนเริ่ม ใช้ตัดสินว่าเจ็บหนักจนได้แผลติดตัวไหม */
+  hpStart: number;
+  techUsed: boolean;
+  shieldUsed: boolean;
+  /** ของที่ให้ทอยใหม่ใช้ไปแล้วหรือยัง (ครั้งเดียวต่อการปะทะ) */
+  rerollUsed: boolean;
+  /** ตัวละครรู้จุดอ่อนของศัตรูตัวนี้ไหม (รู้มาก่อน อ่านทางสำเร็จ หรือเป็นพราน) */
+  weakKnown: boolean;
+  /** รู้จุดอ่อนมาตั้งแต่ก่อนเริ่มการปะทะนี้ */
+  knew: boolean;
+  /** จังหวะที่อ่านจุดอ่อนออก (เฉพาะเมื่อไม่ได้รู้มาก่อน) */
+  learned?: number;
+  records: BeatRecord[];
+}
+
+/** การปะทะที่จบแล้ว เก็บในบันทึกชีวิต */
+export interface EncounterLog {
+  foe: string;
+  name: string;
+  end: EncounterEnd;
+  /** แรงใจตั้งต้นของศัตรู */
+  morale: number;
+  /** รู้จุดอ่อนมาตั้งแต่ก่อนเริ่ม และจังหวะที่อ่านจุดอ่อนออก ใช้บอกในบันทึกว่าตัวละครรู้อะไรเมื่อไร */
+  knew?: boolean;
+  learned?: number;
+  records: BeatRecord[];
 }
 
 export interface Partner {
@@ -101,6 +168,8 @@ export interface LogEntry {
   span?: number;
   /** สิ่งที่เกิดตอนสิ้นปี: ร่างกายโรย เช็คฤดูหนาว ข่าวคนรอบตัวจากไป */
   year?: YearEnd;
+  /** เหตุการณ์นี้เป็นการปะทะ: ผลของทุกจังหวะและวิธีที่จบ (choiceId คือวิธีที่จบ เช่น win) */
+  encounter?: EncounterLog;
 }
 
 export interface YearEnd {

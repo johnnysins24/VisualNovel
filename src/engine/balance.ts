@@ -173,6 +173,84 @@ export const TRAIT_RENAMES: Record<string, string> = { demon_mark: 'curse_brand'
 export const FOE_SIDES = ['demon', 'star', 'machine', 'nature', 'human'] as const;
 export type FoeSide = (typeof FOE_SIDES)[number];
 
+// ---------- การปะทะ ----------
+/**
+ * การปะทะคือเหตุการณ์ที่ข้างในมี 2 ถึง 4 จังหวะ ทุกจังหวะผู้เล่นเลือกวิธีรับมือหนึ่งวิธีแล้วทอย
+ * dc = ความยากตามระดับภัย 1 ถึง 5 ของศัตรู · damage = พลังชีวิตที่เสียเมื่อพลาดตามระดับภัย หักเกราะ แต่ไม่น้อยกว่า minDamage
+ *   (ภัยระดับ 4 ยากกว่าระดับ 3 ที่การทอย ไม่ได้เจ็บกว่า: ตัวละครทั่วไปมีพลังชีวิตราว 11 ถ้าเสียทีละ 4 พลาดสามจังหวะก็ล้ม)
+ * tell = แต้มของวิธีที่รับสัญญาณของจังหวะนั้น · weak = แต้มของวิธีที่ตรงจุดอ่อน (เมื่อตัวละครรู้จุดอ่อน) · strong = แต้มที่เสียเมื่อชนจุดแข็ง
+ * ally = แต้มเมื่อคนในชีวิตเข้ามาช่วย · fleeEase = การหนีง่ายกว่าการสู้เท่านี้ · critPips = ทอยได้ 20 ศัตรูเสียแรงใจเท่านี้ขีด
+ * heavy = เสียพลังชีวิตเกินสัดส่วนนี้ของที่มีตอนเริ่ม ได้แผลติดตัวหนึ่งอย่าง
+ */
+export const ENCOUNTER = {
+  dc: [10, 12, 14, 16, 18],
+  damage: [1, 2, 3, 3, 4],
+  tell: 2,
+  weak: 3,
+  strong: 3,
+  ally: 2,
+  fleeEase: 3,
+  critPips: 2,
+  minDamage: 1,
+  armorMax: 2,
+  heavy: 0.5,
+  /** หลังการปะทะหนึ่งครั้ง เว้นกี่เหตุการณ์ก่อนจะมีครั้งใหม่ได้ สายถืออาวุธ (ARMED_CLASSES) ปะทะถี่กว่าสายอื่น */
+  gap: { armed: 2, calm: 8 },
+  /** ฉากปะทะที่เกิดซ้ำได้ (once: false) ออกได้ไม่เกินกี่ครั้งในชีวิตเดียว กันผู้เล่นอ่านฉากเดิมวนไป */
+  repeatMax: 3,
+} as const;
+
+/** อาชีพที่ชีวิตอยู่กับอาวุธ ใช้กำหนดความถี่ของการปะทะ (ENCOUNTER.gap) */
+export const ARMED_CLASSES: readonly ClassId[] = ['warrior', 'rogue', 'ranger'];
+
+/** วิธีรับมือเจ็ดแบบ ค่าพลังประจำแบบอยู่ใน MOVE_STAT (อ่านทางกับใช้ของให้ฉากระบุเอง) */
+export const MOVE_KINDS = ['attack', 'quick', 'guard', 'read', 'talk', 'item', 'flee'] as const;
+export type MoveKind = (typeof MOVE_KINDS)[number];
+export const MOVE_STAT: Partial<Record<MoveKind, Stat>> = { attack: 'STR', quick: 'DEX', guard: 'CON', talk: 'CHA', flee: 'DEX' };
+export const MOVE_TH: Record<MoveKind, string> = { attack: 'บุก', quick: 'ชิงจังหวะ', guard: 'ตั้งรับ', read: 'อ่านทาง', talk: 'ข่มหรือเจรจา', item: 'ใช้ของ', flee: 'หนี' };
+
+/** ป้ายลักษณะของวิธีรับมือและของที่ใช้ เทียบกับจุดอ่อนและจุดแข็งของศัตรู (ซึ่งระบุเป็นป้ายหรือชนิดของวิธีก็ได้) */
+export const FOE_TAGS = ['fire', 'light', 'water', 'smoke', 'noise', 'bait', 'name', 'pierce', 'blunt', 'edge', 'ranged'] as const;
+export type FoeTag = (typeof FOE_TAGS)[number];
+export const FOE_TAG_TH: Record<FoeTag, string> = {
+  fire: 'ไฟ', light: 'แสง', water: 'น้ำ', smoke: 'ควัน', noise: 'เสียงดัง', bait: 'เหยื่อล่อ', name: 'ชื่อ', pierce: 'ของแหลม', blunt: 'ของทื่อ', edge: 'ของมีคม', ranged: 'ระยะไกล',
+};
+
+/**
+ * ท่าของอาชีพ ใช้ได้ครั้งเดียวต่อการปะทะ คนที่ยังไม่มีอาชีพใช้ท่าของชาวบ้าน (none)
+ * reroll  นักรบ: ทอยพลาดครั้งแรกได้ทอยใหม่ (ทำเอง ไม่ต้องกด)
+ * ambush  นักย่อง: จังหวะแรกสำเร็จแล้วศัตรูเสียแรงใจเพิ่มอีกหนึ่งขีด (ทำเอง)
+ * spell   นักเวท: จังหวะนั้นใช้ปัญญาแทนค่าพลังของวิธี และนับว่าตรงจุดอ่อน
+ * ward    นักบวช: จังหวะนั้นพลาดก็ไม่เสียพลังชีวิต ใช้ไม่ได้เมื่อห่างจากเทพของตัวเอง
+ * sense   พราน: รู้จุดอ่อนตั้งแต่เริ่ม และในถิ่นเกิดกดใช้ได้แต้มเพิ่มหนึ่งจังหวะ
+ * song    กวีเร่: ข่มหรือเจรจาได้แต้มเพิ่มหนึ่งจังหวะ
+ * at_hand ชาวบ้าน: หยิบของในฉากมาใช้ ได้แต้มเพิ่มหนึ่งจังหวะ
+ */
+/** คำบอกวิธีที่การปะทะจบ ใช้ในบันทึกชีวิต */
+export const ENCOUNTER_END_TH = { win: 'ชนะ', lose: 'แพ้', flee: 'หนีพ้น', parley: 'เจรจาสำเร็จ', stalemate: 'ยันกันไว้', death: 'ล้มลง' } as const;
+
+/** คำอธิบายท่าของอาชีพ แสดงเมื่อผู้เล่นแตะป้ายท่า ทุกท่าใช้ได้ครั้งเดียวต่อการปะทะ */
+export const TECHNIQUE_HELP: Record<string, string> = {
+  reroll: 'พลาดครั้งแรกในการปะทะ ทอยใหม่ให้เองหนึ่งครั้ง',
+  ambush: 'สำเร็จในจังหวะแรก ศัตรูเสียแรงใจเพิ่มอีกหนึ่งขีด',
+  spell: 'แตะก่อนเลือกวิธี จังหวะนั้นทอยด้วยปัญญา นับเป็นโดนจุดอ่อน และจุดแข็งของศัตรูไม่มีผล',
+  ward: 'แตะก่อนเลือกวิธี ถ้าจังหวะนั้นพลาดจะไม่เสียพลังชีวิต ใช้ไม่ได้เมื่อห่างจากเทพ',
+  sense: 'รู้จุดอ่อนของศัตรูตั้งแต่แรกเห็น ในถิ่นเกิดแตะก่อนเลือกวิธีได้ +2 หนึ่งครั้ง',
+  song: 'แตะก่อนเลือกวิธี การข่มหรือเจรจาครั้งนั้นได้ +3',
+  at_hand: 'แตะก่อนเลือกวิธี จังหวะนั้นได้ +2 จากของที่คว้าได้ใกล้ตัว',
+};
+
+export const TECHNIQUES = {
+  warrior: { th: 'ฟันซ้ำ', kind: 'reroll', amount: 0 },
+  rogue: { th: 'แทงจากเงา', kind: 'ambush', amount: 1 },
+  wizard: { th: 'เวทหนึ่งบท', kind: 'spell', amount: 0 },
+  cleric: { th: 'ขอพร', kind: 'ward', amount: 0 },
+  ranger: { th: 'รู้ทางสัตว์', kind: 'sense', amount: 2 },
+  bard: { th: 'เพลงป่วนใจ', kind: 'song', amount: 3 },
+  none: { th: 'ของใกล้มือ', kind: 'at_hand', amount: 2 },
+} as const satisfies Record<ClassId | 'none', { th: string; kind: string; amount: number }>;
+export type TechniqueKind = (typeof TECHNIQUES)[keyof typeof TECHNIQUES]['kind'];
+
 // ---------- ชื่อเสียงข้ามชีวิต ----------
 export const FACTIONS = [
   'crown', // ราชสำนักอาร์เวล
