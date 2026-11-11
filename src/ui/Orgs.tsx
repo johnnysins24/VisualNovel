@@ -59,6 +59,7 @@ function OrgCard({ l, id }: { l: LifeState; id: OrgId }) {
       <header>
         <b>{ORGS[id].th}</b>
         {m.secret && <span class="muted"><Icon name="eyeoff" />สมาชิกลับ</span>}
+        {ORGS[id].covert && !m.secret && <span class="muted"><Icon name="eye" />โดนเปิดโปงแล้ว</span>}
         <span class="rank">{rankName(id, m.rank)}</span>
       </header>
       <Ladder steps={ORGS[id].ranks} rank={m.rank} label="ยศ" />
