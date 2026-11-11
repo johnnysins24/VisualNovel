@@ -1,13 +1,13 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { CLERIC_DRIFT_FLAG, DEMON_MARK_TRAIT, GEAR, RACES, RARITIES, RARITY_TH } from './balance';
+import { CLERIC_DRIFT_FLAG, DEMON_MARK_TRAIT, GEAR, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, type OrgId } from './balance';
 import { unknownPlaceholders } from './text';
 import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
 import { knowsFlag } from './encounter';
 import { itemBudget } from './gear';
 
 /** กุญแจของ Content.lines ที่ระบบใช้ (ขึ้นต้นด้วยคำเหล่านี้) */
-const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death', 'gear'];
+const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death', 'gear', 'hunt_cold', 'bounty'];
 
 const outcomes = (ch: Choice): (Effects | undefined)[] => [ch.effects, ch.success?.effects, ch.failure?.effects];
 /** ทางจบของการปะทะที่มีผล (ความตายไม่มีผล มีแต่ข้อความ) */
@@ -26,10 +26,18 @@ export function lintContent(c: Content): string[] {
   const lostTraits = new Set<string>();
   const dupes = new Set<string>();
   const seen = new Set<string>();
+  // องค์กรที่มีทางเข้า (ผลของเหตุการณ์ หรืองานที่ผูกกับองค์กรถูกตั้งเป็น flag) และฝ่ายที่มีเหตุการณ์ทำให้ตามล่า (หรือเป็นศัตรูขององค์กรที่เข้าได้)
+  const joinable = new Set<OrgId>();
+  const hunters = new Set<string>();
+  const noteOrg = (fx: Effects | undefined) => {
+    if (fx?.org?.join) joinable.add(fx.org.id);
+    for (const [by, d] of Object.entries(fx?.hunted ?? {})) if ((d ?? 0) > 0) hunters.add(by);
+  };
 
   for (const e of c.events) {
     if (seen.has(e.id)) dupes.add(e.id);
     seen.add(e.id);
+    for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) noteOrg(fx);
     for (const ch of e.choices) {
       for (const fx of outcomes(ch)) {
         fx?.flags?.forEach((f) => setFlags.add(f));
@@ -59,6 +67,8 @@ export function lintContent(c: Content): string[] {
       if (fx.flag) setFlags.add(fx.flag).add(`${fx.flag}_twice`);
     }
   }
+  for (const id of ORG_IDS) if (ORGS[id].jobs?.some((j) => setFlags.has(j))) joinable.add(id);
+  for (const id of joinable) hunters.add(ORGS[id].enemy);
   dupes.forEach((id) => problems.push(`id ซ้ำ: ${id}`));
   const namedPeople = new Set<string>(['father', 'mother', 'partner']);
   for (const e of c.events) {
@@ -116,7 +126,7 @@ export function lintContent(c: Content): string[] {
   // ---- ประโยคของระบบ ----
   for (const [key, list] of Object.entries(c.lines)) {
     if (!LINE_KEYS.some((k) => key === k || key.startsWith(`${k}_`))) problems.push(`lines/${key}: ระบบไม่ใช้กุญแจนี้`);
-    for (const t of list) for (const ph of unknownPlaceholders(t, key.startsWith('news_') ? ['who'] : [])) problems.push(`lines/${key}: placeholder ไม่รู้จัก ${ph}`);
+    for (const t of list) for (const ph of unknownPlaceholders(t, key.startsWith('news_') ? ['who'] : key === 'bounty' ? ['foe'] : [])) problems.push(`lines/${key}: placeholder ไม่รู้จัก ${ph}`);
   }
 
   // ---- ศัตรู ----
@@ -229,7 +239,33 @@ export function lintContent(c: Content): string[] {
     if (w.age && w.age[0] > w.age[1]) problems.push(`${where}: ช่วงอายุกลับด้าน`);
     if (w.year && w.year[0] > w.year[1]) problems.push(`${where}: ช่วงปีกลับด้าน`);
     if (e.must && !e.once) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด)`);
-    if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
+    if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
+    // ---- องค์กร: งานที่ส่งมา และเรื่องถูกตามล่า ----
+    const orgOf = (cond: Requires['org']) => (typeof cond === 'string' ? cond : cond?.id);
+    const lintOrgConds = (cw: string, r: Pick<Requires, 'org' | 'not_orgs' | 'min_hunted' | 'max_hunted'> | undefined) => {
+      const id = orgOf(r?.org);
+      if (id && !joinable.has(id)) problems.push(`${cw}: อ่านสถานะสมาชิกของ "${id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
+      if (typeof r?.org === 'object' && r.org.min_rank !== undefined && r.org.max_rank !== undefined && r.org.min_rank > r.org.max_rank) problems.push(`${cw}: ช่วงยศของ org กลับด้าน`);
+      for (const by of Object.keys(r?.min_hunted ?? {})) if (!hunters.has(by)) problems.push(`${cw}: min_hunted "${by}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
+    };
+    lintOrgConds(where, w);
+    if (e.duty) {
+      if (!joinable.has(e.duty)) problems.push(`${where}: งานของ "${e.duty}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
+      if (orgOf(w.org) && orgOf(w.org) !== e.duty) problems.push(`${where}: duty "${e.duty}" กับ when.org "${orgOf(w.org)}" เป็นคนละองค์กร`);
+      if (e.must || e.fallback || e.years || e.stage === 'death') problems.push(`${where}: งานขององค์กร (duty) ใช้กับ must fallback years หรือฉากตายไม่ได้`);
+      // ปฏิเสธได้แต่มีราคา: งานแบบมีตัวเลือกต้องมีทางปฏิเสธที่เลือกได้เสมอ และมีทางรับงานที่เลือกได้เสมอ
+      if (!e.encounter) {
+        if (!e.choices.some((ch) => ch.refuse && !ch.requires)) problems.push(`${where}: งานขององค์กรต้องมีทางปฏิเสธที่เลือกได้เสมอหนึ่งทาง (refuse: true ไม่มี requires)`);
+        if (!e.choices.some((ch) => !ch.refuse && !ch.requires)) problems.push(`${where}: งานขององค์กรต้องมีทางรับงานที่เลือกได้เสมออย่างน้อยหนึ่งทาง`);
+      }
+    }
+    for (const ch of e.choices) if (ch.refuse && !e.duty) problems.push(`${where}/${ch.id}: refuse ใช้ได้เฉพาะในงานขององค์กร (event.duty)`);
+    if (e.hunt) {
+      if (!hunters.has(e.hunt)) problems.push(`${where}: เรื่องถูกตามล่าโดย "${e.hunt}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
+      if (e.must || e.years || e.stage === 'death') problems.push(`${where}: เรื่องถูกตามล่า (hunt) ใช้กับ must years หรือฉากตายไม่ได้`);
+      // คนที่ถูกล่าต้องมีทางรอดเสมอ: ทางที่เลือกได้เสมอและไม่มีผลถึงตาย (การปะทะมีกติกาทางหนีอยู่แล้ว)
+      if (!e.encounter && !e.choices.some((ch) => !ch.requires && !outcomes(ch).some((fx) => fx?.die))) problems.push(`${where}: เรื่องถูกตามล่าต้องมีทางรอดที่เลือกได้เสมอ (ไม่มี requires และไม่มีผล die)`);
+    }
     if (e.must && (e.fallback || e.years)) problems.push(`${where}: must ใช้กับ fallback หรือ years ไม่ได้`);
     if (e.min_years && (!e.years || e.min_years > e.years)) problems.push(`${where}: min_years ต้องใช้คู่กับ years และไม่เกิน years`);
     if ((e.stage === 'death') !== !!w.dying) problems.push(`${where}: ฉากตาย (stage: death) ต้องคู่กับ when.dying เสมอ`);
@@ -275,6 +311,7 @@ export function lintContent(c: Content): string[] {
         if (!setTraits.has(r.trait)) problems.push(`${cw}: requires trait "${r.trait}" ที่ไม่เคยถูกให้`);
       }
       for (const t of r?.not_traits ?? []) knownTrait(cw, t);
+      lintOrgConds(cw, r);
       if (r?.item && !itemIds.has(r.item)) problems.push(`${cw}: requires ของ "${r.item}" ที่ไม่มี`);
       for (const role of r?.cast ?? []) if (!roles.includes(role)) problems.push(`${cw}: requires.cast "${role}" ไม่มีใน cast ของเหตุการณ์`);
     };
@@ -295,6 +332,13 @@ export function lintContent(c: Content): string[] {
       for (const t of Object.keys(fx?.trait_step ?? {})) if (registry.get(t) && !registry.get(t)!.steps) problems.push(`${cw}: trait_step "${t}" ไม่ใช่สิ่งติดตัวที่มีหลายขั้น`);
       for (const t of fx?.traits ?? []) {
         if (registry.get(t)?.big && !bigRoomOk) problems.push(`${cw}: ให้ของใหญ่ "${t}" ต้องกันด้วย big_room: true ที่ when หรือ requires`);
+      }
+      if (fx?.org) {
+        const o = fx.org;
+        if (ORGS[o.id].jobs && (o.join || o.leave)) problems.push(`${cw}: "${o.id}" เป็นองค์กรที่ผูกกับงาน เข้าและออกด้วย flag ของงาน (${ORGS[o.id].jobs!.join(', ')}) ใช้ org.join กับ org.leave ไม่ได้`);
+        if (!o.join && !o.leave && !o.merit && !o.promote && o.secret === undefined) problems.push(`${cw}: effects.org ไม่มีผลอะไร`);
+        if (o.secret === true && !o.join) problems.push(`${cw}: org.secret: true ใช้คู่กับ join เท่านั้น (เปิดเผยตัวใช้ secret: false)`);
+        if (!o.join && !joinable.has(o.id)) problems.push(`${cw}: เปลี่ยนสถานะสมาชิกของ "${o.id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
       }
       if (fx?.epitaph !== undefined && e.stage !== 'death') problems.push(`${cw}: epitaph ใช้ได้เฉพาะในฉากตาย`);
       if (fx?.survive && e.stage !== 'death') problems.push(`${cw}: survive ใช้ได้เฉพาะในฉากตาย`);

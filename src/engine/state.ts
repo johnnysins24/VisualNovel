@@ -1,6 +1,6 @@
 import type { Bond, DeathCause, EncounterEnd, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type MaterialId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type MaterialId, type OrgId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -80,6 +80,25 @@ export interface LifeState {
   pendingChildren?: { gender?: 'm' | 'f' | undefined; horned?: boolean | undefined }[];
   /** การปะทะที่กำลังเดินอยู่ (เหตุการณ์ปัจจุบันมี encounter) ไม่มี = ไม่ได้อยู่ในการปะทะ */
   encounter?: EncounterState;
+  /** องค์กรที่เป็นสมาชิกอยู่ (กติกาใน orgs.ts) ไม่มีในนี้ = ไม่ได้เป็นสมาชิก */
+  orgs: Partial<Record<OrgId, Membership>>;
+  /** ภัยตามล่า: ฝ่าย (FACTIONS) → ระดับ 1 ถึง ORG.huntMax ไม่มีในนี้ = ไม่มีใครตาม */
+  hunted: Record<string, number>;
+}
+
+/** สถานะสมาชิกขององค์กรหนึ่ง */
+export interface Membership {
+  /** ยศ 1 ถึง 4 */
+  rank: number;
+  /** ปีของโลกที่เข้า */
+  joined: number;
+  /** ผลงานสะสม ถึงเกณฑ์ ORG.merit เมื่อไรฉากเลื่อนยศจึงออกได้ */
+  merit: number;
+  /** งานที่ทำสำเร็จ และงานที่ปฏิเสธ */
+  done: number;
+  refused: number;
+  /** เป็นสมาชิกแบบลับ คนนอกไม่รู้ */
+  secret?: boolean;
 }
 
 /**
@@ -130,6 +149,8 @@ export interface EncounterState {
   /** พลังชีวิตตอนเริ่ม ใช้ตัดสินว่าเจ็บหนักจนได้แผลติดตัวไหม */
   hpStart: number;
   techUsed: boolean;
+  /** องค์กรที่ท่าของมันถูกใช้ไปแล้วในการปะทะนี้ */
+  orgTechUsed?: OrgId[];
   shieldUsed: boolean;
   /** ของที่ให้ทอยใหม่ใช้ไปแล้วหรือยัง (ครั้งเดียวต่อการปะทะ) */
   rerollUsed: boolean;
@@ -155,6 +176,8 @@ export interface EncounterLog {
   records: BeatRecord[];
   /** ของหรือเหรียญที่ศัตรูทิ้งไว้เมื่อชนะ (ประโยคตอนเจออยู่ท้ายข้อความของการปะทะ) */
   loot?: { item?: string; gold?: number };
+  /** เหรียญที่โรงรับเขี้ยวจ่ายให้สมาชิกเมื่อชนะสิ่งที่ไม่ใช่คน */
+  bounty?: number;
 }
 
 export interface Partner {
@@ -195,6 +218,8 @@ export interface YearEnd {
   passed?: string[];
   /** สิ่งติดตัวที่ได้หรือที่ลุกลามในปีนี้เพราะของที่สวม (รอยดาวจากเงินดาว) */
   marks?: string[];
+  /** ฝ่ายที่เลิกตามในปีนี้หนึ่งขั้น (รอยเย็นลง) */
+  cooled?: string[];
   /** ประโยคที่ระบบเติมท้ายบันทึกของปีนี้ (เติมชื่อแล้ว) */
   lines?: string[];
 }
@@ -236,6 +261,12 @@ export interface LifeChanges {
   /** สิ่งติดตัวที่ขยับขั้น: รหัส → ขั้นใหม่ */
   steps?: Record<string, number>;
   classId?: string;
+  /** สถานะสมาชิกที่เปลี่ยน: เข้า (ยศ 1) เลื่อนยศ (ยศใหม่) หรือออก (rank 0) */
+  orgs?: Partial<Record<OrgId, number>>;
+  /** ผลงานในองค์กรที่เปลี่ยน */
+  merit?: Partial<Record<OrgId, number>>;
+  /** ภัยตามล่าที่เปลี่ยน: ฝ่าย → ระดับใหม่ */
+  hunted?: Record<string, number>;
 }
 
 export const DEFAULT_NAME = 'ผู้เดินทาง';
@@ -290,6 +321,8 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     people: [],
     currentEventId: null,
     cast: {},
+    orgs: {},
+    hunted: {},
   };
 }
 

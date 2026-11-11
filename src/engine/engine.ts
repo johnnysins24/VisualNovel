@@ -1,4 +1,4 @@
-import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, PersonEffect, Requires, Shop, Stat } from './schema';
+import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, OrgCond, PersonEffect, Requires, Shop, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
 import {
@@ -42,6 +42,7 @@ import {
   type ClassId,
   type ItemTag,
   type MaterialId,
+  type OrgId,
   type RaceId,
   type Rarity,
 } from './balance';
@@ -51,6 +52,7 @@ import { mentionsOf, render, type Mention } from './text';
 import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitCheckBonuses, traitMaxHp, traitRegen, traitWinter, type TraitIndex, habitBlockers } from './traits';
 import { beginEncounter, openMoves } from './encounter';
 import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
+import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
 
 export interface Game {
   events: GameEvent[];
@@ -68,6 +70,8 @@ export interface Game {
   mentions: WeakMap<object, Mention[]>;
   /** คนที่เนื้อเรื่องเขียนฉากลาไว้ให้แล้ว (มีเหตุการณ์ที่ให้คนนี้จากไปด้วย id ตรงตัว) ระบบไม่เอาไปเงียบๆ ก่อนถึงวัยชรามาก */
   fated: Set<string>;
+  /** งานที่องค์กรส่งมา: รหัสเหตุการณ์ → องค์กร (เหตุการณ์ที่มี duty) */
+  duties: Map<string, OrgId>;
 }
 
 export function makeGame(content: Content): Game {
@@ -108,6 +112,7 @@ export function makeGame(content: Content): Game {
     lines: content.lines,
     mentions,
     fated,
+    duties: new Map(content.events.flatMap((e) => (e.duty ? [[e.id, e.duty] as const] : []))),
   };
 }
 
@@ -126,6 +131,10 @@ interface StateConds {
   wears?: MaterialId | undefined;
   not_wears?: MaterialId[] | undefined;
   wears_rarity?: Rarity | undefined;
+  org?: OrgCond | undefined;
+  not_orgs?: OrgId[] | undefined;
+  min_hunted?: Partial<Record<string, number>> | undefined;
+  max_hunted?: Partial<Record<string, number>> | undefined;
 }
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
@@ -145,6 +154,10 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   if (c.wears && !wearsMaterial(game, life, c.wears)) return false;
   if (c.not_wears?.some((m) => wearsMaterial(game, life, m))) return false;
   if (c.wears_rarity && !wearsRarity(game, life, c.wears_rarity)) return false;
+  if (c.org && !orgCondMet(life, c.org)) return false;
+  if (c.not_orgs?.some((id) => isMember(life, id))) return false;
+  for (const [by, min] of Object.entries(c.min_hunted ?? {})) if (huntLevel(life, by) < (min ?? 0)) return false;
+  for (const [by, max] of Object.entries(c.max_hunted ?? {})) if (huntLevel(life, by) > (max ?? 0)) return false;
   return true;
 }
 
@@ -221,6 +234,9 @@ export function eligible(game: Game, life: LifeState, ev: GameEvent, ignoreTime 
   if (w.flags?.some((f) => !life.flags.includes(f))) return false;
   if (w.not_flags?.some((f) => life.flags.includes(f))) return false;
   if (w.trait && !life.traits.includes(w.trait)) return false;
+  // งานขององค์กรออกเฉพาะกับสมาชิก เรื่องถูกตามล่าออกเฉพาะเมื่อฝ่ายนั้นตามอยู่
+  if (ev.duty && !isMember(life, ev.duty)) return false;
+  if (ev.hunt && huntLevel(life, ev.hunt) < 1) return false;
   if (!stateConditionsMet(game, life, w)) return false;
   if (namesTheAbsent(game, life, ev, ev)) return false;
   return bindCast(life, ev) !== null;
@@ -259,7 +275,8 @@ function recentlySeen(life: LifeState, ev: GameEvent): boolean {
  */
 export function fightResting(life: LifeState, ev: GameEvent): boolean {
   if (!ev.encounter) return false;
-  const armed = !!life.classId && ARMED_CLASSES.includes(life.classId as ClassId);
+  // สมาชิกขององค์กรที่ออกรบปะทะถี่เท่าสายถืออาวุธ: งานขององค์กรคือที่มาหลักของการปะทะของคนสายนี้
+  const armed = (!!life.classId && ARMED_CLASSES.includes(life.classId as ClassId)) || fightsForOrg(life);
   const gap = armed ? ENCOUNTER.gap.armed : ENCOUNTER.gap.calm;
   if (life.log.slice(-gap).some((e) => e.encounter)) return true;
   return !ev.once && life.log.filter((e) => e.eventId === ev.id).length >= ENCOUNTER.repeatMax;
@@ -279,8 +296,9 @@ function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
  * เลือกเหตุการณ์ถัดไป ลำดับคือ
  * 1. forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง) ใช้เหตุการณ์นั้นแทนการสุ่ม
  * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
- * 3. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไปและฉากปะทะที่ยังพักอยู่ (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
- *    เหตุการณ์สำรอง (fallback) เข้ากองเฉพาะปีที่เรื่องปกติมีน้อยกว่า THIN_POOL
+ * 3. สมาชิกองค์กรที่ไม่ได้งานมา ORG.dutyGap.max เหตุการณ์ติดกัน: เรื่องถัดไปคืองานขององค์กรนั้น (ถ้ายังมีงานที่ออกได้)
+ * 4. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป ฉากปะทะที่ยังพักอยู่ และงานขององค์กรที่เพิ่งมา (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
+ *    เหตุการณ์สำรอง (fallback) เข้ากองเฉพาะปีที่เรื่องปกติมีน้อยกว่า THIN_POOL เรื่องถูกตามล่าหนักขึ้นตามระดับภัย (eventWeight)
  * ตอนตัวละครกำลังจะตาย กองมีแต่ฉากตายของเหตุนั้น
  */
 export function pickEvent(game: Game, life: LifeState, forceId?: string): { event: GameEvent | null; life: LifeState } {
@@ -304,9 +322,11 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
     return { event: first, life: withEvent(game, life, first) };
   }
   const normal = all.filter((e) => !e.fallback);
-  const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e));
-  let pool = rested;
-  if (rested.length < THIN_POOL) {
+  const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e) && !dutyResting(life, e, game.duties));
+  const due = dutiesDue(life, game.duties);
+  const owed = due.length ? rested.filter((e) => e.duty && due.includes(e.duty)) : [];
+  let pool = owed.length ? owed : rested;
+  if (!owed.length && rested.length < THIN_POOL) {
     const spare = all.filter((e) => e.fallback);
     const fresh = spare.filter((e) => !recentlySeen(life, e));
     pool = [...rested, ...fresh];
@@ -316,11 +336,11 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
   }
   if (!pool.length) pool = normal.length ? normal : all;
   const rng = Rng.fromState(life.rngState);
-  const total = pool.reduce((n, e) => n + e.weight, 0);
+  const total = pool.reduce((n, e) => n + eventWeight(life, e), 0);
   let r = rng.next() * total;
   let chosen = pool[pool.length - 1]!;
   for (const e of pool) {
-    r -= e.weight;
+    r -= eventWeight(life, e);
     if (r < 0) {
       chosen = e;
       break;
@@ -493,6 +513,14 @@ function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined 
     if (before.traits.includes(t) && now !== (before.traitSteps?.[t] ?? 1)) (c.steps ??= {})[t] = now;
   }
   if (after.classId && after.classId !== before.classId) c.classId = after.classId;
+  for (const id of new Set([...Object.keys(before.orgs ?? {}), ...Object.keys(after.orgs ?? {})]) as Set<OrgId>) {
+    const was = before.orgs?.[id], now = after.orgs?.[id];
+    if ((was?.rank ?? 0) !== (now?.rank ?? 0)) (c.orgs ??= {})[id] = now?.rank ?? 0;
+    if (was && now && now.merit !== was.merit) (c.merit ??= {})[id] = now.merit - was.merit;
+  }
+  for (const by of new Set([...Object.keys(before.hunted ?? {}), ...Object.keys(after.hunted ?? {})])) {
+    if (huntLevel(before, by) !== huntLevel(after, by)) (c.hunted ??= {})[by] = huntLevel(after, by);
+  }
   return Object.keys(c).length ? c : undefined;
 }
 
@@ -561,6 +589,12 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     next.reputation[f] = clamp((next.reputation[f] ?? 0) + (d ?? 0), REPUTATION_CAP);
   }
   if (fx.god) next.god = fx.god;
+  // องค์กร: ผลที่เหตุการณ์สั่ง แล้วองค์กรที่ผูกกับงานตามงานที่เพิ่งได้หรือเพิ่งเลิก
+  if (fx.org || fx.hunted || fx.flags || fx.clear_flags) {
+    const o = syncJobOrgs(applyOrgEffects(next, fx));
+    next.orgs = o.orgs;
+    next.hunted = o.hunted;
+  }
   if (fx.people?.length) next.people = applyPeople(next.people ?? [], fx.people, next.age, { life: next, cast: next.cast ?? {} });
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
   if (fx.child) next.pendingChildren = [...(next.pendingChildren ?? []), fx.child];
@@ -881,6 +915,16 @@ export function endOfYear(game: Game, life: LifeState, rng: Rng, rec: YearEnd): 
     for (const key of wear.lines) line([key]);
   }
 
+  // ภัยตามล่าที่ไม่มีใครมาตามนานเข้าก็เย็นลงเอง
+  if (!next.dying && Object.keys(next.hunted ?? {}).length) {
+    const faded = fadeHunts(next, rng);
+    next = faded.life;
+    if (faded.cooled.length) {
+      rec.cooled = [...(rec.cooled ?? []), ...faded.cooled];
+      line(['hunt_cold']);
+    }
+  }
+
   for (const p of yearlyPassings(next, rng, game.fated)) {
     next = markDead(next, p.id);
     (rec.passed ??= []).push(p.id);
@@ -954,6 +998,11 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
     outcome = success ? choice.success : choice.failure;
     next = applyEffects(game, next, outcome?.effects, cause);
     if (outcome?.text) texts.push(outcome.text);
+  }
+  // งานขององค์กร: ทำสำเร็จได้ผลงาน ปฏิเสธเสียผลงาน ทอยพลาดไม่ได้ไม่เสีย (คนที่ออกจากองค์กรในเหตุการณ์นี้เองไม่มีอะไรให้จด)
+  if (ev.duty && !next.dying) {
+    const result: DutyResult = choice.refuse ? 'refused' : entry.roll && !entry.roll.success ? 'tried' : 'done';
+    next = recordDuty(next, ev.duty, result);
   }
 
   // นิสัย: นับจากเหตุการณ์ที่ต่างกันเท่านั้น เรื่องที่เวียนกลับมาเล่นซ้ำไม่นับเพิ่ม

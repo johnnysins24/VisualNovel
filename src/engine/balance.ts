@@ -240,6 +240,8 @@ export const TECHNIQUE_HELP: Record<string, string> = {
   sense: 'รู้จุดอ่อนของศัตรูตั้งแต่แรกเห็น ในถิ่นเกิดแตะก่อนเลือกวิธีได้ +2 หนึ่งครั้ง',
   song: 'แตะก่อนเลือกวิธี การข่มหรือเจรจาครั้งนั้นได้ +3',
   at_hand: 'แตะก่อนเลือกวิธี จังหวะนั้นได้ +2 จากของที่คว้าได้ใกล้ตัว',
+  hold: 'เผชิญฝ่ายจอมมาร พลาดครั้งแรกทอยใหม่ให้เองหนึ่งครั้ง',
+  quarry: 'เผชิญสิ่งที่ไม่ใช่คน สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่มอีกหนึ่งขีด',
 };
 
 export const TECHNIQUES = {
@@ -250,7 +252,10 @@ export const TECHNIQUES = {
   ranger: { th: 'รู้ทางสัตว์', kind: 'sense', amount: 2 },
   bard: { th: 'เพลงป่วนใจ', kind: 'song', amount: 3 },
   none: { th: 'ของใกล้มือ', kind: 'at_hand', amount: 2 },
-} as const satisfies Record<ClassId | 'none', { th: string; kind: string; amount: number }>;
+  /** ท่าขององค์กร (ดู ORGS) ทำงานเองเหมือนท่าของนักรบกับนักย่อง และใช้ได้เพิ่มจากท่าของอาชีพ */
+  wardens: { th: 'ยืนแนว', kind: 'hold', amount: 0 },
+  fang_house: { th: 'รู้ทางเขี้ยว', kind: 'quarry', amount: 1 },
+} as const satisfies Record<ClassId | 'none' | 'wardens' | 'fang_house', { th: string; kind: string; amount: number }>;
 export type TechniqueKind = (typeof TECHNIQUES)[keyof typeof TECHNIQUES]['kind'];
 
 // ---------- ของสวมใส่ ----------
@@ -332,8 +337,71 @@ export const FACTIONS = [
   'dock_rats', // หนูท่า
   'ash_cult', // ลัทธิเถ้า
   'star_listeners', // ผู้ฟังดาว
+  'fang_house', // โรงรับเขี้ยว
 ] as const;
 export type FactionId = (typeof FACTIONS)[number];
 export const REPUTATION_CAP = 10;
 /** ส่วนที่ติดไปชีวิตถัดไป (1 = จำครบ) */
 export const REPUTATION_CARRY = 1;
+
+// ---------- องค์กร ----------
+/**
+ * องค์กรที่ตัวละครเป็นสมาชิกได้ (กติกาอยู่ใน src/engine/orgs.ts) ชื่อยศและเรื่องขององค์กรเขียนไว้ในคัมภีร์โลก
+ * ranks    = ชื่อยศสี่ขั้น ขั้นแรกคือวันที่เข้า
+ * faction  = ฝ่ายที่ชื่อเสียงขององค์กรนี้ผูกอยู่ (FACTIONS)
+ * jobs     = งานที่ทำให้เป็นสมาชิกเอง: ได้งานนี้เมื่อไรเป็นสมาชิกเมื่อนั้น เลิกงานคือออกจากองค์กร องค์กรที่ไม่มี jobs เข้าและออกด้วยผลของเหตุการณ์
+ * enemy    = ฝ่ายที่ตามล่าสมาชิกขององค์กรนี้ เข้าองค์กรแล้วภัยตามล่าจากฝ่ายนั้นเริ่มที่ enemyLevel
+ * foes     = ฝ่ายของศัตรูที่ท่าขององค์กร (TECHNIQUES[id]) ใช้ได้ผล
+ * bounty   = true: ชนะการปะทะกับสิ่งที่ไม่ใช่คน องค์กรรับซื้อหลักฐานการล่า (ORG.bounty)
+ */
+export const ORG_IDS = ['wardens', 'fang_house'] as const;
+export type OrgId = (typeof ORG_IDS)[number];
+export interface OrgDef {
+  th: string;
+  ranks: readonly [string, string, string, string];
+  faction: FactionId;
+  jobs?: readonly string[];
+  enemy: FactionId;
+  foes: readonly FoeSide[];
+  bounty?: boolean;
+}
+export const ORGS: Record<OrgId, OrgDef> = {
+  wardens: {
+    th: 'ภาคีผู้เฝ้าผนึก',
+    ranks: ['ผู้เฝ้า', 'ผู้นับหิน', 'ผู้ถือกุญแจ', 'ผู้เฒ่าเจ็ดป้อม'],
+    faction: 'wardens',
+    jobs: ['job_wardens', 'job_fort_priest'],
+    enemy: 'ash_cult',
+    foes: ['demon'],
+  },
+  fang_house: {
+    th: 'โรงรับเขี้ยว',
+    ranks: ['คนส่งเขี้ยว', 'นักล่าป้ายทองเหลือง', 'นักล่าป้ายเหล็กดำ', 'เจ้าโต๊ะชั่ง'],
+    faction: 'fang_house',
+    enemy: 'fang_house',
+    foes: ['demon', 'star', 'machine', 'nature'],
+    bounty: true,
+  },
+};
+/**
+ * merit     = ผลงานสะสมที่ต้องมีก่อนฉากเลื่อนยศจะออก [ขึ้นยศ 2, ยศ 3, ยศ 4] ยศเลื่อนด้วยผลงาน ไม่ใช่ด้วยเวลา
+ * done      = ผลงานที่ได้เมื่อทำงานที่องค์กรส่งมาสำเร็จ (ทอยผ่าน หรือชนะ เจรจาได้ ยันไว้ได้ในการปะทะ) พลาดหรือถอยไม่ได้ผลงาน
+ * refused   = ผลงานที่เสียเมื่อปฏิเสธงาน (ตัวเลือกที่ติดป้าย refuse) ราคาอย่างอื่นของการปฏิเสธเขียนไว้ในผลของตัวเลือกนั้น
+ * dutyGap   = งานขององค์กรเว้นกันอย่างน้อย min เหตุการณ์ และเมื่อไม่มีงานมา max เหตุการณ์ติดกัน เรื่องถัดไปคืองานขององค์กร (ถ้ายังมีงานที่ออกได้)
+ * techRank  = ยศที่ได้ท่าขององค์กร
+ * bounty    = เหรียญที่โรงรับเขี้ยวจ่ายเมื่อชนะการปะทะกับสิ่งที่ไม่ใช่คน ตามระดับภัย 1 ถึง 5 ของศัตรู
+ * enemyLevel= ภัยตามล่าขั้นต่ำที่ติดมากับการเป็นสมาชิก · huntMax = ภัยตามล่าสูงสุด
+ * huntFade  = โอกาสต่อปีที่ภัยตามล่าจากฝ่ายหนึ่งลดลงหนึ่งขั้นเอง (รอยเย็นลง) ภัยที่ติดมากับองค์กรที่ยังเป็นสมาชิกอยู่ไม่ลดต่ำกว่า enemyLevel
+ */
+export const ORG = {
+  merit: [3, 7, 12],
+  done: 1,
+  refused: -1,
+  dutyGap: { min: 1, max: 4 },
+  techRank: 2,
+  bounty: [1, 1, 2, 2, 3],
+  enemyLevel: 1,
+  huntMax: 5,
+  huntFade: 0.08,
+} as const;
+export const ORG_RANKS = 4;

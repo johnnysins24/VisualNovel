@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, RARITIES, WORLD_KEYS } from './balance';
+import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RARITIES, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -56,6 +56,46 @@ export type PersonEffect = z.infer<typeof PersonEffectSchema>;
 const WorldRange = z.partialRecord(WorldKeySchema, z.tuple([z.number().int(), z.number().int()]));
 const RepMap = z.partialRecord(FactionSchema, z.number().int());
 
+// ---------- องค์กร ----------
+const OrgIdSchema = z.enum(ORG_IDS);
+const RankSchema = z.number().int().min(1).max(ORG_RANKS);
+/**
+ * ผลต่อสถานะสมาชิกขององค์กรหนึ่ง (กติกาใน orgs.ts)
+ * join = เข้าเป็นสมาชิกที่ยศแรก · secret = เข้าแบบลับ (ใช้คู่กับ join) หรือ secret: false = ตัวตนถูกเปิดเผย · leave = ออก (ผลงานและยศหายไป)
+ * merit = บวกลบผลงานนอกเหนือจากที่ระบบให้เองเมื่อทำงานขององค์กร · promote = เลื่อนยศหนึ่งขั้น (ใช้ในฉากเลื่อนยศ)
+ * องค์กรที่ผูกกับงาน (ORGS[id].jobs) เข้าและออกตาม flag ของงาน ใช้ join กับ leave ไม่ได้
+ */
+export const OrgEffectSchema = z
+  .object({
+    id: OrgIdSchema,
+    join: z.boolean().optional(),
+    secret: z.boolean().optional(),
+    leave: z.boolean().optional(),
+    merit: z.number().int().optional(),
+    promote: z.boolean().optional(),
+  })
+  .strict();
+export type OrgEffect = z.infer<typeof OrgEffectSchema>;
+/**
+ * เงื่อนไขสมาชิก: เขียนแค่รหัสองค์กร = เป็นสมาชิก หรือระบุยศและผลงาน
+ * ready: true = ผลงานถึงเกณฑ์ของยศถัดไปแล้ว (ใช้กับฉากเลื่อนยศ ตัวเลขอยู่ใน ORG.merit) · min_refused = ปฏิเสธงานมาแล้วอย่างน้อยเท่านี้ครั้ง
+ */
+export const OrgCondSchema = z.union([
+  OrgIdSchema,
+  z
+    .object({
+      id: OrgIdSchema,
+      min_rank: RankSchema.optional(),
+      max_rank: RankSchema.optional(),
+      ready: z.boolean().optional(),
+      secret: z.boolean().optional(),
+      min_refused: z.number().int().min(1).optional(),
+    })
+    .strict(),
+]);
+export type OrgCond = z.infer<typeof OrgCondSchema>;
+const HuntMap = z.partialRecord(FactionSchema, z.number().int());
+
 export const EffectsSchema = z
   .object({
     stats: z.partialRecord(StatSchema, z.number().int()).optional(),
@@ -106,6 +146,10 @@ export const EffectsSchema = z
     partner: z.object({ gender: z.enum(['m', 'f']), pool: z.string().optional() }).strict().optional(),
     /** เพิ่มหรือปรับคนในชีวิต (ผังครอบครัวและผังความสัมพันธ์) */
     people: z.array(PersonEffectSchema).optional(),
+    /** สถานะสมาชิกองค์กร: เข้า ออก ผลงาน เลื่อนยศ */
+    org: OrgEffectSchema.optional(),
+    /** ภัยตามล่า: บวกลบระดับที่ฝ่ายหนึ่งตามล่าตัวละคร (0 ถึง ORG.huntMax) */
+    hunted: HuntMap.optional(),
   })
   .strict();
 export type Effects = z.infer<typeof EffectsSchema>;
@@ -142,6 +186,13 @@ const StateConds = {
   not_wears: z.array(z.enum(MATERIAL_IDS)).optional(),
   /** สวมของระดับนี้ขึ้นไปอย่างน้อยหนึ่งชิ้น (คนในเมืองทักต่างกัน โจรเลือกเหยื่อจากของที่สวม) */
   wears_rarity: z.enum(RARITIES).optional(),
+  /** เป็นสมาชิกองค์กรนี้ (ระบุยศหรือผลงานได้ ดู OrgCondSchema) */
+  org: OrgCondSchema.optional(),
+  /** ต้องไม่ได้เป็นสมาชิกองค์กรเหล่านี้ */
+  not_orgs: z.array(OrgIdSchema).optional(),
+  /** ฝ่ายนี้ตามล่าตัวละครอยู่อย่างน้อยระดับนี้ / ไม่เกินระดับนี้ */
+  min_hunted: HuntMap.optional(),
+  max_hunted: HuntMap.optional(),
 };
 
 /**
@@ -192,6 +243,8 @@ export const ChoiceSchema = z.object({
   habit: z.string().optional(),
   /** ข้อความหลังเลือก (ตัวเลือกที่ไม่มี check ก็แสดงได้) */
   text: z.string().optional(),
+  /** งานขององค์กร (event.duty) เท่านั้น: ตัวเลือกนี้คือการปฏิเสธงาน เสียผลงาน ORG.refused และนับเป็นการปฏิเสธหนึ่งครั้ง */
+  refuse: z.boolean().optional(),
   requires: RequiresSchema.optional(),
   check: CheckSchema.optional(),
   effects: EffectsSchema.optional(),
@@ -343,6 +396,13 @@ export const EventSchema = z.object({
   min_years: z.number().int().min(2).max(20).optional(),
   /** เหตุการณ์สำรอง ออกเฉพาะปีที่กองเหตุการณ์ปกติบาง (น้อยกว่า THIN_POOL เรื่อง) พอเนื้อเรื่องช่วงนั้นแน่นขึ้นก็เลิกออกเอง */
   fallback: z.boolean().default(false),
+  /**
+   * งานที่องค์กรนี้ส่งมา ออกเฉพาะกับสมาชิก ระบบคุมจังหวะให้ (ORG.dutyGap) และให้ผลงานเองเมื่อทำสำเร็จ
+   * เหตุการณ์แบบมีตัวเลือกต้องมีทางปฏิเสธหนึ่งทาง (refuse: true) การปะทะปฏิเสธด้วยการหนี
+   */
+  duty: OrgIdSchema.optional(),
+  /** เรื่องถูกตามล่าโดยฝ่ายนี้ ออกเฉพาะเมื่อภัยตามล่าจากฝ่ายนั้นมีอย่างน้อยหนึ่งระดับ ยิ่งระดับสูงยิ่งออกบ่อย (น้ำหนักคูณด้วยระดับ) */
+  hunt: FactionSchema.optional(),
   /** ป้ายสั้นๆ บนเส้นชีวิตในหน้าชีวประวัติ ไม่ใส่ = เหตุการณ์นี้ไม่ขึ้นเส้นชีวิต */
   mark: z.string().optional(),
   /** คนที่เหตุการณ์นี้พาเข้ามาในชีวิต (หรือเปลี่ยน) ไม่ว่าจะเลือกทางไหน ใช้ก่อนผลของตัวเลือก รูปแบบเดียวกับ effects.people */

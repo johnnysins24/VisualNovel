@@ -2,6 +2,7 @@ import type { LifeState } from './state';
 import { newLife } from './state';
 import { TRAIT_RENAMES } from './balance';
 import { estimateBorn } from './people';
+import { syncJobOrgs } from './orgs';
 import type { Meta } from './meta';
 import { newMeta } from './meta';
 
@@ -51,6 +52,7 @@ export function importCode(code: string): LifeState {
 /**
  * เซฟเก่าเติมค่าที่ยังไม่มีจาก seed เดิม: v1 ไม่มีเพศ ปีเกิด และค่าโลก v2 ไม่มีปีเกิดของคนรอบตัว ขั้นของสิ่งติดตัว และตัวแสดง
  * รหัสสิ่งติดตัวรุ่นเก่า (demon_mark, born_empty_day) เปลี่ยนเป็นรหัสในทะเบียน
+ * เซฟก่อนมีระบบองค์กร: คนที่ทำงานในป้อมผู้เฝ้าผนึกอยู่แล้วเป็นสมาชิกภาคีที่ยศแรก
  */
 export function migrate(raw: unknown): LifeState {
   const old = raw as Partial<Omit<LifeState, 'version'>> & { version?: number };
@@ -58,5 +60,5 @@ export function migrate(raw: unknown): LifeState {
   const life = { ...newLife(old.seed), ...old, version: 3 } as LifeState;
   life.traits = [...new Set((life.traits ?? []).map((t) => TRAIT_RENAMES[t] ?? t))];
   life.people = (life.people ?? []).map((p) => (p.born === undefined ? { ...p, born: estimateBorn(p, life) } : p));
-  return life;
+  return syncJobOrgs(life);
 }

@@ -6,7 +6,7 @@
  * ตัวเลขทั้งหมดอยู่ใน balance.ts (ENCOUNTER, TECHNIQUES) ไฟล์นี้มีแต่วิธีคิด
  */
 import type { Encounter, EncounterEnd, FoeDef, GameEvent, Move, Stat } from './schema';
-import { ENCOUNTER, GEAR, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type TechniqueKind } from './balance';
+import { ENCOUNTER, GEAR, MOVE_STAT, PROTECTED_AGE, TECHNIQUES, type ClassId, type OrgId, type TechniqueKind } from './balance';
 import { modifier, type BeatRecord, type EncounterLog, type EncounterState, type LifeState, type LogEntry, type OddsPart } from './state';
 import { Rng } from './rng';
 import { activePassives, effectiveStats, gearCheckBonus } from './items';
@@ -14,6 +14,7 @@ import { clericDrifted, situationalBonus } from './rules';
 import { traitCheckBonuses } from './traits';
 import { applyEffects, concludeEvent, requiresMet, type Game } from './engine';
 import { EDGE_KINDS, addItem, coldIron, gearEdge, gearTags, heavyArmour, rollLoot, spendSupplyInFight, supplyAid } from './gear';
+import { bountyFor, orgTechnique, recordDuty } from './orgs';
 
 /** ศัตรูของฉากหนึ่ง: ค่าของชนิด ทับด้วยค่าที่ฉากกำหนดเอง */
 export interface FoeView {
@@ -106,10 +107,12 @@ export interface MoveOdds {
 
 const hasReroll = (game: Game, life: LifeState) => activePassives(life, game.items).some((p) => p.kind === 'reroll_failed_check');
 
-/** ทอยใหม่ได้อีกไหมในการปะทะนี้: ท่าของนักรบ หรือของที่ให้ทอยใหม่ อย่างละครั้ง */
-function rerollLeft(game: Game, life: LifeState): 'tech' | 'item' | null {
+/** ทอยใหม่ได้อีกไหมในการปะทะนี้: ท่าของนักรบ ท่าขององค์กร (ยืนแนว) หรือของที่ให้ทอยใหม่ อย่างละครั้ง คืนรหัสองค์กรถ้าเป็นท่าขององค์กร */
+function rerollLeft(game: Game, life: LifeState, foe: FoeView): 'tech' | 'item' | OrgId | null {
   const st = life.encounter;
   if (techniqueDef(life).kind === 'reroll' && !st?.techUsed) return 'tech';
+  const org = orgTechnique(life, foe.def.side, 'hold');
+  if (org) return org;
   if (!st?.rerollUsed && hasReroll(game, life)) return 'item';
   return null;
 }
@@ -161,7 +164,7 @@ export function moveOdds(game: Game, life: LifeState, ev: GameEvent, move: Move,
   let wins = 0;
   for (let d = 1; d <= 20; d++) if (d === 20 || (d !== 1 && d + mod >= dc)) wins++;
   const p = wins / 20;
-  return { stat, dc, mod, parts, traits, chance: rerollLeft(game, life) ? 1 - (1 - p) * (1 - p) : p, tech };
+  return { stat, dc, mod, parts, traits, chance: rerollLeft(game, life, foe) ? 1 - (1 - p) * (1 - p) : p, tech };
 }
 
 /** พลังชีวิตที่เสียเมื่อพลาดหนึ่งจังหวะ ก่อนคิดโล่และพร */
@@ -227,14 +230,19 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
     }
   }
   if (!passes(record.d20)) {
-    const again = rerollLeft(game, life);
+    const again = rerollLeft(game, life, foe);
     if (again) {
       record.d20 = Math.max(record.d20, rng.d20());
       record.rerolled = true;
       if (again === 'tech') {
         state.techUsed = true;
         record.tech = 'reroll';
-      } else state.rerollUsed = true;
+      } else if (again === 'item') state.rerollUsed = true;
+      else {
+        // ท่าขององค์กร (ยืนแนว): ทอยใหม่ให้เองเหมือนท่าของนักรบ
+        state.orgTechUsed = [...(state.orgTechUsed ?? []), again];
+        record.tech ??= TECHNIQUES[again].kind;
+      }
     }
   }
   record.success = passes(record.d20);
@@ -249,6 +257,14 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
       if (tk.kind === 'ambush' && tk.ready) {
         pips += techniqueDef(life).amount;
         record.tech = 'ambush';
+      } else {
+        // ท่าขององค์กร (รู้ทางเขี้ยว): สำเร็จครั้งแรกศัตรูเสียแรงใจเพิ่ม ไม่ทบกับแทงจากเงาในจังหวะเดียวกัน
+        const org = orgTechnique(life, foe.def.side, 'quarry');
+        if (org) {
+          pips += TECHNIQUES[org].amount;
+          state.orgTechUsed = [...(state.orgTechUsed ?? []), org];
+          record.tech ??= TECHNIQUES[org].kind;
+        }
       }
       record.pips = Math.min(pips, state.morale);
       state.morale -= record.pips;
@@ -327,8 +343,19 @@ export function resolveMove(game: Game, life: LifeState, moveId: string, armed =
     }
   }
 
+  // โรงรับเขี้ยวรับซื้อหลักฐานการล่าจากสมาชิกที่ชนะสิ่งที่ไม่ใช่คน
+  const bounty = end === 'win' && !next.dying ? bountyFor(next, foe.def.side, foe.threat) : 0;
+  if (bounty) {
+    next = { ...next, gold: next.gold + bounty };
+    const said = (game.lines.bounty ?? []).map((t) => t.replaceAll('{foe}', foe.name));
+    if (said.length) texts.push(said[rng.int(0, said.length - 1)]!);
+  }
+  // งานขององค์กร: ชนะ เจรจาได้ หรือยันไว้ได้คือทำงานสำเร็จ แพ้หรือถอยไม่ได้ผลงาน
+  if (ev.duty && !next.dying) next = recordDuty(next, ev.duty, end === 'win' || end === 'parley' || end === 'stalemate' ? 'done' : 'tried');
+
   const log: EncounterLog = { foe: foe.def.id, name: foe.name, end, morale: foe.morale, records: state.records };
   if (loot) log.loot = loot;
+  if (bounty) log.bounty = bounty;
   if (state.knew) log.knew = true;
   if (state.learned !== undefined) log.learned = state.learned;
   const entry: LogEntry = { age: life.age, eventId: ev.id, choiceId: end, encounter: log };

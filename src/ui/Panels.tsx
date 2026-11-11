@@ -29,6 +29,7 @@ const FACTION_TH: Record<FactionId, string> = {
   dock_rats: 'หนูท่า',
   ash_cult: 'ลัทธิเถ้า',
   star_listeners: 'ผู้ฟังดาว',
+  fang_house: 'โรงรับเขี้ยว',
 };
 
 export function StatGrid() {
