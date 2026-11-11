@@ -17,9 +17,13 @@ npm install
 npm run content   # YAML -> src/generated/content.json (ตรวจ Zod + ตัวตรวจเนื้อเรื่อง)
 npm run dev        # เนื้อหาจริงใน content/
 npm run dev:fixture  # ใช้เนื้อหาทดสอบใน tests/fixtures/content
-npm test          # Vitest
-npm run shots     # Playwright ถ่ายจอ 3 ขนาดลงโฟลเดอร์ shots/
+npm run check     # ระหว่างทำงาน: ตรวจเนื้อหา ชนิดข้อมูล และเทสต์ logic (ราว 10 วินาที)
+npm test          # ชุดเต็มก่อน push: Vitest ทั้งหมด รวม tests/slow/ (ชีวิตจำลอง 400 ชีวิต และไฟล์ภาพ)
+npm run shots     # เมื่อแก้หน้าจอ: Playwright ถ่ายจอ 3 ขนาดลงโฟลเดอร์ shots/ แล้วคืนเนื้อหาจริงให้เอง
+npm run audit     # เมื่อแก้สมดุล: จำลอง 2,000 ชีวิตแล้วพิมพ์รายงาน
 ```
+
+กติกาว่าเมื่อไรรันอะไรอยู่ในหัวข้อ "การทดสอบ" ของ [CLAUDE.md](CLAUDE.md)
 
 ## โครงสร้าง
 

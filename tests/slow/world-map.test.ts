@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { loadMap, buildMap, paintMap } from '../art/kit/map.mjs';
+import { loadMap, buildMap, paintMap } from '../../art/kit/map.mjs';
 
 const TAGS = ['arvel_village', 'ventras', 'hordun', 'ileth', 'ashland']; // every location_tag the content uses
 

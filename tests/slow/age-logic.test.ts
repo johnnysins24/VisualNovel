@@ -1,13 +1,13 @@
 // ตรวจความถูกต้องของวัยและ logic ตลอดทั้งชีวิต: เล่นชีวิตสุ่มด้วยเนื้อหาจริงหลายร้อยชีวิต แล้วดูว่า
 // รูปร่างตรงกับวัยทุกปี (ทารก เด็กเล็ก เด็ก วัยรุ่น ผู้ใหญ่) คนรอบตัววาดได้ทุกคน และเหตุการณ์ไม่พูดถึงคนที่ไม่อยู่
 import { describe, expect, it } from 'vitest';
-import { renderLook } from '../art/kit/core.mjs';
-import { loadContent } from '../scripts/content';
-import { choiceAvailable, makeGame, pickEvent, resolveChoice } from '../src/engine/engine';
-import { humanAge, newLife, type LifeState } from '../src/engine/state';
-import { Rng } from '../src/engine/rng';
-import { kit } from '../src/sprites/kit';
-import { bodyFor, personAge, personLook, playerLook, stageOf } from '../src/sprites/looks';
+import { renderLook } from '../../art/kit/core.mjs';
+import { loadContent } from '../../scripts/content';
+import { choiceAvailable, makeGame, pickEvent, resolveChoice } from '../../src/engine/engine';
+import { humanAge, newLife, type LifeState } from '../../src/engine/state';
+import { Rng } from '../../src/engine/rng';
+import { kit } from '../../src/sprites/kit';
+import { bodyFor, personAge, personLook, playerLook, stageOf } from '../../src/sprites/looks';
 
 const game = makeGame(loadContent('content'));
 const PARTNER = /\{partner\}|\{p:/;
@@ -25,8 +25,8 @@ describe('age logic over whole lives (real content)', () => {
         if (look.body !== want) problems.push(`seed ${seed} age ${l.age}: body ${look.body}, want ${want}`);
         for (const p of l.people) {
           if (personAge(p, l) < 0) problems.push(`seed ${seed}: ${p.id} has a negative age`);
-          // วาดจริงเฉพาะบางปี (ช้า) ที่เหลือแค่สร้างรูปร่าง
-          if (i % 7 === 0) renderLook(kit, personLook(p, l));
+          // วาดจริงเฉพาะบางปีของหนึ่งในสามของชีวิต (ช้า) ที่เหลือแค่สร้างรูปร่าง ภาพของ NPC ทุกสูตรตรวจครบอยู่แล้วใน art-kit
+          if (i % 7 === 0 && seed % 3 === 0) renderLook(kit, personLook(p, l));
           else personLook(p, l);
         }
         const picked = pickEvent(game, l);

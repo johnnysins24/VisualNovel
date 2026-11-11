@@ -1,5 +1,5 @@
 // เครดิตของงานที่ไม่ได้ทำเอง แสดงในแผง "เพิ่มเติม" และตรงกับ CREDITS.md ที่รากของ repo
-// pack = โฟลเดอร์ใน art/thirdparty/ (tests/adopted.test.ts กับ tests/studio.test.ts ตรวจว่าทุกชุดและผู้วาดทุกคนที่ภาพในเกมใช้มีเครดิต)
+// pack = โฟลเดอร์ใน art/thirdparty/ (tests/adopted.test.ts กับ tests/slow/art-files.test.ts ตรวจว่าทุกชุดและผู้วาดทุกคนที่ภาพในเกมใช้มีเครดิต)
 
 export interface Credit {
   pack?: string;

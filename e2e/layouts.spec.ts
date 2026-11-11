@@ -14,8 +14,12 @@ async function pick(page: Page) {
   return true;
 }
 
+// ป้าย @once: เทสต์ที่ผลไม่ขึ้นกับขนาดจอ รันบนจอมือถือแนวตั้งอย่างเดียว (ดู playwright.config.ts)
+// ธีมมืดเปลี่ยนแค่สี จึงถ่ายจอเดียว ส่วนธีมสว่างถ่ายครบสามขนาดเพราะการจัดวางต่างกัน
+const ONCE = { tag: '@once' };
+
 for (const scheme of ['light', 'dark'] as const) {
-  test(`plays a few choices and screenshots the layout (${scheme})`, async ({ page }, info) => {
+  test(`plays a few choices and screenshots the layout (${scheme})`, scheme === 'dark' ? ONCE : {}, async ({ page }, info) => {
     await page.emulateMedia({ colorScheme: scheme });
     await page.goto('/');
     await page.locator(`${CHOICE}, .readbar`).first().waitFor();
@@ -31,7 +35,7 @@ for (const scheme of ['light', 'dark'] as const) {
   });
 }
 
-test('reveals the story one paragraph at a time', async ({ page }) => {
+test('reveals the story one paragraph at a time', ONCE, async ({ page }) => {
   await page.goto('/');
   await page.locator(`${CHOICE}, .readbar`).first().waitFor();
   const next = page.locator('.readbar .next');
@@ -48,7 +52,7 @@ test('reveals the story one paragraph at a time', async ({ page }) => {
   await expect(page.locator(CHOICE).first()).toBeVisible();
 });
 
-test('reading mode "all" shows choices at once', async ({ page }) => {
+test('reading mode "all" shows choices at once', ONCE, async ({ page }) => {
   await page.goto('/');
   await page.locator('.bottom-nav button, .top-tabs button').filter({ visible: true }).last().click();
   await page.getByRole('radio', { name: 'ทั้งหมด' }).click();
@@ -58,7 +62,7 @@ test('reading mode "all" shows choices at once', async ({ page }) => {
   await expect(page.locator(CHOICE).first()).toBeVisible();
 });
 
-test('saves survive a reload', async ({ page }) => {
+test('saves survive a reload', ONCE, async ({ page }) => {
   await page.goto('/');
   await pick(page);
   const age = (await page.locator('.top .meta').textContent()) ?? '';

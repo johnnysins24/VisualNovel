@@ -1,6 +1,6 @@
 /**
  * ตรวจ logic ของเกมด้วยการเล่นชีวิตสุ่มจำนวนมาก แล้วสรุปเป็นตัวเลข
- * ใช้ได้ทั้งจากคำสั่ง (scripts/audit-lives.ts) และจากเทสต์ (tests/audit.test.ts)
+ * ใช้ได้ทั้งจากคำสั่ง (scripts/audit-lives.ts) และจากเทสต์ (tests/slow/audit.test.ts)
  * ทุกอย่างคำนวณจาก seed จึงได้ผลเดิมทุกครั้ง
  */
 import { choiceAvailable, eligible, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';

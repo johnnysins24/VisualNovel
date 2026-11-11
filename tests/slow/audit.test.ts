@@ -1,10 +1,10 @@
 // เล่นชีวิตสุ่มบนเนื้อหาจริงทุกครั้งที่รันเทสต์ แล้วยืนยันกติกาที่ต้องจริงเสมอ (ดู scripts/audit.ts)
 // รายงานเต็มพร้อมตัวเลขสมดุล: npm run audit
 import { describe, expect, it } from 'vitest';
-import { loadContent } from '../scripts/content';
-import { auditLives } from '../scripts/audit';
-import { makeGame } from '../src/engine/engine';
-import { RACES, type RaceId } from '../src/engine/balance';
+import { loadContent } from '../../scripts/content';
+import { auditLives } from '../../scripts/audit';
+import { makeGame } from '../../src/engine/engine';
+import { RACES, type RaceId } from '../../src/engine/balance';
 
 const game = makeGame(loadContent('content'));
 const res = auditLives(game, 400);
