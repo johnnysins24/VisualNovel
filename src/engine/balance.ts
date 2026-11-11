@@ -439,7 +439,7 @@ export const CITIES: Record<CityId, CityDef> = {
     tag: 'kardin',
     main: true,
     map: 'kardin',
-    districts: { junction: 'ย่านชุมทาง', foundries: 'ย่านโรงหลอม', ledger_row: 'ถนนสมุดบัญชี' },
+    districts: { junction: 'ย่านชุมทาง', foundries: 'ย่านเตาหลอม', ledger_row: 'ถนนสมุดบัญชี' },
   },
   tundar: {
     th: 'ทุนดาร์',

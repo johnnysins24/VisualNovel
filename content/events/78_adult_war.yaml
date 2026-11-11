@@ -13,7 +13,7 @@
     age: [19, 24]
     year: [296, 300]
     gender: m
-    not_flags: [race_dwarf, race_elf, race_tiefling, origin_ashland, job_navy, job_wardens, job_fort_priest]
+    not_flags: [race_dwarf, race_elf, race_tiefling, origin_ashland, job_navy, job_wardens, job_fort_priest, institute_student]
   text: |
     ทหารม้าสองนายกับเสมียนหนึ่งคนมาถึงลานกลางถิ่นตอนสาย เสมียนคลี่ประกาศอ่านเสียงดัง ราชอาณาจักรอาร์เวลทำศึกกับสภาตระกูลคนแคระ ผู้ชายอายุสิบแปดถึงสี่สิบห้าที่ยังไม่ได้ไปต้องไปรายงานตัวที่ค่ายภายในเจ็ดวัน แล้วอ่านรายชื่อจากสมุดวิหารทีละชื่อ
 

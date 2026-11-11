@@ -453,6 +453,7 @@ export type FoeDef = z.infer<typeof FoeDefSchema>;
 export const SCENES = [
   'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop', 'smithy', 'golem_shop', 'healer',
   'ship_deck', 'mine', 'clan_hall', 'institute', 'belek_bank', 'star_hall',
+  'classroom', 'library', 'dormitory', 'laboratory', 'observatory', 'council_hall', 'station',
 ] as const;
 export type Scene = (typeof SCENES)[number];
 

@@ -497,7 +497,7 @@ when:                                            # ใช้ใน requires ข�
 | เมือง | id | ถิ่น (`location_tag`) | เมืองหลักของถิ่น | ย่าน (ย่านแรกคือที่ที่คนมาใหม่ลง) | คนที่เกิดในเมือง |
 |---|---|---|---|---|---|
 | เวนทราส | `ventras` | `ventras` | ใช่ | `sky_docks` ย่านท่าเรือเหาะ · `refineries` ย่านโรงกลั่น · `temple_hill` ย่านวิหาร · `institute` ย่านสถาบัน | `origin_refinery` (ย่านโรงกลั่น) `origin_marked_hidden` (ย่านวิหาร) |
-| คาร์ดิน | `kardin` | `kardin` | ใช่ | `junction` ย่านชุมทาง · `foundries` ย่านโรงหลอม · `ledger_row` ถนนสมุดบัญชี | ไม่มี |
+| คาร์ดิน | `kardin` | `kardin` | ใช่ | `junction` ย่านชุมทาง · `foundries` ย่านเตาหลอม · `ledger_row` ถนนสมุดบัญชี | ไม่มี |
 | ทุนดาร์ | `tundar` | `hordun` | ใช่ | `lower_gate` ลานประตูล่าง · `forge_levels` ชั้นโรงหลอม · `clan_levels` ถนนวนของตระกูล · `council_ring` วงสภา | `origin_dwarf_clan` (ถนนวนของตระกูล) |
 | เมืองตลาด | `market_town` | `arvel_village` | ไม่ | `rail_side` ย่านริมราง · `weigh_square` ลานโรงชั่ง · `mill_lane` ซอยโรงสี | ไม่มี |
 | ตลาดตีนเขา | `foothill_market` | `hordun` | ไม่ | `inn_row` แถวโรงเตี๊ยม · `coal_yard` ลานถ่าน · `rail_end` ปลายราง | ไม่มี |
