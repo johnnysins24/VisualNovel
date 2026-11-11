@@ -1,0 +1,40 @@
+# Kardin: the junction city of Arvel. A wide yard of soot-dark flags where the rails run in from the
+# plain, a coal train standing across the far end, two foundry domes that never go dark, warehouses
+# of brick with lit windows and Belek's pillar behind it all. The yard is 26 m wide between brick
+# fronts 11 m tall. The pillar stands left of the middle so nothing tall rises behind a head.
+ceiling: 11
+width: 26
+back: 62
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 50, below: 46 }
+  - body: { day: [206, 14, 6], dusk: [44, 38, 9], night: [208, 12, 5] }
+  - clouds: { count: 4, y: [4, 22], seed: 12 }
+  - pillar: { x: 110, w: 6, base: 59 }
+    haze: 0.4
+  - skyline: { base: 61, w: [4, 8], h: [3, 7], gap: 0, wall: brick, roof: slate, windows: 0.4, chimneys: 0.7 }
+    haze: 0.3
+  - floor: { y0: 61, mat: dark_stone, pattern: flags, tile: 12, track: 1.4 }
+  - sides: { mat: brick, pattern: brick, left: -0.9, right: -0.4, windows: { every: 5, w: 1.0, h: 1.5, storey: 3.6, sill: 1.4, frame: dark_stone }, skirt: dark_stone }
+  - furn: { kind: train, at: [120, 66], cars: 2 }
+    outline: true
+    haze: 0.1
+  - furn: { kind: furnace, at: [0, 70], xm: -10.5 }
+    outline: true
+  - smoke: { at: [60, 15], puffs: 6, drift: -1.5 }
+  - glow: { at: [61, 66], r: 12, colour: 'f07040' }
+  - furn: { kind: furnace, at: [0, 71], xm: 10.8 }
+    outline: true
+  - smoke: { at: [204, 13], puffs: 6, drift: 1.5 }
+  - glow: { at: [204, 67], r: 12, colour: 'f07040' }
+  - furn: { kind: lamppost, xm: -5.2, at: [0, 68], at_rows: [68, 78.8, 91.8], light: window }
+    outline: true
+  - furn: { kind: lamppost, xm: 5.2, at: [0, 68], at_rows: [68, 78.8, 91.8], light: window }
+    outline: true
+  - furn: { kind: rail_cart, at: [0, 82], xm: -3.2 }
+    outline: true
+  - furn: { kind: crates, at: [0, 86], xm: 6.6 }
+    outline: true
+  - furn: { kind: barrel, at: [0, 88], xm: -6.8, mat: metal, band: dark_stone }
+    outline: true
+  - furn: { kind: coal, at: [0, 96], xm: -6.4 }

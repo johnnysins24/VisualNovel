@@ -1,0 +1,26 @@
+# Market in Kardin: stalls set out on the junction yard between the rails and the foundries, crates
+# off the last train, sacks waiting for the weigher. The yard, the train, the domes and the pillar are
+# kardin.
+ceiling: 11
+width: 26
+back: 62
+base: { scene: kardin, layers: 14 }
+layers:
+  - furn: { kind: lamppost, xm: -5.2, at: [0, 68], at_rows: [68, 78.8], light: window }
+    outline: true
+  - furn: { kind: lamppost, xm: 5.2, at: [0, 68], at_rows: [68, 78.8], light: window }
+    outline: true
+  - furn: { kind: stall, at: [0, 80], xm: -8.2, mat: slate, goods: pots }
+    outline: true
+  - furn: { kind: stall, at: [0, 80], xm: 8.2, mat: brass }
+    outline: true
+  - furn: { kind: stall, at: [0, 90], xm: -5.6, mat: red_cloth }
+    outline: true
+  - furn: { kind: stall, at: [0, 92], xm: 5.6, mat: slate, goods: books }
+    outline: true
+  - furn: { kind: crates, at: [0, 102], xm: -4.6 }
+    outline: true
+  - furn: { kind: sacks, at: [0, 108], xm: 3.6 }
+    outline: true
+  - furn: { kind: barrel, at: [0, 104], xm: 4.4, mat: metal, band: dark_stone }
+    outline: true

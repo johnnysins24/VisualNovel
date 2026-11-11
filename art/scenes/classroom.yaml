@@ -1,0 +1,32 @@
+# A lecture room of the royal institute: a slate board the width of the dais, the lecturer's desk on
+# a low step, two arched windows, a star chart, rows of writing desks down both walls and hanging
+# star-dew lamps. The room is 9 m wide, its back wall 5 m behind the figures.
+interior: true
+ceiling: 4.0
+width: 9
+back: 88
+layers:
+  - wall: { y0: 0, y1: 88, mat: plaster, wainscot: [76, wood], skirt: wood }
+  - ceiling: { mat: wood, every: 1.5 }
+  - floor: { y0: 89, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, wainscot: [1.0, wood], skirt: wood }
+  - pane: { at: [60], wm: 0.9, hm: 2.0, on: 1.3, arch: true, frame: wood, frame_bg: plaster }
+  - pane: { at: [196], wm: 0.9, hm: 2.0, on: 1.3, arch: true, frame: wood, frame_bg: plaster }
+  - furn: { kind: frame, at: [128], on: 1.25, wm: 3.6, hm: 1.5, frame: wood, sky: slate, mat: slate }
+    outline: true
+  - furn: { kind: step, at: [128, 89], wm: 4.6, hm: 0.2, mat: wood }
+    outline: true
+  - furn: { kind: table, at: [128, 89], on: 0.2, wm: 1.5, items: books }
+    outline: true
+  - furn: { kind: candles, at: [99, 89], on: 0.2 }
+  - furn: { kind: bench, side: left, at: [1.3, 95], along: { to: 109, every: 1.5 }, wm: 1.8 }
+    outline: true
+  - furn: { kind: table, side: left, at: [1.3, 96], along: { to: 110, every: 1.5 }, wm: 1.8, hm: 0.8, items: ledger }
+    outline: true
+  - furn: { kind: bench, side: right, at: [1.3, 95], along: { to: 109, every: 1.5 }, wm: 1.8 }
+    outline: true
+  - furn: { kind: table, side: right, at: [1.3, 96], along: { to: 110, every: 1.5 }, wm: 1.8, hm: 0.8, items: ledger }
+    outline: true
+  - furn: { kind: lamp, at: [108, 97], on: 2.7, light: star_dew, glow: { r: 14, colour: 'aad6fb', only: [dusk, night] } }
+  - furn: { kind: lamp, at: [148, 97], on: 2.7, light: star_dew, glow: { r: 14, colour: 'aad6fb', only: [dusk, night] } }
+  - vignette: { strength: 0.4 }

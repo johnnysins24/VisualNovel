@@ -1,0 +1,37 @@
+# A still room of the institute: stone walls, two small brass stills on a bench of pipes, shelves of
+# jars, a wall of numbered drawers, a long work table, barrels of water, blue star-dew light. The room
+# is 9 m wide, its back wall 5 m behind the figures.
+interior: true
+ceiling: 3.4
+width: 9
+back: 89
+layers:
+  - wall: { y0: 0, y1: 89, mat: stone, pattern: blocks, skirt: dark_stone }
+  - ceiling: { mat: dark_stone, board_mat: stone, board: 16, every: 1.4 }
+  - floor: { y0: 90, mat: dark_stone, pattern: flags, tile: 16 }
+  - sides: { mat: stone, pattern: blocks, rails: [1.2], rail_mat: brass, skirt: dark_stone }
+  - pane: { at: [128], wm: 1.4, hm: 0.7, on: 2.4, frame: metal }
+  - furn: { kind: drawers, at: [62], wm: 2.0, hm: 2.2 }
+    outline: true
+  - furn: { kind: shelf, at: [128], on: 1.35, wm: 2.2, rows: 2 }
+    outline: true
+  - pipe: { from: [176, 52], to: [226, 52], wm: 0.1, mat: brass }
+  - furn: { kind: still, at: [190, 91], wm: 0.6, s: 0.75 }
+    outline: true
+  - furn: { kind: still, at: [214, 91], wm: 0.6, s: 0.75 }
+    outline: true
+  - glow: { at: [200, 82], r: 9, colour: '9fd8f0' }
+  - glow: { at: [224, 82], r: 9, colour: '9fd8f0' }
+  - furn: { kind: table, at: [128, 96], wm: 3.0, items: mixed }
+    outline: true
+  - furn: { kind: lamp, at: [108, 97], on: 2.2, light: star_dew, glow: { r: 13, colour: 'aad6fb' } }
+  - furn: { kind: lamp, at: [148, 97], on: 2.2, light: star_dew, glow: { r: 13, colour: 'aad6fb' } }
+  - furn: { kind: cupboard, side: left, at: [0.6, 100] }
+    outline: true
+  - furn: { kind: barrel, side: right, at: [0.45, 101], mat: metal, band: dark_stone }
+    outline: true
+  - furn: { kind: barrel, side: left, at: [0.5, 110], mat: metal, band: dark_stone }
+    outline: true
+  - furn: { kind: crates, side: right, at: [0.75, 110] }
+    outline: true
+  - vignette: { strength: 0.45 }

@@ -1,0 +1,42 @@
+# A city's council room: five high chairs behind a long table on a step (four district heads and the
+# crown's man), the banners of the districts, a rail that keeps the public back, benches down both
+# walls and a ring of candles overhead. The room is 11 m wide, its back wall 6 m behind the figures.
+interior: true
+ceiling: 5
+width: 11
+back: 85
+layers:
+  - wall: { y0: 0, y1: 85, mat: plaster, wainscot: [70, wood], skirt: wood }
+  - ceiling: { mat: wood, board_mat: plaster, board: 20, every: 1.8 }
+  - floor: { y0: 86, mat: stone, pattern: flags, tile: 18 }
+  - sides: { mat: plaster, wainscot: [1.1, wood], beams: 3.0, beam_w: 0.4, beam_mat: wood, skirt: wood }
+  - pane: { at: [40], wm: 1.0, hm: 2.4, on: 1.3, arch: true, frame: wood, frame_bg: plaster }
+  - pane: { at: [216], wm: 1.0, hm: 2.4, on: 1.3, arch: true, frame: wood, frame_bg: plaster }
+  - furn: { kind: banner, at: [76], on: 4.2, hm: 2.2, wm: 0.7, mat: red_cloth, sign: gold }
+  - furn: { kind: banner, at: [102], on: 4.2, hm: 2.2, wm: 0.7, mat: slate, sign: gold }
+  - furn: { kind: banner, at: [128], on: 4.5, hm: 2.4, wm: 0.9, mat: gold, sign: red_cloth }
+  - furn: { kind: banner, at: [154], on: 4.2, hm: 2.2, wm: 0.7, mat: brass, sign: slate }
+  - furn: { kind: banner, at: [180], on: 4.2, hm: 2.2, wm: 0.7, mat: leaf, sign: gold }
+  - furn: { kind: step, at: [128, 86], wm: 7.4, hm: 0.25, mat: wood }
+    outline: true
+  - furn: { kind: throne, at: [86, 86], on: 0.25, hm: 1.3 }
+    outline: true
+  - furn: { kind: throne, at: [107, 86], on: 0.25, hm: 1.3 }
+    outline: true
+  - furn: { kind: throne, at: [128, 86], on: 0.25, hm: 1.6 }
+    outline: true
+  - furn: { kind: throne, at: [149, 86], on: 0.25, hm: 1.3 }
+    outline: true
+  - furn: { kind: throne, at: [170, 86], on: 0.25, hm: 1.3 }
+    outline: true
+  - furn: { kind: table, at: [128, 88], on: 0.25, wm: 6.4, hm: 0.8, items: books }
+    outline: true
+  - furn: { kind: chandelier, at: [128, 93], on: 3.4, wm: 1.4, light: lamp }
+  - glow: { at: [128, 32], r: 20, colour: 'f7d98a', only: [dusk, night] }
+  - furn: { kind: railing, at: [128, 97], wm: 7.0 }
+    outline: true
+  - furn: { kind: bench, side: left, at: [1.2, 101], along: { to: 110, every: 1.6 }, wm: 2.0 }
+    outline: true
+  - furn: { kind: bench, side: right, at: [1.2, 101], along: { to: 110, every: 1.6 }, wm: 2.0 }
+    outline: true
+  - vignette: { strength: 0.4 }
