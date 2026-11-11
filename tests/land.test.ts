@@ -44,6 +44,7 @@ const raw = {
     ep('house', 1),
     ep('house', 2),
     { id: 'adult.either', stage: 'adult', when: { any_flags: ['taught_by_gran', 'spared_the_grove'] }, text: 'x', choices: ok },
+    { id: 'adult.far_road', stage: 'adult', when: { not_location_tag: 'ashland' }, text: 'x', choices: ok },
     { id: 'adult.quiet', stage: 'adult', once: false, weight: 1000, text: 'x', choices: ok },
   ],
 };
@@ -105,6 +106,11 @@ describe('ข้อห้ามของแผ่นดิน', () => {
     expect(eligible(game, grown(), ev('adult.either'))).toBe(false);
     expect(eligible(game, pick(grown(), 'spare'), ev('adult.either'))).toBe(true);
     expect(eligible(game, pick(grown(), 'taught'), ev('adult.either'))).toBe(true);
+  });
+
+  it('not_location_tag keeps a story about travelling to a region away from people who live there', () => {
+    expect(eligible(game, { ...grown(), locationTag: 'arvel_village' }, ev('adult.far_road'))).toBe(true);
+    expect(eligible(game, { ...grown(), locationTag: 'ashland' }, ev('adult.far_road'))).toBe(false);
   });
 
   it('a save from before this batch gets a land score of zero and keeps its other scores', () => {

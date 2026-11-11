@@ -540,6 +540,8 @@ export const EventSchema = z.object({
       /** ปีในโลก = birth_year + age */
       year: z.tuple([z.number().int(), z.number().int()]).optional(),
       location_tag: z.string().optional(),
+      /** ออกทุกถิ่นยกเว้นถิ่นนี้ (เรื่องที่เล่าการเดินทางไปถิ่นนั้น ต้องไม่ออกกับคนที่อยู่ที่นั่นอยู่แล้ว) */
+      not_location_tag: z.string().optional(),
       flags: z.array(z.string()).optional(),
       not_flags: z.array(z.string()).optional(),
       trait: z.string().optional(),

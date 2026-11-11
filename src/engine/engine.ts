@@ -248,6 +248,7 @@ export function eligible(game: Game, life: LifeState, ev: GameEvent, ignoreTime 
     }
   }
   if (w.location_tag && w.location_tag !== life.locationTag) return false;
+  if (w.not_location_tag && w.not_location_tag === life.locationTag) return false;
   if (w.flags?.some((f) => !life.flags.includes(f))) return false;
   if (w.not_flags?.some((f) => life.flags.includes(f))) return false;
   if (w.trait && !life.traits.includes(w.trait)) return false;
