@@ -4,16 +4,7 @@ import { encodePNG } from './png.mjs';
 
 export const PEARL = [242, 242, 249];
 
-/** Crop img to { x, y, w, h }. */
-export function crop(img, { x, y, w, h }) {
-  const rgba = new Uint8ClampedArray(w * h * 4);
-  for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) {
-    const X = x + i, Y = y + j;
-    if (X < 0 || Y < 0 || X >= img.w || Y >= img.h) continue;
-    rgba.set(img.rgba.subarray((Y * img.w + X) * 4, (Y * img.w + X) * 4 + 4), (j * w + i) * 4);
-  }
-  return { w, h, rgba };
-}
+export { crop } from './pixels.mjs';
 
 /**
  * rows: array of rows, each an array of images (null = empty cell). Each row may scale differently:

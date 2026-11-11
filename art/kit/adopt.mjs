@@ -8,73 +8,14 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ART, readYaml } from './kit.mjs';
 import { decodePNG, encodePNG } from './png.mjs';
-import { oklab } from './colour.mjs';
+import { adoptPixels, addOutline, hexRGB, paletteOf } from './pixels.mjs';
 import { crop, sheet, savePNG } from './sheet.mjs';
 
-const hexRGB = h => [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
-const toHex = (r, g, b) => [r, g, b].map(v => v.toString(16).padStart(2, '0')).join('');
+export { adoptPixels, addOutline, dropShadow, scale2x, trim, pad, flip, blit, adoptTile, paletteOf } from './pixels.mjs';
 
 /** Every ramp colour we use, with its OKLab value. Skin, lips, blush, eyes and tears stay out. */
 export function adoptPalette() {
-  const sprite = readYaml('palette.yaml'), scene = readYaml('scenes/palette.yaml');
-  const skip = /^(skin|lip|blush|eye|tear|lash|white)/;
-  const hexes = new Set();
-  for (const [k, ramp] of Object.entries(sprite.ramps)) if (!skip.test(k)) ramp.forEach(h => hexes.add(String(h)));
-  for (const m of Object.values(scene.materials)) (m.ramp ?? []).forEach(h => hexes.add(String(h)));
-  const outline = String(sprite.outline);
-  hexes.delete(outline);
-  return { outline, colours: [...hexes].map(h => ({ h, rgb: hexRGB(h), lab: oklab(h) })) };
-}
-
-function nearest(pal, rgb) {
-  const L = oklab(toHex(...rgb));
-  let best = pal.colours[0], bd = Infinity;
-  for (const c of pal.colours) {
-    // lightness counts double so shading steps survive the snap
-    const d = 2 * (c.lab[0] - L[0]) ** 2 + (c.lab[1] - L[1]) ** 2 + (c.lab[2] - L[2]) ** 2;
-    if (d < bd) { bd = d; best = c; }
-  }
-  return best.rgb;
-}
-
-const alphaAt = (img, x, y) => (x < 0 || y < 0 || x >= img.w || y >= img.h ? 0 : img.rgba[(y * img.w + x) * 4 + 3]);
-
-/** Snap colours, then outline: dark pixels on the silhouette edge and near-black inner lines. */
-export function adoptPixels(img, pal) {
-  const { w, h } = img, out = new Uint8ClampedArray(w * h * 4);
-  const O = hexRGB(pal.outline), cache = new Map();
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const i = (y * w + x) * 4;
-    if (img.rgba[i + 3] < 128) continue;
-    const rgb = [img.rgba[i], img.rgba[i + 1], img.rgba[i + 2]];
-    const L = oklab(toHex(...rgb))[0];
-    const edge = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => alphaAt(img, x + dx, y + dy) < 128);
-    let c;
-    if (L < 0.3 || (edge && L < 0.45)) c = O;
-    else { const k = rgb.join(); c = cache.get(k) ?? nearest(pal, rgb); cache.set(k, c); }
-    out.set([...c, 255], i);
-  }
-  // close the outline where the source had none (light pixels touching the outside)
-  const res = { w, h, rgba: out };
-  addOutline(res, O);
-  return res;
-}
-
-/** Any filled pixel touching transparency that is not outline yet gets a 1 px outline outside it. */
-function addOutline(img, O) {
-  const { w, h, rgba } = img, src = new Uint8ClampedArray(rgba);
-  const isO = i => src[i] === O[0] && src[i + 1] === O[1] && src[i + 2] === O[2];
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const i = (y * w + x) * 4;
-    if (src[i + 3]) continue;
-    const touches = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => {
-      const X = x + dx, Y = y + dy;
-      if (X < 0 || Y < 0 || X >= w || Y >= h) return false;
-      const j = (Y * w + X) * 4;
-      return src[j + 3] && !isO(j);
-    });
-    if (touches) rgba.set([...O, 255], i);
-  }
+  return paletteOf(readYaml('palette.yaml'), readYaml('scenes/palette.yaml'));
 }
 
 /** Draw one-colour SVGs at their sizes in one headless Chromium; returns { path: {w, h, rgba} }. */
@@ -103,6 +44,8 @@ export async function rasterSvgs(jobs) {
   } finally { await browser.close(); }
   return out;
 }
+
+const alphaAt = (img, x, y) => (x < 0 || y < 0 || x >= img.w || y >= img.h ? 0 : img.rgba[(y * img.w + x) * 4 + 3]);
 
 /** Fill a drawn silhouette with a ramp lit from the top left, then outline it. */
 function fillSilhouette(img, ramp, pal) {

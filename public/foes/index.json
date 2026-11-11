@@ -1,0 +1,11 @@
+{
+ "ash_hound": {
+  "w": 57,
+  "h": 33,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0
+ }
+}

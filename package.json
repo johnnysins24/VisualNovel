@@ -14,6 +14,8 @@
     "test": "vitest run",
     "shots": "playwright test",
     "scenes": "node art/kit/build.mjs scenes",
+    "studio": "vite --open /studio.html",
+    "draw": "tsx scripts/studio.ts",
     "map": "node art/kit/map.mjs",
     "map:poster": "node art/kit/map.mjs && node art/kit/map-poster.mjs"
   },
