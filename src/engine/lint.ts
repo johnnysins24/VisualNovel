@@ -166,6 +166,8 @@ export function lintContent(c: Content): string[] {
     for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) {
       fx?.items?.forEach((i) => given.add(i));
       if (fx?.location_tag) places.add(fx.location_tag);
+      // เมืองที่ย้ายไปด้วย city.move ตั้งถิ่นของเมืองนั้นให้เอง ร้านของถิ่นนั้นจึงมีทางไปถึง
+      if (fx?.city?.move) places.add(CITIES[fx.city.move].tag);
     }
   }
   const shops = c.shops ?? [];
