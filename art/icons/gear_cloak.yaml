@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 22, 26 ]
+outline: false
+ramps: { cloth: scene.cloth, outer: dye_moss, main: metal_brass }
+legend: { a: cloth@2, b: outer@0, c: outer@3, d: outer@4, e: main@2, f: main@3, g: main@4 }
+meta: { from: shikashi/icons.png, cell: "448,224,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .........####.........
+        .......##cccc##.......
+        ......#ccbbbbcc#......
+        .....#ccbddddbcc#.....
+        ....#ccccbddbcbbc#....
+        ...#ccbbccbbcbbbcc#...
+        ...#cbddbcccbbddbc#...
+        ...#cbdadggffdadbc#...
+        ..#ccbdaadeedaadbbb#..
+        ..#ccbdaaaaaaaadbbb#..
+        ..#cbdaaaaaaaaaadbb#..
+        .#ccbdaaaaaaaaaadbcb#.
+        .#ccbdaaaaaaaaaadbcb#.
+        .#ccbdaaaaaaaaaadbcb#.
+        .#ccbdaaaaaaaaaadbcb#.
+        #cccbdaaaaaaaaaadbccb#
+        #cccbdaaaaaaaaaadbccb#
+        #cccbdaaaaaaaaaadbccb#
+        #cccbddaaaaaaaaddbccb#
+        #cccbdddaaaaaadddbccb#
+        #cccbbdddddddddddbccb#
+        #ccccbb#########bbcbb#
+        #bbccb#.........#bbbb#
+        .##bbbb#.......#bbb##.
+        ...##bbb#.....#bb##...
+        .....#####...####.....

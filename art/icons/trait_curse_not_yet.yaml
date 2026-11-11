@@ -1,0 +1,37 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 18, 25 ]
+outline: false
+ramps: { roof_red: scene.roof_red, metal_demoncoal: metal_demoncoal, metal_starsilver: metal_starsilver, fire: scene.fire, star_dew: scene.star_dew }
+legend: { a: roof_red@2, b: roof_red@4, c: metal_demoncoal@0, d: metal_demoncoal@1, e: metal_demoncoal@4, f: metal_starsilver@1, g: metal_starsilver@2, h: metal_starsilver@3, i: metal_starsilver@4, j: fire@2, k: fire@3, l: fire@4, m: star_dew@3 }
+meta: { from: shikashi/icons.png, cell: "480,320,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .################.
+        #ggkkkkkkkbbaaaaa#
+        #kkbbbbbaaaaaaaaa#
+        #cccccccccccccccc#
+        .#aacffffffffcaa#.
+        .#kbcmiimmmffckb#.
+        .#kbcmmimmmmfckb#.
+        .#kbcimmmmmmfckb#.
+        .#kbcighhhgjfckb#.
+        .#aac#ilhgjf#caa#.
+        .#dd#.#iljf#.#dd#.
+        .#gk#..#mf#..#kk#.
+        .#bb#..#mf#..#bb#.
+        .#dd#.#ilmf#.#dd#.
+        .#aac#immmhf#caa#.
+        .#kbcimmmhhhfckb#.
+        .#kbcimmmehhfckb#.
+        .#kbcmmmmhhhfckb#.
+        .#kbcmmmmhhfeckb#.
+        .#kbcfmhhhbhhckb#.
+        .#kbcblhbghebckb#.
+        .#cccccccccccccc#.
+        #ggkkkkbbbbbaaaaa#
+        #kbbbbaaaaaaaaaaa#
+        ##################

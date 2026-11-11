@@ -1,0 +1,35 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 24, 23 ]
+outline: false
+ramps: { lung: scene.ash }
+legend: { a: lung@0, b: lung@2, c: lung@3, d: lung@4 }
+meta: { from: shikashi/icons.png, cell: "32,32,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ...........##...........
+        ..........#aa#..........
+        ..........#dd#..........
+        ..........#db#..........
+        ......##..#db#..##......
+        ....##aa#.#bb#.#aa##....
+        ...#aaba#.#ba#.#abaa#...
+        ..#abbbba#abaa#abbdba#..
+        .#abbbbbc#aaaa#cbbbdda#.
+        .#bdbdbdb######bdddbbb#.
+        #adbdbdbb#....#bbdbdbba#
+        #abbdbbdb#....#bbdbdbba#
+        #abbdbbdb#....#bdbbdbba#
+        #abdbbdbb#....#bbdbbdba#
+        #abdbbbdb#....#bdbbbdba#
+        #adbdbbbb#....#bbbbdbda#
+        #abbdbbbb#....#bbbbbbda#
+        #abbbbbbb#....#bbbbbdba#
+        #abbbbbba#....#abbbbbba#
+        #abbbbba#......#abbbbba#
+        #abbbaa#........#aabbba#
+        #aaaa##..........##aaaa#
+        .####..............####.

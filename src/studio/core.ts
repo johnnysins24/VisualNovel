@@ -401,6 +401,20 @@ function exec(st: Studio, cmd: string, a: string[], pal?: Palette): string {
       st.mat = m;
       return '';
     }
+    case 'tidy': {
+      // วัสดุที่ไม่มีพิกเซลใช้ในเฟรมและชั้นไหนเลยถูกลบออกจากรายการ (ภาพที่นำเข้าแล้วรวมวัสดุมักเหลือชื่อค้าง)
+      const used = new Set<number>([0]);
+      for (const f of d.frames) for (const L of f.layers) for (const c of L.px) if (c >= 0) used.add(matOf(c));
+      const keep = d.mats.map((_, i) => i).filter((i) => used.has(i));
+      if (keep.length === d.mats.length) return 'ไม่มีวัสดุที่ไม่ได้ใช้';
+      const at = new Map(keep.map((old, i) => [old, i])), gone = d.mats.filter((_, i) => !used.has(i));
+      for (const f of d.frames) for (const L of f.layers) for (let p = 0; p < L.px.length; p++) { const c = L.px[p]!; if (c >= 0) L.px[p] = code(at.get(matOf(c))!, levelOf(c)); }
+      st.keys = {}; // รหัสวัสดุเลื่อนแล้ว ตัวอักษรของ stamp ที่ตั้งไว้จึงใช้ต่อไม่ได้
+      for (const m of gone) delete d.ramps[m];
+      d.mats = keep.map((i) => d.mats[i]!);
+      if (!d.mats.includes(st.mat)) st.mat = INK;
+      return `ลบวัสดุที่ไม่ได้ใช้: ${gone.join(' ')}`;
+    }
     case 'use': {
       const c = parseMat(d, a[0] ?? '', a[1] === undefined ? st.level : int(a[1], 'ระดับแสง'));
       st.mat = d.mats[matOf(c)]!;
@@ -474,7 +488,22 @@ function exec(st: Studio, cmd: string, a: string[], pal?: Palette): string {
       return '';
     }
     case 'replace': {
-      const from = a[0] ?? '', to = a[1] ?? '', w = W(), all = !from.includes('@') && from !== INK;
+      const from = a[0] ?? '', to = a[1] ?? '', w = W();
+      if (a[2] !== undefined && a[2] !== 'tone') fail('ใช้แบบ: replace <จาก> <เป็น> [tone]');
+      if (a[2] === 'tone') {
+        // tone: รวมวัสดุหนึ่งหรือหลายอย่าง (คั่นด้วย ,) เป็นวัสดุเดียว ระดับแสงใหม่มาจากความสว่างของสีเดิม
+        // สีมืดสุดของกลุ่มได้ระดับ 0 สีสว่างสุดได้ระดับ 4 ใช้กับภาพที่นำเข้า ซึ่งเนื้อโลหะชิ้นเดียวมักถูกจับเข้าหลาย ramp
+        if (to.includes('@') || to === INK) fail('tone ใช้ได้เมื่อเปลี่ยนทั้งวัสดุเป็นอีกวัสดุ เช่น replace smoke,dye_sky main tone');
+        const t = matOf(parseMat(d, to, 0)), fromMats = new Set(from.split(',').map((m) => (m.includes('@') || m === INK ? fail('tone รับชื่อวัสดุเท่านั้น') : matOf(parseMat(d, m, 0)))));
+        const light = lightOf(d, pal ?? fail('replace ... tone ต้องใช้ palette'));
+        const hit: [number, number, number][] = [];
+        for (let y = 0; y < d.h; y++) for (let x = 0; x < d.w; x++) { const c = w.get(x, y); if (c >= 8 && fromMats.has(matOf(c)) && w.ok(x, y)) hit.push([x, y, c]); }
+        if (!hit.length) return '';
+        const ls = hit.map(([, , c]) => light(c)), lo = Math.min(...ls), hi = Math.max(...ls);
+        hit.forEach(([x, y], i) => w.set(x, y, code(t, hi - lo < 1e-6 ? 2 : Math.round(((ls[i]! - lo) / (hi - lo)) * (LEVELS - 1)))));
+        return '';
+      }
+      const all = !from.includes('@') && from !== INK;
       const f = parseMat(d, from, 0), t = parseMat(d, to, st.level), keep = all && !to.includes('@') && to !== INK;
       for (let y = 0; y < d.h; y++) for (let x = 0; x < d.w; x++) {
         const c = w.get(x, y);
@@ -609,6 +638,21 @@ export function strays(doc: Drawing, frame = 0): [number, number][] {
 }
 
 const rgbOf = (hex: string) => [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+
+/** ความสว่าง (OKLab L) ของสีที่รหัสพิกเซลหนึ่งรหัสแสดงอยู่ตอนนี้ (จำผลไว้ต่อรหัส) */
+function lightOf(doc: Drawing, pal: Palette): (c: number) => number {
+  const memo = new Map<number, number>();
+  return (c) => {
+    let L = memo.get(c);
+    if (L === undefined) {
+      const m = doc.mats[matOf(c)] ?? fail('รหัสวัสดุเกินรายการ');
+      const ramp = pal.ramps[doc.ramps[m] ?? ''] ?? fail(`วัสดุ "${m}" ชี้ไป ramp "${doc.ramps[m] ?? ''}" ที่ไม่มีอยู่`);
+      L = oklab(ramp[Math.min(ramp.length - 1, levelOf(c))]!)[0]!;
+      memo.set(c, L);
+    }
+    return L;
+  };
+}
 
 /** สีของรหัสพิกเซลหนึ่งรหัส */
 export function colourOf(doc: Drawing, pal: Palette, c: number): number[] {
@@ -879,6 +923,7 @@ export function fromImage(img: Img, pal: Palette, opts: { kind?: Kind; maxMats?:
 /** คำสั่งทั้งหมด [รูปแบบ, ทำอะไร] แสดงทั้งในหน้าเว็บและ `npm run draw -- help` */
 export const HELP: [string, string][] = [
   ['mat <ชื่อ> <ramp>', 'เพิ่มวัสดุ หรือเปลี่ยน ramp ของวัสดุเดิม (ทั้งภาพเปลี่ยนสีตาม) แล้วหยิบมาใช้'],
+  ['tidy', 'ลบวัสดุที่ไม่มีพิกเซลใช้แล้วออกจากรายการ (ตัวอักษรของ stamp ที่ตั้งด้วย key ต้องตั้งใหม่)'],
   ['use <วัสดุ>[@ระดับ]', 'หยิบพู่กัน เช่น use hide@1 หรือ use ink'],
   ['level <0-4>', 'ระดับแสงของพู่กัน 0 มืดสุด 4 สว่างสุด'],
   ['pick x,y', 'ดูดสีจากภาพมาเป็นพู่กัน'],
@@ -896,7 +941,7 @@ export const HELP: [string, string][] = [
   ['shade <+n|-n> [วัสดุ] [x,y x,y]', 'ทำให้สว่างขึ้นหรือมืดลง n ขั้น ทั้งชั้น ทั้งวัสดุ หรือในกรอบ'],
   ['shade-at <+n|-n> x,y x,y ...', 'ทำให้สว่างขึ้นหรือมืดลงตามเส้น'],
   ['autoshade [วัสดุ] [ระดับกลาง] [ความลึก]', 'ลงแสงเงาให้ทั้งก้อน แสงมาจากซ้ายบน (จุดตั้งต้นก่อนแต่งมือ)'],
-  ['replace <จาก> <เป็น>', 'เปลี่ยนวัสดุ หรือเฉพาะระดับ เช่น replace hide@0 ink'],
+  ['replace <จาก> <เป็น> [tone]', 'เปลี่ยนวัสดุ หรือเฉพาะระดับ เช่น replace hide@0 ink (tone: รวมวัสดุ a,b,c เป็นวัสดุเดียว ระดับแสงใหม่มาจากความสว่างของสีเดิม)'],
   ['select x,y x,y | all | none', 'กรอบเลือก คำสั่งวาดจะแตะได้เฉพาะในกรอบ'],
   ['move dx,dy', 'ย้ายสิ่งที่อยู่ในกรอบเลือก (หรือทั้งชั้น)'],
   ['flip h|v', 'กลับซ้ายขวาหรือบนล่าง'],

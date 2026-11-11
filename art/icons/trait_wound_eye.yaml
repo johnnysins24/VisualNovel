@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: scene.brick }
+legend: { a: shape@0, b: shape@2, c: shape@3, d: shape@4 }
+meta: { from: game-icons/delapouite/eyepatch.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 5, 1 ]
+      ascii: |
+        .......dddb.......
+        .....ddcbbbdb.....
+        ....dccbbbbbbb....
+        ....dcbbbbbbbbb...
+        ..c.cbbbbbbbbbbb..
+        ..dc.bbbbbbbbbba..
+        .dcbb.bbbbbbbbbbb.
+        .dbba..bbbbbbbbba.
+        .dbbbb..bbbbbbbba.
+        dbbbbbb..baaaaaabb
+        dbbbbbbb........ba
+        daabbbbbb........b
+        b..dbbaaa........b
+        db.baa..b........b
+        dbb....dbb.......b
+        dbbddddbba........
+        bbbbbbbbbbdb....b.
+        .dbbbbbbbbbbdddda.
+        .dbbbbbbbbbbbbbba.
+        .bbbbbbbbbbbbbbba.
+        ..dbbbbbbbbbbbba..
+        ..bbbbbbbbbbbbba..
+        ...bbbbbbbbbbba...
+        ....bbbbbbbbba....
+        .....babbbbaa.....
+        .......baaa.......

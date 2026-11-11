@@ -1,0 +1,42 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 22, 30 ]
+outline: false
+ramps: { horn: horn, main: metal_brass, cover: dye_wine }
+legend: { a: horn@4, b: main@0, c: main@3, d: main@4, e: cover@0, f: cover@1, g: cover@3, h: cover@4 }
+meta: { from: 7soul-496/W_Book07.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .####################.
+        #gfgfgfgfgeggegfgfgfe#
+        #effffffffegfefffffge#
+        #fffffffffegfeffffffe#
+        #effffffffegfefffffge#
+        #ffffffffebbbbefffffe#
+        #effffffbddddddbfffge#
+        #ffffffadabbbbadafffe#
+        #effffbdabeffebadbfge#
+        #ffffedabfegfefbadefe#
+        #eeeebdbeebeebeebdbee#
+        #ddddddbffeggegfbdddd#
+        #aaaaadbfgeggeffbdaaa#
+        #bbbbbdbeebeebeebdbbb#
+        #eeeeeadbfefgefbadeee#
+        #fffffbadbeffebadbfge#
+        #efffffaadbbbbadafffe#
+        #fffffffbadddddbfffge#
+        #efffffffebbbbefffffe#
+        #fffffffffegfefffffge#
+        #effffffffegfeffffffe#
+        #fffffffffegfefffffge#
+        #effffffffegfeffffffe#
+        #fgfgfgfgfegfefgfgfge#
+        #eeeeeeeeeeeeeeeeeeee#
+        #efaaaaaaaaaaaaaaaaaa#
+        #eahhhhhhhhhhhhhhhhhh#
+        #eacccccccccccccccccc#
+        #eeeeeeeeeeeeeeeeeeee#
+        .####################.

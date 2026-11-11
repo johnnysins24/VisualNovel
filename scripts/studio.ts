@@ -2,7 +2,9 @@
 //
 //   new <ชนิด> <ชื่อ> <กว้าง> <สูง>       ภาพเปล่า ชนิด: foe icon prop piece เช่น new foe ash_hound 48 32
 //   run <ภาพ> [ไฟล์คำสั่ง]                รันคำสั่งวาดทีละบรรทัด (ไม่บอกไฟล์ = อ่านจาก stdin) แล้วบันทึก
-//   import <ไฟล์ในชุดฟรี> <ภาพ>           นำเข้าภาพจาก art/thirdparty/ (--big ขยายสองเท่า, --keep-shadow, --mats N)
+//   import <ไฟล์ในชุดฟรี> <ภาพ>           นำเข้าภาพจาก art/thirdparty/ (--big ขยายสองเท่า, --keep-shadow, --mats N,
+//                                         --cell x,y,กว้าง,สูง ช่องหนึ่งช่องของแผ่นรวมไอคอน) ไฟล์ .svg สีเดียวของ game-icons.net
+//                                         นำเข้าเป็นวัสดุเดียว (--size N พิกเซล, --ramp <ramp>, --mat <ชื่อวัสดุ>)
 //   show <ภาพ>                            ทำภาพขยายพร้อมพิกัดไว้ตรวจงาน
 //   build [--check]                       สร้างไฟล์ที่เกมใช้จากทุกภาพ (--check แค่ตรวจว่าเป็นปัจจุบัน)
 //   list                                  รายชื่อภาพ
@@ -15,7 +17,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HELP, bounds, newDrawing, newStudio, runScript, strays, type Drawing, type Kind } from '../src/studio/core.ts';
 import {
-  DIRS, ROOT, importTile, kindOfRef, listDrawings, palette, pathOf, previewImage, readDrawing, readSource, savePNG, staleFiles, writeBuilt, writeDrawing,
+  DIRS, ROOT, importSvg, importTile, kindOfRef, listDrawings, palette, pathOf, previewImage, readDrawing, readSource, savePNG, staleFiles, writeBuilt, writeDrawing,
 } from './studio-lib.ts';
 
 const argv = process.argv.slice(2);
@@ -47,7 +49,7 @@ function preview(ref: string, doc: Drawing): string {
   return out;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const [cmd, a, b, c, d] = args;
   switch (cmd) {
     case 'new': {
@@ -71,7 +73,12 @@ function main(): void {
     case 'import': {
       const from = need(a, 'ไฟล์ในชุดฟรี'), ref = need(b, 'ชื่อภาพ');
       if (existsSync(pathOf(ref))) throw new Error(`มี art/${ref}.yaml อยู่แล้ว`);
-      const doc = importTile(from, { kind: kindOfRef(ref), big: !!flags.big, shadow: !flags['keep-shadow'], maxMats: flags.mats ? Number(flags.mats) : undefined });
+      const doc = from.endsWith('.svg')
+        ? await importSvg(from, { kind: kindOfRef(ref), size: flags.size ? Number(flags.size) : undefined, ramp: flags.ramp, mat: flags.mat })
+        : importTile(from, {
+          kind: kindOfRef(ref), big: !!flags.big, shadow: !flags['keep-shadow'], maxMats: flags.mats ? Number(flags.mats) : undefined,
+          cell: flags.cell ? flags.cell.split(',').map(Number) : undefined,
+        });
       writeDrawing(ref, doc);
       console.log(`นำเข้า ${summary(ref, doc)}`);
       console.log(`ภาพตรวจงาน: ${preview(ref, doc)}`);
@@ -105,4 +112,4 @@ function main(): void {
   }
 }
 
-try { main(); } catch (e) { console.error((e as Error).message); process.exitCode = 1; }
+try { await main(); } catch (e) { console.error((e as Error).message); process.exitCode = 1; }

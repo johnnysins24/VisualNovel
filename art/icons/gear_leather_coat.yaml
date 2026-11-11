@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 18, 26 ]
+outline: false
+ramps: { hide: scene.chestnut, main: metal_brass }
+legend: { a: hide@0, b: hide@1, c: hide@2, d: hide@4, e: main@2, f: main@4 }
+meta: { from: shikashi/icons.png, cell: "192,224,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ...##........##...
+        .###a#......#a###.
+        #dd#aa#....#aa#db#
+        #ddd#aa####aa#dcb#
+        .#ddd#aaaaaa#dcb#.
+        ..#dcb##aa##dcb#..
+        ..#dccbb##ddccb#..
+        .#dccccb##dccccb#.
+        #bccddcb##dcccccb#
+        #bccddcb##ccccccb#
+        #bbcccb#ff#bcccbb#
+        #bbbcb#aeea#bcbbb#
+        .#bbb#aa##aa#bbb#.
+        .####aa#dd#aa####.
+        .#aaaa#bffb#aaaa#.
+        ..#aa#dbeebd#aa#..
+        ..###bdbddbdb###..
+        ..#fbbfbccbfbbf#..
+        ...#abcbddacba#...
+        ...#aacbccacba#...
+        ..#b#acaccaca#b#..
+        ..#cb#caccac#bb#..
+        .#cccb#acca#bbbb#.
+        .#ccccb####bbbba#.
+        ..##cccbbbbbbb##..
+        ....##########....

@@ -1,0 +1,32 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 26, 20 ]
+outline: false
+ramps: { cloud: scene.cloud }
+legend: { a: cloud@4 }
+meta: { from: shikashi/icons.png, cell: "0,128,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ###################.......
+        #aaaaaaaaaaaaaaaaa#.......
+        #aaaaaaaaaaaaaaaaa#.......
+        #aaaaaaaaaaaaaaaaa#.......
+        #aaaaaaaaaaaaaaaaa########
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        #aaaaa#aa#aa#aaaaa#aaaaaa#
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        #aaaaaaaaaaaaaaaaa#aaaaaa#
+        ####aaaa###########aaaaaa#
+        ....#aa##aaaaaaaaaaaaaaaa#
+        ....#a#.#aaaaaaaaaaaaaaaa#
+        ....#a#.##########aaaa####
+        ....##............#aa#....
+        ...................#a#....
+        ...................#a#....
+        ....................##....

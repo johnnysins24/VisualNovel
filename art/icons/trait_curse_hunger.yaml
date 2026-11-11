@@ -1,0 +1,36 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 22, 24 ]
+outline: false
+ramps: { field: scene.field, fire: scene.fire, gut: dye_purple }
+legend: { a: field@4, b: fire@4, c: gut@0, d: gut@2, e: gut@3, f: gut@4 }
+meta: { from: shikashi/icons.png, cell: "64,32,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ...###................
+        ..#dcf#...............
+        ..#ffd#......#####....
+        ..#eed#....##ddddd#...
+        ..#eeed#.##ddeeeeed#..
+        ...#eeed#ddeefffffed#.
+        ....#eeedeeffffffffed#
+        .....#eeeffffffffffed#
+        ......#eeefffffffffed#
+        .......#defffffffffed#
+        .......#defffffffffed#
+        .......#deffffaafffed#
+        .......#deffffabfffed#
+        .....##deffffffffffed#
+        ....#ddefffaffffffed#.
+        ..##deeffffbffffffed#.
+        .#eeeeafffffffffaed#..
+        #eeedeeaaaaaaaaaeed#..
+        #eed#deebaaaaabeed#...
+        #ed#.#deebbbbbeed#....
+        #ed#..#deeeeeeed#.....
+        #ed#...#ddddddd#......
+        #dd#....#######.......
+        .##...................

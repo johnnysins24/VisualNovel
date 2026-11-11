@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: dye_purple }
+legend: { a: shape@0, b: shape@1, c: shape@2, d: shape@3, e: shape@4 }
+meta: { from: game-icons/lorc/wooden-door.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 5, 1 ]
+      ascii: |
+        ......eed.ec........
+        .....edda.ecc.......
+        ...d.edca.eca..c....
+        ..ea.ecca.eca..ec...
+        ..ea.ecca.eca..ea...
+        .eda.ecca.eca..ea...
+        .eda.ecca.eca..ecc..
+        .daa.caaa.caa..caa.c
+        ....................
+        eeeeeeeeeeeeeeeeeeec
+        caaaaaaaaaaaaaaaaaaa
+        ....................
+        .eec.eeec.eec..eec.c
+        .ea..ccca.eca..eca..
+        .c.ec.eca.eca..eca..
+        .c.ca.eca.eca..eca..
+        .c....eca.eca..eca..
+        .eec.ecca.eca..eca..
+        .caa.caaa.caa..caa.b
+        ....................
+        eeeeeeeeeeeeeeeeeeeb
+        caaaaaaaaaaaaaaaaaaa
+        ....................
+        .eec.eeec.eec..eeb.b
+        .eca.ecca.eca..eba..
+        .caa.caaa.caa..baa..

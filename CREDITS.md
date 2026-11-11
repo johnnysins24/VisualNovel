@@ -1,7 +1,7 @@
 # Credits
 
 งานที่ไม่ได้ทำเองในเถ้ากับดาว พร้อม licence ในเกมดูได้ที่แผง "เพิ่มเติม" > เครดิต (`src/ui/credits.ts`)
-ไฟล์ต้นฉบับอยู่ใน `art/thirdparty/` ไม่ถูกส่งขึ้นเว็บ ของที่ใช้ในเกมจริงคือภาพที่ดัดแปลงแล้วใน `art/adopted/` (`art/adopted.yaml` บอกว่าแต่ละภาพมาจากไฟล์ไหน)
+ไฟล์ต้นฉบับอยู่ใน `art/thirdparty/` ไม่ถูกส่งขึ้นเว็บ ของที่ใช้ในเกมจริงคือภาพที่ดัดแปลงแล้ว มีสองที่ `art/adopted/` (`art/adopted.yaml` บอกว่าแต่ละภาพมาจากไฟล์ไหน) กับภาพจากห้องวาดใน `art/foes/` และ `art/icons/` (บรรทัด `meta.from` ของแต่ละไฟล์บอกที่มา และ `public/*/index.json` จดไว้ด้วย)
 Licences checked on the source pages on 2026-11-10.
 
 ## Art
@@ -15,7 +15,7 @@ Licences checked on the source pages on 2026-11-10.
 
 ### game-icons.net icons in use
 
-Icons made by Delapouite (https://delapouite.com) and Lorc (http://lorcblog.blogspot.com). Available on https://game-icons.net. Changed: drawn as pixel art in our colours with our outline.
+Icons made by Delapouite (https://delapouite.com), Lorc (http://lorcblog.blogspot.com), Skoll, Caro Asercion and Cathelineau. Available on https://game-icons.net. Changed: drawn as pixel art in our colours with our outline; a few had parts removed or recoloured (the bell's motion lines, the deer's antlers, the musket's stock).
 
 | ไอคอน | ผู้วาด | ใช้เป็น |
 | --- | --- | --- |
@@ -23,9 +23,31 @@ Icons made by Delapouite (https://delapouite.com) and Lorc (http://lorcblog.blog
 | price-tag | Delapouite | unit_tag |
 | lockpicks | Delapouite | finnick_picks |
 | ladle | Delapouite | toren_oil_ladle |
-| ringing-bell | Lorc | cradle_bell |
+| ringing-bell | Lorc | cradle_bell, gear_bell |
+| spanner | Lorc | gear_wrench |
+| musket | Skoll | gear_musket |
+| scales | Lorc | trait_boon_scales |
+| stag-head | Lorc | trait_boon_antler |
+| nails | Lorc | trait_oath_cold_iron |
+| deer | Caro Asercion | trait_old_forest |
+| eel | Delapouite | trait_old_river |
+| cow | Delapouite | trait_old_field |
+| tiger-head | Delapouite | trait_old_fire |
+| polar-bear | Cathelineau | trait_old_stone |
+| sparrow | Lorc | trait_old_wind |
+| owl | Lorc | trait_old_night |
+| wooden-door | Lorc | trait_curse_closed_door |
+| shadow-follower | Lorc | trait_curse_shadow |
+| heptagram | Delapouite | trait_empty_day |
+| knee-cap | Delapouite | trait_wound_knee |
+| scar-wound | Lorc | trait_wound_scar |
+| eyepatch | Delapouite | trait_wound_eye |
+| hand-bandage | Delapouite | trait_wound_fingers |
+| back-pain | Lorc | trait_wound_back |
+| hearing-disabled | Skoll | trait_wound_ears |
+| broken-bone | Lorc | trait_wound_limp |
 
-Shikashi's icons were changed too: colours snapped to our palette and outline redrawn in #2b2840.
+Shikashi's icons were changed too: colours snapped to our palette and outline redrawn in #2b2840. The same goes for the 7Soul icons and the Dungeon Crawl tiles; gear icons also had their metal parts merged into one material so one drawing serves six materials, and some got small fittings added (buckles, studs, a clasp).
 
 ## Rules
 

@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 32, 32 ]
+outline: false
+ramps: { cloth: scene.cloth, dye_purple: dye_purple, stone: scene.stone, leather_black: leather_black }
+legend: { a: cloth@2, b: cloth@3, c: cloth@4, d: dye_purple@4, e: stone@4, f: leather_black@4 }
+meta: { from: 7soul-496/S_Sword20.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .##############################.
+        #ddddddaddddddaaaaabbcccccccccc#
+        #addddddbaaddaaaaabbccceeeeeeec#
+        #daddddaabaaaaaabbbcceecaaaaaec#
+        #ddadddaaabaaaabbbccecaadfffaec#
+        #dddbaadaaacbbbbbcceaadf###faec#
+        #dddabaadaabcccccceadf#####faec#
+        #dddaabaadabbcecceadf######daec#
+        #adadaacaaabbcceeadf######facec#
+        #dbaadaacbbbbcceadf#######daecc#
+        #dabaadabccccceadf#######facecc#
+        #daabaaabcecceadf#######fdaeccb#
+        #ddaabbbbcceeadf#######fdaeccbb#
+        #daaabcbbcceadf#######fdaeccbba#
+        #aabbbbecceadf#######fdaeccbbaa#
+        #abceecceeadf#######fdaeccbbbaa#
+        #acaaaaceadf#######fdaeeccbbaaa#
+        #aea#fdaadf#######fdaeccecbaaaa#
+        #aea##fddf#######fdaecccccbaaad#
+        #acaf##ff#######fdaeccbbbcbaadd#
+        #acadf#########fdaeeccbbbbcaadd#
+        #aecadf#######fdaeccecbaaaabaad#
+        #aeecad######fdaecccccbadaaabad#
+        #aecadf#####fdaeecbbbbcaadaaabd#
+        #aeadf######fdaccebbaaacaadaada#
+        #acdf###fdf##fdacbcbadaabaadddd#
+        #acf###fdadf##faebbbaadaabadddd#
+        #acf##fdacadf##aebaabaadaabdddd#
+        #acdffdacecaaaaacbaaabaadddaddd#
+        #accccceeeecceecbaadaabdddddadd#
+        #aaaaaaaaaaaaaaaaadddddadddddad#
+        .##############################.

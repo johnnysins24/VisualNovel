@@ -1,5 +1,5 @@
 // เครดิตของงานที่ไม่ได้ทำเอง แสดงในแผง "เพิ่มเติม" และตรงกับ CREDITS.md ที่รากของ repo
-// pack = โฟลเดอร์ใน art/thirdparty/ (tests/adopted.test.ts ตรวจว่าทุกชุดที่ art/adopted.yaml ใช้มีเครดิต)
+// pack = โฟลเดอร์ใน art/thirdparty/ (tests/adopted.test.ts กับ tests/studio.test.ts ตรวจว่าทุกชุดและผู้วาดทุกคนที่ภาพในเกมใช้มีเครดิต)
 
 export interface Credit {
   pack?: string;
@@ -22,7 +22,7 @@ export const CREDITS: Credit[] = [
   {
     pack: 'game-icons',
     what: 'game-icons.net',
-    by: 'Icons made by Delapouite and Lorc (ผู้วาดแต่ละไอคอนอยู่ใน CREDITS.md)',
+    by: 'Icons made by Delapouite, Lorc, Skoll, Caro Asercion and Cathelineau (ผู้วาดแต่ละไอคอนอยู่ใน CREDITS.md)',
     licence: 'CC BY 3.0',
     licenceUrl: 'https://creativecommons.org/licenses/by/3.0/',
     url: 'https://game-icons.net',

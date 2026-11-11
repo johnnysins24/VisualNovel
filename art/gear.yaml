@@ -1,0 +1,48 @@
+# ของสวมใส่: วัสดุหกอย่างและแบบ 36 แบบ (แผน "ทางออกของไอเดียเจ็ดข้อ" ข้อ 2: ของหนึ่งชิ้น = แบบ x วัสดุ x ระดับ)
+# ไอคอนของแบบ <id> คือ art/icons/gear_<id>.yaml วาดครั้งเดียว ส่วนที่ทำจากวัสดุของชิ้นนั้นใช้วัสดุชื่อ main
+# ตอนสร้างไฟล์ของเกม (npm run draw -- build) main ถูกเปลี่ยนเป็น ramp ของวัสดุทีละอย่าง ได้ public/icons/gear_<id>.png
+# ที่มีหกช่องเรียงซ้ายไปขวาตามลำดับ materials ข้างล่าง ค่าพลัง ราคา และป้ายของแต่ละชิ้นเป็นงานของชุด 2 (content/)
+materials:
+  brass: { name: ทองเหลือง, ramp: metal_brass }
+  black_iron: { name: เหล็กดำ, ramp: metal_black }
+  ileth_wood: { name: ไม้ไอเลธ, ramp: scene.plank }
+  star_silver: { name: เงินดาว, ramp: metal_starsilver }
+  demon_coal: { name: หินถ่านมาร, ramp: metal_demoncoal }
+  cold_iron: { name: เหล็กเย็น, ramp: metal_iron }
+patterns:
+  dagger: { name: มีดสั้น, slot: weapon }
+  short_sword: { name: ดาบสั้น, slot: weapon }
+  longsword: { name: ดาบยาว, slot: weapon }
+  axe: { name: ขวาน, slot: weapon }
+  hammer: { name: ค้อน, slot: weapon }
+  mace: { name: กระบองหัวหนาม, slot: weapon }
+  spear: { name: หอก, slot: weapon }
+  bow: { name: ธนู, slot: weapon }
+  crossbow: { name: หน้าไม้, slot: weapon }
+  pistol: { name: ปืนพก, slot: weapon }
+  musket: { name: ปืนยาว, slot: weapon }
+  staff: { name: ไม้เท้า, slot: weapon }
+  shield: { name: โล่, slot: offhand }
+  lantern: { name: ตะเกียง, slot: offhand }
+  tome: { name: ตำรา, slot: offhand }
+  bell: { name: กระดิ่ง, slot: offhand }
+  wrench: { name: ประแจ, slot: offhand }
+  cap: { name: หมวกผ้า, slot: head }
+  hood: { name: ผ้าคลุมหัว, slot: head }
+  helm: { name: หมวกเหล็ก, slot: head }
+  goggles: { name: แว่นช่าง, slot: head }
+  shirt: { name: เสื้อผ้าฝ้าย, slot: body }
+  leather_coat: { name: เสื้อหนัง, slot: body }
+  mail: { name: เสื้อเกราะโซ่, slot: body }
+  plate: { name: เกราะแผ่น, slot: body }
+  robe: { name: เสื้อคลุมยาว, slot: body }
+  gloves: { name: ถุงมือหนัง, slot: hands }
+  gauntlets: { name: ปลอกมือเหล็ก, slot: hands }
+  trousers: { name: กางเกงขายาว, slot: legs }
+  breeches: { name: กางเกงหนัง, slot: legs }
+  shoes: { name: รองเท้าหนัง, slot: feet }
+  boots: { name: รองเท้าบูต, slot: feet }
+  cloak: { name: ผ้าคลุม, slot: cloak }
+  scarf: { name: ผ้าพันคอ, slot: cloak }
+  ring: { name: แหวน, slot: accessory }
+  amulet: { name: สร้อยคอ, slot: accessory }

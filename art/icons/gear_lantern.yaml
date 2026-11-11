@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 20, 26 ]
+outline: false
+ramps: { fire: scene.fire, main: metal_black }
+legend: { a: fire@1, b: fire@2, c: fire@3, d: fire@4, e: main@0, f: main@1, g: main@2, h: main@3, i: main@4 }
+meta: { from: shikashi/icons.png, cell: "288,320,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ........####........
+        .......#hhhg#.......
+        ......#hhhggf#......
+        .......#gggf#.......
+        .....##efgfee##.....
+        ....#hfghhhhgfh#....
+        ...#hfghhhhgggfh#...
+        ..#hgf#ghgggf#fgg#..
+        ..#hf#.#ggff#.#fg#..
+        ..#g#..#cccc#..#g#..
+        .#hg#.#cccccc#.#gg#.
+        .#h#.#cbddddac#.#h#.
+        .#h#.#cciddidc#.#h##
+        #h#.#ccddiiddcc#.#g#
+        #h#.#ccddiiddcb#.#g#
+        #h#.#ccdiddidcb#.#g#
+        #h#..#ciddddbb#..#g#
+        #h#...#ccddcb#...#g#
+        #g#....#cccb#....#g#
+        #g#.....#bb#.....#f#
+        #g#...##gggf##...#f#
+        #g#..#ghhggffe#..#e#
+        #gg##ghhhhggffe##fe#
+        .#fffggggggggfeefe#.
+        ..##ffeeeeeeeeee##..
+        ....############....

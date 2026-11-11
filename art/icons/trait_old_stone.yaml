@@ -1,0 +1,31 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: scene.slate }
+legend: { a: shape@0, b: shape@1, c: shape@2, d: shape@3, e: shape@4 }
+meta: { from: game-icons/cathelineau/polar-bear.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 1, 4 ]
+      ascii: |
+        ...........c.............
+        .......eeeeceeeec........
+        .....eedcccccccccec......
+        ....eddcccccccccaaac.....
+        ...eddccccccccca.........
+        ..eddcccccccccca.ec.eecec
+        .eddccccccccccca.ea.ea.c.
+        .edcccccccccccca.ea.ecea.
+        .ecccccccccccccceccecaca.
+        eccccccccccccccccccaa.ca.
+        eccccccccccccccccca.c....
+        eccccccaaccccccccccc...c.
+        cccccca..caaacccccaaceea.
+        .eccca.......eccca...eca.
+        .eccca.cec...eccca...eccb
+        .cccca..cac..cccca...ccaa
+        ..ccccc.......ecccc...b..
+        ...caaa.......cacccc.....
+        ................caa......

@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 32, 26 ]
+outline: false
+ramps: { plank: scene.plank, brick: scene.brick, wood: scene.wood, red_cloth: scene.red_cloth, hair_dark_brown: hair_dark_brown, main: metal_brass }
+legend: { a: plank@4, b: brick@0, c: wood@4, d: red_cloth@3, e: hair_dark_brown@3, f: main@3, g: main@4 }
+meta: { from: 7soul-496/A_Shoes01.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .................###########....
+        ..............###eddddddddde#...
+        .............#aebbeeeeeebbbad#..
+        ............#accbeeeebdcaaacd#..
+        ............#aaaacccccaaccddb#..
+        ............#aaaaaaaaaccdddbb#..
+        ............#aaaaaaccccddbbbb#..
+        ............#aaaaaaaccddbbbbe#..
+        ............#aaaaaaaccddbbbeee#.
+        .............#ggffaaccddbbbeee#.
+        .............#g##faaccddbbeeee#.
+        .............#f##faaccddbbbeee#.
+        .............#ffffaaccdddbbbeee#
+        ............##aaaaaaccdddbbbbee#
+        .........###caaaaaaaccddddbbbee#
+        ......###caaaaaaaaaccccdddbbbbe#
+        ....##caaaaaaaaaaaaccccdddbbbbe#
+        ..##caaaaaaaaaaaaaccccddddbbbbb#
+        .#caaaaaaaaaaaaaaccccdddddbbbbb#
+        #caaaaaaaaaaaaaaccccddddddbbbbb#
+        #caaaaaaaaaaaaaccccddddddbbbbbb#
+        #caaaaaaaaaaacccccddddddbbbbbbb#
+        #caaaaaaaaaccccccdddddbbbbbbbb#.
+        .#ccccccccccccccddbbbbbbbbbbb#..
+        ..##cccccccccccdbbbbbbbbbbb##...
+        ....#######################.....
