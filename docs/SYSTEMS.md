@@ -530,7 +530,8 @@ when:                                            # ใช้ใน requires ข�
   city: { ready: true, max_rank: 1 }             # ผลงานถึงเกณฑ์ของชั้นถัดไป (ฉากขึ้นชั้น)
   city: { mood: [riot, plague] }                 # สภาพของเมืองที่อยู่
   city: { home: [room, none], behind: true }     # ที่อยู่: family room house shop none · behind = ค้างค่าเช่า
-  city: { id: tundar, native: true, min_years: 10 }   # เกิดในเมืองนี้ · อยู่เมืองนี้มาแล้วกี่ปี
+  city: { id: tundar, native: true, min_years: 10 }   # เกิดในเมืองนี้ · อยู่เมืองนี้มาแล้วอย่างน้อยกี่ปี
+  city: { native: false, max_years: 2 }          # คนที่ย้ายเข้ามา และอยู่มาไม่เกินสองปี (ฉากของคนมาใหม่)
 ```
 
 - **ชั้นของคนเมือง** สี่ขั้น: คนมาใหม่ ชาวย่าน คนมีหน้ามีตา ผู้อาวุโสของเมือง เกณฑ์ผลงาน 3, 7, 12 (`CITY.merit`) ฉากขึ้นชั้นเขียนเป็น `when.city: { max_rank: n, ready: true }` คู่กับ `effects.city: { promote: true }` และตั้ง `must: true` ได้ ชื่อชั้นเขียนลงในข้อความตรงๆ

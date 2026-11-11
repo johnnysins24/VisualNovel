@@ -302,6 +302,7 @@ export function lintContent(c: Content): string[] {
         if (!ids.some((id) => CITIES[id].districts[d])) problems.push(`${cw}: ไม่มีย่าน "${d}" ใน${ids.length === 1 ? CITIES[ids[0]!].th : 'เมืองที่ระบุ'}`);
       }
       if (cond.min_rank !== undefined && cond.max_rank !== undefined && cond.min_rank > cond.max_rank) problems.push(`${cw}: ช่วงชั้นของ city กลับด้าน`);
+      if (cond.min_years !== undefined && cond.max_years !== undefined && cond.min_years > cond.max_years) problems.push(`${cw}: ช่วงปีที่อยู่เมืองของ city กลับด้าน`);
       if (cond.native && !ids.some((id) => CITIES[id].natives)) problems.push(`${cw}: native: true แต่เมืองที่ระบุไม่มีคนเกิดในเมือง (CITIES[เมือง].natives)`);
       if (cond.behind && cond.home && !cond.home.includes('room')) problems.push(`${cw}: behind: true ใช้ได้กับคนเช่าห้อง (home ต้องมี room)`);
     };

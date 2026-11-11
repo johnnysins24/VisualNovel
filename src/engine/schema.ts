@@ -124,7 +124,7 @@ export type CityEffect = z.infer<typeof CityEffectSchema>;
  * เงื่อนไขเรื่องเมือง: เขียนแค่รหัสเมือง = อยู่เมืองนั้น · any = อยู่เมืองไหนก็ได้ · none = ไม่ได้อยู่ในเมือง หรือระบุละเอียด
  * id = เมืองเดียวหรือหลายเมือง (ไม่ใส่ = เมืองไหนก็ได้) · district = อยู่ย่านใดย่านหนึ่งในนี้ · min_rank / max_rank = ชั้นของคนเมือง
  * ready: true = ผลงานถึงเกณฑ์ของชั้นถัดไปแล้ว (ใช้กับฉากขึ้นชั้น ตัวเลขอยู่ใน CITY.merit) · mood = เมืองอยู่ในสภาพใดสภาพหนึ่งในนี้
- * home = ที่อยู่เป็นแบบใดแบบหนึ่งในนี้ (none = ไม่มีที่อยู่) · native = เกิดในเมืองนี้ · behind = ค้างค่าเช่า · min_years = อยู่เมืองนี้มาแล้วอย่างน้อยเท่านี้ปี
+ * home = ที่อยู่เป็นแบบใดแบบหนึ่งในนี้ (none = ไม่มีที่อยู่) · native = เกิดในเมืองนี้ · behind = ค้างค่าเช่า · min_years / max_years = อยู่เมืองนี้มาแล้วอย่างน้อย / ไม่เกินเท่านี้ปี (นับจากปีแรกที่เข้ามาอยู่)
  */
 export const CityCondSchema = z.union([
   CityIdSchema,
@@ -141,6 +141,7 @@ export const CityCondSchema = z.union([
       native: z.boolean().optional(),
       behind: z.boolean().optional(),
       min_years: z.number().int().min(1).optional(),
+      max_years: z.number().int().min(0).optional(),
     })
     .strict(),
 ]);

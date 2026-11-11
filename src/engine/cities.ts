@@ -79,7 +79,9 @@ export function cityCondMet(life: LifeState, cond: CityCond): boolean {
   if (cond.home && !cond.home.includes(home?.kind ?? 'none')) return false;
   if (cond.native !== undefined && isNative(life, here) !== cond.native) return false;
   if (cond.behind !== undefined && !!home?.behind !== cond.behind) return false;
-  if (cond.min_years !== undefined && worldYear(life) - (standingIn(life, here)?.since ?? worldYear(life)) < cond.min_years) return false;
+  const lived = worldYear(life) - (standingIn(life, here)?.since ?? worldYear(life));
+  if (cond.min_years !== undefined && lived < cond.min_years) return false;
+  if (cond.max_years !== undefined && lived > cond.max_years) return false;
   return true;
 }
 

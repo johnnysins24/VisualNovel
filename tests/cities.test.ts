@@ -3,7 +3,7 @@ import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { lintContent } from '../src/engine/lint';
 import { applyEffects, endOfYear, makeGame, pickEvent, resolveChoice, winterModifier } from '../src/engine/engine';
-import { cityOf, cityPromotionReady, cityRank, homeHere, moodOf } from '../src/engine/cities';
+import { cityCondMet, cityOf, cityPromotionReady, cityRank, homeHere, moodOf } from '../src/engine/cities';
 import { shopClosedLine, shopOpen, shopsHere } from '../src/engine/gear';
 import { commitLife, newMeta } from '../src/engine/meta';
 import { migrate } from '../src/engine/save';
@@ -92,6 +92,10 @@ describe('เมือง', () => {
     const l = start(adult(), 'to_ventras');
     expect(l).toMatchObject({ city: 'ventras', district: 'sky_docks', locationTag: 'ventras', home: null });
     expect(l.standing.ventras).toEqual({ rank: 1, merit: 0, since: l.birthYear + 30 });
+    // ฉากของคนมาใหม่กันด้วยจำนวนปีที่อยู่เมือง: ปีแรกเข้าเงื่อนไข อยู่ครบสามปีแล้วไม่เข้า
+    expect(cityCondMet(l, { native: false, max_years: 2 })).toBe(true);
+    expect(cityCondMet({ ...l, age: l.age + 3 }, { native: false, max_years: 2 })).toBe(false);
+    expect(cityCondMet({ ...l, age: l.age + 3 }, { min_years: 3 })).toBe(true);
   });
 
   it('a child born in the city starts as a local in the home district, living in the family home', () => {
