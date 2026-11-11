@@ -2,6 +2,7 @@
 # so the mouth still shows over it.
 body: m
 ages: [adult]
+grown: true
 z: 14
 cast: false
 shapes:

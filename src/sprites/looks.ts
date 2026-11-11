@@ -1,13 +1,30 @@
 import { fitsBody, type Look } from '../../art/kit/core.mjs';
 import { npcLook, rng, UNDER } from '../../art/kit/npc.mjs';
 import type { ItemIndex } from '../engine/items';
-import type { LifeState, Person } from '../engine/state';
+import { humanAge, type LifeState, type Person } from '../engine/state';
 import { kit } from './kit';
 
-/** อายุที่เปลี่ยนจากร่างเด็กเป็นร่างผู้ใหญ่ */
-export const CHILD_UNTIL = 12;
-/** อายุที่เริ่มมีริ้วรอย */
+/**
+ * ช่วงวัยของรูปร่าง ตามอายุเทียบมนุษย์ (humanAge: เอลฟ์กับคนแคระหลัง 40 นับช้ากว่าอายุจริง)
+ * แรกเกิด 0 ห่อผ้าในตะกร้า, ทารก 1 นั่งในชุดหมี, เด็กเล็ก 2–4, เด็ก 5–11, วัยรุ่น 12–15, ผู้ใหญ่ 16 ขึ้นไป
+ */
+export type Stage = 'newborn' | 'baby' | 'toddler' | 'child' | 'teen' | 'adult';
+export const STAGE_FROM: [Stage, number][] = [['adult', 16], ['teen', 12], ['child', 5], ['toddler', 2], ['baby', 1], ['newborn', 0]];
+export const stageOf = (age: number): Stage => STAGE_FROM.find(([, from]) => age >= from)?.[0] ?? 'newborn';
+/** ร่างใน art/bodies.yaml ของแต่ละช่วงวัย ต่อท้ายด้วยเพศ */
+const STAGE_BODY: Record<Stage, string> = { newborn: 'b', baby: 'b', toddler: 't', child: 'c', teen: 'y', adult: '' };
+export const bodyFor = (stage: Stage, sex: 'm' | 'f') => `${STAGE_BODY[stage]}${sex}`;
+const SMALL = new Set<Stage>(['newborn', 'baby', 'toddler', 'child']);
+/** อายุ (เทียบมนุษย์) ที่เริ่มมีริ้วรอย และที่ผมเริ่มขาว */
 const OLD_FROM = 55;
+const GREY_FROM = 50;
+/** ทรงผมที่เด็กเล็กไว้ได้ (ทรงอื่นยาวหรือเป็นผู้ใหญ่เกินไปสำหรับเด็กสองสามขวบ) */
+const TODDLER_HAIR: Record<'m' | 'f', string[]> = { m: ['short', 'messy'], f: ['bob', 'pixie', 'ponytail', 'twin_braids'] };
+/** ผมสีเงินเป็นของเอลฟ์และคนแก่ (A13) คนเผ่าอื่นสุ่มได้แต่สีอื่น */
+const youngHair = (race: string) => Object.keys(kit.pal.choices.hair!).filter((h) => race === 'elf' || h !== 'silver');
+
+/** ชิ้นของทารก: ผมบาง ห่อผ้าในตะกร้าตอนแรกเกิด ชุดหมีตอนขวบหนึ่ง (ชิ้นเผ่าเติมเอง) */
+const babyPieces = (stage: Stage) => ['face/basic', 'under/briefs', 'hair/wisp', ...(stage === 'newborn' ? ['body/swaddle', 'acc/basket'] : ['body/baby_romper'])];
 
 const fits = (id: string | undefined, body: string): id is string => !!id && !!kit.pieces[id] && fitsBody(kit.pieces[id], body, kit);
 
@@ -71,8 +88,10 @@ export function playerLook(l: LifeState, items: ItemIndex, face = 'neutral'): Lo
   const r = rng(`player:${l.seed}`);
   const one = <T,>(a: T[]): T => a[Math.floor(r() * a.length)]!;
   const sex = l.gender;
-  const child = l.age < CHILD_UNTIL;
-  const body = child ? `c${sex}` : sex;
+  const age = humanAge(l);
+  const stage = stageOf(age);
+  const child = SMALL.has(stage);
+  const body = bodyFor(stage, sex);
   const race = raceOf(l);
   const origin = originOf(l);
   const rc = kit.data.races[race] as Record<string, any>;
@@ -81,7 +100,7 @@ export function playerLook(l: LifeState, items: ItemIndex, face = 'neutral'): Lo
   const hairStyle = one(Object.keys(kit.data.hair[sex]).filter((h) => h !== 'bald'));
   const choices: Record<string, string> = {
     skin: one(Object.keys(kit.pal.choices.skin!)),
-    hair: one(Object.keys(kit.pal.choices.hair!)),
+    hair: one(youngHair(race)),
     eyes: one(Object.keys(kit.pal.choices.eyes!)),
   };
   if (race === 'tiefling') choices.eyes = 'amber';
@@ -90,15 +109,23 @@ export function playerLook(l: LifeState, items: ItemIndex, face = 'neutral'): Lo
   const wantsMoustache = r() < 0.35;
   const childDye = one(DYES);
 
-  const pieces = ['face/basic', ...UNDER[body]!, `hair/${sex}/${hairStyle}`, ...(rc.always ?? [])];
+  if (age >= GREY_FROM) choices.hair = 'silver';
+  // เด็กเล็กไว้ผมสั้นกว่า: ทรงที่ยาวเกินไปเปลี่ยนเป็นทรงเด็กแบบคงที่ตามทรงเดิม
+  const kidStyles = TODDLER_HAIR[sex];
+  const style = stage === 'toddler' && !kidStyles.includes(hairStyle) ? kidStyles[hairStyle.length % kidStyles.length]! : hairStyle;
+  const baby = stage === 'newborn' || stage === 'baby';
+  const pieces = baby ? [...babyPieces(stage), ...(rc.always ?? [])] : ['face/basic', ...UNDER[body]!, `hair/${sex}/${style}`, ...(rc.always ?? [])];
   if (rc.horns) pieces.push(child ? 'horns/stumps' : horns);
-  if (sex === 'm' && !child && rc.beard && (race === 'dwarf' || (wantsMoustache && l.age >= 20))) pieces.push(beard);
-  if (l.age >= OLD_FROM) pieces.push('mark/wrinkles');
+  // หนวดเครา: ผู้ชายโตแล้วเท่านั้น (ชิ้น grown ไม่เข้ากับร่างวัยรุ่น) คนแคระไว้เคราทุกคน เผ่าอื่นบางคนไว้หนวดตั้งแต่ 20
+  if (sex === 'm' && stage === 'adult' && rc.beard && (race === 'dwarf' || (wantsMoustache && age >= 20))) pieces.push(beard);
+  if (age >= OLD_FROM) pieces.push('mark/wrinkles');
 
   const colors: Record<string, string> = {};
   const held = itemPieces(l, items);
   const cls = !child && l.classId ? CLASS_WEAR[l.classId] : undefined;
-  if (child) {
+  if (baby) {
+    colors.cloth = childDye;
+  } else if (child) {
     pieces.push(CHILD_WEAR[origin] ?? 'body/child_farm');
     colors.cloth = childDye;
   } else if (cls) {
@@ -144,6 +171,32 @@ const HOME_GROUP: Record<string, string> = {
 const ELDER = new Set(['grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal']);
 const BLOOD = new Set(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', ...ELDER]);
 
+/**
+ * อายุ (เทียบมนุษย์) ของคนรอบตัวตอนนี้ หรือตอนตายถ้าตายแล้ว เกมไม่ได้เก็บอายุของ NPC จึงประมาณจากบทบาท
+ * แบบสุ่มคงที่ต่อคน: พ่อแม่แก่กว่าผู้เล่น 20–34 ปี ปู่ย่าตายายแก่กว่าอีก 20–29 ปี พี่ 2–6 ปี น้องและลูกนับจากตอนที่เกิด
+ * (metAge) คนรักรุ่นราวคราวเดียวกัน ครูแก่กว่า 20–34 ปี
+ */
+/** ส่วนของ Person ที่ใช้วาดรูป (alive, metAge ไม่ส่ง = ยังมีชีวิต รู้จักตั้งแต่เกิด) */
+export type PersonLike = Pick<Person, 'id'> & Partial<Pick<Person, 'gender' | 'kin' | 'bond' | 'metAge' | 'alive' | 'diedAge'>>;
+
+export function personAge(p: PersonLike, l: LifeState): number {
+  const r = rng(`age:${l.seed}:${p.id}`);
+  const span = (a: number, b: number) => a + Math.floor(r() * (b - a + 1));
+  const at = p.alive === false && p.diedAge !== undefined ? p.diedAge : l.age;
+  const me = humanAge({ age: at, raceApplied: l.raceApplied });
+  const metMe = humanAge({ age: p.metAge ?? 0, raceApplied: l.raceApplied });
+  const kin = p.kin ?? '';
+  if (kin === 'father' || kin === 'mother') return me + span(20, 34);
+  if (ELDER.has(kin)) return me + span(20, 34) + span(20, 29);
+  if (kin === 'sibling_older') return me + span(2, 6);
+  // น้องและลูกที่เข้ามาในชีวิตหลังผู้เล่นเกิดคือเกิดตอนนั้น
+  if (kin === 'sibling_younger') return (p.metAge ?? 0) > 0 ? me - metMe : Math.max(0, me - span(1, 4));
+  if (kin === 'child') return Math.max(0, me - metMe);
+  if (p.bond === 'mentor') return me + span(20, 34);
+  if (kin === 'spouse' || p.bond === 'love' || p.bond === 'friend' || p.bond === 'rival') return Math.max(0, me + span(-3, 3));
+  return Math.max(16, me + span(-5, 15));
+}
+
 /** NPC ที่มีชื่อ (npcs.yaml named) ใช้รูปที่กำหนดไว้ */
 export function namedLook(id: string, face = 'neutral'): Look | null {
   const n = kit.data.npcs.named?.[id];
@@ -152,21 +205,55 @@ export function namedLook(id: string, face = 'neutral'): Look | null {
 
 /**
  * รูปของคนรอบตัว: คนที่มีชื่อในงานศิลป์ใช้รูปที่กำหนด คนอื่นสุ่มคงที่จากสูตรกลุ่มตามถิ่นกำเนิดของผู้เล่น
- * ญาติสายเลือดเป็นเผ่าเดียวกับผู้เล่น ปู่ย่าตายายมีริ้วรอย ลูกใช้ร่างเด็ก
+ * ร่างตามวัยจาก personAge (น้องที่เพิ่งเกิดเป็นทารก ลูกโตตามผู้เล่น พ่อแม่แก่ลงจนมีริ้วรอยและผมขาว)
+ * ญาติสายเลือดเป็นเผ่าเดียวกับผู้เล่น
  */
-export function personLook(p: Pick<Person, 'id' | 'gender' | 'kin'>, l: LifeState): Look {
+export function personLook(p: PersonLike, l: LifeState): Look {
   const named = namedLook(p.id);
   if (named) return named;
-  const kidKin = p.kin === 'child' || (l.age < CHILD_UNTIL && (p.kin === 'sibling_younger'));
-  const group = kidKin ? 'child' : HOME_GROUP[originOf(l)] ?? 'worker';
+  const age = personAge(p, l);
+  const stage = stageOf(age);
+  const small = SMALL.has(stage);
+  const group = small ? 'child' : HOME_GROUP[originOf(l)] ?? 'worker';
   const sex = p.gender ?? (/mother|grandmother|sister/.test(p.kin ?? '') ? 'f' : /father|brother/.test(p.kin ?? '') ? 'm' : undefined);
-  const body = sex ? (kidKin ? `c${sex}` : sex) : undefined;
   const race = p.kin && BLOOD.has(p.kin) ? raceOf(l) : undefined;
-  const look = npcLook(kit, group, `${l.seed}:${p.id}`, { body, race });
-  if (p.kin && ELDER.has(p.kin)) {
-    look.choices = { ...look.choices, hair: 'silver' };
-    if (fits('mark/wrinkles', look.body) && !look.pieces!.includes('mark/wrinkles')) look.pieces!.push('mark/wrinkles');
+  const seed = `${l.seed}:${p.id}`;
+  // ร่างตามวัย เพศสุ่มคงที่ถ้าไม่รู้
+  const s = sex ?? (rng(`sex:${seed}`)() < 0.5 ? 'm' : 'f');
+  const look = npcLook(kit, group, seed, { body: bodyFor(stage === 'newborn' || stage === 'baby' ? 'child' : stage, s), race });
+  // หน้าตาเดิมทุกวัย: สีผิว ผม ตา และทรงผมสุ่มคงที่ต่อคน ไม่ขึ้นกับกลุ่มหรือร่างของวัยนั้น
+  const id = rng(`look:${seed}`);
+  const pick = <T,>(a: T[]): T => a[Math.floor(id() * a.length)]!;
+  const lookRace = look.race ?? race ?? 'human';
+  look.choices = {
+    skin: pick(Object.keys(kit.pal.choices.skin!)),
+    hair: pick(youngHair(lookRace)),
+    eyes: lookRace === 'tiefling' ? 'amber' : pick(Object.keys(kit.pal.choices.eyes!)),
+  };
+  const ownStyle = pick(Object.keys(kit.data.hair[s]).filter((h) => h !== 'bald'));
+  look.pieces = look.pieces!.map((x) => (/^hair\/[mf]\//.test(x) ? `hair/${s}/${ownStyle}` : x));
+  const strip = (ids: string[]) => { look.pieces = look.pieces!.filter((x) => !ids.some((id) => x.startsWith(id))); };
+  if (stage === 'newborn' || stage === 'baby') {
+    // ทารก: เก็บไว้แค่ชิ้นเผ่า (หู หาง ตอเขา) และสี แล้วแต่งแบบทารก
+    const keep = look.pieces!.filter((x) => /^(ears|tail|horns)\//.test(x));
+    look.body = bodyFor(stage, s);
+    look.pieces = [...babyPieces(stage), ...keep];
+    look.colors = { cloth: look.colors?.cloth ?? 'dye_sky' };
   }
+  if (stage !== 'adult') strip(['beard/', 'mark/wrinkles']);
+  // เด็กเล็กไว้ผมสั้น ทรงที่ยาวเกินไปเปลี่ยนเป็นทรงเด็กแบบคงที่
+  const h = stage === 'toddler' ? look.pieces!.find((x) => x.startsWith('hair/')) : undefined;
+  const style = h?.split('/').pop();
+  if (h && style && !TODDLER_HAIR[s].includes(style)) {
+    const kid = TODDLER_HAIR[s];
+    look.pieces = look.pieces!.map((x) => (x === h ? `hair/${s}/${kid[style.length % kid.length]}` : x));
+  }
+  if (age >= GREY_FROM) look.choices = { ...look.choices, hair: 'silver' };
+  // พ่อที่กลับจากสงครามถ่านพร้อมขอเหล็กแทนแขน (father_iron_arm) ใส่แขนนั้นทุกรูป
+  if (p.kin === 'father' && l.flags.includes('father_iron_arm') && fits('arm/hook', look.body)) look.pieces!.push('arm/hook');
+  if (age >= OLD_FROM) {
+    if (fits('mark/wrinkles', look.body) && !look.pieces!.includes('mark/wrinkles')) look.pieces!.push('mark/wrinkles');
+  } else strip(['mark/wrinkles']);
   return { ...look, pieces: unheld(look.pieces!) };
 }
 

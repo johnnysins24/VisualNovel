@@ -2,6 +2,7 @@
 # Drawn under the face (z 12), so no expression is ever covered; the hair covers the forehead line
 # under a fringe.
 ages: [adult]
+grown: true
 z: 12
 cast: false
 shapes:

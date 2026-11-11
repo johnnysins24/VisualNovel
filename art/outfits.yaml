@@ -72,6 +72,12 @@ child:
   body/child_refinery: { name: ชุดเด็กงานโรงกลั่น, feet: feet/shoes }
   body/child_rich: { name: ชุดเด็กบ้านมีเงิน, feet: feet/shoes }
   body/child_street: { name: ชุดเด็กข้างถนน }
+# babies (0-1), thread "Fix newborns showing as children" 2026-11-10: the newborn's swaddle and
+# basket cradle, the one-year-old's romper
+baby:
+  body/swaddle: { name: ผ้าห่อตัวทารก }
+  body/baby_romper: { name: ชุดหมีทารก }
+  acc/basket: { name: ตะกร้าเปลสาน }
 # worn over a body piece (A27)
 over:
   over/tabard: { name: ผ้าคาดอกผู้เฝ้าผนึก }

@@ -3,6 +3,7 @@
 # Hair colour, so it follows the hair choice.
 body: m
 ages: [adult]
+grown: true
 z: 60
 shapes:
   - at: [-6, mouth-3]
