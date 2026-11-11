@@ -15,6 +15,7 @@ import { signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
 import { CREDITS } from './credits';
+import { TraitsSection } from './Traits';
 
 const FACTION_TH: Record<FactionId, string> = {
   crown: 'ราชสำนักอาร์เวล',
@@ -113,6 +114,7 @@ export function CharacterPanel() {
   return (
     <div class="panel-page">
       <SlotGrid doll />
+      <TraitsSection />
       <section class="sec">
         <h3>ค่าสถานะ</h3>
         <StatGrid />

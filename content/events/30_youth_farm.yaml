@@ -20,6 +20,7 @@
   choices:
     - id: help_tech
       label: มุดเข้าไปในโรง สอดแขนเข้าช่องตามที่ช่างบอก
+      habit: craft_hands
       check: { stat: INT, dc: 12 }
       success:
         text: |
@@ -42,6 +43,7 @@
       effects: { stats: { DEX: 1 }, flags: [lean_ranger] }
     - id: steal_dew
       label: ฉวยตอนคนมุงช่าง เอาขวดยาเปล่าไปตักน้ำค้างดาวจากแอ่ง
+      habit: light_fingers
       check: { stat: DEX, dc: 11 }
       success:
         text: |

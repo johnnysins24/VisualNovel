@@ -61,12 +61,18 @@ describe('must events', () => {
     expect(pickEvent(game, life).event?.id).toBe('adult.by_year');
   });
 
-  it('long-lived races count turns in their own years after forty', () => {
+  it('every race counts a year window the same way, and an age window in the years of its own body', () => {
     const elf = at(40, 1, { raceApplied: 'elf' });
-    const game = gameOf([ev('adult.by_year', { must: true, when: { year: [elf.birthYear + 40, elf.birthYear + 45] } })]);
-    // เอลฟ์ข้ามทีละ 10 ปี ช่วงปีที่เหลืออีก 5 ปีจึงไม่มีรอบหน้าแล้ว
-    expect(turnsLeft(elf, game.events[0]!)).toBe(0);
+    const game = gameOf([
+      ev('adult.by_year', { must: true, when: { year: [elf.birthYear + 40, elf.birthYear + 45] } }),
+      ev('adult.by_age', { must: true, when: { age: [40, 41] } }),
+    ]);
+    // ทุกเผ่าเดินปีละหนึ่งเหตุการณ์ ช่วงปีของโลกจึงเหลือเท่ากัน
+    expect(turnsLeft(elf, game.events[0]!)).toBe(5);
     expect(turnsLeft(at(40), game.events[0]!)).toBe(5);
+    // วัย 40 ถึง 41 ของเอลฟ์กินเวลาจริงยี่สิบปี (อายุ 40 ถึง 59)
+    expect(turnsLeft(elf, game.events[1]!)).toBe(19);
+    expect(turnsLeft(at(40), game.events[1]!)).toBe(1);
   });
 
   it('equal deadlines fall back to the higher weight', () => {
@@ -90,7 +96,7 @@ describe('events with no choice left', () => {
 
   it('are never shown', () => {
     const game = gameOf([locked, ev('adult.open', { weight: 1 })]);
-    expect(playable(at(5), game.events[0]!)).toBe(false);
+    expect(playable(game, at(5), game.events[0]!)).toBe(false);
     for (let n = 1; n <= 100; n++) expect(pickEvent(game, at(5, n)).event?.id).toBe('adult.open');
   });
 

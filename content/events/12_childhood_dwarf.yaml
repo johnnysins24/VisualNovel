@@ -243,6 +243,7 @@
       effects: { stats: { INT: 1 }, flags: [copied_sealed_runes, lean_wizard] }
     - id: back_away
       label: ถอยออกมายืนข้างลุง
+      habit: faint_heart
       text: |
         {name}ถอยออกมายืนชิดลุง ไม่ได้บอกว่าได้ยินอะไร ลุงมองหน้าแล้วก็รู้
 

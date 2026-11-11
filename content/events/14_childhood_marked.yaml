@@ -156,6 +156,7 @@
       effects: { stats: { CON: 1 }, flags: [counts_the_file] }
     - id: ask_doctor
       label: ถามหมอว่าทำไมต้องทำทุกเดือน
+      habit: curious
       text: |
         หมอเหลือบมองท่านย่าก่อนตอบ
 
@@ -392,6 +393,7 @@
         effects: { stats: { WIS: 1 } }
     - id: take_baby
       label: อุ้มเด็กในตะกร้าขึ้นมา
+      habit: soft_heart
       text: |
         เด็กในตะกร้าไม่มีเขา เป็นเด็กมนุษย์ธรรมดา ห่อด้วยผ้าขนหนูเก่าที่ซักจนบาง {name}อุ้มไว้ โยกไปมาแบบที่เห็นแม่ชีทำ ร้องเพลงที่เด็กโตสอน
 
@@ -449,6 +451,7 @@
         effects: { stats: { WIS: 1 }, flags: [star_listener_list] }
     - id: ask_school
       label: ถามว่าโรงเรียนอยู่ถนนไหน
+      habit: curious
       text: |
         เขาตอบชื่อถนนทันที คล่องเหมือนท่องมา แล้วจดชื่อ{name}ลงสมุด
 

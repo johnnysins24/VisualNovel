@@ -32,6 +32,7 @@
         effects: { stats: { CON: 1 }, hp: -1, flags: [lean_warrior] }
     - id: pick_pouch
       label: ยื่นเหรียญให้ แล้วล้วงถุงเงินที่เอวมันตอนมันก้มนับ
+      habit: light_fingers
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -95,6 +96,7 @@
         effects: { stats: { WIS: 1 }, gold: 1, flags: [lean_bard] }
     - id: read_marks
       label: ขอดูสมุดที่เขาขีดเส้นอะไรไว้ทุกคืน
+      habit: curious
       check: { stat: INT, dc: 12 }
       success:
         text: |
@@ -110,6 +112,7 @@
         effects: { stats: { INT: 1 }, flags: [lean_wizard] }
     - id: nurse_bard
       label: คืนนั้นตามไปดู แล้วอยู่เฝ้าไข้เขาจนเขาลุกได้
+      habit: soft_heart
       text: |
         กวีเร่นอนอยู่ที่นอนท้ายโรงเตี๊ยม เจ้าของให้อาศัยโดยไม่คิดเงิน ตัวร้อนเหมือนเตา {name}ไปขอน้ำร้อนจากบ้านใกล้ๆ ไปหายาแก้ไอจากคนที่มีขาย เงินไม่พอซื้อก็ขอเอา เช็ดตัวให้ทุกครั้งที่เหงื่อออก
 
@@ -148,6 +151,7 @@
         effects: { stats: { STR: 1 }, gold: 1, flags: [lean_warrior] }
     - id: fix_hook
       label: รื้อสายหนังกับขอเหล็กออกมาทำใหม่ ให้พ่อใส่เองได้ด้วยมือเดียว
+      habit: craft_hands
       check: { stat: INT, dc: 12 }
       success:
         text: |
@@ -194,6 +198,7 @@
   choices:
     - id: mirror_pages
       label: เอาเศษกระจกมาส่องสิบหน้าสุดท้าย
+      habit: curious
       check: { stat: INT, dc: 12 }
       success:
         text: |
@@ -224,6 +229,7 @@
         effects: { stats: { WIS: 1 }, flags: [lean_cleric] }
     - id: sell_book
       label: เอาไปขายพ่อค้าเร่ที่รับซื้อของโดยไม่ถามที่มา
+      requires: { not_traits: [curious] }
       check: { stat: CHA, dc: 12 }
       success:
         text: |
@@ -253,6 +259,7 @@
   choices:
     - id: carry_inside
       label: อุ้มไปวิหารอีเซลอีกครั้ง
+      habit: soft_heart
       text: |
         ช่องส่งขนมปังเปิดออก แม่ชีคนเดิมจำ{name}ได้ คราวนี้เธอไม่รับตะกร้าผ่านช่อง แต่เดินออกมาเปิดประตูข้างให้เข้าไปข้างใน
 
@@ -262,6 +269,7 @@
       effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [lean_cleric, saw_temple_children] }
     - id: follow_print
       label: ห่อเด็กไว้ในเสื้อ แล้วเดินตามรอยเท้านั้นกลับเข้าหมู่บ้าน
+      habit: hunter_eye
       check: { stat: WIS, dc: 12 }
       success:
         text: |

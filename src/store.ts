@@ -46,7 +46,8 @@ function finishIfDead() {
 function advance() {
   if (life.value.alive) {
     const { event, life: next } = pickEvent(game, life.value);
-    life.value = event ? next : { ...next, alive: false, endReason: 'content_end' };
+    // ไม่มีเหตุการณ์ให้ออก: เรื่องที่เขียนไว้หมด (คนที่กำลังจะตายมีฉากตายเสมอ ถ้าไม่มี resolveChoice จบชีวิตไปแล้ว)
+    life.value = event ? next : repairLife(game, next);
   }
   finishIfDead();
 }

@@ -1,0 +1,17 @@
+# ทะเบียนสิ่งติดตัวสำหรับทดสอบระบบเท่านั้น ไม่ใช่ lore
+- id: curse_brand
+  name: "[ทดสอบ] ตราร้อน"
+  kind: curse
+  how: "[ทดสอบ] ทีฟลิ่งมีมาแต่เกิด"
+  gives: ["[ทดสอบ] ฝ่ายจอมมารลังเล ฝ่ายดาวมองไม่เห็น"]
+  costs: ["[ทดสอบ] คนแปลกหน้าระแวง"]
+  cures: ["[ทดสอบ] ทางแก้ที่หนึ่ง", "[ทดสอบ] ทางแก้ที่สอง"]
+  live_with: "[ทดสอบ] อยู่กับมัน"
+  effects:
+    - { kind: check_bonus, amount: 3, foes: [demon] }
+    - { kind: check_bonus, amount: 5, foes: [star] }
+
+- id: test_beast_tongue
+  name: "[ทดสอบ] ภาษาสัตว์"
+  kind: trait
+  how: "[ทดสอบ] ได้จากหีบเก่า"

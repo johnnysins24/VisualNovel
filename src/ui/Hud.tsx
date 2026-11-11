@@ -3,7 +3,7 @@ import { STATS, type Stat } from '../engine/schema';
 import { effectiveStats, maxHp } from '../engine/items';
 import { modifier, worldYear } from '../engine/state';
 import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
-import { currentEvent, game, life, tab, type Tab } from '../store';
+import { currentEvent, endReasonOf, game, life, tab, type Tab } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { SpriteView } from './SpriteView';
 import { resolvedTheme, theme, toggleTheme } from './theme';
@@ -66,7 +66,7 @@ export function TopBar() {
         <p class="meta">
           <span title="อายุ"><Icon name="age" label="อายุ" /><b class="num">{l.age}</b></span>
           <span title="ปี"><Icon name="year" label="ปี" /><b class="num">{worldYear(l)}</b></span>
-          {place && <span><Icon name="place" label="ถิ่น" />{place}</span>}
+          {place && <span class="shrink" title={place}><Icon name="place" label="ถิ่น" /><span class="t">{place}</span></span>}
           {cls && <span><Icon name="role" label="อาชีพ" />{cls}</span>}
         </p>
       </div>
@@ -94,8 +94,10 @@ export function Scene() {
   const place = PLACE_TH[life.value.locationTag];
   const img = sceneImage.value;
   const npc = sceneNpc(currentEvent.value?.text ?? '');
+  // ชีวิตจบแล้ว: ห้องยังอยู่ แต่ไม่มีใครยืนอยู่ในนั้น
+  const ended = endReasonOf(life.value) === 'death';
   return (
-    <div class={`scene ${img ? `has-img ${img.time}` : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
+    <div class={`scene ${img ? `has-img ${img.time}` : ''} ${ended ? 'ended' : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
       {!img && <div class="hill" />}
       {!img && <div class="hill back" />}
       <div class="actors">

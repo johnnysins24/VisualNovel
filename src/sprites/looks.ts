@@ -1,6 +1,7 @@
 import { fitsBody, type Look } from '../../art/kit/core.mjs';
 import { npcLook, rng, UNDER } from '../../art/kit/npc.mjs';
 import type { ItemIndex } from '../engine/items';
+import { personHumanAge } from '../engine/people';
 import { humanAge, type LifeState, type Person } from '../engine/state';
 import { kit } from './kit';
 
@@ -171,30 +172,15 @@ const HOME_GROUP: Record<string, string> = {
 const ELDER = new Set(['grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal']);
 const BLOOD = new Set(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', ...ELDER]);
 
-/**
- * อายุ (เทียบมนุษย์) ของคนรอบตัวตอนนี้ หรือตอนตายถ้าตายแล้ว เกมไม่ได้เก็บอายุของ NPC จึงประมาณจากบทบาท
- * แบบสุ่มคงที่ต่อคน: พ่อแม่แก่กว่าผู้เล่น 20–34 ปี ปู่ย่าตายายแก่กว่าอีก 20–29 ปี พี่ 2–6 ปี น้องและลูกนับจากตอนที่เกิด
- * (metAge) คนรักรุ่นราวคราวเดียวกัน ครูแก่กว่า 20–34 ปี
- */
 /** ส่วนของ Person ที่ใช้วาดรูป (alive, metAge ไม่ส่ง = ยังมีชีวิต รู้จักตั้งแต่เกิด) */
-export type PersonLike = Pick<Person, 'id'> & Partial<Pick<Person, 'gender' | 'kin' | 'bond' | 'metAge' | 'alive' | 'diedAge'>>;
+export type PersonLike = Pick<Person, 'id'> & Partial<Pick<Person, 'gender' | 'kin' | 'bond' | 'metAge' | 'alive' | 'diedAge' | 'born' | 'race' | 'horned'>>;
 
+/**
+ * อายุ (เทียบมนุษย์) ของคนรอบตัวตอนนี้ หรือตอนตายถ้าตายแล้ว ใช้ปีเกิดเดียวกับที่ระบบใช้คิดว่าใครแก่และจากไป
+ * (engine/people.ts: ปีเกิดที่จดไว้ หรือกะจากบทบาทแบบสุ่มคงที่ต่อคนสำหรับเซฟเก่า)
+ */
 export function personAge(p: PersonLike, l: LifeState): number {
-  const r = rng(`age:${l.seed}:${p.id}`);
-  const span = (a: number, b: number) => a + Math.floor(r() * (b - a + 1));
-  const at = p.alive === false && p.diedAge !== undefined ? p.diedAge : l.age;
-  const me = humanAge({ age: at, raceApplied: l.raceApplied });
-  const metMe = humanAge({ age: p.metAge ?? 0, raceApplied: l.raceApplied });
-  const kin = p.kin ?? '';
-  if (kin === 'father' || kin === 'mother') return me + span(20, 34);
-  if (ELDER.has(kin)) return me + span(20, 34) + span(20, 29);
-  if (kin === 'sibling_older') return me + span(2, 6);
-  // น้องและลูกที่เข้ามาในชีวิตหลังผู้เล่นเกิดคือเกิดตอนนั้น
-  if (kin === 'sibling_younger') return (p.metAge ?? 0) > 0 ? me - metMe : Math.max(0, me - span(1, 4));
-  if (kin === 'child') return Math.max(0, me - metMe);
-  if (p.bond === 'mentor') return me + span(20, 34);
-  if (kin === 'spouse' || p.bond === 'love' || p.bond === 'friend' || p.bond === 'rival') return Math.max(0, me + span(-3, 3));
-  return Math.max(16, me + span(-5, 15));
+  return personHumanAge({ name: '', closeness: 0, alive: true, metAge: 0, ...p }, l);
 }
 
 /** NPC ที่มีชื่อ (npcs.yaml named) ใช้รูปที่กำหนดไว้ */
@@ -216,7 +202,8 @@ export function personLook(p: PersonLike, l: LifeState): Look {
   const small = SMALL.has(stage);
   const group = small ? 'child' : HOME_GROUP[originOf(l)] ?? 'worker';
   const sex = p.gender ?? (/mother|grandmother|sister/.test(p.kin ?? '') ? 'f' : /father|brother/.test(p.kin ?? '') ? 'm' : undefined);
-  const race = p.kin && BLOOD.has(p.kin) ? raceOf(l) : undefined;
+  // ลูกที่เกิดมามีเขาคือทีฟลิ่ง คนที่เนื้อหาระบุเผ่าใช้ตามนั้น ญาติสายเลือดเป็นเผ่าเดียวกับผู้เล่น
+  const race = p.horned ? 'tiefling' : (p.race ?? (p.kin && BLOOD.has(p.kin) ? raceOf(l) : undefined));
   const seed = `${l.seed}:${p.id}`;
   // ร่างตามวัย เพศสุ่มคงที่ถ้าไม่รู้
   const s = sex ?? (rng(`sex:${seed}`)() < 0.5 ? 'm' : 'f');

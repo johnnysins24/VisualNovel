@@ -8,6 +8,7 @@
   scene: market
   weight: 60
   must: true
+  mark: ถูกเรียกไปสงครามถ่าน
   when:
     age: [19, 24]
     year: [296, 300]
@@ -42,6 +43,7 @@
         effects: { gold: 2, flags: [went_to_coal_war] }
     - id: hide
       label: หนีไปซ่อนตัวจนกว่าทหารจะเลิกตามหา
+      habit: faint_heart
       check: { stat: DEX, dc: 15 }
       success:
         text: |

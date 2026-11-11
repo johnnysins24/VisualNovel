@@ -3,14 +3,12 @@ import {
   CLASS_CHECK_BONUS,
   CLERIC_MAX_DRIFT,
   CLERIC_WIS_BONUS,
-  DEMON_MARK_BONUS,
   DEMON_MARK_TRAIT,
   GODS,
   RANGER_AWAY_PENALTY,
   RANGER_HOME_BONUS,
   WARRIOR_MAX_HP_BONUS,
   type ClassId,
-  type FoeSide,
   type GodId,
 } from './balance';
 import type { Stat } from './schema';
@@ -38,8 +36,8 @@ export function clericDrifted(life: LifeState): boolean {
 
 export const hasDemonMark = (life: LifeState) => life.traits.includes(DEMON_MARK_TRAIT);
 
-/** โบนัสทอยที่มาจากอาชีพ ถิ่น และรอยจอมมาร (ไม่รวมสเตตและของสวมใส่) */
-export function situationalBonus(life: LifeState, stat: Stat, foe?: FoeSide): number {
+/** โบนัสทอยที่มาจากอาชีพและถิ่น (ไม่รวมสเตต ของสวมใส่ และสิ่งติดตัว ซึ่งรวมรอยจอมมาร ดู traits.ts) */
+export function situationalBonus(life: LifeState, stat: Stat): number {
   let bonus = 0;
   const cls = life.classId as ClassId | null;
   const cb = cls ? CLASS_CHECK_BONUS[cls] : undefined;
@@ -48,7 +46,6 @@ export function situationalBonus(life: LifeState, stat: Stat, foe?: FoeSide): nu
   if (cls === 'ranger' && (stat === 'DEX' || stat === 'WIS')) {
     bonus += life.homeTag && life.locationTag === life.homeTag ? RANGER_HOME_BONUS : -RANGER_AWAY_PENALTY;
   }
-  if (hasDemonMark(life) && foe && foe in DEMON_MARK_BONUS) bonus += DEMON_MARK_BONUS[foe as keyof typeof DEMON_MARK_BONUS];
   return bonus;
 }
 

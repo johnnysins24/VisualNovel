@@ -21,6 +21,7 @@
   choices:
     - id: sweeten_verse
       label: ไปร้องต่อหน้าเขา แต่เปลี่ยนท่อนนั้นเป็นท่อนยกย่อง
+      habit: sweet_tongue
       check: { stat: CHA, dc: 13 }
       success:
         text: |
@@ -202,6 +203,7 @@
         effects: { hp: -1, stats: { DEX: 1 }, gold: -2, reputation: { lamp_church: -1 }, flags: [hunted_by_witch_hunter] }
     - id: hide_in_wagon
       label: ให้คนอื่นใส่เขาปลอมเล่นแทน แล้วซ่อนตัวในเกวียน
+      habit: faint_heart
       text: |
         คนเล่นทหารยามใส่เขาปลอมเล่นจอมมารแทน เขาปลอมหลุดกลางเรื่องเหมือนทุกครั้งที่ใครใส่ คนดูหัวเราะกันทั้งลาน {name}นอนอยู่ใต้กองผ้าม่านในเกวียน ได้ยินละครทั้งเรื่อง ได้ยินนักล่าแม่มดหัวเราะดังกว่าใคร
 

@@ -114,6 +114,7 @@
         effects: { hp: -3, flags: [taught_tiven] }
     - id: haldan_trick
       label: ดึงหลอดคำสั่งออกด้วยมือเปล่า แบบที่ฮาลเดนทำในวันที่หัวแตก
+      habit: craft_hands
       requires: { flag: woke_the_golem }
       text: |
         หลายปีมาแล้ว{name}จำได้ว่าฮาลเดนทำอย่างไร ไม่ได้ใช้แรง ใช้จังหวะ หลอดคำสั่งหลวมที่สุดตอนเฟืองตัวที่สิบสองหมุนครบรอบ {name}วางมือบนอกหุ่น รอจนแสงวูบช้าลง แล้วดึงขึ้นในครั้งเดียว หลอดหลุดออกมาอยู่ในมือ อุ่น ไม่ร้อน หุ่นนิ่งไปทั้งตัว
@@ -274,7 +275,7 @@
         effects: { gold: 10, flags: [guild_doctor_enemy] }
     - id: show_the_doctor
       label: ปลดผ้าคลุมหัวให้หมอสมาคมดู แล้วถามว่าข้อสุดท้ายรวมถึงหมอด้วยไหม
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         {name}ปลดผ้าคลุมหัวออกตรงหน้าเขา หมอสมาคมมองหัวของ{name} มองเมฆต่ำ แล้วมองใบอนุญาตที่ลงตราไว้แล้ว เขาเก็บกระดาษทั้งสองแผ่นกลับใส่อกเสื้อ บอกว่าสมาคมไม่รู้มาก่อนว่าย่านนี้มีหมอที่มีตรา ตั้งแต่วันนี้สมาคมจะรู้
 
@@ -327,7 +328,7 @@
       effects: { stats: { INT: 1 }, world: { star: 1 }, flags: [asked_about_last_lines] }
     - id: meet_him_yourself
       label: ลงไปยืนตรงหน้าเขา บอกว่าหมอชื่อนั้นคือตัวเอง
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         {name}ลงบันไดไปยืนตรงหน้าเขา ห่างกันไม่ถึงศอก ชายแก้วถามคนขายปลาเค็มซ้ำอีกครั้งว่าที่นี่มีหมอชื่อ{name}ไหม ตาของเขามองผ่าน{name}ไปที่บันไดข้างหลัง เหมือนตรงนั้นไม่มีใครยืนอยู่ {name}เรียกชื่อตัวเอง เขาหันมาตามเสียง แล้วหันกลับไปทางบันไดอีก
 
@@ -372,7 +373,7 @@
       effects: { alignment: { moral: 1 }, flags: [temple_head, kept_the_basket, mill_men_roof] }
     - id: unveil_to_council
       label: ปลดผ้าคลุมหัวต่อหน้าสภา แล้วถามกาเบรนว่าจะย้ายใครออกก่อน
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         {name}ปลดผ้าคลุมหัวออกต่อหน้าสภาทั้งสามคน กาเบรนหยุดพูดกลางประโยค หญิงชราคนหนึ่งยกมือปิดปาก อีกคนหัวเราะออกมาเสียงดัง บอกว่ารู้มาตั้งแต่ปีแรกแล้ว เพราะ{name}ไม่เคยถอดผ้าคลุมตอนกวาดลานวันแดดจัด
 
@@ -402,6 +403,7 @@
       effects: { alignment: { law: -1 }, flags: [watched_astel_prayer] }
     - id: talk_down
       label: บอกเขาว่าอัสเทลไม่ฟังแล้ว ชวนนั่งเล่าความฝันนั้นแทน
+      habit: sweet_tongue
       check: { stat: INT, dc: 13 }
       success:
         text: |
@@ -587,6 +589,7 @@
   stage: adult
   scene: fort
   weight: 45
+  people: [{ id: garven, name: การ์เวน, gender: m, bond: mentor, age: 62, dies: true }]
   when:
     age: [33, 40]
     flags: [job_fort_priest]
@@ -621,6 +624,7 @@
       effects: { alignment: { moral: 1 }, flags: [sat_with_garven] }
     - id: ask_about_stones
       label: ถามเขาเรื่องหินแนวผนึก เรื่องที่เขาไม่เคยเล่าให้ใครฟัง
+      habit: curious
       check: { stat: INT, dc: 13 }
       success:
         text: |

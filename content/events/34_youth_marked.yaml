@@ -31,6 +31,7 @@
       effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [lean_cleric, grandmother_vigil] }
     - id: dig_grave
       label: ขุดหลุมให้ย่าเองตอนกลางคืน เมื่อสัปเหร่อไม่ยอมให้แตะพลั่ว
+      habit: stubborn
       check: { stat: STR, dc: 12 }
       success:
         text: |
@@ -75,6 +76,7 @@
   choices:
     - id: slip_away
       label: มุดลงรางน้ำโรงสี หายไปก่อนบ่าย
+      habit: faint_heart
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -105,6 +107,7 @@
         effects: { stats: { WIS: 1 }, reputation: { lamp_church: -1 }, flags: [lean_bard, lamp_suspicion] }
     - id: read_register
       label: ทำเป็นตักน้ำข้างบ่อ แอบอ่านสมุดวิหารที่วางอยู่
+      habit: curious
       check: { stat: INT, dc: 12 }
       success:
         text: |
@@ -199,6 +202,7 @@
   choices:
     - id: dawn_hunt
       label: ตื่นก่อนรุ่งไปตามรอยกวางกับพรานเก่า
+      habit: hunter_eye
       check: { stat: WIS, dc: 12 }
       success:
         text: |
@@ -276,6 +280,7 @@
         effects: { stats: { STR: 1, CON: 1 }, hp: -2, flags: [lean_warrior] }
     - id: track_den
       label: รอเช้า แล้วตามรอยมันกลับไปหาว่าลงมาจากทางไหน
+      habit: hunter_eye
       check: { stat: WIS, dc: 12 }
       success:
         text: |
@@ -335,6 +340,7 @@
         effects: { stats: { WIS: 1 }, flags: [lean_wizard] }
     - id: haggle
       label: ไปคุยกับเธอแทนแม่ชีโทเรน ต่อราคาลง
+      habit: sweet_tongue
       check: { stat: CHA, dc: 13 }
       success:
         text: |
@@ -350,6 +356,7 @@
         effects: { stats: { CHA: 1 }, flags: [lean_bard] }
     - id: pocket_part
       label: ตอนเธอเผลอ หยิบข้อต่อทองเหลืองชิ้นเล็กจากกล่องไปซ่อน
+      habit: light_fingers
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -380,6 +387,7 @@
   choices:
     - id: hide_cellar
       label: มุดลงห้องเก็บมันใต้ครัว ซ่อนจนกว่ารถม้าจะไป
+      habit: faint_heart
       check: { stat: DEX, dc: 12 }
       success:
         text: |

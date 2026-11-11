@@ -33,6 +33,7 @@
         effects: { stats: { DEX: 1 }, hp: -2, flags: [first_kill_messy] }
     - id: wait_it_out
       label: นั่งลงห่างๆ แล้วรอให้มันไปเอง
+      habit: cool_headed
       text: |
         {name}นั่งลงบนก้อนหินห่างไปยี่สิบก้าว ไม่เข้าไปใกล้ ไม่ส่งเสียง มันมอง{name}อยู่นาน แล้วค่อยๆ วางหัวลงกับพื้น ลมหายใจช้าลงทีละน้อยจนแสงหมดฟ้า
 
@@ -61,6 +62,7 @@
   choices:
     - id: read_tracks
       label: ขอผ้าพันคอผืนนั้น แล้วหารอยเท้าเด็กจากหน้าบ้าน
+      habit: hunter_eye
       check: { stat: WIS, dc: 13 }
       success:
         text: |

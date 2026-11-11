@@ -240,6 +240,7 @@
       effects: { stats: { STR: 1 }, reputation: { dock_rats: -1 }, flags: [refused_dock_rats] }
     - id: bargain
       label: รับงาน แต่ต่อราคาให้คนในแถวได้ส่วนมากกว่านี้
+      habit: sweet_tongue
       check: { stat: INT, dc: 13 }
       success:
         text: |
@@ -401,7 +402,7 @@
           {name}รับคานไว้ได้ คนงานดึงเวสซันออกไปได้ครึ่งตัว แล้วไอชุดหนึ่งก็ขึ้นมาจากอกของ{name} ไอที่มีเถ้าปนมาตั้งแต่หน้าหนาวที่แล้ว ไอจนหลังที่ยืดตรงอยู่งอลงหนึ่งข้อ คานงอตามลงมาหนึ่งข้อ แล้วไม่หยุด
 
           เวสซันหลุดออกไปได้ทั้งตัว เขาจำได้แค่ว่ามีมือคู่หนึ่งผลักข้อเท้าเขาออกไปเป็นครั้งสุดท้าย คนงานชั้นสี่ใช้เวลาสามวันขุดหินออก แล้วแบก{name}ขึ้นบันไดสองร้อยหกสิบขั้น ขึ้นไปให้แดดเที่ยงส่องเป็นครั้งสุดท้าย
-        effects: { die: true }
+        effects: { die: sacrifice }
     - id: run_for_beams
       label: วิ่งขึ้นไปเอาคานสำรองกับคนจากชั้นสาม
       check: { stat: DEX, dc: 12 }
@@ -503,7 +504,8 @@
         effects: { reputation: { lamp_church: -1 }, flags: [lamp_noted_smith] }
     - id: mend_one_pair
       label: รับกุญแจคู่นั้นไว้ซ่อมคืนเดียว แล้วแอบตีหมุดตัวใหม่ให้เปราะเหมือนตัวเก่า
-      requires: { trait: demon_mark, not_flags: [weak_shackles] }
+      habit: craft_hands
+      requires: { trait: curse_brand, not_flags: [weak_shackles] }
       text: |
         คืนนั้นร้านปิดแล้ว {name}นั่งลงหน้าเตา มือข้างหนึ่งลูบโคนเขาของตัวเองอย่างที่ทำทุกคืน อีกข้างหยิบกุญแจมือคู่นั้นขึ้นมาสวมข้อมือตัวเอง ข้อมือผู้ใหญ่ใส่ได้แค่ครึ่งวง
 
@@ -541,6 +543,7 @@
       effects: { gold: 4, flags: [kept_demon_coal] }
     - id: quiet_hammer
       label: ให้ทอฟราสอนวิธีตีเหล็กแบบตระกูลของนาง
+      habit: craft_hands
       check: { stat: STR, dc: 13 }
       success:
         text: |
@@ -556,7 +559,7 @@
         effects: { hp: -2 }
     - id: answer_the_voice
       label: ตอบเสียงทุ้มใต้พื้นร้านที่เรียกชื่อ{name}ในฝันทุกคืน
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         เสียงนั้นมาครั้งแรกในปีที่สองของเตาถ่านมาร ทุ้มต่ำจากใต้พื้นร้าน เรียกชื่อ{name}ช้าๆ ทีละพยางค์ เหมือนคนที่ไม่เคยต้องรีบเรื่องอะไรในชีวิต ช่วงหลังมันไม่ได้เรียกแค่ชื่อ มันบอกว่าไฟในเตาของ{name}จะไม่มีวันดับ และวันที่ฟ้าเปิดออก คนทั้งถิ่นจะมาขอไฟจากเตานี้
 
@@ -654,6 +657,7 @@
       effects: { gold: -4, alignment: { law: -1 }, flags: [built_with_sawn_wood] }
     - id: weave_the_tier
       label: ปีนขึ้นไปสานชั้นที่แปดจากเชือกใยไม้กับกิ่งเป็นๆ ที่ยังติดต้น
+      habit: craft_hands
       check: { stat: DEX, dc: 13 }
       success:
         text: |
@@ -817,6 +821,7 @@
         effects: { reputation: { belek_bank: -1 }, flags: [stayed_at_heir_desk] }
     - id: pay_toward_mila
       label: จ่ายห้าเหรียญของตัวเองลงหนี้ของมีลา
+      habit: soft_heart
       requires: { flag: copied_child_debt, min_gold: 5 }
       text: |
         หน้าคัดหนี้ของทอมลินยังอยู่ในลิ้นชักห้องหลัง ลายมือของ{name}เอง หนี้สี่สิบเอ็ดเหรียญทบดอกมาตั้งแต่วันที่มีลายืนเกาะขอบโต๊ะ ตอนนี้เป็นตัวเลขที่{name}ไม่อยากอ่านออกเสียง
@@ -906,6 +911,7 @@
       effects: { gold: -4, flags: [job_merchant], clear_flags: [job_farmer, job_refinery_hand, job_docker, job_miner, job_smith, job_bough_crafter, job_clerk] }
     - id: to_smith
       label: ไปเป็นมือขวาในร้านตีเหล็ก
+      habit: craft_hands
       requires: { not_flags: [job_smith, origin_elf_bough] }
       text: |
         ช่างตีเหล็กให้{name}ยืนหน้าทั่งตั้งแต่วันแรก ไม่ต้องเริ่มจากกวาดขี้เหล็ก เดือนแรก{name}ตีเกือกม้าเบี้ยวไปสามสิบคู่ เขาเอาไปขายเป็นเศษเหล็กโดยไม่บ่น เดือนที่สามเกือกม้าตรงทุกคู่

@@ -55,7 +55,7 @@
       effects: { stats: { CON: 1 }, gold: 4, flags: [hunted_with_crew] }
     - id: unseen_approach
       label: เดินเข้าไปหามันพร้อมตะเกียงที่ยังไม่จุด
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         คืนนั้น{name}ยืนอยู่ใต้ดาวดวงใหม่กลางลานจานรับดาว เงาของ{name}มีเงาเดียว เงาของคนเฝ้าจานที่ยืนห่างออกไปมีสองเงา เงาที่สองลุกขึ้นจากเท้าเขา หันหัวไปมาเหมือนหมาดมกลิ่น ผ่านตัว{name}ไปหลายรอบโดยไม่หยุดสักครั้ง
 
@@ -90,6 +90,7 @@
         effects: { hp: -3, gold: 6, flags: [taught_naila, hound_scar_arm] }
     - id: go_alone
       label: ไม่พาใครไป ล่าเองคนเดียวอย่างที่เคยทำ
+      habit: hunter_eye
       check: { stat: DEX, dc: 14, foe: demon }
       success:
         text: |
@@ -112,6 +113,7 @@
       effects: { reputation: { wardens: 1 }, alignment: { law: 1 }, flags: [warned_wardens_of_hounds] }
     - id: hound_pit
       label: ขุดหลุมดักข้างราง ไม่ยืนปะทะของที่หนักกว่าตัวเองอีก
+      habit: hunter_eye
       requires: { flag: hurt_by_golem }
       text: |
         ซี่โครงสองซี่ที่หุ่นยามตัวนั้นหักไว้ยังเจ็บทุกครั้งที่{name}หายใจลึก คราวนี้{name}ไม่ยืนปะทะ แต่ขุดหลุมลึกเท่าคนข้างรางตรงที่ฝูงเดินผ่านทุกคืน เทน้ำมันตะเกียงลงก้นหลุม ปิดปากหลุมด้วยหนังแพะทาเถ้าให้สีเหมือนพื้น
@@ -171,7 +173,7 @@
         effects: { hp: -2, flags: [warned_hidden_village] }
     - id: show_and_run
       label: รับงาน กลางทางปลดผ้าคลุมหัวให้พวกเขาเห็น แล้ววิ่งล่อไปอีกทาง
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -238,6 +240,7 @@
       effects: { gold: 6, flags: [sent_abel_alone] }
     - id: scatter_cairns
       label: ระหว่างทาง เตะกองหินของคนสวมแหวนเหล็กดำทิ้งทุกกอง
+      habit: hot_headed
       requires: { flag: misled_ash_cult }
       text: |
         ทางข้ามช่องเขาที่สองผ่านเนินที่{name}เคยพาคนสวมแหวนเหล็กดำสามคนเดินวนเมื่อหลายปีก่อน ทุกวันนี้บนเนินนั้นมีกองหินเล็กๆ เรียงไปทางตะวันออกทุกร้อยก้าว ยอดทุกกองมีแหวนเหล็กดำวางอยู่หนึ่งวง พวกเขาหาทางกลับมาจนได้
@@ -309,6 +312,7 @@
   choices:
     - id: rope_down
       label: ผูกเชือกลงไปดูว่าข้างล่างมีอะไร
+      habit: curious
       check: { stat: CON, dc: 13 }
       success:
         text: |
@@ -324,6 +328,7 @@
         effects: { hp: -3, flags: [heard_the_breach] }
     - id: seal_and_report
       label: กลิ้งหัวเจาะที่ละลายปิดปากหลุม แล้วไปบอกผู้เฝ้าผนึก
+      requires: { not_traits: [curious] }
       text: |
         {name}งัดหัวเจาะที่ละลายเป็นก้อนสามก้อนกลิ้งลงปิดปากหลุม อัดเถ้าทับจนไอร้อนลอดขึ้นมาไม่ได้ แล้วเดินสามวันไปป้อมสาม ผู้เฝ้าผนึกจดตำแหน่งลงแผนที่ในห้องเวรด้วยหมึกสีแดง ข้างรอยหมึกแดงอีกหลายรอยที่ไม่มีบนแผนที่ของบริษัท
 
@@ -416,6 +421,7 @@
       effects: { alignment: { moral: 1 }, flags: [passed_the_demon_role] }
     - id: one_more_season
       label: ฝึกลมหายใจใหม่ เล่นต่ออีกฤดู
+      habit: stubborn
       check: { stat: CON, dc: 13 }
       success:
         text: |

@@ -20,6 +20,7 @@
   choices:
     - id: push_through
       label: เช็ดเลือดแล้วทำต่อจนเสร็จ
+      habit: stubborn
       check: { stat: INT, dc: 13 }
       success:
         text: |

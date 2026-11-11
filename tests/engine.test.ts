@@ -72,9 +72,10 @@ describe('engine', () => {
   it('rejects unavailable choices', () => {
     expect(() => resolveChoice(game, newLife(1), 'childhood.test_fence', 'speak')).toThrow();
   });
-  it('dies at 0 hp once past the protected age', () => {
+  it('is dying at 0 hp once past the protected age', () => {
     const l = applyEffects(game, { ...newLife(1), age: 12 }, { hp: -99 });
-    expect(l.alive).toBe(false);
+    expect(l.dying).toBe('wound');
+    expect(l.hp).toBe(0);
   });
   it('natural 20 always succeeds', () => {
     // find a seed whose first d20 is 20, then check against an impossible DC
@@ -124,10 +125,10 @@ describe('choice helpers for the HUD', () => {
   });
   it('choiceLock shows stat-only locks and hides the rest', () => {
     const l = base();
-    expect(choiceLock(l, { id: 'a', label: 'a' })).toBeNull();
-    expect(choiceLock(l, { id: 'b', label: 'b', requires: { min_stat: { STR: 14 } } })).toEqual([{ stat: 'STR', min: 14 }]);
-    expect(choiceLock(l, { id: 'c', label: 'c', requires: { trait: 'beast_tongue' } })).toBe('hidden');
-    expect(choiceLock(l, { id: 'd', label: 'd', requires: { trait: 'beast_tongue', min_stat: { STR: 14 } } })).toBe('hidden');
+    expect(choiceLock(game, l, { id: 'a', label: 'a' })).toBeNull();
+    expect(choiceLock(game, l, { id: 'b', label: 'b', requires: { min_stat: { STR: 14 } } })).toEqual([{ stat: 'STR', min: 14 }]);
+    expect(choiceLock(game, l, { id: 'c', label: 'c', requires: { trait: 'beast_tongue' } })).toBe('hidden');
+    expect(choiceLock(game, l, { id: 'd', label: 'd', requires: { trait: 'beast_tongue', min_stat: { STR: 14 } } })).toBe('hidden');
   });
   it('log entries record what a choice changed', () => {
     let l = newLife(3);
@@ -135,7 +136,7 @@ describe('choice helpers for the HUD', () => {
     for (let i = 0; i < 40 && l.alive && !found; i++) {
       const { event, life: next } = pickEvent(game, l);
       if (!event) break;
-      const c = event.choices.find((x) => choiceLock(next, x) === null)!;
+      const c = event.choices.find((x) => choiceLock(game, next, x) === null)!;
       const res = resolveChoice(game, next, event.id, c.id);
       if (res.entry.changes) {
         found = true;
@@ -159,11 +160,13 @@ describe('people and endings', () => {
     ppl = applyPeople(ppl, [{ id: 'rowen', dies: true }], 20);
     expect(ppl[0]).toMatchObject({ alive: false, diedAge: 20 });
   });
-  it('a die effect marks the life as a real death', () => {
-    const l = { ...newLife(5), age: 30 };
-    const dead = applyEffects(game, l, { die: true });
+  it('a die effect ends the life as a real death (at once when no death scene exists)', () => {
+    const l = { ...newLife(5), age: 40, currentEventId: 'elder.test_end' };
+    const dead = resolveChoice(game, l, 'elder.test_end', 'rest').life;
     expect(dead.alive).toBe(false);
     expect(dead.endReason).toBe('death');
+    expect(dead.deathCause).toBe('wound');
+    expect(dead.age).toBe(40);
   });
   it('lint flags a person who is never named', () => {
     const bad = ContentSchema.parse({

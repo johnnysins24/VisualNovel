@@ -5,7 +5,7 @@
  */
 :root {
   --bg: #faf7f0; --surface: #ffffff; --subtle: #f2eee4; --ink: #2a2824; --muted: #8a8478; --line: #e7e1d3;
-  --accent: #4a5ba8; --gold: #a8801f; --good: #4f8a4b; --bad: #c0533f;
+  --accent: #4a5ba8; --gold: #a8801f; --good: #4f8a4b; --bad: #c0533f; --curse: #7b5ea7;
   --sky1: #e9eef3; --sky2: #f7f1e6; --hill: #dfe5d6; --hill2: #cfd8c4;
   --love: #d0607a; --friend: #4f8a4b; --mentor: #4a5ba8; --rival: #c0533f; --kin: #a8801f;
   --forest: #dfe8d9; --stone: #e6e2da; --field: #f0e7d0; --ash: #dedad6;
@@ -18,7 +18,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #17171a; --surface: #1f1f23; --subtle: #29292e; --ink: #ecebe6; --muted: #918f88; --line: #313137;
-    --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574;
+    --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574; --curse: #b9a2ee;
     --sky1: #1b1e2b; --sky2: #24222c; --hill: #22261f; --hill2: #1d211b;
     --love: #ef8aa1; --friend: #82c47c; --mentor: #9eabff; --rival: #ef8574; --kin: #d9b55e;
     --forest: #243026; --stone: #2c2b2a; --field: #332e22; --ash: #2a2828;
@@ -27,7 +27,7 @@
 }
 :root[data-theme='dark'] {
   --bg: #17171a; --surface: #1f1f23; --subtle: #29292e; --ink: #ecebe6; --muted: #918f88; --line: #313137;
-  --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574;
+  --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574; --curse: #b9a2ee;
   --sky1: #1b1e2b; --sky2: #24222c; --hill: #22261f; --hill2: #1d211b;
   --love: #ef8aa1; --friend: #82c47c; --mentor: #9eabff; --rival: #ef8574; --kin: #d9b55e;
   --forest: #243026; --stone: #2c2b2a; --field: #332e22; --ash: #2a2828;
@@ -55,7 +55,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .who { flex: 1; min-width: 0; display: grid; line-height: 1.3; }
 .name { font-family: var(--f-head); font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .meta { display: flex; gap: 10px; font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; }
-.meta > span { display: inline-flex; align-items: center; gap: 3px; }
+.meta > span { display: inline-flex; align-items: center; gap: 3px; flex: none; }
+/* ที่แคบ: ชื่อถิ่นย่อด้วยจุดไข่ปลาก่อน อายุ ปี และอาชีพไม่โดนตัดกลางคำ */
+.meta > .shrink { flex: 0 1 auto; min-width: 0; }
+.meta .t { overflow: hidden; text-overflow: ellipsis; }
 .meta b { color: var(--ink); }
 .meta .icon { width: 13px; height: 13px; }
 .vital { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; white-space: nowrap; }
@@ -217,6 +220,7 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node circle { fill: var(--subtle); stroke: var(--line); stroke-width: 1.2; }
 .chart .node:focus-visible circle, .chart .node:hover circle { stroke: var(--accent); }
 .chart .node.me circle { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
+.chart .node.on circle { stroke: var(--accent); stroke-width: 2; }
 .chart .node.dead { opacity: .5; }
 .face { image-rendering: pixelated; }
 .slot { position: relative; }
@@ -334,6 +338,128 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .progress .ticks { display: flex; justify-content: space-between; }
 .end-card .row-buttons { justify-content: center; }
 .row-buttons button { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---------- สิ่งติดตัว: พร คำสาป ลักษณะ แผล (สีเดียวต่อชนิดผ่าน --k) ---------- */
+.k-boon { --k: var(--gold); } .k-curse { --k: var(--curse); } .k-trait { --k: var(--muted); } .k-wound { --k: var(--bad); }
+.trait-row { display: flex; flex-wrap: wrap; gap: 10px 8px; padding-bottom: 4px; }
+.trait { position: relative; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
+  background: color-mix(in srgb, var(--k) 8%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--k) 50%, var(--line)); }
+.trait img { width: 34px; height: 34px; object-fit: contain; image-rendering: pixelated; }
+.trait:hover { border-color: var(--k); }
+.trait.on { border-color: var(--k); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k) 22%, transparent); }
+.steps { display: inline-flex; gap: 3px; align-items: center; }
+.steps i { width: 6px; height: 6px; border-radius: 50%; border: 1.2px solid var(--k); flex: none; }
+.steps i.on { background: var(--k); }
+.trait .steps { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); padding: 2px 5px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.trait-row.small { gap: 9px 7px; }
+.trait-row.small .trait { width: 38px; height: 38px; border-radius: 10px; }
+.trait-row.small .trait img { width: 27px; height: 27px; }
+.trait-row.small .steps i { width: 4px; height: 4px; }
+.kind-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .75rem; color: var(--muted); }
+.kind-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.kind-legend i { width: 9px; height: 9px; border-radius: 3px; border: 1.5px solid var(--k); background: color-mix(in srgb, var(--k) 18%, transparent); }
+/* การ์ดรายละเอียด เปิดเมื่อแตะป้าย */
+.trait-card { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; padding: 12px 8px 12px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.trait-card .art { width: 60px; height: 60px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 9%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--k) 50%, var(--line)); }
+.trait-card .art img { width: 46px; height: 46px; object-fit: contain; image-rendering: pixelated; }
+.trait-card .tc-head { display: grid; align-content: center; gap: 0; min-width: 0; }
+.trait-card .tc-head b { font-family: var(--f-head); font-weight: 600; font-size: 1.05rem; line-height: 1.4; }
+.tc-kind { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: .78rem; color: var(--muted); line-height: 1.5; }
+.tc-kind .k { color: var(--k); font-weight: 500; }
+.trait-card .icon-btn { margin: -4px 0 0; }
+.tc-body { grid-column: 1 / -1; display: grid; gap: 3px; margin-top: 8px; padding-right: 4px; }
+.tc-body p { display: flex; gap: 8px; align-items: baseline; font-size: .9rem; line-height: 1.55; }
+.tc-body .icon { width: 14px; height: 14px; align-self: center; flex: none; }
+.tc-body p > .icon { align-self: start; margin-top: .32em; }
+.tc-body .plus .icon { color: var(--good); } .tc-body .minus .icon { color: var(--bad); }
+.tc-body .note { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+.tc-body .note + .note { margin-top: 0; }
+/* สิ่งติดตัวในหน้าเล่น: ป้ายสั้นในบันทึก บรรทัดทอย และใต้ตัวเลือก */
+.side.left > .traits { grid-column: 1 / -1; }
+.kchip { display: inline-flex; align-items: center; gap: 4px; color: var(--k); }
+.kchip .icon { width: 14px; height: 14px; }
+.kchip.lost { text-decoration: line-through; opacity: .7; }
+.kchip .steps { margin-left: 2px; }
+.tags { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: .72rem; line-height: 1.5; }
+.tags .kchip { gap: 3px; }
+.tags .kchip .icon { width: 13px; height: 13px; }
+.tags .num { font-size: .68rem; }
+.choice .label.two { display: grid; gap: 1px; }
+.choice .l1 { display: flex; gap: 8px; align-items: baseline; }
+.roll { flex-wrap: wrap; }
+.roll .kchip { font-size: .78rem; }
+.roll .what { color: var(--muted); }
+.choice.locked .kchip { font-size: .74rem; }
+
+/* ---------- การ์ดคนในผังครอบครัว ---------- */
+.person-card.kin-card { align-items: center; }
+.person-card.kin-card .avatar { width: 44px; height: 44px; flex: none; image-rendering: pixelated; }
+.person-card.kin-card .avatar.gone { filter: grayscale(1); opacity: .6; }
+.person-card.kin-card > div { flex: 1; min-width: 0; }
+.person-card.kin-card p { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.person-card.kin-card p > span { display: inline-flex; align-items: center; gap: 4px; }
+.person-card.kin-card p .icon { width: 13px; height: 13px; }
+.hearts { display: inline-flex; gap: 2px; color: var(--love); }
+.hearts .icon { width: 12px !important; height: 12px !important; fill: currentColor; stroke: none; }
+.hearts .icon.off { fill: none; stroke: currentColor; stroke-width: 1.7; opacity: .45; }
+.hearts.cold { color: var(--rival); }
+
+/* ---------- หน้าตาย (ท้ายบันทึกชีวิต) ---------- */
+.scene.ended .actors { display: none; }
+.scene.ended::after { content: ''; position: absolute; inset: 0; background: linear-gradient(rgb(20 18 30 / .1), rgb(20 18 30 / .38)); pointer-events: none; }
+.end-mark { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8rem; margin: 8px 0 2px; }
+.end-mark::before, .end-mark::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.end-mark .icon { width: 13px; height: 13px; }
+.sheet.farewell { justify-items: center; gap: 4px; padding: 16px 12px 18px; text-align: center; }
+.sheet.farewell .muted { font-size: .8rem; }
+.sheet.farewell .primary { margin-top: 4px; min-width: 60%; justify-content: center; }
+
+/* ---------- หน้าชีวประวัติ ---------- */
+.bio { display: grid; gap: 22px; max-width: 560px; width: 100%; margin: 0 auto; padding-bottom: 10px; }
+.bio-hero { display: grid; gap: 4px; justify-items: center; text-align: center; }
+.bio-hero .eyebrow { font-size: .75rem; letter-spacing: .1em; color: var(--muted); }
+.bio-portrait { position: relative; width: 132px; height: 150px; margin: 6px 0 8px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(var(--sky1), var(--sky2)); }
+.bio-portrait::before { content: ''; position: absolute; left: -30%; right: -30%; bottom: -34%; height: 62%; border-radius: 50% 50% 0 0; background: var(--hill); }
+.bio-portrait img { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); image-rendering: pixelated; max-height: 124px; width: auto; }
+.bio-hero h2 { font-family: var(--f-head); font-size: 1.6rem; font-weight: 600; line-height: 1.3; }
+.bio-years { display: inline-flex; align-items: center; gap: 10px; font-size: .9rem; }
+.bio-years .icon { width: 14px; height: 14px; color: var(--muted); }
+.bio-last { font-style: italic; font-weight: 300; max-width: 26em; margin-top: 6px; line-height: 1.7; text-wrap: balance; }
+.bio .sec { gap: 10px; }
+.lifeline { display: grid; gap: 5px; }
+.ll-bar { position: relative; display: grid; gap: 3px; height: 8px; }
+.ll-bar i { border-radius: 4px; background: color-mix(in srgb, var(--ink) 16%, transparent); }
+.ll-bar b { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--ink); border: 2px solid var(--bg); }
+.ll-bar b.world { background: var(--accent); }
+.ll-ticks { position: relative; height: 1.2em; font-size: .7rem; color: var(--muted); }
+.ll-ticks span { position: absolute; transform: translateX(-50%); }
+.ll-ticks span:first-child { transform: none; } .ll-ticks span:last-child { transform: translateX(-100%); }
+.marks { display: grid; gap: 0; }
+.marks li { display: grid; grid-template-columns: 30px 14px 1fr; gap: 0 8px; align-items: baseline; font-size: .93rem; line-height: 1.5; padding: 3px 0; }
+.marks .num { text-align: right; color: var(--muted); font-size: .72rem; }
+.marks i { position: relative; align-self: stretch; }
+.marks i::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line); }
+.marks li:first-child i::before { top: 50%; } .marks li:last-child i::before { bottom: 50%; }
+.marks li:only-child i::before { display: none; }
+.marks i::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--ink); }
+.marks li.world i::after { background: var(--accent); }
+.marks li.world span:last-child { color: var(--accent); }
+.bio-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.bio-facts li { display: grid; justify-items: center; gap: 0; padding: 8px 2px; border-radius: 12px; background: var(--subtle); font-size: .72rem; color: var(--muted); line-height: 1.5; text-align: center; }
+.bio-facts .icon { width: 16px; height: 16px; }
+.bio-facts b { font-size: .95rem; color: var(--ink); }
+.bio-stats { display: grid; grid-template-columns: repeat(6, 1fr); }
+.bio-stats li { display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--muted); }
+.bio-stats b { font-size: .9rem; color: var(--ink); }
+.bio-people { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.bio-people li { display: flex; align-items: center; gap: 8px; font-size: .9rem; line-height: 1.3; }
+.bio-people .avatar { width: 40px; height: 40px; image-rendering: pixelated; }
+.bio-people small { display: block; color: var(--muted); font-size: .75rem; }
+.heir { display: grid; }
+.heir li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0 12px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+.heir .slot { width: 44px; height: 44px; }
+.bio .row-buttons { justify-content: center; margin-top: 2px; }
+.bio .row-buttons .primary { border: 0; }
 
 /* ---------- กล่องทอยเต๋า ---------- */
 .overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(3px); }

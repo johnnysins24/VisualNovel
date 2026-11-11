@@ -1,11 +1,12 @@
 import { useEffect } from 'preact/hooks';
 import { CharacterPanel, DebugPanel, Equipment, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
 import { CloseList, PeoplePage } from './People';
-import { RollDialog } from './Endings';
+import { BiographyPage, RollDialog, bioOpen } from './Endings';
+import { TraitsStrip } from './Traits';
 import { Icon } from './icons';
 import { BottomNav, Scene, StatRow, TopBar } from './Hud';
 import { ChoiceSheet, StoryLog, playableChoices } from './Story';
-import { bigRoll, choose, life, tab } from '../store';
+import { bigRoll, choose, endReasonOf, life, tab } from '../store';
 import { revealNext, revealing, scrolledBack } from './reading';
 
 const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
@@ -44,8 +45,10 @@ export function App() {
   useHotkeys();
   const t = tab.value;
   const Page = t === 'story' ? null : PAGES[t];
+  // ชีวิตที่จบแล้ว: หน้าชีวประวัติเปิดแทนบันทึกในแท็บเรื่องราว (ฉากและแถวค่าสถานะหลบให้เหมือนหน้ารอง)
+  const bio = t === 'story' && bioOpen.value && endReasonOf(life.value) === 'death';
   return (
-    <main class="game" data-tab={t} data-back={t === 'story' && scrolledBack.value ? '' : undefined}>
+    <main class="game" data-tab={bio ? 'bio' : t} data-back={t === 'story' && !bio && scrolledBack.value ? '' : undefined}>
       <TopBar />
       <StatRow />
       {/* เวที: ฉาก ค่าสถานะ ผู้คน (เดสก์ท็อปเป็นคอลัมน์ซ้าย มือถือแตกเป็นแถวของ grid หลัก) */}
@@ -61,6 +64,7 @@ export function App() {
             <SlotGrid />
           </section>
           <Equipment />
+          <TraitsStrip />
         </aside>
         <aside class="side right" aria-label="ผู้คนและโลก">
           <CloseList />
@@ -73,6 +77,8 @@ export function App() {
       <section class="read">
         {Page ? (
           <div class="page"><Page /></div>
+        ) : bio ? (
+          <div class="page"><BiographyPage /></div>
         ) : (
           <>
             <StoryLog />

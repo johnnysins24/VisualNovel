@@ -1,5 +1,7 @@
 import type { LifeState } from './state';
 import { newLife } from './state';
+import { TRAIT_RENAMES } from './balance';
+import { estimateBorn } from './people';
 import type { Meta } from './meta';
 import { newMeta } from './meta';
 
@@ -46,9 +48,15 @@ export function importCode(code: string): LifeState {
   return migrate(JSON.parse(new TextDecoder().decode(bytes)));
 }
 
-/** เซฟเก่า (v1) ไม่มีเพศ ปีเกิด และค่าโลก เติมค่าเริ่มต้นจาก seed เดิม */
+/**
+ * เซฟเก่าเติมค่าที่ยังไม่มีจาก seed เดิม: v1 ไม่มีเพศ ปีเกิด และค่าโลก v2 ไม่มีปีเกิดของคนรอบตัว ขั้นของสิ่งติดตัว และตัวแสดง
+ * รหัสสิ่งติดตัวรุ่นเก่า (demon_mark, born_empty_day) เปลี่ยนเป็นรหัสในทะเบียน
+ */
 export function migrate(raw: unknown): LifeState {
   const old = raw as Partial<Omit<LifeState, 'version'>> & { version?: number };
-  if (!old || typeof old.seed !== 'number' || (old.version !== 1 && old.version !== 2)) throw new Error('รหัสเซฟไม่ถูกต้อง');
-  return { ...newLife(old.seed), ...old, version: 2 } as LifeState;
+  if (!old || typeof old.seed !== 'number' || (old.version !== 1 && old.version !== 2 && old.version !== 3)) throw new Error('รหัสเซฟไม่ถูกต้อง');
+  const life = { ...newLife(old.seed), ...old, version: 3 } as LifeState;
+  life.traits = [...new Set((life.traits ?? []).map((t) => TRAIT_RENAMES[t] ?? t))];
+  life.people = (life.people ?? []).map((p) => (p.born === undefined ? { ...p, born: estimateBorn(p, life) } : p));
+  return life;
 }

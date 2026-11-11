@@ -1,37 +1,157 @@
+import { effect, signal } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { CLASSES, GODS, STAT_TH, type ClassId, type GodId } from '../engine/balance';
-import { humanAge, worldYear } from '../engine/state';
-import { bigRoll, endReasonOf, life, resumeLife, startLife } from '../store';
+import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
+import { effectiveStats } from '../engine/items';
+import { personYears } from '../engine/people';
+import { STATS } from '../engine/schema';
+import { humanAge, lastRealAge, worldYear, type LifeState } from '../engine/state';
+import { piecesOfItem, personLook, playerLook } from '../sprites/looks';
+import { faceUrl, itemIconUrl, portraitUrl } from '../sprites/render';
+import { bigRoll, endReasonOf, game, life, resumeLife, startLife } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { PLACE_TH, signed } from './Hud';
+import { BOND_TH, kinLabel } from './People';
+import { TraitsOfLife } from './Traits';
 
 /** อายุที่ใช้เป็นสเกลของแถบ "เขียนเสร็จถึงอายุเท่าไร" (มนุษย์) */
 const SCALE_AGES = [0, 18, 40, 60, 70];
 
-/** หน้าจบชีวิต (ตายจริง) */
-function Biography() {
+/** หน้าชีวประวัติเปิดอยู่ไหม (เปิดจากแผ่นปิดท้ายชีวิต ปิดเองเมื่อเริ่มชีวิตใหม่) */
+export const bioOpen = signal(false);
+effect(() => {
+  if (life.value.alive) bioOpen.value = false;
+});
+
+/** วัยของชีวิตบนเส้นชีวิต เป็นอายุเทียบมนุษย์: เด็ก วัยรุ่น ผู้ใหญ่ วัยกลาง วัยชรา บั้นปลาย */
+const STAGE_FROM = [0, 12, 18, 41, 61, 81];
+/** อายุจริงปีแรกที่นับเป็นอายุเทียบมนุษย์ h ของเผ่านั้น */
+const realAgeAt = (h: number, race: string | null) => (h <= 0 ? 0 : lastRealAge(h - 1, race) + 1);
+const KIN_ORDER = ['spouse', 'child', 'sibling_older', 'sibling_younger', 'mother', 'father'];
+
+/** เส้นชีวิต: แถบแบ่งตามวัย จุดคือเหตุการณ์ที่ติดป้ายไว้ จุดสีน้ำเงินคือเหตุการณ์ของโลกที่ชีวิตนี้ได้อยู่เห็น */
+function LifeLine({ l }: { l: LifeState }) {
+  const end = Math.max(1, l.age);
+  const cuts = STAGE_FROM.map((h) => realAgeAt(h, l.raceApplied)).filter((a) => a < end);
+  const segs = cuts.map((a, i) => (cuts[i + 1] ?? end) - a);
+  // ป้ายอายุที่ชิดปลายเส้นเกินไปซ้อนกับอายุตอนตาย ตัดออก
+  const ticks = [...cuts.filter((a) => a === 0 || (end - a) / end > 0.07), end];
+  const marks = l.log.filter((e) => e.mark).map((e) => ({ age: e.age, text: e.mark!, world: e.eventId.includes('.world_') }));
+  return (
+    <section class="sec" aria-label="เส้นชีวิต">
+      <h3><Icon name="age" />เส้นชีวิต</h3>
+      <div class="lifeline" role="img" aria-label={`เส้นชีวิต ${end} ปี ${marks.length} เหตุการณ์สำคัญ`}>
+        <div class="ll-bar" style={{ gridTemplateColumns: segs.map((n) => `${n}fr`).join(' ') }}>
+          {segs.map((_, i) => <i key={i} />)}
+          {marks.map((m, i) => <b key={i} class={m.world ? 'world' : ''} style={{ left: `${(Math.min(m.age, end) / end) * 100}%` }} />)}
+        </div>
+        <div class="ll-ticks">
+          {ticks.map((a) => <span key={a} class="num" style={{ left: `${(a / end) * 100}%` }}>{a}</span>)}
+        </div>
+      </div>
+      {marks.length > 0 && (
+        <ul class="marks">
+          {marks.map((m, i) => (
+            <li key={i} class={m.world ? 'world' : ''}><span class="num">{m.age}</span><i /><span>{m.text}</span></li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/** หน้าชีวประวัติ: ภาพสุดท้าย เส้นชีวิต ตัวเลขทั้งชีวิต สิ่งติดตัว คนข้างหลัง และของที่ทิ้งไว้ */
+export function BiographyPage() {
   const l = life.value;
   const cls = l.classId ? CLASSES[l.classId as ClassId]?.th : null;
-  const god = l.god ? GODS[l.god as GodId]?.th : null;
   const place = PLACE_TH[l.homeTag ?? l.locationTag];
-  const known = (l.people ?? []).length;
+  const portrait = portraitUrl(playerLook(l, game.items, 'neutral'));
+  const eff = effectiveStats(l, game.items);
+  const rolls = l.log.filter((e) => e.roll);
+  const left = (l.people ?? [])
+    .filter((p) => p.alive && (p.kin || (p.bond && p.bond !== 'rival' && p.closeness > 0)))
+    .sort((a, b) => {
+      const ka = a.kin ? KIN_ORDER.indexOf(a.kin) : -1;
+      const kb = b.kin ? KIN_ORDER.indexOf(b.kin) : -1;
+      const ra = ka < 0 ? KIN_ORDER.length : ka;
+      const rb = kb < 0 ? KIN_ORDER.length : kb;
+      return ra - rb || b.closeness - a.closeness || a.metAge - b.metAge;
+    })
+    .slice(0, 8);
+  const things = l.inventory.map((id) => game.items.get(id)).filter((it): it is NonNullable<typeof it> => !!it);
+  const from = cls && place ? `${cls}จาก${place}` : place ? `คนจาก${place}` : cls;
   return (
-    <section class="end-card" aria-label="ชีวประวัติ">
-      <span class="eyebrow">ชีวประวัติ</span>
-      <h2 class="end-title">{l.name}{l.surname ? ` ${l.surname}` : ''}</h2>
-      {cls && place && <p class="muted">{cls}จาก{place}</p>}
-      <p class="end-facts">
-        <span><Icon name="year" label="ปี" /><span class="num">{l.birthYear}–{worldYear(l)}</span></span>
-        <span><Icon name="age" label="อายุ" /><span class="num">{l.age}</span></span>
-        {cls && <span><Icon name="role" label="อาชีพ" />{cls}</span>}
-        {god && <span><Icon name="sun" label="ศรัทธา" />{god}</span>}
-        <span><Icon name="people" label="คนที่รู้จัก" /><span class="num">{known}</span></span>
-      </p>
-      <p>ชีวิตของ {l.name} จบลงที่อายุ <span class="num">{l.age}</span> หลังผ่านมา <span class="num">{l.log.length}</span> เหตุการณ์</p>
-      <button class="primary" onClick={() => startLife()}>
-        <Icon name="reborn" />เกิดใหม่
-      </button>
-    </section>
+    <article class="bio" aria-label="ชีวประวัติ">
+      <header class="bio-hero">
+        <span class="eyebrow">ชีวประวัติ</span>
+        <div class="bio-portrait">
+          {portrait.url && <img src={portrait.url} width={portrait.w * 2} height={portrait.h * 2} alt={`ภาพของ${l.name}`} />}
+        </div>
+        <h2>{l.name}{l.surname ? ` ${l.surname}` : ''}</h2>
+        {from && <p class="muted">{from}</p>}
+        <p class="bio-years">
+          <Icon name="year" label="ปี" /><span class="num">{l.birthYear}–{worldYear(l)}</span>
+          <Icon name="age" label="อายุ" /><span class="num">{l.age}</span>
+        </p>
+        {l.epitaph && <p class="bio-last">{l.epitaph}</p>}
+      </header>
+
+      <LifeLine l={l} />
+
+      <section class="sec" aria-label="ทั้งชีวิต">
+        <h3><Icon name="book" />ทั้งชีวิต</h3>
+        <ul class="bio-facts">
+          <li><Icon name="book" /><b class="num">{l.log.length}</b>เหตุการณ์</li>
+          <li><Icon name="d20" /><b class="num">{rolls.filter((e) => e.roll!.success).length}/{rolls.length}</b>ทอยผ่าน</li>
+          <li><Icon name="people" /><b class="num">{(l.people ?? []).length}</b>คนที่รู้จัก</li>
+          <li><Icon name="coin" /><b class="num">{l.gold}</b>ทองที่เหลือ</li>
+        </ul>
+        <ul class="bio-stats">
+          {STATS.map((s) => <li key={s}><Icon name={STAT_ICON[s]} label={STAT_TH[s]} /><b class="num">{eff[s]}</b></li>)}
+        </ul>
+      </section>
+
+      <TraitsOfLife l={l} />
+
+      {left.length > 0 && (
+        <section class="sec" aria-label="คนข้างหลัง">
+          <h3><Icon name="people" />คนข้างหลัง</h3>
+          <ul class="bio-people">
+            {left.map((p) => (
+              <li key={p.id}>
+                <img class="avatar face" src={faceUrl(personLook(p, l))} alt="" />
+                <span>{p.name}<small>{kinLabel(p) || (p.bond ? BOND_TH[p.bond] : '')} · <span class="num">{personYears(p, l)}</span></small></span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {things.length > 0 && (
+        <section class="sec" aria-label="ของที่ทิ้งไว้">
+          <h3><Icon name="bag" />ของที่ทิ้งไว้</h3>
+          <ul class="heir">
+            {things.map((it) => {
+              const art = itemIconUrl(piecesOfItem(it.id, game.items));
+              return (
+                <li key={it.id}>
+                  <span class="slot on">{art ? <img class="slot-art" src={art} alt="" /> : <Icon name={it.slot} />}</span>
+                  {it.name}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      <div class="row-buttons">
+        <button class="primary" onClick={() => startLife()}>
+          <Icon name="reborn" />เกิดใหม่
+        </button>
+        <button onClick={() => (bioOpen.value = false)}>
+          <Icon name="book" />อ่านบันทึกชีวิต
+        </button>
+      </div>
+    </article>
   );
 }
 
@@ -67,10 +187,9 @@ function ToBeContinued() {
   );
 }
 
+/** ท้ายบันทึกของชีวิตที่หยุดเพราะเนื้อเรื่องหมด (ชีวิตที่ตายจริงปิดท้ายด้วยแผ่นปิดท้ายชีวิตและหน้าชีวประวัติ) */
 export function Ending() {
-  const r = endReasonOf(life.value);
-  if (!r) return null;
-  return r === 'death' ? <Biography /> : <ToBeContinued />;
+  return endReasonOf(life.value) === 'content_end' ? <ToBeContinued /> : null;
 }
 
 /** กล่องทอยเต๋ากลางจอ ใช้กับเช็คสำคัญ (major หรือมี foe) เช็คทั่วไปเป็นบรรทัดเล็กในบันทึก */

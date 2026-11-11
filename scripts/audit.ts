@@ -3,12 +3,13 @@
  * ใช้ได้ทั้งจากคำสั่ง (scripts/audit-lives.ts) และจากเทสต์ (tests/audit.test.ts)
  * ทุกอย่างคำนวณจาก seed จึงได้ผลเดิมทุกครั้ง
  */
-import { choiceAvailable, eligible, pickEvent, playable, resolveChoice, turnsLeft, type Game } from '../src/engine/engine';
-import { humanAge, newLife, type LifeState } from '../src/engine/state';
+import { choiceAvailable, eligible, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';
+import { humanAge, newLife, stageAge, worldYear, type LifeState } from '../src/engine/state';
+import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { maxHp } from '../src/engine/items';
-import { REPEAT_GAP, STAT_CAP } from '../src/engine/balance';
+import { RACES, REPEAT_GAP, STAT_CAP, type RaceId } from '../src/engine/balance';
 
 const PARTNER = /\{partner\}|\{p:/;
 const bump = <K,>(m: Map<K, number>, k: K, n = 1) => m.set(k, (m.get(k) ?? 0) + n);
@@ -17,6 +18,11 @@ const median = (xs: number[]) => {
   return s.length ? s[Math.floor(s.length / 2)]! : 0;
 };
 const pct = (n: number, of: number) => `${((100 * n) / Math.max(1, of)).toFixed(1)}%`;
+/** ค่าที่ตำแหน่ง q (0 ถึง 1) ของรายการที่เรียงแล้ว */
+const quantile = (xs: number[], q: number) => {
+  const s = [...xs].sort((a, b) => a - b);
+  return s.length ? s[Math.min(s.length - 1, Math.floor(s.length * q))]! : 0;
+};
 
 export interface AuditResult {
   lives: number;
@@ -36,12 +42,18 @@ export interface AuditResult {
   seenEvents: Map<string, number>;
   endReasons: Map<string, number>;
   deathBy: Map<string, number>;
+  /** เหตุของความตาย (age, wound, fight, sacrifice) → จำนวนชีวิต */
+  deathCauses: Map<string, number>;
+  /** ฉากตายที่ได้ออก → จำนวนชีวิต */
+  deathScenes: Map<string, number>;
   poolByAge: Map<number, number[]>;
   /** เหตุการณ์ที่เกิดซ้ำในชีวิตเดียว (id → จำนวนครั้งที่ซ้ำรวมทุกชีวิต) */
   repeats: Map<string, number>;
   /** ซ้ำภายใน REPEAT_GAP เหตุการณ์ เกิดได้เฉพาะเมื่อไม่มีเรื่องอื่นให้ออก */
   closeRepeats: Map<string, number>;
   counts: Map<string, number>;
+  /** สิ่งติดตัวที่ปิดตัวเลือก (id → จำนวนครั้งที่ผู้เล่นเห็นตัวเลือกล็อกเพราะสิ่งนี้) */
+  traitLocks: Map<string, number>;
   /** สัดส่วนเหตุการณ์ที่ซ้ำกันของสองชีวิต (0 ถึง 1) */
   overlap: { sameOriginAndClass: number; anyTwo: number; eventsPerLife: number };
 }
@@ -58,10 +70,13 @@ export function auditLives(game: Game, lives: number): AuditResult {
     seenEvents: new Map(),
     endReasons: new Map(),
     deathBy: new Map(),
+    deathCauses: new Map(),
+    deathScenes: new Map(),
     poolByAge: new Map(),
     repeats: new Map(),
     closeRepeats: new Map(),
     counts: new Map(),
+    traitLocks: new Map(),
     overlap: { sameOriginAndClass: 0, anyTwo: 0, eventsPerLife: 0 },
   };
   const { problems, collisions, counts } = res;
@@ -77,11 +92,14 @@ export function auditLives(game: Game, lives: number): AuditResult {
     const waiting = new Map<string, string | null>();
 
     for (let step = 0; step < 400 && l.alive; step++) {
-      const age = Math.floor(humanAge(l));
-      const open = game.events.filter((e) => eligible(l, e));
-      const pool = open.filter((e) => playable(l, e));
-      (res.poolByAge.get(age) ?? res.poolByAge.set(age, []).get(age)!).push(pool.length);
-      for (const e of open) if (!pool.includes(e)) bump(problems, `${e.id}: เข้าเงื่อนไขแต่ไม่มีตัวเลือกให้กด`);
+      const age = stageAge(l);
+      const open = game.events.filter((e) => eligible(game, l, e));
+      const pool = open.filter((e) => playable(game, l, e));
+      // กองตามวัยนับเฉพาะเหตุการณ์ปกติ: ฉากตายและเหตุการณ์สำรองไม่นับว่าเป็นเรื่องของวัยนั้น
+      if (!l.dying) (res.poolByAge.get(age) ?? res.poolByAge.set(age, []).get(age)!).push(pool.filter((e) => !e.fallback).length);
+      // เรื่องหลายปีที่ปีนี้เหลือเวลาไม่ถึง min_years ไม่ออกโดยตั้งใจ ไม่นับเป็นปัญหา
+      const tooShort = (e: (typeof open)[number]) => !!e.min_years && spanOf(game, l, e) < e.min_years;
+      for (const e of open) if (!pool.includes(e) && !tooShort(e)) bump(problems, `${e.id}: เข้าเงื่อนไขแต่ไม่มีตัวเลือกให้กด`);
 
       // ---- must ที่รออยู่จากปีก่อน: ถ้าช่วงเวลาปิดไปแล้วโดยยังไม่ได้เห็น คือหลุด ----
       for (const [id, lostTo] of waiting) {
@@ -93,7 +111,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
             res.collisionLives.push({ seed, race: l.raceApplied, lost: id, to: lostTo });
           } else bump(problems, `${id}: เหตุการณ์ must หลุดทั้งที่เคยเข้าเงื่อนไข`);
           waiting.delete(id);
-        } else if (!playable(l, ev)) waiting.delete(id); // เงื่อนไขอื่นเปลี่ยน (flag อาชีพ ถิ่น) ไม่นับว่าหลุด
+        } else if (!playable(game, l, ev)) waiting.delete(id); // เงื่อนไขอื่นเปลี่ยน (flag อาชีพ ถิ่น) ไม่นับว่าหลุด
       }
 
       const picked = pickEvent(game, l);
@@ -129,10 +147,19 @@ export function auditLives(game: Game, lives: number): AuditResult {
       for (const who of ['father', 'mother'] as const) {
         const p = l.people.find((x) => x.id === who);
         if (ev.text.includes(`{${who}}`) && !l.parents) bump(problems, `${ev.id}: ใช้ {${who}} ตอนไม่มีพ่อแม่ที่รู้จัก`);
-        if (ev.text.includes(`{${who}}`) && p && !p.alive) bump(problems, `${ev.id}: ใช้ {${who}} หลังคนนั้นตายแล้ว`);
+        if (ev.text.includes(`{${who}}`) && p && !p.alive && !(ev.when.flags ?? []).includes(`${who}_died`)) bump(problems, `${ev.id}: ใช้ {${who}} หลังคนนั้นตายแล้ว`);
       }
+      if (/\{child\}|\{c:/.test(ev.text) && !l.people.some((p) => p.kin === 'child' && p.alive)) bump(problems, `${ev.id}: พูดถึงลูกที่ไม่มีหรือไม่อยู่แล้ว`);
+      // ตัวแสดง: ทุกบทที่ข้อความใช้ต้องมีคนเล่น และเป็นคนที่ยังอยู่ (เว้นบทที่ตั้งใจให้เป็นคนตาย)
+      for (const [role, spec] of Object.entries(ev.cast ?? {})) {
+        const who = l.people.find((p) => p.id === l.cast[role]);
+        if (!who && !spec.optional) bump(problems, `${ev.id}: บท ${role} ไม่มีคนเล่น`);
+        if (who && who.alive !== spec.alive) bump(problems, `${ev.id}: บท ${role} ได้คนที่${who.alive ? 'ยังอยู่' : 'ตายแล้ว'}ผิดจากที่ต้องการ`);
+      }
+      if (ev.stage === 'death') bump(res.deathScenes, ev.id);
 
-      const choices = ev.choices.filter((c) => choiceAvailable(l, c));
+      const choices = ev.choices.filter((c) => choiceAvailable(game, l, c, ev));
+      for (const c of ev.choices) for (const t of traitBlock(game, l, c, ev)) bump(res.traitLocks, t);
       if (!choices.length) {
         bump(problems, `${ev.id}: ไม่มีตัวเลือกให้กด (ทางตัน)`);
         break;
@@ -151,11 +178,21 @@ export function auditLives(game: Game, lives: number): AuditResult {
           if (was && !was.alive && (pe.closeness || pe.dies)) bump(problems, `${ev.id}/${c.id}: ปรับความสนิทหรือสั่งตายกับ "${pe.id}" ที่ตายไปแล้ว`);
         }
       }
-      if (!l.alive) {
-        bump(res.deathBy, `${ev.id}/${c.id}`);
-        if (l.hp > 0 && !(c.effects?.die || c.success?.effects?.die || c.failure?.effects?.die)) bump(problems, `${ev.id}/${c.id}: ตายทั้งที่ HP เหลือและไม่มี die`);
+      // ตัวเลือกที่ทำให้ล้มลง (เริ่มตาย) ชีวิตจบจริงหลังฉากตาย
+      const cause = l.dying ?? l.deathCause;
+      if (!before.dying && cause && (l.dying || !l.alive)) {
+        bump(res.deathBy, cause === 'age' ? 'ฤดูหนาว (สิ้นอายุขัย)' : `${ev.id}/${c.id}`);
+        bump(res.deathCauses, cause);
+        if (cause !== 'age' && l.hp > 0 && !(c.effects?.die || c.success?.effects?.die || c.failure?.effects?.die)) bump(problems, `${ev.id}/${c.id}: ตายทั้งที่ HP เหลือและไม่มี die`);
       }
-      if (l.hp > maxHp(l, game.items)) bump(problems, `HP เกินค่าสูงสุดหลัง ${ev.id}/${c.id}`);
+      if (!l.alive && l.endReason === 'death' && !l.deathCause) bump(problems, `${ev.id}/${c.id}: ตายโดยไม่มีเหตุของความตาย`);
+      if (l.alive && maxHp(l, game.items) < 1 && !l.dying) bump(problems, `${ev.id}/${c.id}: พลังชีวิตสูงสุดหมดแต่ยังไม่ตาย`);
+      if (l.age < before.age) bump(problems, `${ev.id}/${c.id}: อายุถอยหลัง`);
+      for (const p of l.people) {
+        if (p.alive && personHumanAge(p, l) > 125) bump(problems, `คนรอบตัวอายุเกิน 125 ปีแบบมนุษย์แล้วยังอยู่ (${p.kin ?? p.bond ?? 'คนรู้จัก'})`);
+        if (p.born !== undefined && p.born > worldYear(l)) bump(problems, `${p.id}: เกิดหลังปีปัจจุบัน`);
+      }
+      if (l.hp > Math.max(0, maxHp(l, game.items))) bump(problems, `HP เกินค่าสูงสุดหลัง ${ev.id}/${c.id}`);
       for (const s of STATS) if (l.stats[s] < 1) bump(problems, `${s} ต่ำกว่า 1 หลัง ${ev.id}/${c.id}`);
       if (l.gold < 0 && before.gold >= 0 && !(c.effects?.debt || c.success?.effects?.debt || c.failure?.effects?.debt)) {
         bump(problems, `${ev.id}/${c.id}: เงินติดลบโดยไม่ใช่หนี้`);
@@ -172,6 +209,21 @@ export function auditLives(game: Game, lives: number): AuditResult {
       if (l.seen.includes(id)) m.seen++;
     }
     for (const [id, n] of inLife) if (n > 1) bump(res.repeats, id, n - 1);
+    // ---- ตรวจชีวิตทั้งชีวิต ----
+    // ประโยคของระบบ (ร่างกายโรย ฤดูหนาว) ห้ามออกซ้ำในชีวิตเดียว ข่าวคนจากไปซ้ำได้เมื่อประโยคหมด จึงไม่นับ
+    const said = new Set<string>();
+    for (const e of l.log) {
+      const news = e.year?.passed?.length ?? 0;
+      const own = (e.year?.lines ?? []).slice(0, (e.year?.lines?.length ?? 0) - news);
+      for (const t of own) {
+        if (said.has(t)) bump(problems, `ประโยคของระบบออกซ้ำในชีวิตเดียว: ${t.replaceAll(l.name, '{name}')}`);
+        said.add(t);
+      }
+    }
+    if (l.endReason === 'death') {
+      if (!l.epitaph) bump(problems, `ตายโดยไม่มีคำจารึก (ฉากตาย ${l.log.at(-1)?.eventId})`);
+      if (!l.log.at(-1)?.mark) bump(problems, `ตายโดยไม่มีป้ายสุดท้ายบนเส้นชีวิต (ฉากตาย ${l.log.at(-1)?.eventId})`);
+    }
     bump(res.endReasons, l.endReason ?? 'cap');
     res.finals.push(l);
   }
@@ -214,6 +266,23 @@ function measureOverlap(finals: LifeState[]): AuditResult['overlap'] {
   };
 }
 
+const full40 = (finals: LifeState[]) => finals.filter((l) => humanAge(l) >= 40);
+
+/** สิ่งติดตัวที่เนื้อหาตอนนี้ให้ได้จริง: จากผลของเหตุการณ์หรือตัวเลือก จากนิสัย หรือติดมากับเผ่า */
+export function traitSources(game: Game): Set<string> {
+  const ids = new Set<string>(Object.values(RACES).flatMap((r) => ('traits' in r ? r.traits : [])));
+  const take = (fx: { traits?: string[] } | undefined) => fx?.traits?.forEach((t) => ids.add(t));
+  for (const ev of game.events) {
+    for (const c of ev.choices) {
+      take(c.effects);
+      take(c.success?.effects);
+      take(c.failure?.effects);
+      if (c.habit) ids.add(c.habit);
+    }
+  }
+  return ids;
+}
+
 export function formatReport(game: Game, res: AuditResult): string {
   const { finals, lives } = res;
   const out: string[] = [];
@@ -227,6 +296,53 @@ export function formatReport(game: Game, res: AuditResult): string {
   out.push(`- อายุสูงสุดที่ไปถึง: ${Math.max(...finals.map((l) => l.age))} · อายุเทียบมนุษย์สูงสุด: ${Math.max(...finals.map((l) => Math.floor(humanAge(l))))}`);
   out.push('- ตัวเลือกที่ฆ่าผู้เล่นบ่อยสุด:');
   for (const [k, n] of [...res.deathBy].sort((a, b) => b[1] - a[1]).slice(0, 8)) out.push(`  - ${k}: ${n}`);
+
+  h('ชีวิตยาว: อายุขัย ความตาย และสิ่งที่ติดตัวไป');
+  const raceTh = (r: string) => RACES[r as RaceId]?.th ?? r;
+  for (const race of Object.keys(RACES)) {
+    const of = finals.filter((l) => l.raceApplied === race);
+    if (!of.length) continue;
+    const dead = of.filter((l) => l.endReason === 'death');
+    const old = dead.filter((l) => l.deathCause === 'age');
+    const ha = (l: LifeState) => Math.floor(humanAge(l));
+    out.push(
+      `- ${raceTh(race)} ${of.length} ชีวิต: ตาย ${pct(dead.length, of.length)} (สิ้นอายุขัย ${pct(old.length, of.length)}) เรื่องหมดก่อน ${pct(of.length - dead.length, of.length)}` +
+        ` · อายุจริงตอนสิ้นอายุขัย กลาง ${median(old.map((l) => l.age))} ช่วง 10–90% ${quantile(old.map((l) => l.age), 0.1)}–${quantile(old.map((l) => l.age), 0.9)}` +
+        ` · ถึงอายุเทียบมนุษย์ 65: ${pct(of.filter((l) => ha(l) >= 65).length, of.length)} 80: ${pct(of.filter((l) => ha(l) >= 80).length, of.length)} 100: ${pct(of.filter((l) => ha(l) >= 100).length, of.length)}`,
+    );
+  }
+  out.push(`- เหตุของความตาย: ${[...res.deathCauses].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k} ${n}`).join(' · ') || 'ไม่มี'}`);
+  out.push(`- ฉากตายที่ได้ออก: ${[...res.deathScenes].sort((a, b) => b[1] - a[1]).map(([k, n]) => `${k.replace('death.', '')} ${n}`).join(' · ') || 'ไม่มี'}`);
+  const unseenDeaths = game.events.filter((e) => e.stage === 'death' && !res.deathScenes.has(e.id)).map((e) => e.id);
+  out.push(`- ฉากตายที่ไม่มีชีวิตไหนได้เห็น: ${unseenDeaths.length ? unseenDeaths.join(', ') : 'ไม่มี'}`);
+  out.push(`- รอดจากฉากตาย (รับข้อเสนอหรือของกันตาย): ${finals.filter((l) => l.log.some((e) => e.eventId.startsWith('death.')) && (l.alive || l.log.filter((e) => e.eventId.startsWith('death.')).length > 1)).length} ชีวิต`);
+  const elders = finals.filter((l) => humanAge(l) >= 65);
+  const wed = elders.filter((l) => l.people.some((p) => p.kin === 'spouse'));
+  out.push(`- คนที่ถึงวัยชรา ${elders.length} ชีวิต: มีคู่ครอง ${pct(wed.length, elders.length)} ในนั้นคู่จากไปก่อน ${pct(wed.filter((l) => !l.people.find((p) => p.kin === 'spouse')!.alive).length, wed.length)}`);
+  const kids = full40(finals).map((l) => l.people.filter((p) => p.kin === 'child').length);
+  out.push(`- ลูกต่อชีวิต (ชีวิตที่ถึง 40): กลาง ${median(kids)} สูงสุด ${Math.max(0, ...kids)} · ไม่มีลูก ${pct(kids.filter((k) => k === 0).length, kids.length)}`);
+  const held = full40(finals).map((l) => l.traits.length);
+  out.push(`- สิ่งติดตัวตอนจบ (ชีวิตที่ถึง 40): กลาง ${median(held)} ช่วง ${Math.min(0, ...held)}–${Math.max(0, ...held)}`);
+  const kindOf = (id: string) => game.traits.get(id)?.kind ?? '?';
+  const sources = traitSources(game);
+  for (const [kind, th] of [['boon', 'พร'], ['curse', 'คำสาป'], ['trait', 'ลักษณะ'], ['wound', 'แผล']] as const) {
+    const m = new Map<string, number>();
+    for (const l of finals) for (const t of l.traits) if (kindOf(t) === kind) bump(m, t);
+    const all = [...game.traits.values()].filter((t) => t.kind === kind);
+    // แยกสองแบบ: ทะเบียนมีไว้ล่วงหน้าแต่ยังไม่มีเนื้อเรื่องให้ (รอชุดที่มีที่มาของมัน) กับมีทางได้แล้วแต่ไม่มีชีวิตไหนได้ (ต้องดู)
+    const waiting = all.filter((t) => !sources.has(t.id)).length;
+    const missed = all.filter((t) => sources.has(t.id) && !m.has(t.id)).map((t) => t.name);
+    out.push(
+      `  - ${th} ${all.length} อย่าง: ${[...m].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${game.traits.get(k)?.name ?? k} ${pct(n, lives)}`).join(' · ') || 'ไม่มีใครได้'}` +
+        ` · เนื้อเรื่องยังไม่มีทางให้ ${waiting} อย่าง · มีทางได้แต่ไม่มีชีวิตไหนได้: ${missed.length ? missed.join(', ') : 'ไม่มี'}`,
+    );
+  }
+  const locks = [...res.traitLocks].sort((a, b) => b[1] - a[1]);
+  out.push(`- ตัวเลือกที่สิ่งติดตัวปิดไว้ (ผู้เล่นเห็นเป็นล็อก): ${locks.length ? locks.map(([k, n]) => `${game.traits.get(k)?.name ?? k} ${(n / lives).toFixed(2)} ครั้งต่อชีวิต`).join(' · ') : 'ไม่เคยเกิด'}`);
+  const spans = finals.map((l) => l.log.filter((e) => (e.span ?? 1) > 1));
+  out.push(`- เหตุการณ์ที่เล่าหลายปีรวบเดียว: กลาง ${median(spans.map((x) => x.length))} เรื่องต่อชีวิต สูงสุด ${Math.max(0, ...spans.map((x) => x.length))} · กินเวลารวม กลาง ${median(spans.map((x) => x.reduce((n, e) => n + (e.span ?? 1), 0)))} ปี`);
+  const marks = finals.filter((l) => l.endReason === 'death').map((l) => l.log.filter((e) => e.mark).length);
+  out.push(`- ป้ายบนเส้นชีวิตของคนที่ตาย: กลาง ${median(marks)} ช่วง ${Math.min(0, ...marks)}–${Math.max(0, ...marks)}`);
 
   h('เผ่าและอาชีพ');
   const tally = (key: (l: LifeState) => string) => {

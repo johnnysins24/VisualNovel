@@ -1,17 +1,37 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { checkChance, choiceLock } from '../engine/engine';
+import { checkChance, choiceLock, traitBlock } from '../engine/engine';
 import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
-import { STATS } from '../engine/schema';
+import { STATS, type Stat } from '../engine/schema';
 import { paragraphs, render } from '../engine/text';
-import type { LifeChanges, LogEntry } from '../engine/state';
-import { choose, currentEvent, game, lastEntry, life, sheetCollapsed } from '../store';
-import { Ending } from './Endings';
+import { traitCheckBonuses } from '../engine/traits';
+import { worldYear, type LifeChanges, type LogEntry, type YearEnd } from '../engine/state';
+import { choose, currentEvent, endReasonOf, game, lastEntry, life, sheetCollapsed } from '../store';
+import { Ending, bioOpen } from './Endings';
 import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
+import { Steps, TraitChip } from './Traits';
 import { autoSpeed, autoplay, cycleSpeed, fresh, revealAll, revealNext, revealing, scrolledBack, shownCount } from './reading';
 
 /** อายุที่เปิดค้างไว้ อายุเก่ากว่านี้พับเป็นก้อนเดียว */
 const OPEN_AGES = 2;
+
+/** สิ่งติดตัวที่เพิ่งได้ ขยับขั้น หรือหายไป แสดงเป็นป้ายสีตามชนิดต่อท้ายเหตุการณ์ */
+function TraitChanges({ c }: { c: LifeChanges }) {
+  return (
+    <>
+      {c.traits?.map((id) => <TraitChip key={id} id={id} l={{ traits: [id], traitSteps: {} }} />)}
+      {Object.entries(c.steps ?? {}).map(([id, step]) => {
+        const of = game.traits.get(id)?.steps?.length;
+        return (
+          <TraitChip key={`s-${id}`} id={id} l={{ traits: [id], traitSteps: { [id]: step } }}>
+            {of ? <Steps at={step} of={of} /> : null}
+          </TraitChip>
+        );
+      })}
+      {c.lostTraits?.map((id) => <TraitChip key={`x-${id}`} id={id} l={{ traits: [id], traitSteps: {} }} lost />)}
+    </>
+  );
+}
 
 function Changes({ c }: { c: LifeChanges }) {
   return (
@@ -19,15 +39,46 @@ function Changes({ c }: { c: LifeChanges }) {
       {c.classId && (
         <span class="good"><Icon name="role" label="อาชีพ" />{CLASSES[c.classId as ClassId]?.th ?? c.classId}</span>
       )}
+      <TraitChanges c={c} />
       {STATS.filter((s) => c.stats?.[s]).map((s) => (
         <span key={s} class={c.stats![s]! > 0 ? 'good' : 'bad'}>
           <Icon name={STAT_ICON[s]} label={STAT_TH[s]} /><span class="num">{signed(c.stats![s]!)}</span>
         </span>
       ))}
       {c.hp ? <span class={c.hp > 0 ? 'good' : 'bad'}><Icon name="heart" label="พลังชีวิต" /><span class="num">{signed(c.hp)}</span></span> : null}
+      {c.maxHp ? <span class={c.maxHp > 0 ? 'good' : 'bad'}><Icon name="heart" label="พลังชีวิตสูงสุด" />สูงสุด <span class="num">{signed(c.maxHp)}</span></span> : null}
       {c.gold ? <span class={c.gold > 0 ? 'gold' : 'bad'}><Icon name="coin" label="ทอง" /><span class="num">{signed(c.gold)}</span></span> : null}
       {c.items?.map((id) => (
         <span key={id} class="gold"><Icon name="bag" label="ได้ของ" />{game.items.get(id)?.name ?? id}</span>
+      ))}
+    </p>
+  );
+}
+
+/** เช็คฤดูหนาวของปีนี้ ใช้บรรทัดทอยแบบเดียวกับเช็คของตัวเลือก */
+function WinterRoll({ w }: { w: NonNullable<YearEnd['winter']> }) {
+  return (
+    <p class={`roll ${w.success ? 'good' : 'bad'}`}>
+      <Icon name="d20" label="ทอยเต๋า" />
+      <span class="what">ฤดูหนาว</span>
+      <Icon name="CON" label={STAT_TH.CON} />
+      <span class="num">{w.d20} {signed(w.mod)} / DC {w.dc}</span>
+      {w.success ? 'ผ่าน' : 'พลาด'}
+    </p>
+  );
+}
+
+/** สิ่งที่ร่างกายเสียไปตอนสิ้นปี: พลังชีวิตสูงสุดจากฤดูหนาว และค่าที่โรยตามวัย */
+function YearChanges({ y }: { y: YearEnd }) {
+  const lost = y.winter?.lost ?? 0;
+  const down = new Map<Stat, number>();
+  for (const s of y.decline ?? []) down.set(s, (down.get(s) ?? 0) + 1);
+  if (!lost && !down.size) return null;
+  return (
+    <p class="changes">
+      {lost > 0 && <span class="bad"><Icon name="heart" label="พลังชีวิตสูงสุด" />สูงสุด <span class="num">-{lost}</span></span>}
+      {[...down].map(([s, n]) => (
+        <span key={s} class="bad"><Icon name={STAT_ICON[s]} label={STAT_TH[s]} /><span class="num">-{n}</span></span>
       ))}
     </p>
   );
@@ -37,28 +88,45 @@ function Entry({ e, old, limit }: { e: LogEntry; old: boolean; limit?: number })
   const l = life.value;
   const ev = game.events.find((x) => x.id === e.eventId);
   const choice = ev?.choices.find((c) => c.id === e.choiceId);
-  const after = e.text ? paragraphs(render(e.text, l)) : [];
+  // ชื่อของตัวแสดงเติมจากคนที่เล่นบทนั้นในเหตุการณ์นี้ ไม่ใช่ของเหตุการณ์ปัจจุบัน
+  const cast = e.cast ?? {};
+  const span = e.span ?? 1;
+  // ลำดับที่ผู้อ่านเห็น: ผลของตัวเลือก สิ่งที่เปลี่ยน แล้วจึงสิ่งที่เกิดตอนสิ้นปี (เช็คฤดูหนาว ประโยคของปี สิ่งที่ร่างกายเสีย)
+  const told = e.text ? paragraphs(render(e.text, l, cast, span)) : [];
+  const yearLines = e.year?.lines ?? [];
+  const shown = limit ?? Infinity;
+  const toldDone = shown >= told.length;
+  const allDone = shown >= told.length + yearLines.length;
   return (
     <article class={`entry ${old ? 'old' : ''}`}>
-      {ev && paragraphs(render(ev.text, l)).map((p, i) => <p key={i}>{p}</p>)}
-      {choice && <p class="picked"><Icon name="flag" />{render(choice.label, l)}</p>}
+      {ev && paragraphs(render(ev.text, l, cast, span)).map((p, i) => <p key={i}>{p}</p>)}
+      {choice && <p class="picked"><Icon name="flag" />{render(choice.label, l, cast, span)}</p>}
       {e.roll && (
         <p class={`roll ${e.roll.success ? 'good' : 'bad'}`}>
           <Icon name="d20" label="ทอยเต๋า" />
-          <span class="num">{e.roll.d20} {signed(e.roll.mod)} / DC {e.roll.dc}</span>
+          <span class="num">{e.roll.d20} {signed(e.roll.mod)}</span>
+          {e.roll.traits?.map((b) => (
+            <TraitChip key={b.id} id={b.id} l={l}><span class="num">{signed(b.amount)}</span></TraitChip>
+          ))}
+          <span class="num">/ DC {e.roll.dc}</span>
           {e.roll.success ? 'สำเร็จ' : 'พลาด'}
         </p>
       )}
-      {after.slice(0, limit).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
-      {e.changes && (limit === undefined || limit >= after.length) && <Changes c={e.changes} />}
+      {told.slice(0, shown).map((p, i) => <p key={`a${i}`} class="aftermath">{p}</p>)}
+      {e.changes && toldDone && <Changes c={e.changes} />}
+      {e.year?.winter && (yearLines.length ? shown > told.length : toldDone) && <WinterRoll w={e.year.winter} />}
+      {yearLines.slice(0, Math.max(0, shown - told.length)).map((p, i) => <p key={`y${i}`} class="aftermath">{p}</p>)}
+      {e.year && allDone && <YearChanges y={e.year} />}
     </article>
   );
 }
 
-function AgeHead({ age, year }: { age: number; year: number }) {
+/** หัวอายุของกลุ่มเหตุการณ์ เหตุการณ์ที่เล่าหลายปีรวบเดียวบอกเป็นช่วง เช่น 41–44 */
+function AgeHead({ age, year, span = 1 }: { age: number; year: number; span?: number }) {
+  const to = (n: number) => (span > 1 ? `${n}–${n + span - 1}` : `${n}`);
   return (
     <h2 class="age-head">
-      <Icon name="age" label="อายุ" /><b class="num">{age}</b><span class="num">{year}</span>
+      <Icon name="age" label="อายุ" /><b class="num">{to(age)}</b><span class="num">{to(year)}</span>
     </h2>
   );
 }
@@ -150,7 +218,7 @@ export function StoryLog() {
       )}
       {open.map((age) => (
         <section key={age} class="age-group">
-          <AgeHead age={age} year={year(age)} />
+          <AgeHead age={age} year={year(age)} span={Math.max(1, ...l.log.filter((e) => e.age === age).map((e) => e.span ?? 1))} />
           {l.log.filter((e) => e.age === age).map((e, i) => (
             <Entry key={`${e.eventId}-${i}`} e={e} old={!!ev || l.log.indexOf(e) < l.log.length - 1} limit={isFresh(e) && shown !== Infinity ? shown : undefined} />
           ))}
@@ -166,7 +234,9 @@ export function StoryLog() {
           <Icon name="chevron" />
         </button>
       )}
-      {!l.alive && !more && <Ending />}
+      {!l.alive && !more && (endReasonOf(l) === 'death' ? (
+        <p class="end-mark"><span class="num">{l.birthYear}</span><Icon name="dead" label="ถึง" /><span class="num">{worldYear(l)}</span></p>
+      ) : <Ending />)}
       <div ref={end} />
     </div>
   );
@@ -178,18 +248,49 @@ const pctClass = (p: number) => (p >= 0.7 ? 'good' : p >= 0.4 ? 'mid' : 'bad');
 export function playableChoices() {
   const ev = currentEvent.value;
   if (!ev || !life.value.alive || revealing.value) return [];
-  return ev.choices.filter((c) => choiceLock(life.value, c) === null);
+  return ev.choices.filter((c) => choiceLock(game, life.value, c, ev) === null);
 }
 
-/** แผ่นตัวเลือกด้านล่าง: บอก stat, DC และ % ก่อนกดเสมอ ตัวที่ติดแค่ stat โชว์เป็นล็อกพร้อมเหตุผล */
+/** ป้ายสิ่งติดตัวใต้ตัวเลือก: อะไรช่วยหรือถ่วงการทอยนี้ และตัวเลือกนี้เปิดได้เพราะอะไรติดตัวอยู่ */
+function ChoiceTags({ c }: { c: NonNullable<ReturnType<typeof currentEvent.peek>>['choices'][number] }) {
+  const l = life.value;
+  const bonus = c.check ? traitCheckBonuses(l, game.traits, c.check.stat, c.check.foe) : [];
+  const opened = c.requires?.trait && !bonus.some((b) => b.id === c.requires!.trait) ? c.requires.trait : null;
+  if (!bonus.length && !opened) return null;
+  return (
+    <span class="tags">
+      {opened && <TraitChip id={opened} l={l} />}
+      {bonus.map((b) => <TraitChip key={b.id} id={b.id} l={l}><span class="num">{signed(b.amount)}</span></TraitChip>)}
+    </span>
+  );
+}
+
+/** แผ่นปิดท้ายชีวิต: ฉากตายเล่นจบแล้ว เหลือปุ่มเดียวพาไปหน้าชีวประวัติ */
+function Farewell() {
+  const l = life.value;
+  return (
+    <div class="sheet farewell" role="group" aria-label="จบชีวิต">
+      <p class="muted">ชีวิตของ{l.name}จบลงที่อายุ <span class="num">{l.age}</span></p>
+      <button class="primary" onClick={() => (bioOpen.value = true)}>
+        <Icon name="book" />อ่านชีวประวัติ
+      </button>
+    </div>
+  );
+}
+
+/**
+ * แผ่นตัวเลือกด้านล่าง: บอก stat, DC และ % ก่อนกดเสมอ ตัวที่ติดแค่ stat หรือติดเพราะสิ่งติดตัว โชว์เป็นล็อกพร้อมเหตุผล
+ * ตัวเลือกที่สิ่งติดตัวมีผลกับการทอย มีป้ายบอกใต้ข้อความ
+ */
 export function ChoiceSheet() {
   const l = life.value;
   const ev = currentEvent.value;
   if (revealing.value) return <ReadBar />;
-  if (!ev || !l.alive) return null;
+  if (!l.alive) return endReasonOf(l) === 'death' ? <Farewell /> : null;
+  if (!ev) return null;
   const rows = ev.choices
-    .map((c) => ({ c, lock: choiceLock(l, c) }))
-    .filter((r) => r.lock !== 'hidden');
+    .map((c) => ({ c, lock: choiceLock(game, l, c, ev), blocked: traitBlock(game, l, c, ev) }))
+    .filter((r) => r.lock !== 'hidden' || r.blocked.length > 0);
   if (sheetCollapsed.value) {
     return (
       <div class="sheet collapsed">
@@ -208,14 +309,15 @@ export function ChoiceSheet() {
           <Icon name="chevron" />พักไว้
         </button>
       </div>
-      {rows.map(({ c, lock }) => {
+      {rows.map(({ c, lock, blocked }) => {
         if (lock) {
-          const need = lock as { stat: keyof typeof STAT_TH; min: number }[];
+          const need = lock === 'hidden' ? [] : (lock as { stat: keyof typeof STAT_TH; min: number }[]);
           return (
             <button key={c.id} class="choice locked" disabled>
               <span class="label">{render(c.label, l)}</span>
               <span class="check">
                 <Icon name="lock" label="ล็อก" />
+                {blocked.map((id) => <TraitChip key={id} id={id} l={l} />)}
                 {need.map((x) => (
                   <span key={x.stat} class="need"><Icon name={STAT_ICON[x.stat]} label={STAT_TH[x.stat]} /><span class="num">{x.min}</span></span>
                 ))}
@@ -227,7 +329,10 @@ export function ChoiceSheet() {
         const p = c.check ? checkChance(game, l, c.check) : null;
         return (
           <button key={c.id} class="choice" onClick={() => choose(c.id)}>
-            <span class="label"><kbd class="num">{n}</kbd>{render(c.label, l)}</span>
+            <span class="label two">
+              <span class="l1"><kbd class="num">{n}</kbd>{render(c.label, l)}</span>
+              <ChoiceTags c={c} />
+            </span>
             {c.check && p !== null && (
               <span class="check" title={`${STAT_TH[c.check.stat]} DC ${c.check.dc}`}>
                 <Icon name={STAT_ICON[c.check.stat]} label={STAT_TH[c.check.stat]} />

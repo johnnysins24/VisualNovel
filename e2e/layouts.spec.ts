@@ -80,3 +80,130 @@ test('saves survive a reload', async ({ page }) => {
   // โหลดเซฟแล้วแสดงทั้งหมด ไม่ต้องอ่านซ้ำทีละย่อหน้า
   await expect(page.locator(CHOICE).first()).toBeVisible();
 });
+
+/** ชีวิตที่จบแล้ว (ตายตามวัย) สำหรับดูแผ่นปิดท้ายชีวิต หน้าชีวประวัติ และผังครอบครัว ค่าที่ไม่ได้ใส่ระบบเติมให้ตอนโหลดเซฟ */
+const ENDED_LIFE = {
+  version: 3,
+  seed: 7,
+  name: 'ทดสอบ',
+  gender: 'f',
+  raceApplied: 'human',
+  age: 70,
+  birthYear: 300,
+  alive: false,
+  endReason: 'death',
+  deathCause: 'age',
+  hp: 0,
+  baseMaxHp: 0,
+  gold: 4,
+  epitaph: 'จากไปในหน้าหนาว ข้างเตา',
+  traits: ['curse_brand'],
+  people: [
+    { id: 'mother', name: 'มารดา', gender: 'f', kin: 'mother', bond: 'kin', closeness: 3, alive: false, metAge: 0, diedAge: 40, born: 275 },
+    { id: 'partner', name: 'คู่ชีวิต', gender: 'm', kin: 'spouse', bond: 'love', closeness: 4, alive: true, metAge: 20, born: 299 },
+    { id: 'child1', name: 'ลูกคนโต', gender: 'f', kin: 'child', bond: 'kin', closeness: 3, alive: true, metAge: 25, born: 325 },
+    { id: 'child2', name: 'ลูกคนเล็ก', gender: 'm', kin: 'child', bond: 'kin', closeness: 2, alive: true, metAge: 29, born: 329 },
+  ],
+  log: [
+    { age: 20, eventId: 'youth.test_duel', choiceId: 'none', text: 'ปีที่ออกเรือน', mark: 'แต่งงานกับคู่ชีวิต' },
+    { age: 25, eventId: 'adult.world_test', choiceId: 'none', text: 'ปีที่ฟ้ามืด', mark: 'คืนที่ดาวหรี่' },
+    {
+      age: 70,
+      eventId: 'elder.test_end',
+      choiceId: 'none',
+      text: 'หิมะแรกมาเร็วกว่าทุกปี',
+      mark: 'ฤดูหนาวสุดท้าย',
+      year: { winter: { d20: 2, mod: 1, dc: 9, success: false, lost: 2 } },
+    },
+  ],
+};
+
+async function loadLife(page: Page, life: unknown) {
+  await page.goto('/');
+  await page.locator('.top').waitFor();
+  await page.evaluate(
+    (saved) =>
+      new Promise<void>((resolve, reject) => {
+        const open = indexedDB.open('visualnovel', 1);
+        open.onupgradeneeded = () => open.result.createObjectStore('saves');
+        open.onsuccess = () => {
+          const tx = open.result.transaction('saves', 'readwrite');
+          tx.objectStore('saves').put(saved, 0);
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        };
+        open.onerror = () => reject(open.error);
+      }),
+    life,
+  );
+  await page.reload();
+  await page.locator('.top').waitFor();
+}
+
+const tabButton = (page: Page, n: number) => page.locator('.bottom-nav button, .top-tabs button').filter({ visible: true }).nth(n);
+const noSideScroll = (page: Page) => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+
+test('a finished life closes with the farewell sheet and opens its biography', async ({ page }, info) => {
+  await loadLife(page, ENDED_LIFE);
+  // ท้ายบันทึก: ปีเกิดถึงปีตาย เช็คฤดูหนาวครั้งสุดท้าย และแผ่นปิดท้ายที่มีปุ่มเดียว
+  await expect(page.locator('.end-mark')).toContainText('300');
+  await expect(page.locator('.end-mark')).toContainText('370');
+  await expect(page.locator('.roll .what')).toHaveText('ฤดูหนาว');
+  await expect(page.locator('.sheet.farewell')).toContainText('70');
+  await expect(page.locator(CHOICE)).toHaveCount(0);
+  await page.getByRole('button', { name: 'อ่านชีวประวัติ' }).click();
+
+  const bio = page.locator('.bio');
+  await expect(bio.locator('h2')).toHaveText('ทดสอบ');
+  await expect(bio.locator('.bio-last')).toHaveText('จากไปในหน้าหนาว ข้างเตา');
+  await expect(bio.locator('.marks li')).toHaveCount(3);
+  await expect(bio.locator('.marks li.world')).toHaveCount(1);
+  await expect(bio.locator('.ll-bar b')).toHaveCount(3);
+  await expect(bio.locator('.bio-people li')).toHaveCount(3);
+  // แตะป้ายสิ่งติดตัวแล้วการ์ดเปิดในหน้านั้นเอง
+  await bio.locator('.trait').first().click();
+  await expect(bio.locator('.trait-card')).toContainText('ตราร้อน');
+  expect(await noSideScroll(page)).toBe(true);
+  await page.screenshot({ path: `shots/${info.project.name}-biography.png`, fullPage: true });
+
+  // กลับไปอ่านบันทึกได้ และเกิดใหม่จากหน้าชีวประวัติได้
+  await page.getByRole('button', { name: 'อ่านบันทึกชีวิต' }).click();
+  await expect(bio).toHaveCount(0);
+  await page.getByRole('button', { name: 'อ่านชีวประวัติ' }).click();
+  await page.getByRole('button', { name: 'เกิดใหม่' }).click();
+  await expect(page.locator('.bio')).toHaveCount(0);
+  await expect(page.locator(`${CHOICE}, .readbar`).first()).toBeVisible();
+});
+
+test('the family tree shows ages, and a person card with birth year and closeness', async ({ page }, info) => {
+  await loadLife(page, ENDED_LIFE);
+  await tabButton(page, 2).click();
+  const tree = page.locator('.chart.family');
+  await expect(tree.locator('.node')).toHaveCount(5);
+  await expect(tree.locator('.node.dead')).toHaveCount(1);
+  // เลขหลังบทบาทคืออายุ คนที่จากไปแล้วคืออายุตอนเสีย (แม่เกิดปี 275 เสียตอนผู้เล่นอายุ 40 คือปี 340)
+  await expect(tree.locator('.node', { hasText: 'มารดา' }).locator('.sub')).toHaveText('แม่ · 65');
+  await expect(tree.locator('.node', { hasText: 'ลูกคนโต' }).locator('.sub')).toHaveText('ลูกสาว · 45');
+  // ทุกคนอยู่ในกรอบของผัง ไม่มีใครโดนตัดขอบ
+  const inside = await tree.evaluate((svg: SVGSVGElement) => {
+    const vb = svg.viewBox.baseVal;
+    return [...svg.querySelectorAll('.node')].every((g) => {
+      const b = (g as SVGGElement).getBBox();
+      return b.x >= vb.x && b.x + b.width <= vb.x + vb.width && b.y >= vb.y && b.y + b.height <= vb.y + vb.height;
+    });
+  });
+  expect(inside).toBe(true);
+  await tree.locator('.node', { hasText: 'ลูกคนโต' }).click();
+  const card = page.locator('.person-card.kin-card');
+  await expect(card).toContainText('ลูกคนโต');
+  await expect(card).toContainText('325');
+  await expect(card.locator('.hearts .icon')).toHaveCount(5);
+  await expect(card.locator('.hearts .icon.off')).toHaveCount(2);
+  expect(await noSideScroll(page)).toBe(true);
+  await page.screenshot({ path: `shots/${info.project.name}-family.png`, fullPage: true });
+  // แท็บตัวละคร: ป้ายสิ่งติดตัวเป็นช่องไอคอน แตะแล้วการ์ดเปิด
+  await tabButton(page, 1).click();
+  await page.locator('.read .trait').first().click();
+  await expect(page.locator('.read .trait-card')).toContainText('คำสาป');
+  expect(await noSideScroll(page)).toBe(true);
+});

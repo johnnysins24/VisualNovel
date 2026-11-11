@@ -82,3 +82,31 @@ export function itemIconUrl(pieceIds: string[]): string | null {
   icons.set(key, url);
   return url;
 }
+
+const portraits = new Map<string, { url: string; w: number; h: number }>();
+
+/** ภาพตัวละครตัดเฉพาะส่วนที่มีภาพ (ผ้าใบ 64×96 มีที่ว่างรอบตัวมาก) ใช้เป็นภาพเหมือนในหน้าชีวประวัติ คืนขนาดเป็นพิกเซลของภาพ */
+export function portraitUrl(look: Look): { url: string; w: number; h: number } {
+  const key = lookKey(look);
+  const hit = portraits.get(key);
+  if (hit) return hit;
+  const img = lookImage(look);
+  let x0 = W, y0 = H, x1 = -1, y1 = -1;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (img.data[(y * W + x) * 4 + 3]) {
+    x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+  }
+  let out = { url: '', w: 1, h: 1 };
+  if (x1 >= 0) {
+    const w = x1 - x0 + 1, h = y1 - y0 + 1;
+    const src = document.createElement('canvas');
+    src.width = W; src.height = H;
+    src.getContext('2d')!.putImageData(img, 0, 0);
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d')!.drawImage(src, x0, y0, w, h, 0, 0, w, h);
+    out = { url: c.toDataURL(), w, h };
+  }
+  if (portraits.size > 50) portraits.clear();
+  portraits.set(key, out);
+  return out;
+}

@@ -34,6 +34,7 @@
         effects: { stats: { WIS: 1 }, flags: [lean_wizard] }
     - id: shove_back
       label: ผลักหัวหน้ากะออกห่างจากแม่
+      habit: hot_headed
       check: { stat: STR, dc: 13 }
       success:
         text: |

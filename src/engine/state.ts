@@ -1,4 +1,4 @@
-import type { Bond, KinRole, Slot, Stat } from './schema';
+import type { Bond, DeathCause, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
 import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type RaceId, type WorldKey } from './balance';
 import { Rng } from './rng';
@@ -7,7 +7,7 @@ import type { Meta } from './meta';
 export type Gender = 'm' | 'f';
 
 export interface LifeState {
-  version: 2;
+  version: 3;
   seed: number;
   rngState: number;
   name: string;
@@ -20,7 +20,14 @@ export interface LifeState {
   gold: number;
   stats: Record<Stat, number>;
   flags: string[];
+  /** รหัสสิ่งติดตัว (ลักษณะ พร คำสาป แผล) ตามทะเบียน content/traits.yaml */
   traits: string[];
+  /** ขั้นของสิ่งติดตัวที่มีหลายขั้น ไม่มีในนี้ = ขั้น 1 */
+  traitSteps: Record<string, number>;
+  /** จำนวนครั้งที่เลือกทางของแต่ละนิสัย (choice.habit) นับเฉพาะครั้งแรกที่เจอเหตุการณ์นั้น */
+  habits: Record<string, number>;
+  /** จำนวนครั้งที่ทางของแต่ละนิสัยมีให้เลือก (นับแบบเดียวกับ habits) นิสัยก่อตัวเมื่อเลือกครบ HABIT_COUNT และเลือกไม่น้อยกว่า HABIT_SHARE ของครั้งที่มีให้เลือก */
+  habitOffers: Record<string, number>;
   inventory: string[];
   equipped: Partial<Record<Slot, string>>;
   locationTag: string;
@@ -50,9 +57,23 @@ export interface LifeState {
   alive: boolean;
   /** null ระหว่างยังมีชีวิต */
   endReason: EndReason | null;
-  /** คนในชีวิตนอกจากพ่อแม่ ดู effects.people */
+  /** กำลังจะตายด้วยเหตุนี้ เหตุการณ์ถัดไปคือฉากตาย พอเลือกในฉากนั้นแล้วชีวิตจึงจบ */
+  dying: DeathCause | null;
+  /** ข้อความที่ทำให้กำลังจะตายเล่าความตายไปแล้วหรือยัง (ผลที่มี die = เล่าแล้ว) ใช้เลือกฉากตาย ดู when.told */
+  deathTold?: boolean;
+  /** เหตุที่ตาย (หลังชีวิตจบ) */
+  deathCause: DeathCause | null;
+  /** ประโยคสุดท้ายของชีวิต จากฉากตาย ใช้ในหน้าชีวประวัติ */
+  epitaph: string;
+  /** คนในชีวิต รวมพ่อแม่ คู่ครอง และลูก ดู effects.people */
   people: Person[];
   currentEventId: string | null;
+  /** ตัวแสดงของเหตุการณ์ปัจจุบัน: ชื่อบท → id ของคน */
+  cast: Record<string, string>;
+  /** จำนวนปีจริงที่เหตุการณ์ปัจจุบันจะกินเวลา (เฉพาะเหตุการณ์ที่เล่าหลายปี) กำหนดตอนเลือกเหตุการณ์ ข้อความ {years} จึงตรงกับเวลาที่เดินจริง */
+  span?: number;
+  /** ลูกที่เพิ่งเกิดจากผลของตัวเลือก รอ settle ตั้งชื่อและใส่ลงผัง (ไม่ค้างข้ามเหตุการณ์) */
+  pendingChildren?: { gender?: 'm' | 'f' | undefined; horned?: boolean | undefined }[];
 }
 
 export interface Partner {
@@ -67,10 +88,30 @@ export interface LogEntry {
   age: number;
   eventId: string;
   choiceId: string;
-  roll?: { d20: number; mod: number; dc: number; success: boolean };
+  /** traits = สิ่งติดตัวที่บวกหรือลบแต้มในการทอยนี้ (รวมอยู่ใน mod แล้ว) ใช้บอกที่มาบนหน้าจอ */
+  roll?: { d20: number; mod: number; dc: number; success: boolean; traits?: { id: string; amount: number }[] };
   text?: string;
   /** สิ่งที่เปลี่ยนจากตัวเลือกนี้ ใช้แสดงเป็นสัญลักษณ์ใต้ย่อหน้า (เซฟเก่าไม่มี) */
   changes?: LifeChanges;
+  /** ตัวแสดงของเหตุการณ์นี้ (ชื่อบท → id ของคน) ใช้เติมชื่อตอนอ่านย้อน */
+  cast?: Record<string, string>;
+  /** ป้ายบนเส้นชีวิตในหน้าชีวประวัติ (เติมชื่อแล้ว) */
+  mark?: string;
+  /** จำนวนปีที่เหตุการณ์นี้กินเวลา (เฉพาะเหตุการณ์ที่เล่าหลายปีรวบเดียว) */
+  span?: number;
+  /** สิ่งที่เกิดตอนสิ้นปี: ร่างกายโรย เช็คฤดูหนาว ข่าวคนรอบตัวจากไป */
+  year?: YearEnd;
+}
+
+export interface YearEnd {
+  /** ค่าที่ลดเพราะร่างกายโรย (ตัวละหนึ่งแต้มต่อรายการ) */
+  decline?: Stat[];
+  /** เช็คฤดูหนาวของปีนี้ lost = พลังชีวิตสูงสุดที่เสียถาวร */
+  winter?: { d20: number; mod: number; dc: number; success: boolean; lost: number };
+  /** id ของคนที่จากไปตามวัยในปีนี้ */
+  passed?: string[];
+  /** ประโยคที่ระบบเติมท้ายบันทึกของปีนี้ (เติมชื่อแล้ว) */
+  lines?: string[];
 }
 
 export interface Person {
@@ -86,6 +127,12 @@ export interface Person {
   metAge: number;
   /** อายุของผู้เล่นตอนคนนี้ตาย */
   diedAge?: number;
+  /** ปีเกิดในโลก (เซฟเก่าไม่มี ระบบเติมให้ตอนโหลด) */
+  born?: number;
+  /** เผ่า ถ้าต่างจากค่าปริยาย (ญาติสายเลือดเป็นเผ่าเดียวกับผู้เล่น คนอื่นเป็นมนุษย์) ใช้คิดว่าแก่ช้าแค่ไหน */
+  race?: string;
+  /** ลูกที่เกิดมามีเขา */
+  horned?: boolean;
 }
 
 /** ชีวิตจบเพราะตายจริง หรือเพราะเนื้อเรื่องที่เขียนไว้หมดก่อน */
@@ -94,9 +141,15 @@ export type EndReason = 'death' | 'content_end';
 export interface LifeChanges {
   stats?: Partial<Record<Stat, number>>;
   hp?: number;
+  /** พลังชีวิตสูงสุดที่เปลี่ยนถาวร */
+  maxHp?: number;
   gold?: number;
   items?: string[];
   traits?: string[];
+  /** สิ่งติดตัวที่หายไป */
+  lostTraits?: string[];
+  /** สิ่งติดตัวที่ขยับขั้น: รหัส → ขั้นใหม่ */
+  steps?: Record<string, number>;
   classId?: string;
 }
 
@@ -109,7 +162,7 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
   const birthYear = rng.int(BIRTH_YEAR.min, BIRTH_YEAR.max);
   const stats = Object.fromEntries(STATS.map((s) => [s, 10])) as Record<Stat, number>;
   return {
-    version: 2,
+    version: 3,
     seed,
     rngState: rng.state,
     name: DEFAULT_NAME,
@@ -122,6 +175,9 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     stats,
     flags: [],
     traits: [],
+    traitSteps: {},
+    habits: {},
+    habitOffers: {},
     inventory: [],
     equipped: {},
     locationTag: 'village',
@@ -141,23 +197,35 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     log: [],
     alive: true,
     endReason: null,
+    dying: null,
+    deathCause: null,
+    epitaph: '',
     people: [],
     currentEventId: null,
+    cast: {},
   };
 }
 
 export const modifier = (score: number) => Math.floor((score - 10) / 2);
 export const worldYear = (life: Pick<LifeState, 'birthYear' | 'age'>) => life.birthYear + life.age;
 
-/** จำนวนปีจริงต่อหนึ่งปีชีวิตแบบมนุษย์ (เอลฟ์ 10 คนแคระ 5) ยังไม่รู้เผ่าใช้ 1 */
+/** จำนวนปีจริงต่อหนึ่งปีของร่างกายแบบมนุษย์ (เอลฟ์ 10 คนแคระ 5) ยังไม่รู้เผ่าใช้ 1 */
 export const ageScale = (life: Pick<LifeState, 'raceApplied'>) => RACES[life.raceApplied as RaceId]?.ageScale ?? 1;
+const scaleOf = (race: string | null | undefined) => RACES[race as RaceId]?.ageScale ?? 1;
+
+/** อายุจริง → อายุเทียบมนุษย์ของเผ่านั้น: จนถึง EVEN_AGING_UNTIL เท่าอายุจริงทุกเผ่า หลังจากนั้นเผ่าอายุยืนแก่ช้าลง */
+export const toHumanAge = (age: number, race: string | null | undefined) =>
+  age <= EVEN_AGING_UNTIL ? age : EVEN_AGING_UNTIL + (age - EVEN_AGING_UNTIL) / scaleOf(race);
 
 /**
- * อายุเทียบมนุษย์ ใช้กับ when.age ในเนื้อหา: จนถึง EVEN_AGING_UNTIL เท่าอายุจริงทุกเผ่า หลังจากนั้นเอลฟ์และคนแคระโตช้ากว่า
- * เขียนเนื้อหาครั้งเดียวด้วยอายุแบบมนุษย์ แล้วระบบยืดช่วงหลังจากนั้นให้เอง ส่วน life.age คืออายุจริงที่แสดงในเกม
+ * อายุเทียบมนุษย์ของตัวละคร (มีทศนิยมสำหรับเผ่าอายุยืน) ส่วน life.age คืออายุจริงที่แสดงในเกม
+ * เนื้อหาเขียนครั้งเดียวด้วยอายุแบบมนุษย์ ระบบยืดช่วงหลัง EVEN_AGING_UNTIL ให้เผ่าอายุยืนเอง
  */
-export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) =>
-  life.age <= EVEN_AGING_UNTIL ? life.age : EVEN_AGING_UNTIL + (life.age - EVEN_AGING_UNTIL) / ageScale(life);
+export const humanAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) => toHumanAge(life.age, life.raceApplied);
 
-/** ปีที่ผ่านต่อหนึ่งเหตุการณ์: 1 ปีจนถึง EVEN_AGING_UNTIL หลังจากนั้นเท่า ageScale (จำนวนเหตุการณ์ต่อช่วงชีวิตเท่ามนุษย์) */
-export const yearsPerEvent = (life: Pick<LifeState, 'age' | 'raceApplied'>) => (life.age < EVEN_AGING_UNTIL ? 1 : ageScale(life));
+/** อายุเทียบมนุษย์แบบเต็มปี ใช้กับ when.age: เอลฟ์อายุจริง 40 ถึง 49 นับเป็นวัย 40 ทั้งสิบปี */
+export const stageAge = (life: Pick<LifeState, 'age' | 'raceApplied'>) => Math.floor(humanAge(life) + 1e-9);
+
+/** อายุจริงปีสุดท้ายที่ยังนับเป็นอายุเทียบมนุษย์ h (เต็มปี) ของเผ่านั้น */
+export const lastRealAge = (h: number, race: string | null | undefined) =>
+  h < EVEN_AGING_UNTIL ? h : EVEN_AGING_UNTIL + (h + 1 - EVEN_AGING_UNTIL) * scaleOf(race) - 1;

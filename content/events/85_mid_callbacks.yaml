@@ -42,6 +42,7 @@
       effects: { gold: -3, flags: [crossroads_child_bandit] }
     - id: fight_her
       label: คว้าข้อมือนางไว้ ไม่ให้เก็บเงินขบวนนี้
+      habit: hot_headed
       check: { stat: STR, dc: 14, foe: human }
       success:
         text: |
@@ -226,6 +227,7 @@
       effects: { gold: 7, flags: [belek_savings_closed] }
     - id: check_own_ledger
       label: ขอดูบรรทัดของตัวเองในสมุด ว่าเงินกู้แปดเหรียญจบแล้วจริงไหม
+      habit: tight_fist
       requires: { flag: belek_loan }
       check: { stat: INT, dc: 13 }
       success:
@@ -255,7 +257,7 @@
   weight: 10
   when:
     age: [25, 32]
-    trait: demon_mark
+    trait: curse_brand
     not_flags: [horns_sawn]
   text: |
     มีคนเคาะประตูตอนดึก {name}เปิดออกไปเจอนักล่าแม่มดของศาสนจักรตะเกียง คนที่ถือรายชื่อผู้ต้องตราของย่านนี้ คนที่มาถามเรื่องความฝันตามรอบห้าปี คืนนี้เขาไม่ใส่เสื้อคลุมขาว ไม่ใส่ถุงมือ ในอ้อมแขนมีผ้าห่อหนึ่งห่อ
@@ -288,6 +290,7 @@
         effects: { flags: [hunter_child_horned, hunter_walked_off] }
     - id: shut_the_door
       label: ปิดประตู คนที่จดชื่อ{name}ลงสมุดไม่มีสิทธิ์มาขออะไรจากที่นี่
+      habit: cold_blood
       text: |
         {name}ปิดประตู ลงกลอน เขาไม่เคาะอีก เขายืนอยู่หน้าประตูจนเด็กในห่อผ้าเริ่มร้อง แล้วเสียงร้องก็ค่อยๆ ห่างออกไปทีละก้าว
 
@@ -384,6 +387,7 @@
       effects: { gold: 6, alignment: { law: 1 }, flags: [welen_repaid] }
     - id: take_the_seven
       label: รับเจ็ดเหรียญ หกเหรียญค่าหนี้ บวกค่าปรับของสิบวันที่ออกตามหาเขา
+      habit: tight_fist
       requires: { flag: welen_vanished }
       text: |
         เวลน์บอกว่าตอนที่{name}ออกตามหาเขาสิบวัน เขาอยู่ในเหมืองทางตะวันออกจริงอย่างที่คนลือ ลงไปลึกจนไม่เห็นแดดทั้งเดือน ไม่รู้ว่ามีใครตามหา รู้ทีหลังสามปี จากคนบ้านเดียวกันที่ลงเหมืองตามมา

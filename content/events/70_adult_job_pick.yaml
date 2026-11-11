@@ -8,6 +8,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: warrior
@@ -46,19 +47,19 @@
       effects: { flags: [job_navy], location_tag: ventras, reputation: { crown: 1 }, gold: 3, stats: { STR: 1 } }
     - id: navy_turned_away
       label: ไปต่อแถวราชนาวี ทั้งที่รู้ว่าประกาศไม่ได้เขียนถึงคนแบบตัวเอง
-      requires: { trait: demon_mark, not_flags: [horns_sawn] }
+      requires: { trait: curse_brand, not_flags: [horns_sawn] }
       text: |
         {name}ต่อแถวอยู่ครึ่งเช้ากว่าจะถึงโต๊ะ นายสิบเงยหน้าขึ้นมา สายตาหยุดอยู่ที่เขาบนหัว{name}นานพอให้คนข้างหลังเงียบลง แล้วเขาก็วางปากกาลง บอกว่าราชนาวีไม่รับคนมีตรา ไม่มีเหตุผลอื่น และไม่มีอะไรต้องคุยต่อ
 
         ชายมือสามนิ้วยืนอยู่ท้ายแถวมาตั้งแต่ตอนไหน {name}ไม่ทันเห็น เขาเดินมาแตะไหล่{name} บอกว่าป้อมสามไม่ถามเรื่องหัว ถามแค่ว่าตื่นกะดึกไหวไหม {name}ตอบว่าไหว เขาเลยออกเงินค่าเกวียนไปแดนเถ้าให้ก่อน
-      effects: { flags: [job_wardens, navy_refused_horns], location_tag: ashland, reputation: { wardens: 1 }, stats: { CON: 1 } }
+      effects: { people: [{ id: garven, name: การ์เวน, gender: m, bond: mentor, closeness: 1, age: 45 }], flags: [job_wardens, navy_refused_horns], location_tag: ashland, reputation: { wardens: 1 }, stats: { CON: 1 } }
     - id: wardens
       label: ไปกับผู้เฝ้าผนึก รับกะดึกที่ป้อมสาม
       text: |
         ผู้เฝ้าผนึกมือสามนิ้วชื่อการ์เวน เขาเดินทางไม่หยุดพักเกินครึ่งชั่วยาม กินข้าวบนหลังเกวียน และนอนได้ทุกที่ที่เอนหลังลงไป พอเข้าเขตแดนเถ้า เถ้าสีเทาเริ่มเกาะล้อเกวียนหนาขึ้นทุกวัน วันที่สามมองไม่เห็นสีของดินอีกเลย
 
         ป้อมสามเป็นหินสีเทาก่อซ้อนกันสามชั้น ตั้งหันหน้าเข้าหาตอเสาของอัสเทลที่ขอบฟ้า การ์เวนชี้ให้ดูเตียงว่างหกเตียงในห้องนอนรวม บอกว่าเลือกเอาเตียงไหนก็ได้ เจ้าของเดิมไม่กลับมาเอาแล้ว
-      effects: { flags: [job_wardens], location_tag: ashland, reputation: { wardens: 1 }, stats: { CON: 1 } }
+      effects: { people: [{ id: garven, name: การ์เวน, gender: m, bond: mentor, closeness: 1, age: 45 }], flags: [job_wardens], location_tag: ashland, reputation: { wardens: 1 }, stats: { CON: 1 } }
     - id: mercenary
       label: ลงชื่อคุมขบวนถ่าน แล้วกวาดค่าจ้างล่วงหน้าใส่กระเป๋า
       text: |
@@ -71,6 +72,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: rogue
@@ -110,6 +112,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: wizard
@@ -124,6 +127,7 @@
   choices:
     - id: artificer
       label: รับงานที่ร้านช่างเวท ซ่อมแขนกลกับเครื่องจักร
+      habit: craft_hands
       text: |
         ช่างใหญ่ชื่อฮาลเดน เขาไม่ถามอะไรสักคำ ยื่นแขนกลที่ขอนิ้วหักมาให้หนึ่งข้าง แล้วไปนั่งกินข้าวเที่ยง พอกินเสร็จ{name}ต่อขอนิ้วได้สองข้อ ข้อที่สามยังงอไม่ลง
 
@@ -158,6 +162,7 @@
   scene: temple
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: cleric
@@ -192,6 +197,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: ranger
@@ -237,6 +243,7 @@
       effects: { flags: [job_guide], stats: { INT: 1 }, gold: 3 }
     - id: scout
       label: รับงานพรานสำรวจ เดินทำแผนที่ให้คนที่จ่าย
+      habit: hunter_eye
       text: |
         คนจ้างให้สมุดผูกเชือกมาหนึ่งเล่ม เข็มทิศทองเหลือง กับไม้วัดยาวเท่าตัวคน แล้วชี้ลงบนแผนที่เก่าตรงที่เป็นกระดาษว่าง ไม่มีเส้นอะไรเลย บอกว่าอยากได้ทุกอย่างที่อยู่ตรงนั้น
 
@@ -247,6 +254,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     class: bard
@@ -294,6 +302,7 @@
   stage: adult
   weight: 1000
   must: true
+  mark: เริ่มงานแรก
   when:
     age: [18, 18]
     flags: [path_commoner]
@@ -338,6 +347,7 @@
       effects: { flags: [job_miner], stats: { CON: 1 }, gold: 3 }
     - id: smith
       label: เป็นช่างตีเหล็กและช่างกลเต็มตัว
+      habit: craft_hands
       requires: { not_flags: [origin_elf_bough] }
       text: |
         ช่างคนไหนก็ต้องมีเครื่องมือของตัวเองสักชุด {name}เอาเงินที่เหลือจากค่าข้าวไปซื้อค้อนหนึ่งเล่มกับคีมหนึ่งอัน ค้อนเป็นของมือสอง หัวค้อนบิ่นมุมหนึ่ง ด้ามใหม่ คีมยังมีชื่อเจ้าของเก่าสลักไว้ที่ขา

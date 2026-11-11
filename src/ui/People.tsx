@@ -1,7 +1,8 @@
-import { useState } from 'preact/hooks';
+import { useLayoutEffect, useRef, useState } from 'preact/hooks';
 import type { Bond, KinRole } from '../engine/schema';
 import type { LifeState, Person } from '../engine/state';
 import { CLOSENESS_CAP } from '../engine/engine';
+import { personBorn, personYears } from '../engine/people';
 import { life } from '../store';
 import { Icon, PATHS, type IconName } from './icons';
 import type { Look } from '../../art/kit/core.mjs';
@@ -45,6 +46,8 @@ const ROW = 96;
 const R = 19;
 /** ระยะจากแถวบนลงถึงเส้นแยกพี่น้อง ต้องพ้นชื่อและบทบาทใต้วงกลม */
 const BAR = 66;
+/** ผังย่อลงได้มากสุดเท่านี้ก่อนจะยอมให้เลื่อนทางข้าง (ชื่อใต้วงกลมยังอ่านออก) */
+const MIN_SCALE = 0.75;
 
 /** อักษรแรกของชื่อ ข้ามสระหน้า (เ แ โ ใ ไ) */
 export const initial = (name: string) => name.replace(/^[เแโใไ]/, '').charAt(0);
@@ -128,20 +131,23 @@ function familyLayout(l: LifeState) {
     });
     y = ky;
   }
-  // เลื่อนทุกอย่างให้ไม่ติดขอบซ้าย
-  const minX = Math.min(...slots.map((s) => s.x)) - GAP / 2;
-  const shift = minX < 0 ? -minX : 0;
-  return { slots, lines, hearts, width: width + shift * 2, height: y + 50, shift };
+  // กรอบของผังวัดจากตำแหน่งจริงของทุกคน (ลูกหลายคนอาจยื่นเลยแถวพี่น้องไปทางขวา) เผื่อครึ่งช่องสองข้างให้ชื่อใต้วงกลม
+  const xs = slots.map((s) => s.x);
+  const left = Math.min(...xs) - GAP / 2 - 6;
+  const right = Math.max(...xs) + GAP / 2 + 6;
+  return { slots, lines, hearts, left, width: right - left, height: y + 58 };
 }
 
-function PersonNode({ s, l, onPick }: { s: Slot; l: LifeState; onPick: (p: Person | 'me') => void }) {
+function PersonNode({ s, l, on, onPick }: { s: Slot; l: LifeState; on: boolean; onPick: (p: Person | 'me') => void }) {
   const me = s.p === 'me';
   const p = me ? null : (s.p as Person);
   const name = me ? l.name : p!.name;
-  const sub = me ? 'คุณ' : kinLabel(p!);
+  // เลขหลังบทบาทคืออายุ คนที่จากไปแล้วคืออายุตอนเสีย
+  const sub = me ? 'คุณ' : `${kinLabel(p!)} · ${personYears(p!, l)}`;
   const dead = p && !p.alive;
+  const said = me ? 'คุณ' : `${kinLabel(p!)} ${dead ? 'เสียชีวิตตอนอายุ' : 'อายุ'} ${personYears(p!, l)}`;
   return (
-    <g class={`node ${me ? 'me' : ''} ${dead ? 'dead' : ''}`} tabIndex={0} role="button" aria-label={`${name} ${sub}`} onClick={() => onPick(s.p)}
+    <g class={`node ${me ? 'me' : ''} ${dead ? 'dead' : ''} ${on ? 'on' : ''}`} tabIndex={0} role="button" aria-label={`${name} ${said}`} aria-pressed={on} onClick={() => onPick(s.p)}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPick(s.p)}>
       <circle cx={s.x} cy={s.y} r={me ? R + 4 : R} />
       <Face look={me ? currentPlayerLook() : personLook(p!, l)} x={s.x} y={s.y} r={me ? R + 4 : R} id={`t-${me ? 'me' : p!.id}`} />
@@ -154,38 +160,66 @@ function PersonNode({ s, l, onPick }: { s: Slot; l: LifeState; onPick: (p: Perso
 
 export function FamilyTree() {
   const l = life.value;
-  const [picked, setPicked] = useState<Person | 'me' | null>(null);
-  const { slots, lines, hearts, width, height, shift } = familyLayout(l);
+  const [pickedId, setPicked] = useState<string | null>(null);
+  const { slots, lines, hearts, left, width, height } = familyLayout(l);
+  // จำคนที่เลือกด้วย id การ์ดจึงอ่านอายุและความสนิทล่าสุดเสมอ
+  const picked = (l.people ?? []).find((p) => p.id === pickedId) ?? null;
+  const pick = (p: Person | 'me') => setPicked(p === 'me' || p.id === pickedId ? null : p.id);
+  // ครอบครัวที่กว้างกว่าจอ: เปิดมาให้ตัวเราอยู่กลางกรอบ ไม่ใช่ขอบซ้ายของผัง
+  const wrap = useRef<HTMLDivElement>(null);
+  const meX = slots.find((s) => s.p === 'me')?.x ?? left;
+  useLayoutEffect(() => {
+    const el = wrap.current;
+    if (el && el.scrollWidth > el.clientWidth) el.scrollLeft = ((meX - left) / width) * el.scrollWidth - el.clientWidth / 2;
+  }, [l.seed, width]);
   return (
     <div class="sec">
-      <div class="chart-wrap">
-        <svg class="chart family" viewBox={`0 0 ${width} ${height}`} style={{ minWidth: `${Math.min(width, 900)}px` }} role="group" aria-label="ผังครอบครัว">
-          <g transform={`translate(${shift} 0)`}>
-            {lines.map((d, i) => <path key={i} class="link" d={d} />)}
-            {hearts.map((h, i) => <path key={`h${i}`} class="heart-dot" transform={`translate(${h.x - 7} ${h.y - 8}) scale(.6)`} d={PATHS.love} />)}
-            {slots.map((s, i) => <PersonNode key={i} s={s} l={l} onPick={setPicked} />)}
-          </g>
+      <div class="chart-wrap" ref={wrap}>
+        {/* ผังย่อให้พอดีจอ แต่ไม่ย่อเกิน MIN_SCALE ครอบครัวที่กว้างกว่านั้นเลื่อนดูทางข้างได้ */}
+        <svg class="chart family" viewBox={`${left} 0 ${width} ${height}`} style={{ minWidth: `${Math.round(width * MIN_SCALE)}px` }} role="group" aria-label="ผังครอบครัว">
+          {lines.map((d, i) => <path key={i} class="link" d={d} />)}
+          {hearts.map((h, i) => <path key={`h${i}`} class="heart-dot" transform={`translate(${h.x - 7} ${h.y - 8}) scale(.6)`} d={PATHS.love} />)}
+          {slots.map((s, i) => <PersonNode key={i} s={s} l={l} on={s.p !== 'me' && s.p.id === pickedId} onPick={pick} />)}
         </svg>
       </div>
       <p class="legend">
         <span><Icon name="love" class="love" />คู่ครอง</span>
         <span><Icon name="dead" />เสียชีวิต</span>
+        <span><Icon name="age" />อายุ</span>
       </p>
       {picked && <PersonCard p={picked} onClose={() => setPicked(null)} />}
     </div>
   );
 }
 
-function PersonCard({ p, onClose }: { p: Person | 'me'; onClose: () => void }) {
-  if (p === 'me') return null;
+/** ความสนิทเป็นหัวใจห้าดวง (ความสนิท 1 ถึง 5) ความสนิทติดลบไม่มีหัวใจ บอกเป็นเลขสีของคู่แค้น */
+function Closeness({ n }: { n: number }) {
+  if (n < 0) return <span class="bond-rival" title="ความสนิท"><Icon name="rival" label="ความสนิท" /><span class="num">{n}</span></span>;
   return (
-    <div class="person-card" role="dialog" aria-label={p.name}>
+    <span class="hearts" role="img" aria-label={`ความสนิท ${n} จาก ${CLOSENESS_CAP}`} title={`ความสนิท ${n} จาก ${CLOSENESS_CAP}`}>
+      {Array.from({ length: CLOSENESS_CAP }, (_, i) => <Icon key={i} name="heart" class={i < n ? '' : 'off'} />)}
+    </span>
+  );
+}
+
+/** การ์ดของคนที่แตะในผัง: หน้า ชื่อ บทบาท ปีเกิด (ถึงปีที่จากไป) อายุ และความสนิทเป็นหัวใจ */
+function PersonCard({ p, onClose }: { p: Person; onClose: () => void }) {
+  const l = life.value;
+  const born = personBorn(p, l);
+  const died = !p.alive && p.diedAge !== undefined ? l.birthYear + p.diedAge : null;
+  return (
+    <div class="person-card kin-card" role="group" aria-label={p.name}>
+      <img class={`avatar face ${p.alive ? '' : 'gone'}`} src={faceUrl(personLook(p, l))} alt="" />
       <div>
         <b>{p.name}</b> <span class="muted">{kinLabel(p) || (p.bond ? BOND_TH[p.bond] : '')}</span>
         <p class="muted">
-          รู้จักตอนอายุ <span class="num">{p.metAge}</span>
-          {!p.alive && p.diedAge !== undefined && <> · เสียชีวิตเมื่อคุณอายุ <span class="num">{p.diedAge}</span></>}
-          {p.bond && <> · ความสนิท <span class="num">{p.closeness > 0 ? '+' : ''}{p.closeness}</span></>}
+          <span title={died === null ? 'ปีเกิด' : 'ปีเกิดถึงปีที่จากไป'}>
+            <Icon name="year" label={died === null ? 'ปีเกิด' : 'ปีเกิดถึงปีที่จากไป'} /><span class="num">{died === null ? born : `${born}–${died}`}</span>
+          </span>
+          <span title={p.alive ? 'อายุ' : 'อายุตอนเสีย'}>
+            <Icon name={p.alive ? 'age' : 'dead'} label={p.alive ? 'อายุ' : 'อายุตอนเสีย'} /><span class="num">{personYears(p, l)}</span>
+          </span>
+          <Closeness n={p.closeness} />
         </p>
       </div>
       <button class="icon-btn" onClick={onClose} aria-label="ปิด"><Icon name="close" /></button>

@@ -1,5 +1,6 @@
 import { computed, effect, signal } from '@preact/signals';
 import { paragraphs, render } from '../engine/text';
+import type { LifeState, LogEntry } from '../engine/state';
 import { currentEvent, lastEntry, life, revealed } from '../store';
 
 /** ค่าที่จำไว้ในเครื่อง (อ่าน/เขียนพังได้ เช่นโหมดส่วนตัว จึงห่อ try ไว้) */
@@ -40,11 +41,17 @@ export function cycleSpeed() {
   setSpeed(SPEEDS[(SPEEDS.indexOf(autoSpeed.value as 1) + 1) % SPEEDS.length]!);
 }
 
+/**
+ * ย่อหน้าหลังตัวเลือกของเหตุการณ์หนึ่ง: ผลของตัวเลือก (เติมชื่อด้วยตัวแสดงของเหตุการณ์นั้น)
+ * แล้วต่อด้วยประโยคสิ้นปีที่ระบบเติม (ร่างกายโรย ฤดูหนาว ข่าวคนรอบตัว)
+ */
+export const aftermath = (e: LogEntry, l: LifeState): string[] => [...(e.text ? paragraphs(render(e.text, l, e.cast ?? {}, e.span ?? 1)) : []), ...(e.year?.lines ?? [])];
+
 /** ย่อหน้าใหม่ตามลำดับที่ผู้อ่านจะเห็น: ผลของตัวเลือกล่าสุด แล้วต่อด้วยเหตุการณ์ปัจจุบัน */
 export const fresh = computed(() => {
   const l = life.value;
   const last = lastEntry.value;
-  const after = last && l.log[l.log.length - 1] === last && last.text ? paragraphs(render(last.text, l)) : [];
+  const after = last && l.log[l.log.length - 1] === last ? aftermath(last, l) : [];
   const ev = currentEvent.value;
   const now = ev ? paragraphs(render(ev.text, l)) : [];
   return { after, now, total: after.length + now.length };
