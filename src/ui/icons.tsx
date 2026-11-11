@@ -55,6 +55,9 @@ export const PATHS = {
   pause: 'M8 5v14M16 5v14',
   skip: 'M5 5l7 7-7 7M13 5l7 7-7 7',
   book: 'M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM4 21V5',
+  plus: 'M12 5v14M5 12h14',
+  minus: 'M5 12h14',
+  locate: 'M18.5 12a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0zM14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0zM12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3',
 } as const;
 
 export type IconName = keyof typeof PATHS;
