@@ -23,26 +23,21 @@ describe('life audit (real content, 400 lives)', () => {
     expect(unreachable.filter((id) => !id.startsWith('youth.own_try_'))).toEqual([]);
   });
 
-  it('humans and tieflings never lose a must event to a clash', () => {
-    // must สองเรื่องที่ถึงโอกาสสุดท้ายในปีเดียวกันออกได้เรื่องเดียว เผ่าที่เดินปีละหนึ่งเหตุการณ์ตลอดชีวิตต้องไม่เจอเลย
-    // ที่เหลืออยู่คือเอลฟ์กับคนแคระที่อายุครบ 40 ในปีแรกของหมุดโลกพอดี (ฉากปิดอายุสี่สิบได้ออกก่อน แล้วข้ามไปหลายปี)
-    // ซึ่งจะหมดไปเมื่อทุกเผ่าใช้ปฏิทินเดียวกัน (ข้อ D3 ของแผนชีวิต 100 ปี)
-    const short = res.collisionLives.filter((c) => (RACES[c.race as RaceId]?.ageScale ?? 1) === 1);
-    expect(short).toEqual([]);
-    for (const c of res.collisionLives) expect(c.to).toBe('adult.life_at_forty');
+  it('no life loses a must event to a clash', () => {
+    // must สองเรื่องที่ถึงโอกาสสุดท้ายในปีเดียวกันออกได้เรื่องเดียว ตั้งแต่ทุกเผ่าใช้ปฏิทินเดียวกัน (ข้อ D3 ของแผนชีวิต 100 ปี) ต้องไม่มีชีวิตไหนเจอ
+    expect(res.collisionLives).toEqual([]);
   });
 
-  it('every life that could see a must event saw it, unless it died first or hit that clash', () => {
+  it('every life that could see a must event saw it, unless it died first', () => {
     for (const [id, m] of res.must) {
-      const clashes = res.collisionLives.filter((c) => c.lost === id).length;
       const died = res.finals.filter((l) => l.endReason === 'death' && !l.seen.includes(id)).length;
-      expect(m.could - m.seen, id).toBeLessThanOrEqual(clashes + died);
+      expect(m.could - m.seen, id).toBeLessThanOrEqual(died);
     }
-    // หมุดโลกทั้งสี่: ไม่มีชีวิตไหนหลุดนอกจากกรณีชนกันข้างบน
+    // หมุดโลก: ไม่มีชีวิตไหนหลุด
     for (const id of ['adult.world_king_dies', 'adult.world_dim_night', 'adult.world_star_count']) {
       const m = res.must.get(id)!;
       expect(m.could).toBeGreaterThan(20);
-      expect(m.could - m.seen, id).toBe(res.collisionLives.filter((c) => c.lost === id).length);
+      expect(m.could - m.seen, id).toBe(0);
     }
   });
 
