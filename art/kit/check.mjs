@@ -3,7 +3,7 @@ import { loadKit, buildPiece, renderLook, readYaml, fitsBody, W, H } from './kit
 import { crop } from './sheet.mjs';
 import { lockBare, lockFace, faceBox, EXPRESSIONS } from './lock.mjs';
 import { npcLook } from './npc.mjs';
-import { loadScenes, renderScene } from './scene.mjs';
+import { loadScenes, renderScene, STAGE } from './scene.mjs';
 
 /** Every expression of the locked look; each one is compared with the lock. */
 export const FACES = EXPRESSIONS;
@@ -59,6 +59,38 @@ export const colourCount = img => {
   for (let p = 0; p < img.w * img.h; p++) if (img.rgba[p * 4 + 3]) s.add(img.rgba[p * 4] << 16 | img.rgba[p * 4 + 1] << 8 | img.rgba[p * 4 + 2]);
   return s.size;
 };
+
+/** Where the HUD stands figures on a scene: the player alone in the middle (x 128), or the player and
+ *  an NPC at 88 and 168. A body is about 24 px wide and 50 px tall, a head about 16 px wide. */
+export const FIGURES = [[128], [88, 168]];
+// a rug lies flat, so a figure may stand on it; a mine set is a frame the figures stand inside (its
+// props at the sides, its cap above their heads)
+const FLAT = new Set(['rug', 'mine_set']);
+
+/** Layout problems in a traced scene picture (renderScene with trace) as the game shows it. */
+export function stageProblems(id, t, img) {
+  const out = [], stand = img.stand, headTop = stand - 50, centres = FIGURES.flat();
+  const over = (b, a, z) => b.x0 <= z && b.x1 >= a;
+  for (const it of img.items ?? []) {
+    // a lamp's glow centred just over a head reads as a halo; a hearth or forge glowing behind the body
+    // (centre below the eyes) is fine
+    if (it.kind === 'glow') {
+      const c = centres.find(c => Math.abs(it.x - c) < it.r / 2 + 8 && it.y >= headTop - it.r - 2 && it.y <= headTop + 10);
+      if (c !== undefined) out.push(`scene ${id}: a glow at ${it.x},${it.y} (r ${it.r}) sits over the head of the figure at x ${c} like a halo; keep the light outside x ${c - Math.ceil(it.r / 2 + 8)}..${c + Math.ceil(it.r / 2 + 8)} or above row ${headTop - it.r - 2}`);
+      continue;
+    }
+    const b = it.box;
+    if (!b || b.x1 < 0 || b.x0 > STAGE - 1) continue; // only in the wings
+    // nearer than the figures' soles a thing would have to hide part of them, but the game draws the
+    // figures over the scene, so it would look as if they stood in front of it
+    if (it.row > stand + 0.5 && !FLAT.has(it.kind) && centres.some(c => over(b, c - 12, c + 12))) out.push(`scene ${id}: ${it.kind} on row ${Math.round(it.row)} stands in front of a figure (x ${b.x0}..${b.x1}); keep things nearer than row ${stand} clear of x ${centres.map(c => `${c - 12}..${c + 12}`).join(', ')}`);
+    // behind them, a post, lamp, pole or pillar standing straight up out of a head
+    const w = b.x1 - b.x0 + 1, h = b.y1 - b.y0 + 1;
+    if (it.row <= stand + 0.5 && w <= 12 && h >= 2.5 * w && b.y0 < headTop - 1 && b.y1 >= headTop - 1 && centres.some(c => over(b, c - 7, c + 7))) out.push(`scene ${id}: ${it.kind} on row ${Math.round(it.row)} rises out of a figure's head (x ${b.x0}..${b.x1})`);
+    if (t === 'night' && it.kind === 'chicken') out.push(`scene ${id}: chickens are out at night (give them only: [day, dusk])`);
+  }
+  return out;
+}
 
 /** Run every check. Returns { errors: [...], notes: [...] }. */
 export function runChecks(kit = loadKit()) {
@@ -171,12 +203,18 @@ export function runChecks(kit = loadKit()) {
   const S = loadScenes(), ids = readYaml('scene_ids.yaml');
   const wanted = [...ids.locations, ...ids.shared, ...ids.per_location.flatMap(s => ids.locations.map(l => `${s}_${l}`))];
   for (const id of wanted) if (!S.scenes[id]) errors.push(`scene_ids.yaml wants scene ${id} but there is no art/scenes/${id}.yaml`);
+  // a lamp that glows at every time needs a flame that stays lit by day (fire, star_dew), not window glass
+  for (const [id, sc] of Object.entries(S.scenes)) for (const L of sc.layers) {
+    const f = L.furn;
+    if (f?.glow && !f.glow.only && !S.pal.materials[f.light ?? 'window']?.glow) errors.push(`scene ${id}: the ${f.kind} at ${f.at} glows all day but its light (${f.light ?? 'window'}) is dark by day; use light: fire or star_dew, or glow only: [dusk, night]`);
+  }
   for (const id of Object.keys(S.scenes)) for (const t of ids.times) {
     try {
-      const img = renderScene(S, id, t);
+      const img = renderScene(S, id, t, { trace: true });
       let holes = 0;
       for (let p = 0; p < img.w * img.h; p++) if (!img.rgba[p * 4 + 3]) holes++;
       if (holes) errors.push(`scene ${id} (${t}) leaves ${holes} px empty`);
+      for (const e of stageProblems(id, t, img)) errors.push(e);
     } catch (e) { errors.push(`scene ${id} (${t}): ${e.message}`); }
   }
   // looks: fit the canvas with room for the outline, stay within the colour budget
@@ -206,5 +244,5 @@ export function runChecks(kit = loadKit()) {
     const lockMix = levelMix(kit, cls, lockBare(body));
     notes.push(`proof_${body} shade mix % (levels 0..4): skin ${mix.skin.join('/')} (lock ${lockMix.skin.join('/')}), hair ${mix.hair.join('/')} (lock ${lockMix.hair.join('/')})`);
   }
-  return { errors, notes };
+  return { errors: [...new Set(errors)], notes };
 }

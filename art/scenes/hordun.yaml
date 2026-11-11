@@ -1,25 +1,37 @@
-# Hordun (world bible scene 4): a dwarf city cut into the mountains, demon-coal furnaces glowing red,
-# a railway climbing the slope on trestles, snow on the peaks and Ossa's pillar among them.
+# Hordun: the dwarf city's great gate in the wall across the valley, snow peaks behind and the
+# valley's cliffs either side, furnace domes smoking, the cobbled plaza with the mine track running
+# into the gate, lamps.
 layers:
   - sky: { horizon: 60 }
   - stars: { count: 60, below: 40 }
-  - body: { day: [60, 12, 6], dusk: [220, 44, 8], night: [70, 14, 5] }
-  - clouds: { count: 3, y: [4, 18], seed: 2 }
-  - pillar: { x: 196, w: 6, base: 40 }
-    haze: 0.5
-  - ridge: { mat: far, base: 58, amp: 44, scale: 0.035, jag: 0.6, snow: 30, seed: 3 }
-    haze: 0.35
-  - ridge: { mat: dark_stone, base: 74, amp: 26, scale: 0.05, jag: 0.4, snow: 52, seed: 4 }
-    haze: 0.15
-  - prop: { art: dwarf_door, at: [[60, 70], [150, 66]] }
-    haze: 0.1
-  - prop: { art: furnace, at: [[96, 76], [190, 74]] }
+  - body: { day: [214, 12, 6], dusk: [40, 30, 9], night: [200, 12, 5] }
+  - clouds: { count: 4, y: [2, 18], seed: 3 }
+  - ridge: { mat: far, base: 40, amp: 38, scale: 0.02, seed: 31, jag: 0.7, snow: 24 }
+    haze: 0.4
+  - ridge: { mat: dark_stone, base: 50, amp: 12, scale: 0.022, seed: 32, jag: 0.4, vee: 44, snow: 18, to: 67, rock: true, lit: right }
+  - wall: { y0: 40, y1: 67, x: [34, 222], mat: dark_stone, pattern: blocks, battlements: [0.8, 1.8] }
     outline: true
-  - glow: { at: [102, 72], r: 12, colour: 'f39a45' }
-  - glow: { at: [196, 70], r: 12, colour: 'f39a45' }
-  - smoke: { at: [100, 62], puffs: 7, drift: 1, mat: smoke }
-  - smoke: { at: [194, 60], puffs: 7, drift: 1, mat: smoke }
-  - line: { from: [[0, 96], [256, 58]], w: 2, mat: metal, ties: 4, tie: wood }
+    shadow: false
+  - furn: { kind: gate, at: [128, 67], wm: 9, hm: 11, light: true, light_at: -2.4 }
     outline: true
-  - ground: { y: 92, mat: dark_stone, noise: 1.4, tufts: 12, tuft: snow }
-  - road: { y: [92, 111], top: [110, 150], bottom: [90, 170], mat: stone }
+  - floor: { y0: 67, mat: dark_stone, pattern: flags, tile: 14, track: 0.75 }
+  - furn: { kind: furnace, at: [0, 70], xm: -11 }
+    outline: true
+  - smoke: { at: [57, 15], puffs: 6, drift: -1.5 }
+  - glow: { at: [58, 66], r: 12, colour: 'f07040' }
+  - furn: { kind: furnace, at: [0, 71], xm: 11.5 }
+    outline: true
+  - smoke: { at: [208, 13], puffs: 6, drift: 1.5 }
+  - glow: { at: [208, 67], r: 12, colour: 'f07040' }
+  - furn: { kind: rail_cart, at: [128, 79] }
+    outline: true
+  - furn: { kind: lamppost, xm: -4.6, at: [0, 68], at_rows: [68, 78.8, 91.8], light: window }
+    outline: true
+  - furn: { kind: lamppost, xm: 4.6, at: [0, 68], at_rows: [68, 78.8, 91.8], light: window }
+    outline: true
+  - furn: { kind: crates, at: [0, 84], xm: -6.4 }
+    outline: true
+  - furn: { kind: barrel, at: [0, 86], xm: 6.2 }
+    outline: true
+  - furn: { kind: barrel, at: [0, 88], xm: 6.9 }
+    outline: true

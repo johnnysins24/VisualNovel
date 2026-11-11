@@ -1,19 +1,30 @@
-# Workshop: an artificer's shop, a smithy or a back-room healer, one room with the tools on the wall,
-# a forge in the corner, a long workbench with things on it, shelves of jars.
+# Workshop: a mage's lamp workshop (Severin's glassworks back room) and the fallback for any other
+# craft. Tools on the wall, a small forge, a workbench of glass, star-dew lamps hanging under test.
+# The smithy, the golem shop and the healer's room have their own scenes. The room is 8 m wide.
 interior: true
+ceiling: 2.8
+width: 8
 layers:
-  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [6] }
-  - rect: { x: 70, y: 28, w: 70, h: 30, mat: wood, lvl: 1.6 }
-  - prop: { at: [74, 52], ascii: "..mm.....M.......m......Mm.....mmm.....m.....M.\n..mm.....M......mMm.....Mm......m.....mMm....M.\n...w.....M.......w......w.......w......w.....M.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w.\n...w.....w.......w......w.......w......w.....w." }
+  - wall: { y0: 0, y1: 92, mat: plank, pattern: planks, rails: [44], beams: [46, 208], skirt: wood }
+  - ceiling: { mat: wood, every: 1.1 }
+  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 18 }
+  - sides: { mat: plank, pattern: planks, beams: 1.8, skirt: wood }
+  - furn: { kind: tools, at: [78], on: 0.95, wm: 1.3 }
+  - furn: { kind: shelf, at: [126], on: 1.25, wm: 1.6, rows: 2 }
     outline: true
-  - furn: { kind: shelf, at: [170, 60], w: 40, h: 28, rows: 2 }
+  - furn: { kind: board, at: [78], on: 1.75, wm: 0.9, hm: 0.6, notes: 5 }
     outline: true
-  - floor: { y0: 93, mat: dark_stone, pattern: flags, tile: 18, depth: 80 }
-  - furn: { kind: hearth, at: [214, 92], w: 38, h: 34, chimney: true, fire: fire }
+  - furn: { kind: hearth, at: [182], wm: 1.3, fire: fire }
     outline: true
-  - glow: { at: [233, 86], r: 24, colour: 'f39a45' }
-  - furn: { kind: table, at: [8, 106], w: 64, h: 20 }
+  - glow: { at: [182, 86], r: 22, colour: 'f39a45' }
+  - furn: { kind: cupboard, side: left, at: [0.6, 100] }
     outline: true
-  - furn: { kind: lamp, at: [100, 14] }
-  - glow: { at: [101, 16], r: 18, colour: 'f7d98a', only: [dusk, night] }
+  - furn: { kind: table, at: [128, 99], wm: 2.0, items: mixed }
+    outline: true
+  - furn: { kind: lamp, at: [108, 99], on: 2.0, light: star_dew, glow: { r: 12, colour: 'aad6fb' } }
+  - furn: { kind: lamp, at: [148, 99], on: 2.1, light: star_dew, glow: { r: 12, colour: 'aad6fb' } }
+  - furn: { kind: barrel, side: right, at: [0.4, 101] }
+    outline: true
+  - furn: { kind: crates, side: right, at: [0.75, 110] }
+    outline: true
   - vignette: { strength: 0.45 }

@@ -1,24 +1,36 @@
-# The road: a cart track through the countryside, a coal convoy's wagon, the railway on its bank
-# behind, hills and a far pillar.
+# The road: a cart track through the countryside running to an arch under the railway, a coal
+# convoy's wagon pulled up on the verge, a train on the embankment, fences, hills and a far pillar.
 layers:
-  - sky: { horizon: 66 }
-  - stars: { count: 70, below: 55 }
-  - body: { day: [60, 16, 6], dusk: [210, 56, 9], night: [70, 18, 5] }
-  - clouds: { count: 5, y: [6, 30], seed: 6 }
-  - pillar: { x: 220, w: 4, base: 62 }
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 52 }
+  - body: { day: [60, 14, 6], dusk: [210, 50, 9], night: [70, 16, 5] }
+  - clouds: { count: 5, y: [4, 28], seed: 6 }
+  - pillar: { x: 214, w: 4, base: 59 }
     haze: 0.6
-  - ridge: { mat: far, base: 66, amp: 14, scale: 0.03, seed: 11 }
+  - ridge: { mat: far, base: 61, amp: 12, scale: 0.03, seed: 11 }
     haze: 0.4
-  - ridge: { mat: mid, base: 76, amp: 6, scale: 0.05, seed: 12 }
+  - ridge: { mat: mid, base: 63, amp: 5, scale: 0.05, seed: 12 }
     haze: 0.15
-  - line: { from: [[0, 76], [256, 70]], w: 2, mat: metal, ties: 4, tie: wood }
-  - trees: { kind: round, mat: leaf, base: 80, every: 14, h: [8, 12], seed: 13 }
-    haze: 0.1
-  - ground: { y: 84, mat: grass, tufts: 50 }
-  - road: { y: [84, 111], top: [-10, 266], bottom: [-60, 316], mat: dirt }
-  - furn: { kind: cart, at: [170, 100], w: 40, h: 14, load: dark_stone }
+  - trees: { kind: round, mat: leaf, base: 63, everym: 10, hm: [8, 12], seed: 13 }
+    haze: 0.15
+  - ground: { y: 63, mat: grass, tufts: 50 }
+  - wall: { y0: 53, y1: 66, x: [-256, 511], mat: stone, pattern: brick }
+  - line: { from: [[-256, 52], [511, 52]], w: 1, mat: metal, ties: 3, tie: wood }
+  - furn: { kind: train, at: [70, 66], on: 3.4, cars: 3 }
     outline: true
-  - furn: { kind: cart, at: [20, 96], w: 34, h: 13, load: dark_stone }
+  - road: { y: [66, 111], wm: 3.6, mat: dirt, ruts: true }
+  - furn: { kind: door, at: [128, 66], wm: 3.6, hm: 1.5, arch: true, mat: dark_stone, frame: stone }
+  - furn: { kind: tree, at: [0, 70], xm: 16, hm: 10 }
     outline: true
-  - trees: { kind: round, mat: leaf, base: 111, every: 40, h: [34, 38], x: [250, 256], seed: 14 }
+  - furn: { kind: cart, at: [0, 69], xm: 0.6, horse: grey, load: dark_stone }
+    outline: true
+  - furn: { kind: fence, at: [0, 67], xm: -2.4, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: fence, at: [0, 67], xm: 2.4, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: cart, at: [0, 76], xm: -6.2, horse: bay, load: dark_stone }
+    outline: true
+  - furn: { kind: tree, at: [0, 75], xm: -15, hm: 9 }
+    outline: true
+  - furn: { kind: sacks, at: [0, 79], xm: 3.4 }
     outline: true
