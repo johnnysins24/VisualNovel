@@ -6,7 +6,7 @@
 import { signal } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { ENCOUNTER, FOE_TAGS, GEAR, ITEM_TAG_TH, MATERIALS, MOVE_TH, RARITIES, RARITY_TH, STAT_TH, type ItemTag, type Rarity } from '../engine/balance';
-import { buyBlock, greetOf, isSupply, sellPrice, shelfOf, shopOpen, shopsHere, supplyCount, usableInFight } from '../engine/gear';
+import { buyBlock, greetOf, isSupply, sellPrice, shelfOf, shopClosedLine, shopOpen, shopsHere, supplyCount, usableInFight } from '../engine/gear';
 import { canChangeGear, maxHp } from '../engine/items';
 import { STATS, type Item, type Passive, type Shop, type Slot } from '../engine/schema';
 import type { LifeState } from '../engine/state';
@@ -201,7 +201,7 @@ function ShopActions({ item, shop }: { item: Item; shop: Shop }) {
   const worn = !!item.slot && l.equipped[item.slot] === item.id;
   const cur = item.slot ? game.items.get(l.equipped[item.slot] ?? '') : undefined;
   const why =
-    block === 'closed' ? render(shop.closed ?? '', l)
+    block === 'closed' ? render(shopClosedLine(game, l, shop), l)
     : block === 'owned' ? (worn ? 'มีชิ้นนี้แล้ว และสวมอยู่' : 'มีชิ้นนี้อยู่ในกระเป๋าแล้ว')
     : block === 'full' ? `พกได้ ${GEAR.stack} ชิ้น เต็มแล้ว`
     : block === 'needs' ? render(item.needs_text ?? '', l)
@@ -339,7 +339,7 @@ function ShopView({ shop }: { shop: Shop }) {
   return (
     <section class="sec shop" aria-label={shop.name}>
       <h3><Icon name="shop" />{shop.name}<Purse /></h3>
-      {!shopOpen(game, l, shop) ? <p class="greet closed">{render(shop.closed ?? '', l)}</p> : (
+      {!shopOpen(game, l, shop) ? <p class="greet closed">{render(shopClosedLine(game, l, shop), l)}</p> : (
         <>
           <p class="greet">{greetOf(l, shop)}</p>
           <div class="bag-row shelf">

@@ -12,6 +12,7 @@ import { worldYear, type LifeState } from './state';
 import { Rng } from './rng';
 import { equippedItems, maxHp, unequip } from './items';
 import { applyEffects, requiresMet, type Game } from './engine';
+import { shopsShut } from './cities';
 
 // ---------- งบและราคา ----------
 
@@ -178,8 +179,11 @@ export function shopsHere(game: Game, life: LifeState): Shop[] {
   return game.shops.filter((s) => s.location === life.locationTag);
 }
 
-/** ร้านนี้ขายให้ตัวละครไหม (ร้านของเอลฟ์ไม่ขายให้ทุกคน) */
-export const shopOpen = (game: Game, life: LifeState, shop: Shop): boolean => requiresMet(game, life, shop.requires);
+/** ร้านนี้ขายให้ตัวละครไหม (ร้านของเอลฟ์ไม่ขายให้ทุกคน) ปีที่เมืองที่อยู่จลาจล ร้านปิดทั้งเมือง */
+export const shopOpen = (game: Game, life: LifeState, shop: Shop): boolean => !shopsShut(life) && requiresMet(game, life, shop.requires);
+
+/** ประโยคที่บอกว่าทำไมร้านนี้ไม่ขายให้: เมืองจลาจล (content/lines.yaml: shop_riot) หรือประโยคของร้านเอง */
+export const shopClosedLine = (game: Game, life: LifeState, shop: Shop): string => (shopsShut(life) ? (game.lines.shop_riot?.[0] ?? '') : (shop.closed ?? ''));
 
 const hash = (text: string): number => {
   let h = 2166136261;

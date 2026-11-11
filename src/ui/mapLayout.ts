@@ -3,6 +3,9 @@
  * ไฟล์นี้มีแต่การคำนวณ ไม่แตะ DOM จึง test ได้ (tests/world-map-ui.test.ts) ส่วนที่วาดอยู่ใน WorldMap.tsx
  */
 
+import { CITIES } from '../engine/balance';
+import { isCity } from '../engine/cities';
+
 export type Anchor = 'start' | 'middle' | 'end';
 
 /** ชื่อหนึ่งชื่อใน public/map/labels.json พิกัดเป็นพิกเซลของภาพแผนที่ */
@@ -41,17 +44,22 @@ export const REGION_TH: Record<string, string> = { arvel: 'อาร์เวล
 /**
  * หมุดอยู่ตรงไหน: ตอนอยู่ถิ่นเกิด หมุดลงที่บ้านเกิดตามชาติกำเนิด (บ้านเงาเสา วิหารอีเซล ย่านโรงกลั่น ...)
  * ไปอยู่ถิ่นอื่น หมุดลงที่หลักของถิ่นนั้น ถิ่นที่แผนที่ไม่รู้จัก (เช่นก่อนเกิด) ไม่มีหมุด
+ * ย้ายเข้าเมือง (life.city) หมุดลงที่เมืองนั้นบนแผนที่ (CITIES[เมือง].map)
  */
 export function pinFor(
-  l: { locationTag: string; homeTag: string | null; flags: readonly string[] },
+  l: { locationTag: string; homeTag: string | null; flags: readonly string[]; city?: string | null },
   labels: readonly MapLabel[],
 ): MapLabel | null {
   const tag = l.locationTag;
+  // อยู่ในเมือง: หมุดลงที่เมืองนั้น (คนที่เกิดในเมืองหลักของถิ่นยังลงที่ย่านบ้านเกิดตามชาติกำเนิด)
+  const city = isCity(l.city) ? CITIES[l.city] : null;
+  const town = city ? (labels.find((p) => p.id === city.map) ?? null) : null;
+  if (town && !city!.main) return town;
   if (l.homeTag === tag) {
     const home = labels.find((p) => p.tag === tag && p.home?.some((f) => l.flags.includes(f)));
     if (home) return home;
   }
-  return labels.find((p) => p.tag === tag && p.pin) ?? null;
+  return town ?? labels.find((p) => p.tag === tag && p.pin) ?? null;
 }
 
 // ---------- มุมมอง: จุดบนจอ = จุดบนแผนที่ × k + (x, y) ----------

@@ -212,7 +212,7 @@ function PlaceCard({ place, here, onHome, year }: { place: MapLabel | null; here
 function BigMap({ here }: { here: string }) {
   const data = mapData.value;
   const l = life.value;
-  const pin = data ? pinFor({ locationTag: here, homeTag: l.homeTag, flags: l.flags }, data.labels) : null;
+  const pin = data ? pinFor({ locationTag: here, homeTag: l.homeTag, flags: l.flags, city: l.city }, data.labels) : null;
   const time = mapTime.value;
   const tick = fontTick.value;
   const ref = useRef<HTMLDivElement>(null);
@@ -446,7 +446,7 @@ function BigMap({ here }: { here: string }) {
 function MiniMap({ here }: { here: string }) {
   const data = mapData.value;
   const l = life.value;
-  const pin = data ? pinFor({ locationTag: here, homeTag: l.homeTag, flags: l.flags }, data.labels) : null;
+  const pin = data ? pinFor({ locationTag: here, homeTag: l.homeTag, flags: l.flags, city: l.city }, data.labels) : null;
   const time = mapTime.value;
   const ref = useRef<HTMLButtonElement>(null);
   const size = useBoxSize(ref);

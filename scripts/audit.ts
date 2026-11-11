@@ -9,8 +9,9 @@ import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { equip, maxHp } from '../src/engine/items';
-import { ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
 import { dutiesDue, dutyResting } from '../src/engine/orgs';
+import { cityOf, moodOf } from '../src/engine/cities';
 import { foeOf, hitDamage, moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
 import { buy, buyBlock, fightSupplies, isSupply, itemBudget, sell, sellPrice, shelfOf, shopOpen, shopsHere, supplyCount, useSupply } from '../src/engine/gear';
 import type { Effects, EncounterEnd, GameEvent, Item } from '../src/engine/schema';
@@ -40,6 +41,29 @@ export interface FightTally {
   wounds: number;
 }
 const newTally = (): FightTally => ({ n: 0, ends: {}, beats: 0, hits: 0, hpLost: 0, hpStart: 0, wounds: 0 });
+
+/** ชีวิตหนึ่งกับเมืองและหลักสูตร: สิ่งที่สถานะตอนจบชีวิตไม่ได้เก็บไว้ (ที่อยู่ที่เคยมี สภาพเมืองที่เคยเจอ ช่วงเรียน) */
+export interface TownLife {
+  /** ปีที่อยู่ในแต่ละเมือง (นับทุกเหตุการณ์ที่ออกตอนอยู่เมืองนั้น) */
+  yearsIn: Partial<Record<CityId, number>>;
+  /** ที่อยู่ที่เคยมี */
+  homes: Set<HomeKind>;
+  /** สภาพเมืองที่ไม่สงบที่เคยอยู่ด้วย (เมืองที่ตัวละครอยู่ตอนนั้น) */
+  moods: Set<CityMood>;
+  /** ปีที่ร้านของเมืองปิดเพราะจลาจลตอนตัวละครอยู่ */
+  shutYears: number;
+  course?: {
+    id: CourseId;
+    enteredAge: number;
+    /** เรื่องของหลักสูตรที่ได้ และปีเรียนที่ไม่มีเรื่องของหลักสูตรให้ออก (ต้องเป็นศูนย์) */
+    lessons: number;
+    empty: number;
+    track?: string;
+    end: 'graduated' | 'left' | 'died' | 'studying';
+    /** ปีในโลกที่ใช้ตั้งแต่เข้าเรียนจนพ้นหลักสูตร */
+    span: number;
+  };
+}
 
 /** ชีวิตหนึ่งกับองค์กรหนึ่ง: นับตั้งแต่วันที่เข้า แม้ภายหลังจะออก (สถานะในเกมหายไปตอนออก จึงต้องจดไว้ที่นี่) */
 export interface OrgLife {
@@ -267,6 +291,8 @@ export interface AuditResult {
     /** ฉากตามล่าที่ออก (ฝ่าย → จำนวนครั้งรวมทุกชีวิต) */
     hunts: Map<string, number>;
   };
+  /** เมืองและหลักสูตร: เรียงตรงกับ finals */
+  towns: TownLife[];
 }
 
 export function auditLives(game: Game, lives: number): AuditResult {
@@ -295,6 +321,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
     },
     gear: { perLife: [], boughtById: new Map(), lootById: new Map() },
     orgs: { perLife: [], hunts: new Map() },
+    towns: [],
   };
   const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
@@ -324,6 +351,26 @@ export function auditLives(game: Game, lives: number): AuditResult {
           o.refused = m.refused;
           o.left = false;
         } else if (rec) rec.left = true;
+      }
+    };
+    const town: TownLife = { yearsIn: {}, homes: new Set(), moods: new Set(), shutYears: 0 };
+    /** จดเมือง ที่อยู่ และช่วงเรียนหลังทุกเหตุการณ์ */
+    const noteTown = (was: LifeState, now: LifeState) => {
+      const here = cityOf(now);
+      if (here) {
+        town.yearsIn[here] = (town.yearsIn[here] ?? 0) + Math.max(1, now.age - was.age);
+        const mood = moodOf(now, here);
+        if (mood !== 'calm') town.moods.add(mood);
+        if (mood === 'riot') town.shutYears++;
+      }
+      if (now.home) town.homes.add(now.home.kind);
+      if (now.course && !town.course) town.course = { id: now.course.id, enteredAge: humanAge(was), lessons: 0, empty: 0, end: 'studying', span: 0 };
+      const c = town.course;
+      if (c && c.end === 'studying') {
+        if (now.course?.track) c.track = now.course.track;
+        c.span = worldYear(now) - (now.course?.since ?? was.course?.since ?? worldYear(now));
+        if (!now.course) c.end = now.flags.includes(COURSES[c.id].done) ? 'graduated' : 'left';
+        else if (!now.alive) c.end = 'died';
       }
     };
     /** must ที่เข้าเงื่อนไขแล้วแต่ยังไม่ได้ออก → เรื่องที่แซงไปตอนมันเหลือโอกาสสุดท้าย (ถ้ามี) */
@@ -386,7 +433,18 @@ export function auditLives(game: Game, lives: number): AuditResult {
         // วัยชรา (65 ขึ้นไป) ยังไม่มีงานขององค์กร นับแยกไว้ให้เห็นช่องว่าง ไม่ปนกับปีที่ควรมีงาน
         for (const id of due) if (!pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]![humanAge(l) < 65 ? 'starved' : 'starvedOld']++;
         const owed = pool.filter((e) => e.duty && due.includes(e.duty) && fresh(e));
-        if (owed.length && !ev.must && !owed.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่งานขององค์กรถึงกำหนด (${owed[0]!.id})`);
+        // นักเรียนได้เรื่องของหลักสูตรก่อนงานขององค์กร
+        if (owed.length && !ev.must && !ev.course && !owed.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่งานขององค์กรถึงกำหนด (${owed[0]!.id})`);
+        // หลักสูตร: ระหว่างเรียนต้องได้เรื่องของหลักสูตรทุกปี (เว้นปีที่เหตุการณ์ must ของโลกออก)
+        if (l.course && town.course) {
+          if (ev.course) town.course.lessons++;
+          else if (!ev.must) {
+            town.course.empty++;
+            bump(problems, `หลักสูตร ${l.course.id} ปี ${l.course.year}${l.course.track ? ` สาย ${l.course.track}` : ''}: ไม่มีเรื่องของหลักสูตรให้ออก (${ev.id} ออกแทน)`);
+          }
+          const lessons = pool.filter((e) => e.course);
+          if (lessons.length && !ev.must && !ev.course) bump(problems, `${ev.id}: ถูกหยิบทั้งที่มีเรื่องของหลักสูตรรออยู่ (${lessons[0]!.id})`);
+        }
       }
       if (ev.duty && orgLife[ev.duty]) orgLife[ev.duty]!.duties++;
       if (ev.hunt) bump(res.orgs.hunts, ev.hunt);
@@ -502,6 +560,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
       }
 
       noteOrgs(l);
+      noteTown(before, l);
       const paid = l.log.at(-1)?.encounter?.bounty;
       if (paid) for (const id of ORG_IDS) if (ORGS[id].bounty && orgLife[id]) orgLife[id]!.bounty += paid;
 
@@ -562,6 +621,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
     res.finals.push(l);
     res.gear.perLife.push(gearLife);
     res.orgs.perLife.push(orgLife);
+    res.towns.push(town);
     fights.perLife.push(fought);
   }
 
@@ -799,6 +859,34 @@ export function formatReport(game: Game, res: AuditResult): string {
     const hunts = [...res.orgs.hunts].sort((a, b) => b[1] - a[1]);
     out.push(`- ฉากตามล่าที่ออก: ${hunts.length ? hunts.map(([k, n]) => `${k} ${n} ครั้ง`).join(' · ') : 'ไม่มี'} · ชีวิตที่จบโดยยังโดนตามล่า ${pct(finals.filter((l) => Object.values(l.hunted).some((v) => v > 0)).length, lives)}`);
     out.push(`- งานขององค์กรที่ออกติดกันเพราะไม่มีเรื่องอื่น: ${res.counts.get('งานขององค์กรที่ออกติดกัน') ?? 0} ครั้ง · เกณฑ์ผลงานของยศ 2 ถึง ${ORG_RANKS}: ${ORG.merit.join(' ')}`);
+  }
+
+  h('เมืองและหลักสูตร');
+  {
+    const rows = finals.map((l, i) => ({ life: l, t: res.towns[i]! }));
+    const years = (l: LifeState) => l.log.flatMap((e) => (e.year ? [e.year] : []));
+    for (const id of CITY_IDS) {
+      const lived = rows.filter((x) => x.t.yearsIn[id]);
+      const ranks = CITY_RANKS.map((th, k) => `${th} ${pct(lived.filter((x) => x.life.standing[id]?.rank === k + 1).length, lived.length)}`);
+      out.push(`- ${CITIES[id].th}: เคยอยู่ ${lived.length} ชีวิต (${pct(lived.length, lives)}) · ปีที่อยู่ กลาง ${median(lived.map((x) => x.t.yearsIn[id]!))} · ชั้นตอนจบ: ${ranks.join(' · ')}`);
+    }
+    const urban = rows.filter((x) => Object.keys(x.t.yearsIn).length);
+    out.push(`- ที่อยู่ที่เคยมี (จากชีวิตที่เคยอยู่เมือง ${urban.length} ชีวิต): ${HOME_KINDS.map((k) => `${HOME_TH[k]} ${pct(urban.filter((x) => x.t.homes.has(k)).length, urban.length)}`).join(' · ')} · ไม่เคยมีที่อยู่ ${pct(urban.filter((x) => !x.t.homes.size).length, urban.length)}`);
+    const rent = (key: 'paid' | 'behind' | 'evicted') => urban.map((x) => years(x.life).filter((y) => y.rent?.[key]).length);
+    const sum = (xs: number[]) => xs.reduce((a, b) => a + b, 0);
+    out.push(`- ค่าเช่า (${CITY.rent} เหรียญทุก ${CITY.rentEvery} ปี): จ่าย ${sum(rent('paid'))} ครั้ง · ค้าง ${sum(rent('behind'))} ครั้ง · เสียห้อง ${sum(rent('evicted'))} ครั้ง (${pct(rent('evicted').filter((n) => n > 0).length, urban.length)} ของชีวิตในเมือง) · รายได้ของร้าน ${sum(urban.map((x) => years(x.life).filter((y) => y.income).length))} ครั้ง`);
+    const moods = (['tense', 'riot', 'plague'] as const).map((m) => `${CITY_MOOD_TH[m]} ${pct(urban.filter((x) => x.t.moods.has(m)).length, urban.length)}`);
+    out.push(`- สภาพเมืองที่เคยอยู่ด้วย: ${moods.join(' · ')} · ปีที่ร้านปิดเพราะจลาจล กลาง ${median(urban.filter((x) => x.t.shutYears).map((x) => x.t.shutYears))} (จาก ${urban.filter((x) => x.t.shutYears).length} ชีวิต) · จบชีวิตโดยเมืองยังไม่สงบ ${pct(finals.filter((l) => Object.keys(l.moods ?? {}).length).length, lives)}`);
+    for (const id of COURSE_IDS) {
+      const def = COURSES[id];
+      const took = rows.flatMap((x) => (x.t.course?.id === id ? [x.t.course] : []));
+      const ends = (['graduated', 'left', 'died', 'studying'] as const).map((e) => `${{ graduated: 'จบ', left: 'ออกกลางคัน', died: 'ตายระหว่างเรียน', studying: 'ยังเรียนอยู่ตอนชีวิตจบ' }[e]} ${pct(took.filter((c) => c.end === e).length, took.length)}`);
+      out.push(`- ${def.th}: เข้าเรียน ${took.length} ชีวิต (${pct(took.length, lives)}) · อายุตอนเข้า กลาง ${median(took.map((c) => c.enteredAge))} · ${ends.join(' · ')}`);
+      if (!took.length) continue;
+      const grads = took.filter((c) => c.end === 'graduated');
+      out.push(`  - สำนัก: ${Object.entries(def.tracks).map(([t, th]) => `${th} ${pct(took.filter((c) => c.track === t).length, took.length)}`).join(' · ')} · ยังไม่ได้เลือก ${pct(took.filter((c) => !c.track).length, took.length)}`);
+      out.push(`  - คนที่จบ: ใช้เวลา กลาง ${median(grads.map((c) => c.span))} ปี (หลักสูตร ${def.years} ปี) สูงสุด ${Math.max(0, ...grads.map((c) => c.span))} · ปีเรียนที่ไม่มีเรื่องของหลักสูตรให้ออก รวม ${sum(took.map((c) => c.empty))} ปี (ต้องเป็นศูนย์)`);
+    }
   }
 
   h('เผ่าและอาชีพ');

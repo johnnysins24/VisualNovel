@@ -1,13 +1,13 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { CLERIC_DRIFT_FLAG, DEMON_MARK_TRAIT, GEAR, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, type OrgId } from './balance';
+import { CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, type CityId, type CourseId, type OrgId } from './balance';
 import { unknownPlaceholders } from './text';
 import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
 import { knowsFlag } from './encounter';
 import { itemBudget } from './gear';
 
 /** กุญแจของ Content.lines ที่ระบบใช้ (ขึ้นต้นด้วยคำเหล่านี้) */
-const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death', 'gear', 'hunt_cold', 'bounty'];
+const LINE_KEYS = ['decline', 'decline_STR', 'decline_DEX', 'winter_fail', 'news_death', 'gear', 'hunt_cold', 'bounty', 'rent', 'shop', 'mood'];
 
 const outcomes = (ch: Choice): (Effects | undefined)[] => [ch.effects, ch.success?.effects, ch.failure?.effects];
 /** ทางจบของการปะทะที่มีผล (ความตายไม่มีผล มีแต่ข้อความ) */
@@ -34,10 +34,22 @@ export function lintContent(c: Content): string[] {
     for (const [by, d] of Object.entries(fx?.hunted ?? {})) if ((d ?? 0) > 0) hunters.add(by);
   };
 
+  // เมืองที่มีทางไปถึง (ผล city.move หรือผล location_tag ของถิ่นที่เมืองนั้นเป็นเมืองหลัก) และหลักสูตรที่มีทางเข้าเรียน
+  const reachable = new Set<CityId>();
+  const entered = new Set<CourseId>();
+  const noteCity = (fx: Effects | undefined) => {
+    if (fx?.city?.move) reachable.add(fx.city.move);
+    if (fx?.location_tag) for (const id of CITY_IDS) if (CITIES[id].main && CITIES[id].tag === fx.location_tag) reachable.add(id);
+    if (fx?.course?.enter) entered.add(fx.course.enter);
+  };
+
   for (const e of c.events) {
     if (seen.has(e.id)) dupes.add(e.id);
     seen.add(e.id);
-    for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) noteOrg(fx);
+    for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) {
+      noteOrg(fx);
+      noteCity(fx);
+    }
     for (const ch of e.choices) {
       for (const fx of outcomes(ch)) {
         fx?.flags?.forEach((f) => setFlags.add(f));
@@ -68,6 +80,12 @@ export function lintContent(c: Content): string[] {
     }
   }
   for (const id of ORG_IDS) if (ORGS[id].jobs?.some((j) => setFlags.has(j))) joinable.add(id);
+  // หลักสูตรที่เข้าเรียนได้ตั้ง flag นักเรียน เรียนจบ และสายที่เลือกให้เอง
+  for (const id of entered) {
+    const def = COURSES[id];
+    setFlags.add(def.student).add(def.done);
+    for (const t of Object.keys(def.tracks)) setFlags.add(`${def.trackFlag}${t}`);
+  }
   for (const id of joinable) hunters.add(ORGS[id].enemy);
   dupes.forEach((id) => problems.push(`id ซ้ำ: ${id}`));
   const namedPeople = new Set<string>(['father', 'mother', 'partner']);
@@ -231,6 +249,22 @@ export function lintContent(c: Content): string[] {
     }
   }
 
+  // ---- หลักสูตร: ทุกปีต้องมีเรื่องให้เรียน (เรื่องที่ทุกสายเรียน หรือเรื่องของแต่ละสายครบทุกสาย) ----
+  for (const id of entered) {
+    const def = COURSES[id];
+    const lessons = c.events.filter((e) => e.course?.id === id);
+    const covers = (e: GameEvent, y: number) => (typeof e.course!.year === 'number' ? e.course!.year === y : e.course!.year[0] <= y && y <= e.course!.year[1]);
+    let picked = false;
+    for (let y = 1; y <= def.years; y++) {
+      const year = lessons.filter((e) => covers(e, y));
+      const missing = Object.keys(def.tracks).filter((t) => !year.some((e) => e.course!.track === t));
+      if (!year.some((e) => !e.course!.track) && (missing.length || !picked)) {
+        problems.push(`หลักสูตร ${id}: ปี ${y} ${picked ? `ไม่มีเรื่องของสาย ${missing.join(', ')}` : 'ไม่มีเรื่องที่ออกได้ก่อนเลือกสาย (เรื่องที่ไม่ระบุ track)'}`);
+      }
+      if (year.some((e) => e.choices.some((ch) => outcomes(ch).some((fx) => fx?.course?.track)))) picked = true;
+    }
+  }
+
   for (const e of c.events) {
     const where = e.id;
     const w = e.when;
@@ -239,7 +273,7 @@ export function lintContent(c: Content): string[] {
     if (w.age && w.age[0] > w.age[1]) problems.push(`${where}: ช่วงอายุกลับด้าน`);
     if (w.year && w.year[0] > w.year[1]) problems.push(`${where}: ช่วงปีกลับด้าน`);
     if (e.must && !e.once) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด)`);
-    if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
+    if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !w.city && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร เมือง หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
     // ---- องค์กร: งานที่ส่งมา และเรื่องถูกตามล่า ----
     const orgOf = (cond: Requires['org']) => (typeof cond === 'string' ? cond : cond?.id);
     const lintOrgConds = (cw: string, r: Pick<Requires, 'org' | 'not_orgs' | 'min_hunted' | 'max_hunted'> | undefined) => {
@@ -249,6 +283,40 @@ export function lintContent(c: Content): string[] {
       for (const by of Object.keys(r?.min_hunted ?? {})) if (!hunters.has(by)) problems.push(`${cw}: min_hunted "${by}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
     };
     lintOrgConds(where, w);
+    // ---- เมือง: เงื่อนไขที่อ่านเมือง ย่าน และชั้นของคนเมือง ----
+    /** เมืองที่เงื่อนไขนี้หมายถึง (ไม่ระบุ = เมืองไหนก็ได้) */
+    const citiesOf = (cond: Requires['city']): readonly CityId[] => {
+      if (!cond || cond === 'any' || cond === 'none') return CITY_IDS;
+      if (typeof cond === 'string') return [cond];
+      return cond.id === undefined ? CITY_IDS : Array.isArray(cond.id) ? cond.id : [cond.id];
+    };
+    const inCity = (cond: Requires['city']) => cond !== undefined && cond !== 'none';
+    const lintCityCond = (cw: string, cond: Requires['city']) => {
+      if (!cond || cond === 'any' || cond === 'none') return;
+      const ids = citiesOf(cond);
+      if (typeof cond === 'string' || cond.id !== undefined) {
+        for (const id of ids) if (!reachable.has(id)) problems.push(`${cw}: อ่านเมือง "${id}" แต่ไม่มีเหตุการณ์ไหนพาไปเมืองนี้ (city.move หรือ location_tag ของถิ่นที่เมืองนี้เป็นเมืองหลัก)`);
+      }
+      if (typeof cond === 'string') return;
+      for (const d of cond.district === undefined ? [] : Array.isArray(cond.district) ? cond.district : [cond.district]) {
+        if (!ids.some((id) => CITIES[id].districts[d])) problems.push(`${cw}: ไม่มีย่าน "${d}" ใน${ids.length === 1 ? CITIES[ids[0]!].th : 'เมืองที่ระบุ'}`);
+      }
+      if (cond.min_rank !== undefined && cond.max_rank !== undefined && cond.min_rank > cond.max_rank) problems.push(`${cw}: ช่วงชั้นของ city กลับด้าน`);
+      if (cond.native && !ids.some((id) => CITIES[id].natives)) problems.push(`${cw}: native: true แต่เมืองที่ระบุไม่มีคนเกิดในเมือง (CITIES[เมือง].natives)`);
+      if (cond.behind && cond.home && !cond.home.includes('room')) problems.push(`${cw}: behind: true ใช้ได้กับคนเช่าห้อง (home ต้องมี room)`);
+    };
+    lintCityCond(where, w.city);
+    // ---- หลักสูตร ----
+    if (e.course) {
+      const def = COURSES[e.course.id];
+      const [from, to] = typeof e.course.year === 'number' ? [e.course.year, e.course.year] : e.course.year;
+      if (from > to) problems.push(`${where}: ช่วงปีของ course กลับด้าน`);
+      if (to > def.years) problems.push(`${where}: course ปี ${to} เกินจำนวนปีของ${def.th} (${def.years} ปี)`);
+      if (e.course.track && !def.tracks[e.course.track]) problems.push(`${where}: ${def.th}ไม่มีสาย "${e.course.track}" (มี ${Object.keys(def.tracks).join(', ')})`);
+      if (!entered.has(e.course.id)) problems.push(`${where}: เหตุการณ์ของ${def.th} แต่ไม่มีเหตุการณ์ไหนพาเข้าเรียน (course.enter)`);
+      if (e.must || e.fallback || e.years || e.duty || e.hunt || e.stage === 'death') problems.push(`${where}: เหตุการณ์ของหลักสูตร (course) ใช้กับ must fallback years duty hunt หรือฉากตายไม่ได้`);
+      if (w.age || w.year) problems.push(`${where}: เหตุการณ์ของหลักสูตรออกตามปีที่เรียน ไม่ใช้ when.age หรือ when.year (คนเข้าเรียนช้าหรือเรียนซ้ำปีจะไม่ได้เรื่องนี้)`);
+    }
     if (e.duty) {
       if (!joinable.has(e.duty)) problems.push(`${where}: งานของ "${e.duty}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
       if (orgOf(w.org) && orgOf(w.org) !== e.duty) problems.push(`${where}: duty "${e.duty}" กับ when.org "${orgOf(w.org)}" เป็นคนละองค์กร`);
@@ -312,11 +380,12 @@ export function lintContent(c: Content): string[] {
       }
       for (const t of r?.not_traits ?? []) knownTrait(cw, t);
       lintOrgConds(cw, r);
+      lintCityCond(cw, r?.city);
       if (r?.item && !itemIds.has(r.item)) problems.push(`${cw}: requires ของ "${r.item}" ที่ไม่มี`);
       for (const role of r?.cast ?? []) if (!roles.includes(role)) problems.push(`${cw}: requires.cast "${role}" ไม่มีใน cast ของเหตุการณ์`);
     };
     /** ผลของตัวเลือกหรือของทางจบการปะทะ คืนข้อความที่ผลนั้นพกมา (mark epitaph) ให้ตรวจ placeholder ต่อ */
-    const lintEffects = (cw: string, fx: Effects | undefined, bigRoomOk: boolean): (string | undefined)[] => {
+    const lintEffects = (cw: string, fx: Effects | undefined, bigRoomOk: boolean, r?: Requires): (string | undefined)[] => {
       for (const id of fx?.items ?? []) if (!itemIds.has(id)) problems.push(`${cw}: ไม่มีของ "${id}"`);
       for (const [k, id] of Object.entries(fx?.name_pool ?? {})) {
         if (id && id !== 'none' && !(k === 'parents' && id === 'none') && !poolIds.has(id)) problems.push(`${cw}: name_pool.${k} "${id}" ไม่มีใน names.yaml`);
@@ -340,6 +409,36 @@ export function lintContent(c: Content): string[] {
         if (o.secret === true && !o.join) problems.push(`${cw}: org.secret: true ใช้คู่กับ join เท่านั้น (เปิดเผยตัวใช้ secret: false)`);
         if (!o.join && !joinable.has(o.id)) problems.push(`${cw}: เปลี่ยนสถานะสมาชิกของ "${o.id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
       }
+      if (fx?.city) {
+        const ct = fx.city;
+        // เมืองที่ผลนี้เกิดขึ้น: เมืองที่ย้ายเข้า หรือเมืองที่เงื่อนไขของเหตุการณ์กับตัวเลือกบอกว่าตัวละครอยู่
+        const gated = inCity(w.city) || inCity(r?.city);
+        const at: readonly CityId[] = ct.move ? [ct.move] : citiesOf(inCity(r?.city) ? r?.city : w.city);
+        if (ct.move && ct.leave) problems.push(`${cw}: city.move กับ city.leave ใช้พร้อมกันไม่ได้`);
+        if (!ct.move && !ct.leave && !ct.district && !ct.home && !ct.merit && !ct.promote && !ct.mood) problems.push(`${cw}: effects.city ไม่มีผลอะไร`);
+        if (ct.district && !at.some((id) => CITIES[id].districts[ct.district!])) problems.push(`${cw}: ไม่มีย่าน "${ct.district}" ใน${at.length === 1 ? CITIES[at[0]!].th : 'เมืองที่ระบุ'}`);
+        if (!ct.move && !gated && (ct.leave || ct.district || ct.home)) problems.push(`${cw}: city.leave district home ใช้ได้เมื่อตัวละครอยู่ในเมือง ต้องมี when.city หรือ requires.city (หรือ city.move ในผลเดียวกัน)`);
+        if (!ct.move && !gated && !ct.of && (ct.merit || ct.promote || ct.mood)) problems.push(`${cw}: city.merit promote mood ต้องรู้ว่าเป็นเมืองไหน ต้องมี when.city หรือ requires.city หรือระบุ city.of`);
+        if (ct.of && !ct.merit && !ct.mood && !ct.promote) problems.push(`${cw}: city.of ใช้คู่กับ merit mood หรือ promote`);
+        if (ct.promote && !(typeof w.city === 'object' && w.city.ready === true)) problems.push(`${cw}: city.promote ใช้ได้ในฉากขึ้นชั้นที่กันด้วย when.city.ready: true เท่านั้น`);
+        // ซื้อบ้านหรือร้าน: จ่ายเงินจริงในผลเดียวกัน และตัวเลือกต้องกันคนที่เงินไม่พอ (ไม่มีหนี้จากการซื้อบ้าน)
+        if (ct.home === 'house' || ct.home === 'shop') {
+          const min = CITY.minPrice[ct.home];
+          const paid = -(fx.gold ?? 0);
+          if (paid < min) problems.push(`${cw}: ซื้อ${HOME_TH[ct.home]}ต้องจ่ายในผลเดียวกันอย่างน้อย ${min} เหรียญ (gold: -${min} หรือมากกว่า)`);
+          else if ((r?.min_gold ?? 0) < paid) problems.push(`${cw}: ซื้อ${HOME_TH[ct.home]}ราคา ${paid} เหรียญ ตัวเลือกต้องมี requires.min_gold: ${paid}`);
+        }
+      }
+      if (fx?.course) {
+        const cs = fx.course;
+        const ids = e.course ? [e.course.id] : cs.enter ? [cs.enter] : COURSE_IDS.filter((id) => w.flags?.includes(COURSES[id].student));
+        if (cs.enter && e.course) problems.push(`${cw}: course.enter ใช้ในเหตุการณ์ของหลักสูตรไม่ได้ (ตัวละครเรียนอยู่แล้ว)`);
+        if (cs.enter && (cs.leave || cs.hold)) problems.push(`${cw}: course.enter ใช้พร้อม leave หรือ hold ไม่ได้`);
+        if (!cs.enter && !cs.track && !cs.leave && !cs.hold) problems.push(`${cw}: effects.course ไม่มีผลอะไร`);
+        if (!ids.length) problems.push(`${cw}: course.track leave hold ใช้ได้กับคนที่เรียนอยู่ เหตุการณ์ต้องเป็นของหลักสูตร (course) หรือมี when.flags เป็น flag นักเรียน`);
+        if (cs.hold && !e.course) problems.push(`${cw}: course.hold ใช้ได้ในเหตุการณ์ของหลักสูตรเท่านั้น`);
+        if (cs.track && ids.length && !ids.some((id) => COURSES[id].tracks[cs.track!])) problems.push(`${cw}: ไม่มีสาย "${cs.track}" ใน${COURSES[ids[0]!].th}`);
+      }
       if (fx?.epitaph !== undefined && e.stage !== 'death') problems.push(`${cw}: epitaph ใช้ได้เฉพาะในฉากตาย`);
       if (fx?.survive && e.stage !== 'death') problems.push(`${cw}: survive ใช้ได้เฉพาะในฉากตาย`);
       return [fx?.mark, fx?.epitaph];
@@ -361,7 +460,7 @@ export function lintContent(c: Content): string[] {
         if (registry.size && registry.get(ch.habit) && !registry.get(ch.habit)!.habit) problems.push(`${cw}: habit "${ch.habit}" ไม่ใช่ลักษณะที่ก่อตัวจากนิสัย (habit: true)`);
       }
       const texts = [ch.label, ch.text, ch.success?.text, ch.failure?.text];
-      for (const fx of outcomes(ch)) texts.push(...lintEffects(cw, fx, eventBigRoom || ch.requires?.big_room === true));
+      for (const fx of outcomes(ch)) texts.push(...lintEffects(cw, fx, eventBigRoom || ch.requires?.big_room === true, ch.requires));
       lintTexts(cw, texts);
       for (const r of optional) {
         if (usesRole(texts, r) && !ch.requires?.cast?.includes(r)) problems.push(`${cw}: ใช้บท "${r}" ที่อาจไม่มีคนเล่น ต้องมี requires.cast: [${r}]`);

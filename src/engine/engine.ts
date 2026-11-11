@@ -1,4 +1,4 @@
-import type { Choice, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, OrgCond, PersonEffect, Requires, Shop, Stat } from './schema';
+import type { Choice, CityCond, Content, DeathCause, Effects, FoeDef, GameEvent, NamePool, OrgCond, PersonEffect, Requires, Shop, Stat } from './schema';
 import { STATS } from './schema';
 import { Rng } from './rng';
 import {
@@ -39,6 +39,8 @@ import {
   WINTER,
   WORLD_CAP,
   WORLD_KEYS,
+  CITY_IDS,
+  type CityId,
   type ClassId,
   type ItemTag,
   type MaterialId,
@@ -53,6 +55,8 @@ import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitChe
 import { beginEncounter, openMoves } from './encounter';
 import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
 import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
+import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, syncCity } from './cities';
+import { advanceCourse, applyCourseEffects, courseSlotOpen } from './course';
 
 export interface Game {
   events: GameEvent[];
@@ -135,6 +139,7 @@ interface StateConds {
   not_orgs?: OrgId[] | undefined;
   min_hunted?: Partial<Record<string, number>> | undefined;
   max_hunted?: Partial<Record<string, number>> | undefined;
+  city?: CityCond | undefined;
 }
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
@@ -158,6 +163,7 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   if (c.not_orgs?.some((id) => isMember(life, id))) return false;
   for (const [by, min] of Object.entries(c.min_hunted ?? {})) if (huntLevel(life, by) < (min ?? 0)) return false;
   for (const [by, max] of Object.entries(c.max_hunted ?? {})) if (huntLevel(life, by) > (max ?? 0)) return false;
+  if (c.city !== undefined && !cityCondMet(life, c.city)) return false;
   return true;
 }
 
@@ -237,6 +243,8 @@ export function eligible(game: Game, life: LifeState, ev: GameEvent, ignoreTime 
   // งานขององค์กรออกเฉพาะกับสมาชิก เรื่องถูกตามล่าออกเฉพาะเมื่อฝ่ายนั้นตามอยู่
   if (ev.duty && !isMember(life, ev.duty)) return false;
   if (ev.hunt && huntLevel(life, ev.hunt) < 1) return false;
+  // เหตุการณ์ของหลักสูตรออกเฉพาะกับคนที่เรียนอยู่ในปีและสายนั้น
+  if (!courseSlotOpen(life, ev.course)) return false;
   if (!stateConditionsMet(game, life, w)) return false;
   if (namesTheAbsent(game, life, ev, ev)) return false;
   return bindCast(life, ev) !== null;
@@ -296,8 +304,9 @@ function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
  * เลือกเหตุการณ์ถัดไป ลำดับคือ
  * 1. forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง) ใช้เหตุการณ์นั้นแทนการสุ่ม
  * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
- * 3. สมาชิกองค์กรที่ไม่ได้งานมา ORG.dutyGap.max เหตุการณ์ติดกัน: เรื่องถัดไปคืองานขององค์กรนั้น (ถ้ายังมีงานที่ออกได้)
- * 4. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป ฉากปะทะที่ยังพักอยู่ และงานขององค์กรที่เพิ่งมา (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
+ * 3. คนที่กำลังเรียนหลักสูตร: เรื่องถัดไปคือเหตุการณ์ของหลักสูตรในปีที่เรียนอยู่ สุ่มแบบถ่วงน้ำหนักถ้ามีหลายเรื่อง (ปีที่ไม่มีเรื่องของหลักสูตรให้ออก ชีวิตเดินตามปกติ)
+ * 4. สมาชิกองค์กรที่ไม่ได้งานมา ORG.dutyGap.max เหตุการณ์ติดกัน: เรื่องถัดไปคืองานขององค์กรนั้น (ถ้ายังมีงานที่ออกได้)
+ * 5. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป ฉากปะทะที่ยังพักอยู่ และงานขององค์กรที่เพิ่งมา (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
  *    เหตุการณ์สำรอง (fallback) เข้ากองเฉพาะปีที่เรื่องปกติมีน้อยกว่า THIN_POOL เรื่องถูกตามล่าหนักขึ้นตามระดับภัย (eventWeight)
  * ตอนตัวละครกำลังจะตาย กองมีแต่ฉากตายของเหตุนั้น
  */
@@ -321,10 +330,11 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
     }
     return { event: first, life: withEvent(game, life, first) };
   }
+  const lessons = life.course ? all.filter((e) => e.course) : [];
   const normal = all.filter((e) => !e.fallback);
   const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e) && !dutyResting(life, e, game.duties));
   const due = dutiesDue(life, game.duties);
-  const owed = due.length ? rested.filter((e) => e.duty && due.includes(e.duty)) : [];
+  const owed = lessons.length ? lessons : due.length ? rested.filter((e) => e.duty && due.includes(e.duty)) : [];
   let pool = owed.length ? owed : rested;
   if (!owed.length && rested.length < THIN_POOL) {
     const spare = all.filter((e) => e.fallback);
@@ -521,6 +531,13 @@ function diffLife(before: LifeState, after: LifeState): LifeChanges | undefined 
   for (const by of new Set([...Object.keys(before.hunted ?? {}), ...Object.keys(after.hunted ?? {})])) {
     if (huntLevel(before, by) !== huntLevel(after, by)) (c.hunted ??= {})[by] = huntLevel(after, by);
   }
+  for (const id of CITY_IDS as readonly CityId[]) {
+    if (cityRank(before, id) !== cityRank(after, id)) (c.standing ??= {})[id] = cityRank(after, id);
+    if (moodOf(before, id) !== moodOf(after, id)) (c.moods ??= {})[id] = moodOf(after, id);
+  }
+  const homeWas = homeHere(before)?.kind ?? 'none', homeNow = homeHere(after)?.kind ?? 'none';
+  // บ้านของครอบครัวมาพร้อมการเกิดในเมือง ไม่นับเป็นสิ่งที่เปลี่ยน
+  if (homeWas !== homeNow && homeNow !== 'family' && !(homeWas === 'family' && homeNow === 'none')) c.home = homeNow;
   return Object.keys(c).length ? c : undefined;
 }
 
@@ -581,6 +598,14 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   if (fx.location_tag) {
     next.locationTag = fx.location_tag;
     next.homeTag ??= fx.location_tag;
+  }
+  // เมือง: ผลที่เหตุการณ์สั่ง แล้วให้เมืองตรงกับถิ่น (ถิ่นที่มีเมืองหลักพาเข้าเมืองนั้นเอง) · หลักสูตร: เข้าเรียน เลือกสาย ออกกลางคัน
+  if (fx.city || fx.location_tag) Object.assign(next, syncCity(applyCityEffects(next, fx.city)));
+  if (fx.course) {
+    const { course, flags } = applyCourseEffects(next, fx.course);
+    next.flags = flags;
+    if (course) next.course = course;
+    else delete next.course;
   }
   for (const k of WORLD_KEYS) if (fx.world?.[k]) next.world[k] = clamp(next.world[k] + fx.world[k]!, WORLD_CAP);
   if (fx.alignment?.law) next.alignment.law = clamp(next.alignment.law + fx.alignment.law, ALIGN_CAP);
@@ -851,7 +876,8 @@ export function caredFor(life: LifeState): boolean {
  * ใช้ค่าอึดของร่างกายเอง ไม่นับโบนัสจากของที่สวม: ของช่วยให้ผ่านฤดูหนาวได้ทางเดียวคือของกันหนาว (ไม่เกิน GEAR.winterMax)
  */
 export function winterModifier(game: Game, life: LifeState): number {
-  const warm = activePassives(life, game.items).reduce((n, p) => n + (p.kind === 'winter' ? p.amount : 0), 0);
+  // หลังคาของตัวเองในเมือง (cities.ts) นับเป็นของกันหนาวอีกอย่างหนึ่ง รวมกันไม่เกินเพดานเดิม
+  const warm = activePassives(life, game.items).reduce((n, p) => n + (p.kind === 'winter' ? p.amount : 0), 0) + roofBonus(life);
   return modifier(life.stats.CON) + traitWinter(life, game.traits) + (caredFor(life) ? WINTER.care : 0) + Math.min(GEAR.winterMax, warm);
 }
 
@@ -861,7 +887,8 @@ function markDead(life: LifeState, id: string): LifeState {
 }
 
 /**
- * สิ่งที่เกิดเองตอนสิ้นปี เรียงตามนี้: แผลหายตามวัย ร่างกายโรย (ตั้งแต่ 50) เช็คฤดูหนาว (ตั้งแต่ 65) และคนรอบตัวที่จากไปตามวัย
+ * สิ่งที่เกิดเองตอนสิ้นปี เรียงตามนี้: แผลหายตามวัย ร่างกายโรย (ตั้งแต่ 50) เช็คฤดูหนาว (ตั้งแต่ 65) ราคาของวัสดุที่สวม ภัยตามล่าที่เย็นลง
+ * ชีวิตในเมือง (ค่าเช่า รายได้ของร้าน สภาพเมืองที่คลายลง) และคนรอบตัวที่จากไปตามวัย
  * บันทึกลง rec ให้หน้าจอแสดง ชีวิตที่พลังชีวิตสูงสุดหมดเพราะฤดูหนาวได้ life.dying = age
  */
 export function endOfYear(game: Game, life: LifeState, rng: Rng, rec: YearEnd): LifeState {
@@ -923,6 +950,13 @@ export function endOfYear(game: Game, life: LifeState, rng: Rng, rec: YearEnd): 
       rec.cooled = [...(rec.cooled ?? []), ...faded.cooled];
       line(['hunt_cold']);
     }
+  }
+
+  // ชีวิตในเมือง: ค่าเช่า รายได้ของร้าน และสภาพเมืองที่คลายลงเอง
+  if (!next.dying) {
+    const town = cityYear(next, rng, rec);
+    next = town.life;
+    for (const key of town.lines) line([key]);
   }
 
   for (const p of yearlyPassings(next, rng, game.fated)) {
@@ -1037,7 +1071,8 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
  * before = ชีวิตก่อนผลนั้น ใช้เทียบว่าอะไรเปลี่ยน · fx = ผลที่เพิ่งใช้ เรียงจากที่เจาะจงที่สุด (ใช้หา mark epitaph survive)
  */
 export function concludeEvent(game: Game, ev: GameEvent, before: LifeState, after: LifeState, entry: LogEntry, rng: Rng, fx: (Effects | undefined)[]): ChoiceResult {
-  let next = settle(game, after, rng);
+  // จบหนึ่งเรื่องระหว่างเรียน = เรียนไปหนึ่งปี (ดู advanceCourse)
+  let next = settle(game, advanceCourse(before, after, ev, fx.map((f) => f?.course)), rng);
   const first = <K extends 'mark' | 'epitaph' | 'survive'>(k: K) => fx.find((f) => f?.[k] !== undefined)?.[k];
   const mark = first('mark') ?? ev.mark;
   if (mark) entry.mark = render(mark, next, before.cast ?? {});

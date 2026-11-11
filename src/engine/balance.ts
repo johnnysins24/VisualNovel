@@ -405,3 +405,125 @@ export const ORG = {
   huntFade: 0.08,
 } as const;
 export const ORG_RANKS = 4;
+
+// ---------- ชุด ม: เมือง ----------
+/**
+ * เมืองที่ตัวละครอยู่ได้ (กติกาอยู่ใน src/engine/cities.ts) ชื่อย่านและเรื่องของเมืองเขียนไว้ในคัมภีร์โลก
+ * tag       = location_tag ของถิ่นที่เมืองนี้ตั้งอยู่ ร้านค้า ฉากหลัง และหมุดบนแผนที่ยังอ่านจาก location_tag ตามเดิม
+ * main      = เมืองหลักของถิ่น: ใครได้ location_tag นี้โดยเนื้อเรื่องไม่ระบุเมือง ถือว่าอยู่เมืองนี้ (ถิ่นที่ไม่มีเมืองหลักคืออยู่ชนบทของถิ่นนั้น)
+ * map       = รหัสของที่นี้บนแผนที่โลก (art/map/places.yaml) หมุด "อยู่ที่นี่" ลงตรงนั้น
+ * districts = ย่าน รหัส → ชื่อ ย่านแรกคือย่านที่คนมาใหม่ลงหลักปักฐาน
+ * natives   = ชาติกำเนิด (flag origin_*) ของเด็กที่เกิดในเมืองนี้ → ย่านบ้านเกิด
+ */
+export const CITY_IDS = ['ventras', 'kardin', 'tundar', 'market_town', 'foothill_market', 'star_hall'] as const;
+export type CityId = (typeof CITY_IDS)[number];
+export interface CityDef {
+  th: string;
+  tag: string;
+  main?: boolean;
+  map: string;
+  districts: Readonly<Record<string, string>>;
+  natives?: Readonly<Record<string, string>>;
+}
+export const CITIES: Record<CityId, CityDef> = {
+  ventras: {
+    th: 'เวนทราส',
+    tag: 'ventras',
+    main: true,
+    map: 'ventras',
+    districts: { sky_docks: 'ย่านท่าเรือเหาะ', refineries: 'ย่านโรงกลั่น', temple_hill: 'ย่านวิหาร', institute: 'ย่านสถาบัน' },
+    natives: { origin_refinery: 'refineries', origin_marked_hidden: 'temple_hill' },
+  },
+  kardin: {
+    th: 'คาร์ดิน',
+    tag: 'kardin',
+    main: true,
+    map: 'kardin',
+    districts: { junction: 'ย่านชุมทาง', foundries: 'ย่านโรงหลอม', ledger_row: 'ถนนสมุดบัญชี' },
+  },
+  tundar: {
+    th: 'ทุนดาร์',
+    tag: 'hordun',
+    main: true,
+    map: 'tundar',
+    districts: { lower_gate: 'ลานประตูล่าง', forge_levels: 'ชั้นโรงหลอม', clan_levels: 'ถนนวนของตระกูล', council_ring: 'วงสภา' },
+    natives: { origin_dwarf_clan: 'clan_levels' },
+  },
+  market_town: {
+    th: 'เมืองตลาด',
+    tag: 'arvel_village',
+    map: 'market_town',
+    districts: { rail_side: 'ย่านริมราง', weigh_square: 'ลานโรงชั่ง', mill_lane: 'ซอยโรงสี' },
+  },
+  foothill_market: {
+    th: 'ตลาดตีนเขา',
+    tag: 'hordun',
+    map: 'foothill_market',
+    districts: { inn_row: 'แถวโรงเตี๊ยม', coal_yard: 'ลานถ่าน', rail_end: 'ปลายราง' },
+  },
+  star_hall: {
+    th: 'หอนับดาว',
+    tag: 'ileth',
+    map: 'star_tower',
+    districts: { root_camp: 'ลานโคนต้น', letter_boughs: 'กิ่งจดหมาย', count_deck: 'ชานนับ' },
+  },
+};
+/** ชั้นของคนเมืองสี่ขั้น ขั้นแรกคือวันที่ย้ายเข้า คนที่เกิดในเมืองเริ่มที่ขั้น nativeRank */
+export const CITY_RANKS = ['คนมาใหม่', 'ชาวย่าน', 'คนมีหน้ามีตา', 'ผู้อาวุโสของเมือง'] as const;
+/** สภาพของเมือง: สงบ ตึงเครียด จลาจล โรคระบาด */
+export const CITY_MOODS = ['calm', 'tense', 'riot', 'plague'] as const;
+export type CityMood = (typeof CITY_MOODS)[number];
+export const CITY_MOOD_TH: Record<CityMood, string> = { calm: 'สงบ', tense: 'ตึงเครียด', riot: 'จลาจล', plague: 'โรคระบาด' };
+/** ที่อยู่ในเมือง: บ้านของครอบครัว (คนที่เกิดในเมือง) ห้องเช่า บ้านของตัวเอง หรือร้านของตัวเอง (อยู่ชั้นบนของร้าน) */
+export const HOME_KINDS = ['family', 'room', 'house', 'shop'] as const;
+export type HomeKind = (typeof HOME_KINDS)[number];
+export const HOME_TH: Record<HomeKind, string> = { family: 'บ้านของครอบครัว', room: 'ห้องเช่า', house: 'บ้านของตัวเอง', shop: 'ร้านของตัวเอง' };
+/**
+ * merit      = ผลงานต่อเมือง (ความดีความชอบที่คนในย่านจำได้) ที่ต้องมีก่อนฉากขึ้นชั้นจะออก [ชาวย่าน, คนมีหน้ามีตา, ผู้อาวุโส]
+ * nativeRank = ชั้นตั้งต้นของคนที่เกิดในเมืองนั้น
+ * rent       = ค่าเช่าห้อง จ่ายตอนสิ้นปีทุก rentEvery ปี (เงินทั้งชีวิตของคนทั่วไปราว 30 เหรียญ ค่าเช่ารายปีจะกินหมด)
+ *              ไม่มีจ่าย = ค้างค่าเช่า (ไม่เป็นหนี้) ค้างซ้ำอีกรอบ = ถูกไล่ออกจากห้อง
+ * shopIncome = รายได้ของร้านของตัวเอง ได้ตอนสิ้นปีทุก shopEvery ปี ปีที่เมืองจลาจลร้านปิด ไม่ได้
+ * roof       = แต้มบวกของเช็คฤดูหนาวสำหรับคนที่อยู่บ้านหรือร้านของตัวเอง นับรวมกับของกันหนาว ไม่เกิน GEAR.winterMax
+ * minPrice   = ราคาต่ำสุดที่เนื้อเรื่องตั้งได้เมื่อให้ซื้อบ้านหรือร้าน (ตัวตรวจเนื้อเรื่องบังคับ) ราคาจริงของแต่ละเมืองเขียนในเหตุการณ์
+ * ease       = โอกาสต่อปีที่สภาพเมืองจะคลายลงเองหนึ่งขั้น (จลาจล → ตึงเครียด → สงบ, โรคระบาด → สงบ)
+ */
+export const CITY = {
+  merit: [3, 7, 12],
+  nativeRank: 2,
+  rent: 1,
+  rentEvery: 4,
+  shopIncome: 1,
+  shopEvery: 3,
+  roof: 1,
+  minPrice: { house: 10, shop: 14 },
+  ease: { tense: 0.15, riot: 0.5, plague: 0.4 },
+} as const;
+
+// ---------- ชุด ม: หลักสูตร ----------
+/**
+ * ช่วงชีวิตแบบหลักสูตร (กติกาอยู่ใน src/engine/course.ts): ระหว่างเรียน ชีวิตเดินด้วยเหตุการณ์ของหลักสูตร ปีละเรื่อง ตามปีที่เรียน
+ * years   = จำนวนปีของหลักสูตร จบปีสุดท้ายแล้วถือว่าเรียนจบ
+ * tracks  = สาย (สำนัก) ที่เลือกได้ระหว่างเรียน รหัส → ชื่อ เลือกแล้วติด flag <trackFlag><รหัส> ไปตลอดชีวิต
+ * student = flag ที่ติดระหว่างเรียน · done = flag ที่ได้เมื่อเรียนจบ (ติดตลอดชีวิต)
+ */
+export const COURSE_IDS = ['institute'] as const;
+export type CourseId = (typeof COURSE_IDS)[number];
+export interface CourseDef {
+  th: string;
+  years: number;
+  tracks: Readonly<Record<string, string>>;
+  trackFlag: string;
+  student: string;
+  done: string;
+}
+export const COURSES: Record<CourseId, CourseDef> = {
+  institute: {
+    th: 'สถาบันเวทหลวง',
+    years: 6,
+    tracks: { distill: 'สำนักกลั่น', machine: 'สำนักจักรกลเวท', texts: 'สำนักตำรา', stars: 'สำนักดาราศาสตร์', healing: 'สำนักรักษา', war: 'สำนักสงคราม' },
+    trackFlag: 'school_',
+    student: 'institute_student',
+    done: 'institute_graduate',
+  },
+};

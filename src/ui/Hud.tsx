@@ -3,6 +3,7 @@ import { STATS, type Stat } from '../engine/schema';
 import { effectiveStats, maxHp } from '../engine/items';
 import { modifier, worldYear } from '../engine/state';
 import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
+import { cityName } from '../engine/cities';
 import { currentEvent, endReasonOf, game, life, tab, type Tab } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { SpriteView } from './SpriteView';
@@ -15,10 +16,14 @@ import { EncounterChips, FoeSprite, encounterNow } from './Encounter';
 export const PLACE_TH: Record<string, string> = {
   arvel_village: 'หมู่บ้านในอาร์เวล',
   ventras: 'เวนทราส',
+  kardin: 'คาร์ดิน',
   hordun: 'ฮอร์ดุน',
   ileth: 'ป่าไอเลธ',
   ashland: 'แดนเถ้า',
 };
+
+/** ชื่อของที่ที่ตัวละครอยู่ตอนนี้: ชื่อเมืองถ้าอยู่ในเมือง ไม่อย่างนั้นชื่อถิ่น (แถบบนยังแสดงชื่อถิ่น รอ Phupha เลือกแบบหน้าเมืองก่อน) */
+export const placeName = (l: { city: string | null; locationTag: string }): string | undefined => cityName(l as Parameters<typeof cityName>[0]) ?? PLACE_TH[l.locationTag];
 
 export const NAV: { id: Tab; th: string; icon: IconName }[] = [
   { id: 'story', th: 'เรื่องราว', icon: 'story' },

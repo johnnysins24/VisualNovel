@@ -123,6 +123,8 @@
   en: Kardin
   kind: city
   region: arvel
+  tag: kardin
+  pin: true
   at: [406, 258]
   farms: 30
   district:

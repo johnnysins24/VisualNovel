@@ -1,6 +1,6 @@
 import type { Bond, DeathCause, EncounterEnd, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type MaterialId, type OrgId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type CityId, type CityMood, type CourseId, type HomeKind, type MaterialId, type OrgId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -84,6 +84,57 @@ export interface LifeState {
   orgs: Partial<Record<OrgId, Membership>>;
   /** ภัยตามล่า: ฝ่าย (FACTIONS) → ระดับ 1 ถึง ORG.huntMax ไม่มีในนี้ = ไม่มีใครตาม */
   hunted: Record<string, number>;
+  /** เมืองที่อยู่ตอนนี้ (กติกาใน cities.ts) null = อยู่ชนบทของถิ่น locationTag */
+  city: CityId | null;
+  /** ย่านที่อยู่ในเมืองนั้น (รหัสใน CITIES[city].districts) */
+  district: string | null;
+  /** ที่อยู่ในเมือง: บ้านของครอบครัว ห้องเช่า หรือบ้านกับร้านของตัวเอง null = ไม่มีที่อยู่เป็นหลักแหล่ง */
+  home: Home | null;
+  /** ชั้นของคนเมืองในแต่ละเมืองที่เคยอยู่ ไม่มีในนี้ = ไม่เคยอยู่ */
+  standing: Partial<Record<CityId, Standing>>;
+  /** สภาพของเมืองที่ไม่สงบ (เมืองที่ไม่มีในนี้ = สงบ) เริ่มจากที่ชีวิตก่อนทิ้งไว้ แล้วเปลี่ยนตามเหตุการณ์และคลายลงเองตามปี */
+  moods: Partial<Record<CityId, MoodState>>;
+  /** หลักสูตรที่กำลังเรียน (กติกาใน course.ts) ไม่มี = ไม่ได้เรียนอยู่ */
+  course?: CourseState;
+}
+
+/** ชั้นของคนเมืองในเมืองหนึ่ง */
+export interface Standing {
+  /** ชั้น 1 ถึง 4 (CITY_RANKS) */
+  rank: number;
+  /** ผลงานสะสมต่อเมือง ถึงเกณฑ์ CITY.merit เมื่อไรฉากขึ้นชั้นจึงออกได้ */
+  merit: number;
+  /** ปีของโลกที่เริ่มอยู่เมืองนี้ (คนที่เกิดในเมือง = ปีเกิด) */
+  since: number;
+}
+
+/** ที่อยู่ในเมือง */
+export interface Home {
+  kind: HomeKind;
+  city: CityId;
+  district: string;
+  /** ปีของโลกที่เริ่มอยู่ที่นี่ ค่าเช่าและรายได้ของร้านนับรอบจากปีนี้ */
+  since: number;
+  /** ค้างค่าเช่ารอบล่าสุด */
+  behind?: boolean;
+}
+
+/** สภาพที่ไม่สงบของเมืองหนึ่ง */
+export interface MoodState {
+  mood: Exclude<CityMood, 'calm'>;
+  /** ปีของโลกที่เริ่มเป็นแบบนี้ */
+  since: number;
+}
+
+/** หลักสูตรที่กำลังเรียน */
+export interface CourseState {
+  id: CourseId;
+  /** ปีที่เรียนอยู่ เริ่มที่ 1 */
+  year: number;
+  /** สาย (สำนัก) ที่เลือกแล้ว */
+  track?: string;
+  /** ปีของโลกที่เข้าเรียน */
+  since: number;
 }
 
 /** สถานะสมาชิกขององค์กรหนึ่ง */
@@ -220,6 +271,12 @@ export interface YearEnd {
   marks?: string[];
   /** ฝ่ายที่เลิกตามในปีนี้หนึ่งขั้น (รอยเย็นลง) */
   cooled?: string[];
+  /** ค่าเช่าห้องที่จ่ายในปีนี้ (เหรียญ) · behind = ไม่มีจ่าย ค้างไว้ · evicted = ค้างซ้ำจนถูกไล่ออก */
+  rent?: { paid?: number; behind?: boolean; evicted?: boolean };
+  /** รายได้ของร้านของตัวเองในปีนี้ (เหรียญ) */
+  income?: number;
+  /** เมืองที่สภาพคลายลงเองในปีนี้ → สภาพใหม่ */
+  eased?: Partial<Record<CityId, CityMood>>;
   /** ประโยคที่ระบบเติมท้ายบันทึกของปีนี้ (เติมชื่อแล้ว) */
   lines?: string[];
 }
@@ -267,12 +324,18 @@ export interface LifeChanges {
   merit?: Partial<Record<OrgId, number>>;
   /** ภัยตามล่าที่เปลี่ยน: ฝ่าย → ระดับใหม่ */
   hunted?: Record<string, number>;
+  /** ชั้นของคนเมืองที่เปลี่ยน: เมือง → ชั้นใหม่ (ย้ายเข้า = ชั้นแรก) */
+  standing?: Partial<Record<CityId, number>>;
+  /** สภาพของเมืองที่เปลี่ยน: เมือง → สภาพใหม่ */
+  moods?: Partial<Record<CityId, CityMood>>;
+  /** ที่อยู่ที่เปลี่ยน: ชนิดใหม่ หรือ none = ไม่มีที่อยู่แล้ว */
+  home?: HomeKind | 'none';
 }
 
 export const DEFAULT_NAME = 'ผู้เดินทาง';
 
-/** เพศและปีเกิดสุ่มจาก seed ทำให้ชีวิตเดียวกันเกิดซ้ำได้ */
-export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeState {
+/** เพศและปีเกิดสุ่มจาก seed ทำให้ชีวิตเดียวกันเกิดซ้ำได้ ชื่อเสียงและสภาพของเมืองเริ่มจากที่ชีวิตก่อนทิ้งไว้ */
+export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<Pick<Meta, 'moods'>>): LifeState {
   const rng = new Rng(seed);
   const gender: Gender = rng.int(0, 1) === 0 ? 'm' : 'f';
   const birthYear = rng.int(BIRTH_YEAR.min, BIRTH_YEAR.max);
@@ -323,6 +386,12 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'>): LifeStat
     cast: {},
     orgs: {},
     hunted: {},
+    city: null,
+    district: null,
+    home: null,
+    standing: {},
+    // ชีวิตใหม่ย้อนไปเกิดก่อนปีที่ชีวิตก่อนจบ สภาพเมืองที่รับมาจึงนับปีใหม่จากปีเกิด
+    moods: Object.fromEntries(Object.entries(meta?.moods ?? {}).map(([id, m]) => [id, { ...m!, since: birthYear }])),
   };
 }
 

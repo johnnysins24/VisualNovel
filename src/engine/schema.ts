@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CLASS_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RARITIES, WORLD_KEYS } from './balance';
+import { CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RARITIES, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -96,6 +96,84 @@ export const OrgCondSchema = z.union([
 export type OrgCond = z.infer<typeof OrgCondSchema>;
 const HuntMap = z.partialRecord(FactionSchema, z.number().int());
 
+const CityIdSchema = z.enum(CITY_IDS);
+const CityRankSchema = z.number().int().min(1).max(CITY_RANKS.length);
+const MoodSchema = z.enum(CITY_MOODS);
+/**
+ * ผลต่อชีวิตในเมือง (กติกาใน cities.ts)
+ * move = ย้ายเข้าเมืองนี้ (ตั้ง location_tag ของเมืองให้เอง ลงที่ย่านแรกของเมือง หรือย่านที่ระบุใน district) · leave = ออกไปอยู่ชนบทของถิ่นเดียวกัน
+ * district = ย้ายย่านในเมืองที่อยู่ · home = ที่อยู่ใหม่ (room เช่าห้อง, house ซื้อบ้าน, shop ซื้อร้าน, none ไม่มีที่อยู่แล้ว)
+ *   ซื้อบ้านหรือร้านต้องจ่ายเงินใน effect เดียวกัน (gold ติดลบไม่น้อยกว่า CITY.minPrice) ตัวตรวจเนื้อเรื่องบังคับ
+ * merit = บวกลบผลงานต่อเมือง · promote = ขึ้นชั้นหนึ่งขั้น (ใช้ในฉากขึ้นชั้น) · mood = สภาพใหม่ของเมือง
+ * of = เมืองที่ merit กับ mood หมายถึง ถ้าไม่ใช่เมืองที่อยู่ (เช่น ข่าวจลาจลในเมืองอื่น)
+ */
+export const CityEffectSchema = z
+  .object({
+    move: CityIdSchema.optional(),
+    leave: z.boolean().optional(),
+    district: z.string().optional(),
+    home: z.enum(['room', 'house', 'shop', 'none']).optional(),
+    merit: z.number().int().optional(),
+    promote: z.boolean().optional(),
+    mood: MoodSchema.optional(),
+    of: CityIdSchema.optional(),
+  })
+  .strict();
+export type CityEffect = z.infer<typeof CityEffectSchema>;
+/**
+ * เงื่อนไขเรื่องเมือง: เขียนแค่รหัสเมือง = อยู่เมืองนั้น · any = อยู่เมืองไหนก็ได้ · none = ไม่ได้อยู่ในเมือง หรือระบุละเอียด
+ * id = เมืองเดียวหรือหลายเมือง (ไม่ใส่ = เมืองไหนก็ได้) · district = อยู่ย่านใดย่านหนึ่งในนี้ · min_rank / max_rank = ชั้นของคนเมือง
+ * ready: true = ผลงานถึงเกณฑ์ของชั้นถัดไปแล้ว (ใช้กับฉากขึ้นชั้น ตัวเลขอยู่ใน CITY.merit) · mood = เมืองอยู่ในสภาพใดสภาพหนึ่งในนี้
+ * home = ที่อยู่เป็นแบบใดแบบหนึ่งในนี้ (none = ไม่มีที่อยู่) · native = เกิดในเมืองนี้ · behind = ค้างค่าเช่า · min_years = อยู่เมืองนี้มาแล้วอย่างน้อยเท่านี้ปี
+ */
+export const CityCondSchema = z.union([
+  CityIdSchema,
+  z.enum(['any', 'none']),
+  z
+    .object({
+      id: z.union([CityIdSchema, z.array(CityIdSchema).min(1)]).optional(),
+      district: z.union([z.string(), z.array(z.string()).min(1)]).optional(),
+      min_rank: CityRankSchema.optional(),
+      max_rank: CityRankSchema.optional(),
+      ready: z.boolean().optional(),
+      mood: z.array(MoodSchema).min(1).optional(),
+      home: z.array(z.enum([...HOME_KINDS, 'none'])).min(1).optional(),
+      native: z.boolean().optional(),
+      behind: z.boolean().optional(),
+      min_years: z.number().int().min(1).optional(),
+    })
+    .strict(),
+]);
+export type CityCond = z.infer<typeof CityCondSchema>;
+
+const CourseIdSchema = z.enum(COURSE_IDS);
+/**
+ * ผลต่อหลักสูตร (กติกาใน course.ts)
+ * enter = เข้าเรียนหลักสูตรนี้ เริ่มปีหนึ่ง · track = เลือกสาย (สำนัก) · leave = ออกกลางคัน (ลาออก ถูกไล่ออก)
+ * hold = ปีนี้ไม่นับเป็นปีเรียน เรียนซ้ำปีเดิม (เหตุการณ์ของหลักสูตรปกตินับขึ้นปีถัดไปเองเมื่อจบเหตุการณ์ และจบหลักสูตรเมื่อพ้นปีสุดท้าย)
+ */
+export const CourseEffectSchema = z
+  .object({
+    enter: CourseIdSchema.optional(),
+    track: z.string().optional(),
+    leave: z.boolean().optional(),
+    hold: z.boolean().optional(),
+  })
+  .strict();
+export type CourseEffect = z.infer<typeof CourseEffectSchema>;
+/**
+ * เหตุการณ์ของหลักสูตร: ออกเฉพาะกับคนที่กำลังเรียนหลักสูตรนี้ในปีที่ระบุ (ปีเดียวหรือช่วงปี) track = เฉพาะสายนี้ (ไม่ใส่ = ทุกสาย)
+ * ระหว่างเรียน ชีวิตเดินด้วยเหตุการณ์ของหลักสูตรก่อนเรื่องอื่น ปีละเรื่อง ยกเว้นเหตุการณ์ must ของโลก
+ */
+export const CourseSlotSchema = z
+  .object({
+    id: CourseIdSchema,
+    year: z.union([z.number().int().min(1), z.tuple([z.number().int().min(1), z.number().int().min(1)])]),
+    track: z.string().optional(),
+  })
+  .strict();
+export type CourseSlot = z.infer<typeof CourseSlotSchema>;
+
 export const EffectsSchema = z
   .object({
     stats: z.partialRecord(StatSchema, z.number().int()).optional(),
@@ -150,6 +228,10 @@ export const EffectsSchema = z
     org: OrgEffectSchema.optional(),
     /** ภัยตามล่า: บวกลบระดับที่ฝ่ายหนึ่งตามล่าตัวละคร (0 ถึง ORG.huntMax) */
     hunted: HuntMap.optional(),
+    /** ชีวิตในเมือง: ย้ายเข้า ย้ายย่าน ที่อยู่ ผลงาน ขึ้นชั้น และสภาพของเมือง */
+    city: CityEffectSchema.optional(),
+    /** หลักสูตร: เข้าเรียน เลือกสาย ออกกลางคัน */
+    course: CourseEffectSchema.optional(),
   })
   .strict();
 export type Effects = z.infer<typeof EffectsSchema>;
@@ -193,6 +275,8 @@ const StateConds = {
   /** ฝ่ายนี้ตามล่าตัวละครอยู่อย่างน้อยระดับนี้ / ไม่เกินระดับนี้ */
   min_hunted: HuntMap.optional(),
   max_hunted: HuntMap.optional(),
+  /** อยู่ในเมือง (ระบุเมือง ย่าน ชั้นของคนเมือง สภาพเมือง หรือที่อยู่ได้ ดู CityCondSchema) */
+  city: CityCondSchema.optional(),
 };
 
 /**
@@ -403,6 +487,8 @@ export const EventSchema = z.object({
   duty: OrgIdSchema.optional(),
   /** เรื่องถูกตามล่าโดยฝ่ายนี้ ออกเฉพาะเมื่อภัยตามล่าจากฝ่ายนั้นมีอย่างน้อยหนึ่งระดับ ยิ่งระดับสูงยิ่งออกบ่อย (น้ำหนักคูณด้วยระดับ) */
   hunt: FactionSchema.optional(),
+  /** เหตุการณ์ของหลักสูตร ออกเฉพาะกับคนที่กำลังเรียนในปีที่ระบุ (ดู CourseSlotSchema) */
+  course: CourseSlotSchema.optional(),
   /** ป้ายสั้นๆ บนเส้นชีวิตในหน้าชีวประวัติ ไม่ใส่ = เหตุการณ์นี้ไม่ขึ้นเส้นชีวิต */
   mark: z.string().optional(),
   /** คนที่เหตุการณ์นี้พาเข้ามาในชีวิต (หรือเปลี่ยน) ไม่ว่าจะเลือกทางไหน ใช้ก่อนผลของตัวเลือก รูปแบบเดียวกับ effects.people */

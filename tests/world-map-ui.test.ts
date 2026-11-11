@@ -75,6 +75,17 @@ describe('world map: where the "you are here" pin stands', () => {
     expect(at(life('village', null, []))).toBeNull();
     expect(at(life('arvel_village', null, []))).toBe('ban_ngao_sao');
   });
+
+  it('stands on the town once the player lives in one, even back in the home region', () => {
+    const inCity = (city: string, locationTag: string, homeTag: string, flags: string[] = []) => pinFor({ locationTag, homeTag, flags, city }, DATA.labels)?.id ?? null;
+    expect(inCity('market_town', 'arvel_village', 'arvel_village', ['origin_farm'])).toBe('market_town');
+    expect(inCity('foothill_market', 'hordun', 'hordun', ['origin_dwarf_clan'])).toBe('foothill_market');
+    expect(inCity('star_hall', 'ileth', 'arvel_village')).toBe('star_tower');
+    expect(inCity('kardin', 'kardin', 'ventras')).toBe('kardin');
+    // เมืองหลักของถิ่น: คนที่เกิดในเมืองยังอยู่ที่ย่านบ้านเกิด
+    expect(inCity('ventras', 'ventras', 'ventras', ['origin_refinery'])).toBe('ventras_refineries');
+    expect(inCity('tundar', 'hordun', 'arvel_village')).toBe('tundar');
+  });
 });
 
 describe('world map: zoom and pan', () => {
