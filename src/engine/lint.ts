@@ -1,6 +1,7 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, type CityId, type CourseId, type OrgId } from './balance';
+import { ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, TABOOS, TABOO_IDS, type CityId, type CourseId, type OrgId, type TabooAct, type TabooId } from './balance';
+import type { TabooCond } from './land';
 import { unknownPlaceholders } from './text';
 import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
 import { knowsFlag } from './encounter';
@@ -43,12 +44,22 @@ export function lintContent(c: Content): string[] {
     if (fx?.course?.enter) entered.add(fx.course.enter);
   };
 
+  // ข้อห้ามของแผ่นดินที่เนื้อเรื่องให้รู้ ถือ ฝืน หรือขอขมาได้
+  const tabooActs = new Map<TabooId, Set<TabooAct>>();
+  const noteTaboo = (fx: Effects | undefined) => {
+    for (const id of TABOO_IDS) {
+      const act = fx?.taboo?.[id];
+      if (act) tabooActs.set(id, (tabooActs.get(id) ?? new Set()).add(act));
+    }
+  };
+
   for (const e of c.events) {
     if (seen.has(e.id)) dupes.add(e.id);
     seen.add(e.id);
     for (const fx of [...e.choices.flatMap(outcomes), ...endings(e.encounter)]) {
       noteOrg(fx);
       noteCity(fx);
+      noteTaboo(fx);
     }
     for (const ch of e.choices) {
       for (const fx of outcomes(ch)) {
@@ -78,6 +89,13 @@ export function lintContent(c: Content): string[] {
       if (fx.becomes) setTraits.add(fx.becomes);
       if (fx.flag) setFlags.add(fx.flag).add(`${fx.flag}_twice`);
     }
+  }
+  // พรของเจ้าเดิมหลุดเองเมื่อฝืนข้อห้ามของตนนั้น และกลับเป็นคำสาปถ้าทะเบียนเขียน becomes ไว้ (ดู applyEffects)
+  for (const id of TABOO_IDS) {
+    const boon = registry.get(TABOOS[id].boon);
+    if (!tabooActs.get(id)?.has('break') || !boon || !setTraits.has(boon.id)) continue;
+    lostTraits.add(boon.id);
+    if (boon.becomes) setTraits.add(boon.becomes);
   }
   for (const id of ORG_IDS) if (ORGS[id].jobs?.some((j) => setFlags.has(j))) joinable.add(id);
   // หลักสูตรที่เข้าเรียนได้ตั้ง flag นักเรียน เรียนจบ และสายที่เลือกให้เอง
@@ -267,6 +285,21 @@ export function lintContent(c: Content): string[] {
     }
   }
 
+  // ---- เส้นเรื่องยาว: ตอนที่เนื้อหามีของแต่ละเส้น · ข้อห้าม: เงื่อนไขที่ไม่มีเหตุการณ์ไหนทำให้เป็นจริงได้ ----
+  const arcSteps = new Map<string, Set<number>>();
+  for (const e of c.events) if (e.arc) arcSteps.set(e.arc.id, (arcSteps.get(e.arc.id) ?? new Set()).add(e.arc.step));
+  for (const id of ARC_IDS) if (arcSteps.has(id) && !arcSteps.get(id)!.has(1)) problems.push(`เส้นเรื่อง ${id}: ไม่มีตอนที่ 1`);
+  const lintTabooCond = (cw: string, cond: TabooCond | undefined) => {
+    if (!cond) return;
+    const acts = tabooActs.get(cond.id);
+    const th = TABOOS[cond.id].th;
+    if (cond.taught && !acts) problems.push(`${cw}: อ่านข้อห้ามของ${th} แต่ไม่มีเหตุการณ์ไหนสอนข้อห้ามข้อนี้ (effects.taboo)`);
+    if (cond.keeps && !acts?.has('keep')) problems.push(`${cw}: taboo.keeps ของ${th} แต่ไม่มีเหตุการณ์ไหนให้ถือข้อห้ามข้อนี้`);
+    if (cond.defies && !acts?.has('break')) problems.push(`${cw}: taboo.defies ของ${th} แต่ไม่มีเหตุการณ์ไหนให้ฝืนข้อห้ามข้อนี้`);
+    if (cond.keeps && cond.defies) problems.push(`${cw}: taboo.keeps กับ taboo.defies เป็นจริงพร้อมกันไม่ได้`);
+    if (cond.keeps && cond.unbroken === false) problems.push(`${cw}: taboo.keeps กับ unbroken: false เป็นจริงพร้อมกันไม่ได้`);
+  };
+
   for (const e of c.events) {
     const where = e.id;
     const w = e.when;
@@ -320,6 +353,13 @@ export function lintContent(c: Content): string[] {
       if (e.must || e.fallback || e.years || e.duty || e.hunt || e.stage === 'death') problems.push(`${where}: เหตุการณ์ของหลักสูตร (course) ใช้กับ must fallback years duty hunt หรือฉากตายไม่ได้`);
       if (w.age || w.year) problems.push(`${where}: เหตุการณ์ของหลักสูตรออกตามปีที่เรียน ไม่ใช้ when.age หรือ when.year (คนเข้าเรียนช้าหรือเรียนซ้ำปีจะไม่ได้เรื่องนี้)`);
     }
+    // ---- เส้นเรื่องยาว และข้อห้ามของแผ่นดิน ----
+    if (e.arc) {
+      if (!e.once) problems.push(`${where}: ตอนของเส้นเรื่องยาว (arc) ต้องเป็น once: true`);
+      if (e.must || e.fallback || e.duty || e.hunt || e.course || e.stage === 'death') problems.push(`${where}: ตอนของเส้นเรื่องยาว (arc) ใช้กับ must fallback duty hunt course หรือฉากตายไม่ได้`);
+      if (e.arc.step > 1 && !arcSteps.get(e.arc.id)?.has(e.arc.step - 1)) problems.push(`${where}: เส้นเรื่อง "${ARC_TH[e.arc.id]}" ไม่มีตอนที่ ${e.arc.step - 1} (ตอนต้องเรียงต่อกันจากตอนที่ 1)`);
+    }
+    lintTabooCond(where, w.taboo);
     if (e.duty) {
       if (!joinable.has(e.duty)) problems.push(`${where}: งานของ "${e.duty}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);
       if (orgOf(w.org) && orgOf(w.org) !== e.duty) problems.push(`${where}: duty "${e.duty}" กับ when.org "${orgOf(w.org)}" เป็นคนละองค์กร`);
@@ -384,6 +424,7 @@ export function lintContent(c: Content): string[] {
       for (const t of r?.not_traits ?? []) knownTrait(cw, t);
       lintOrgConds(cw, r);
       lintCityCond(cw, r?.city);
+      lintTabooCond(cw, r?.taboo);
       if (r?.item && !itemIds.has(r.item)) problems.push(`${cw}: requires ของ "${r.item}" ที่ไม่มี`);
       for (const role of r?.cast ?? []) if (!roles.includes(role)) problems.push(`${cw}: requires.cast "${role}" ไม่มีใน cast ของเหตุการณ์`);
     };

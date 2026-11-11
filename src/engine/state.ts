@@ -1,6 +1,8 @@
 import type { Bond, DeathCause, EncounterEnd, KinRole, Slot, Stat } from './schema';
 import { STATS } from './schema';
-import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type CityId, type CityMood, type CourseId, type HomeKind, type MaterialId, type OrgId, type RaceId, type TechniqueKind, type WorldKey } from './balance';
+import { BIRTH_YEAR, EVEN_AGING_UNTIL, RACES, type ArcId, type CityId, type CityMood, type CourseId, type HomeKind, type MaterialId, type OrgId, type RaceId, type TabooId, type TechniqueKind, type WorldKey } from './balance';
+import type { ArcState } from './arcs';
+import type { TabooMark } from './land';
 import { Rng } from './rng';
 import type { Meta } from './meta';
 
@@ -96,6 +98,10 @@ export interface LifeState {
   moods: Partial<Record<CityId, MoodState>>;
   /** หลักสูตรที่กำลังเรียน (กติกาใน course.ts) ไม่มี = ไม่ได้เรียนอยู่ */
   course?: CourseState;
+  /** ข้อห้ามของแผ่นดินที่ตัวละครรู้ (กติกาใน land.ts): เจ้าเดิม → ถือมากี่ครั้ง ฝืนค้างอยู่กี่ครั้ง ไม่มีในนี้ = ยังไม่มีใครสอน */
+  taboos: Partial<Record<TabooId, TabooMark>>;
+  /** เส้นเรื่องยาวที่ชีวิตนี้เคยเจอ (กติกาใน arcs.ts): เดินถึงตอนไหน ปีไหน ปิดแล้วหรือยัง */
+  arcs: Partial<Record<ArcId, ArcState>>;
 }
 
 /** ชั้นของคนเมืองในเมืองหนึ่ง */
@@ -373,7 +379,7 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<
     namePool: {},
     namesApplied: false,
     partner: null,
-    world: { gods: 0, demon: 0, star: 0 },
+    world: { gods: 0, demon: 0, star: 0, land: 0 },
     alignment: { law: 0, moral: 0 },
     reputation: { ...(meta?.reputation ?? {}) },
     seen: [],
@@ -394,6 +400,8 @@ export function newLife(seed: number, meta?: Pick<Meta, 'reputation'> & Partial<
     standing: {},
     // ชีวิตใหม่ย้อนไปเกิดก่อนปีที่ชีวิตก่อนจบ สภาพเมืองที่รับมาจึงนับปีใหม่จากปีเกิด
     moods: Object.fromEntries(Object.entries(meta?.moods ?? {}).map(([id, m]) => [id, { ...m!, since: birthYear }])),
+    taboos: {},
+    arcs: {},
   };
 }
 

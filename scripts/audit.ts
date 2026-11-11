@@ -9,7 +9,9 @@ import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { equip, maxHp } from '../src/engine/items';
-import { CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { ARC, ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, TABOOS, TABOO_IDS, WORLD_KEYS, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { openArcs } from '../src/engine/arcs';
+import { defiesTaboo, keepsTaboo } from '../src/engine/land';
 import { dutiesDue, dutyResting } from '../src/engine/orgs';
 import { cityOf, moodOf } from '../src/engine/cities';
 import { foeOf, hitDamage, moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
@@ -551,8 +553,11 @@ export function auditLives(game: Game, lives: number): AuditResult {
         bump(counts, 'เหตุการณ์ทั้งหมด');
 
         // ผู้เล่นที่อ่านเกมรับงานขององค์กรทุกครั้งที่รับได้ และในเมืองเลือกทางที่คนในย่านจำได้ (ทางที่ให้ผลงานของเมือง) เมื่อมี ผู้เล่นที่กดสุ่มปัดบ้างรับบ้าง
+        // และถือข้อห้ามของแผ่นดินทุกครั้งที่มีทางให้ถือ (ผู้เล่นที่ตั้งใจเป็นคนถือข้อห้าม) ผู้เล่นที่กดสุ่มถือบ้างฝืนบ้าง
         const civic = (x: (typeof choices)[number]) => [x.effects, x.success?.effects].some((fx) => (fx?.city?.merit ?? 0) > 0);
-        const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : cityOf(l) ? choices.filter(civic) : [];
+        const devout = (x: (typeof choices)[number]) => [x.effects, x.success?.effects].some((fx) => Object.values(fx?.taboo ?? {}).some((a) => a === 'keep' || a === 'mend'));
+        const held = style === 'reads' ? choices.filter(devout) : [];
+        const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : held.length ? held : cityOf(l) ? choices.filter(civic) : [];
         const from = taking.length ? taking : choices;
         const c = from[r.int(0, from.length - 1)]!;
         l = resolveChoice(game, l, ev.id, c.id).life;
@@ -582,6 +587,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
       if (!l.alive && l.endReason === 'death' && !l.deathCause) bump(problems, `${did}: ตายโดยไม่มีเหตุของความตาย`);
       if (l.alive && maxHp(l, game.items) < 1 && !l.dying) bump(problems, `${did}: พลังชีวิตสูงสุดหมดแต่ยังไม่ตาย`);
       if (l.age < before.age) bump(problems, `${did}: อายุถอยหลัง`);
+      if (openArcs(l, game.arcLast).length > ARC.maxOpen) bump(problems, `${did}: เส้นเรื่องยาวเปิดค้างเกิน ${ARC.maxOpen} เส้น`);
       for (const p of l.people) {
         if (p.alive && personHumanAge(p, l) > 125) bump(problems, `${p.id}: คนรอบตัวอายุเกิน 125 ปีแบบมนุษย์แล้วยังอยู่ (${p.kin ?? p.bond ?? 'คนรู้จัก'})`);
         if (p.born !== undefined && p.born > worldYear(l)) bump(problems, `${p.id}: เกิดหลังปีปัจจุบัน`);
@@ -895,6 +901,45 @@ export function formatReport(game: Game, res: AuditResult): string {
     }
   }
 
+  h('แผ่นดิน: ข้อห้ามและเส้นเรื่องยาว');
+  {
+    // ชีวิตเลขคู่คือผู้เล่นที่ถือข้อห้ามทุกครั้งที่มีทางให้ถือ ชีวิตเลขคี่กดสุ่ม (เรียงตรงกับ finals)
+    const grown = finals.map((l, i) => ({ l, keen: i % 2 === 0 })).filter((x) => humanAge(x.l) >= 40);
+    const taught = TABOO_IDS.filter((id) => grown.some((x) => x.l.taboos?.[id]));
+    if (!taught.length) out.push('- เนื้อหานี้ยังไม่มีข้อห้ามของแผ่นดิน');
+    for (const id of taught) {
+      const knows = grown.filter((x) => x.l.taboos?.[id]);
+      const line = (xs: typeof knows) =>
+        `ถือครบเกณฑ์ ${pct(xs.filter((x) => keepsTaboo(x.l, id)).length, xs.length)} · ฝืนซ้ำ ${pct(xs.filter((x) => defiesTaboo(x.l, id)).length, xs.length)} · ได้พร ${pct(xs.filter((x) => x.l.traits.includes(TABOOS[id].boon)).length, xs.length)}`;
+      out.push(`- ${TABOOS[id].th}: รู้ข้อห้าม ${knows.length} ชีวิต (${pct(knows.length, grown.length)}) · คนถือข้อห้าม ${line(knows.filter((x) => x.keen))} · กดสุ่ม ${line(knows.filter((x) => !x.keen))}`);
+    }
+    const lands = grown.map((x) => x.l.world.land);
+    if (lands.length) out.push(`- คะแนนแผ่นดินตอนจบ: กลาง ${median(lands)} ช่วง 10–90% ${quantile(lands, 0.1)}–${quantile(lands, 0.9)} สูงสุด ${Math.max(...lands)} ต่ำสุด ${Math.min(...lands)}`);
+
+    const arcs = ARC_IDS.filter((id) => game.arcLast[id]);
+    if (!arcs.length) out.push('- เนื้อหานี้ยังไม่มีเส้นเรื่องยาว');
+    const perLife = grown.map((x) => Object.values(x.l.arcs ?? {}).filter((a) => a!.step >= 1 && !(a!.closed && a!.step === 1)).length);
+    if (arcs.length) out.push(`- เส้นเรื่องที่ชีวิตหนึ่งเดินเข้าไป (ชีวิตที่ถึง 40 ไม่นับเส้นที่ปัดตั้งแต่ตอนแรก): กลาง ${median(perLife)} ช่วง 10–90% ${quantile(perLife, 0.1)}–${quantile(perLife, 0.9)} สูงสุด ${Math.max(0, ...perLife)} · ไม่มีสักเส้น ${pct(perLife.filter((n) => !n).length, perLife.length)}`);
+    for (const id of arcs) {
+      const last = game.arcLast[id]!;
+      const met = grown.filter((x) => x.l.arcs?.[id]);
+      const at = (n: number) => met.filter((x) => x.l.arcs![id]!.step >= n).length;
+      const steps = Array.from({ length: last }, (_, i) => `ตอน ${i + 1}: ${at(i + 1)}`).join(' · ');
+      const closed = met.filter((x) => x.l.arcs![id]!.closed).length;
+      // เส้นที่เปิดอยู่ ยังมีตอนถัดไป แต่ชีวิตจบก่อนตอนนั้นจะมา ทั้งที่ผ่านกำหนดไปแล้ว = เงื่อนไขของตอนถัดไปแคบเกิน
+      const stuck = met.filter((x) => {
+        const a = x.l.arcs![id]!;
+        return !a.closed && a.step >= 1 && a.step < last && worldYear(x.l) - a.at > ARC.due + 1;
+      }).length;
+      const gaps: number[] = [];
+      for (const x of met) {
+        const ages = x.l.log.filter((e) => game.events.find((g) => g.id === e.eventId)?.arc?.id === id).map((e) => e.age);
+        for (let i = 1; i < ages.length; i++) gaps.push(ages[i]! - ages[i - 1]!);
+      }
+      out.push(`- ${ARC_TH[id]}: เจอตอนแรก ${met.length} ชีวิต (${pct(met.length, grown.length)}) · ${steps} · ปิดเรื่อง ${closed} · ค้างเลยกำหนด ${stuck}${gaps.length ? ` · ระยะระหว่างตอน กลาง ${median(gaps)} ปี` : ''}`);
+    }
+  }
+
   h('เผ่าและอาชีพ');
   const tally = (key: (l: LifeState) => string) => {
     const m = new Map<string, number>();
@@ -921,7 +966,7 @@ export function formatReport(game: Game, res: AuditResult): string {
   out.push(`- HP สูงสุด: กลาง ${median(hpMax)} ช่วง ${Math.min(...hpMax)}–${Math.max(...hpMax)}`);
   out.push(`- คนที่รู้จัก: กลาง ${median(full.map((l) => l.people.length))} · มีคู่ ${pct(full.filter((l) => l.partner).length, full.length)} · แต่งงาน ${pct(full.filter((l) => l.flags.includes('married')).length, full.length)} · มีลูก ${pct(full.filter((l) => l.flags.includes('has_child')).length, full.length)}`);
   out.push(`- ของในถุง: กลาง ${median(full.map((l) => l.inventory.length))} · สวมอยู่: กลาง ${median(full.map((l) => Object.keys(l.equipped).length))}`);
-  for (const k of ['gods', 'demon', 'star'] as const) {
+  for (const k of WORLD_KEYS) {
     const xs = full.map((l) => l.world[k]);
     out.push(`- คะแนนโลก ${k}: กลาง ${median(xs)} ช่วง ${Math.min(...xs)}–${Math.max(...xs)}`);
   }

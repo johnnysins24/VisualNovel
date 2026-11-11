@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RACE_IDS, RARITIES, WORLD_KEYS } from './balance';
+import { ARC_IDS, CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RACE_IDS, RARITIES, TABOO_ACTS, TABOO_IDS, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -177,6 +177,26 @@ export const CourseSlotSchema = z
   .strict();
 export type CourseSlot = z.infer<typeof CourseSlotSchema>;
 
+// ---------- ชุด 4: ข้อห้ามของแผ่นดิน และเส้นเรื่องยาว ----------
+const TabooIdSchema = z.enum(TABOO_IDS);
+/**
+ * เงื่อนไขเรื่องข้อห้ามของเจ้าเดิมตนหนึ่ง (กติกาใน land.ts ตัวเลขใน TABOO)
+ * taught = รู้ข้อห้ามข้อนี้แล้ว · keeps = ถือมาครบเกณฑ์และไม่มีครั้งที่ฝืนค้างอยู่ (ฉากรับพร)
+ * defies = ฝืนครบเกณฑ์ (ฉากคำสาป ลูกหลานของเจ้าเดิมมาหา) · unbroken = ไม่มีครั้งที่ฝืนค้างอยู่
+ */
+export const TabooCondSchema = z
+  .object({
+    id: TabooIdSchema,
+    taught: z.boolean().optional(),
+    keeps: z.boolean().optional(),
+    defies: z.boolean().optional(),
+    unbroken: z.boolean().optional(),
+  })
+  .strict();
+const ArcIdSchema = z.enum(ARC_IDS);
+/** ตอนหนึ่งของเส้นเรื่องยาว (กติกาใน arcs.ts): step 1 คือตอนเปิด ตอนถัดไปออกเมื่อจบตอนก่อนหน้าแล้วอย่างน้อย ARC.gap ปี */
+export const ArcSlotSchema = z.object({ id: ArcIdSchema, step: z.number().int().min(1) }).strict();
+
 export const EffectsSchema = z
   .object({
     stats: z.partialRecord(StatSchema, z.number().int()).optional(),
@@ -208,7 +228,7 @@ export const EffectsSchema = z
      * คนที่กำลังสิ้นอายุขัยต้องได้ max_hp คืนใน effect เดียวกัน ไม่อย่างนั้นร่างไม่มีอะไรให้อยู่ต่อ ชีวิตจบตามเดิม
      */
     survive: z.boolean().optional(),
-    /** คะแนนโลกลับ (เทพ จอมมาร ดาว) ผู้เล่นไม่เห็นตัวเลข */
+    /** คะแนนโลกลับ (เทพ จอมมาร ดาว แผ่นดิน) ผู้เล่นไม่เห็นตัวเลข */
     world: z.partialRecord(WorldKeySchema, z.number().int()).optional(),
     /** แนวทางส่วนตัว: law + คือระเบียบ − คืออิสระ, moral + คือดี − คือชั่ว */
     alignment: z.object({ law: z.number().int().optional(), moral: z.number().int().optional() }).strict().optional(),
@@ -235,6 +255,13 @@ export const EffectsSchema = z
     city: CityEffectSchema.optional(),
     /** หลักสูตร: เข้าเรียน เลือกสาย ออกกลางคัน */
     course: CourseEffectSchema.optional(),
+    /**
+     * ข้อห้ามของแผ่นดิน: เจ้าเดิม → learn (รู้ข้อห้าม) keep (ถือหนึ่งครั้ง) break (ฝืนหนึ่งครั้ง) mend (ทำพิธีขอขมา)
+     * ฝืนแล้วคะแนนแผ่นดินขึ้นเอง และพรของเจ้าเดิมตนนั้นหลุดเอง ไม่ต้องเขียน world กับ lose_traits ซ้ำ
+     */
+    taboo: z.partialRecord(TabooIdSchema, z.enum(TABOO_ACTS)).optional(),
+    /** ปิดเส้นเรื่องยาว: ตัวเลือกที่ไม่รับเรื่องในตอนแรก ทางจบของเรื่อง หรือเหตุการณ์อื่นที่ทำให้เรื่องนั้นจบ */
+    arc: z.object({ id: ArcIdSchema, close: z.literal(true) }).strict().optional(),
   })
   .strict();
 export type Effects = z.infer<typeof EffectsSchema>;
@@ -280,6 +307,8 @@ const StateConds = {
   max_hunted: HuntMap.optional(),
   /** อยู่ในเมือง (ระบุเมือง ย่าน ชั้นของคนเมือง สภาพเมือง หรือที่อยู่ได้ ดู CityCondSchema) */
   city: CityCondSchema.optional(),
+  /** ข้อห้ามของเจ้าเดิมตนหนึ่ง: รู้แล้ว ถือมาตลอด หรือฝืนซ้ำ (ดู TabooCondSchema) */
+  taboo: TabooCondSchema.optional(),
 };
 
 /**
@@ -493,6 +522,8 @@ export const EventSchema = z.object({
   hunt: FactionSchema.optional(),
   /** เหตุการณ์ของหลักสูตร ออกเฉพาะกับคนที่กำลังเรียนในปีที่ระบุ (ดู CourseSlotSchema) */
   course: CourseSlotSchema.optional(),
+  /** ตอนหนึ่งของเส้นเรื่องยาว ระบบคุมลำดับและจังหวะให้ (ดู ArcSlotSchema) ต้องเป็น once: true */
+  arc: ArcSlotSchema.optional(),
   /** ป้ายสั้นๆ บนเส้นชีวิตในหน้าชีวประวัติ ไม่ใส่ = เหตุการณ์นี้ไม่ขึ้นเส้นชีวิต */
   mark: z.string().optional(),
   /** คนที่เหตุการณ์นี้พาเข้ามาในชีวิต (หรือเปลี่ยน) ไม่ว่าจะเลือกทางไหน ใช้ก่อนผลของตัวเลือก รูปแบบเดียวกับ effects.people */

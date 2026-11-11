@@ -35,6 +35,8 @@ import {
   REPUTATION_CAP,
   STAT_CAP,
   STORY_END_YEAR,
+  TABOO,
+  TABOOS,
   THIN_POOL,
   WINTER,
   WORLD_CAP,
@@ -57,6 +59,8 @@ import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity }
 import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
 import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, standingIn, syncCity } from './cities';
 import { advanceCourse, applyCourseEffects, courseSlotOpen } from './course';
+import { advanceArc, arcDue, arcLastSteps, arcSlotOpen, closeArc, type ArcLast } from './arcs';
+import { applyTaboos, tabooCondMet, type TabooCond } from './land';
 
 export interface Game {
   events: GameEvent[];
@@ -76,6 +80,8 @@ export interface Game {
   fated: Set<string>;
   /** งานที่องค์กรส่งมา: รหัสเหตุการณ์ → องค์กร (เหตุการณ์ที่มี duty) */
   duties: Map<string, OrgId>;
+  /** ตอนสุดท้ายของเส้นเรื่องยาวแต่ละเส้นเท่าที่เนื้อหามี (ดู arcs.ts) */
+  arcLast: ArcLast;
 }
 
 export function makeGame(content: Content): Game {
@@ -117,6 +123,7 @@ export function makeGame(content: Content): Game {
     mentions,
     fated,
     duties: new Map(content.events.flatMap((e) => (e.duty ? [[e.id, e.duty] as const] : []))),
+    arcLast: arcLastSteps(content.events),
   };
 }
 
@@ -140,6 +147,7 @@ interface StateConds {
   min_hunted?: Partial<Record<string, number>> | undefined;
   max_hunted?: Partial<Record<string, number>> | undefined;
   city?: CityCond | undefined;
+  taboo?: TabooCond | undefined;
 }
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
@@ -164,6 +172,7 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   for (const [by, min] of Object.entries(c.min_hunted ?? {})) if (huntLevel(life, by) < (min ?? 0)) return false;
   for (const [by, max] of Object.entries(c.max_hunted ?? {})) if (huntLevel(life, by) > (max ?? 0)) return false;
   if (c.city !== undefined && !cityCondMet(life, c.city)) return false;
+  if (c.taboo && !tabooCondMet(life, c.taboo)) return false;
   return true;
 }
 
@@ -245,6 +254,8 @@ export function eligible(game: Game, life: LifeState, ev: GameEvent, ignoreTime 
   if (ev.hunt && huntLevel(life, ev.hunt) < 1) return false;
   // เหตุการณ์ของหลักสูตรออกเฉพาะกับคนที่เรียนอยู่ในปีและสายนั้น
   if (!courseSlotOpen(life, ev.course)) return false;
+  // ตอนของเส้นเรื่องยาวออกตามลำดับ เว้นจังหวะ และเปิดค้างพร้อมกันได้จำกัด
+  if (!arcSlotOpen(life, ev.arc, game.arcLast)) return false;
   if (!stateConditionsMet(game, life, w)) return false;
   if (namesTheAbsent(game, life, ev, ev)) return false;
   return bindCast(life, ev) !== null;
@@ -306,6 +317,7 @@ function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
  * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
  * 3. คนที่กำลังเรียนหลักสูตร: เรื่องถัดไปคือเหตุการณ์ของหลักสูตรในปีที่เรียนอยู่ สุ่มแบบถ่วงน้ำหนักถ้ามีหลายเรื่อง (ปีที่ไม่มีเรื่องของหลักสูตรให้ออก ชีวิตเดินตามปกติ)
  * 4. สมาชิกองค์กรที่ไม่ได้งานมา ORG.dutyGap.max เหตุการณ์ติดกัน: เรื่องถัดไปคืองานขององค์กรนั้น (ถ้ายังมีงานที่ออกได้)
+ *    ถ้าไม่มีงานค้าง: เส้นเรื่องยาวที่ตอนถัดไปค้างมาครบ ARC.due ปี เรื่องถัดไปคือตอนนั้น
  * 5. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป ฉากปะทะที่ยังพักอยู่ และงานขององค์กรที่เพิ่งมา (ถ้าไม่มีเรื่องอื่นจึงยอมให้ออก)
  *    เหตุการณ์สำรอง (fallback) เข้ากองเฉพาะปีที่เรื่องปกติมีน้อยกว่า THIN_POOL เรื่องถูกตามล่าหนักขึ้นตามระดับภัย (eventWeight)
  * ตอนตัวละครกำลังจะตาย กองมีแต่ฉากตายของเหตุนั้น
@@ -334,7 +346,9 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
   const normal = all.filter((e) => !e.fallback);
   const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e) && !dutyResting(life, e, game.duties));
   const due = dutiesDue(life, game.duties);
-  const owed = lessons.length ? lessons : due.length ? rested.filter((e) => e.duty && due.includes(e.duty)) : [];
+  const dutyOwed = due.length ? rested.filter((e) => e.duty && due.includes(e.duty)) : [];
+  // เส้นเรื่องยาวที่ตอนถัดไปค้างมาครบ ARC.due ปี: ตอนนั้นได้ออกก่อนเรื่องสุ่ม
+  const owed = lessons.length ? lessons : dutyOwed.length ? dutyOwed : rested.filter((e) => arcDue(life, e.arc));
   let pool = owed.length ? owed : rested;
   if (!owed.length && rested.length < THIN_POOL) {
     const spare = all.filter((e) => e.fallback);
@@ -571,9 +585,26 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   for (const f of fx.flags ?? []) if (!next.flags.includes(f)) next.flags.push(f);
   next.flags = next.flags.filter((f) => !fx.clear_flags?.includes(f));
 
+  // ---- ข้อห้ามของแผ่นดิน: ฝืนแล้วคะแนนแผ่นดินขึ้น พรของเจ้าเดิมตนนั้นหลุด (และกลายเป็นคำสาปถ้าทะเบียนเขียนไว้) ขอขมาแล้วคะแนนลง ----
+  const gained = [...(fx.traits ?? [])];
+  const lost = [...(fx.lose_traits ?? [])];
+  if (fx.taboo) {
+    const t = applyTaboos(life, fx.taboo);
+    next.taboos = t.taboos;
+    next.world.land = clamp(next.world.land + t.broke.length * TABOO.land - t.mended.length * TABOO.mend, WORLD_CAP);
+    for (const id of t.broke) {
+      const boon = TABOOS[id].boon;
+      if (!next.traits.includes(boon)) continue;
+      lost.push(boon);
+      const curse = game.traits.get(boon)?.becomes;
+      if (curse) gained.push(curse);
+    }
+  }
+  if (fx.arc?.close) next.arcs = closeArc(next, fx.arc.id).arcs;
+
   // ---- สิ่งติดตัว: ได้ เสีย ขยับขั้น แล้วปรับพลังชีวิตสูงสุดตามผลที่เปลี่ยน ----
   const hpFromTraits = traitMaxHp(life, game.traits);
-  for (const t of fx.traits ?? []) {
+  for (const t of gained) {
     if (next.traits.includes(t)) continue;
     // ของใหญ่เกินจำนวนที่ถือได้ไม่ติดตัว (เนื้อหาต้องกันด้วย big_room อยู่แล้ว ตรงนี้กันพลาด)
     if (game.traits.get(t)?.big && !hasBigRoom(next, game.traits)) continue;
@@ -581,7 +612,7 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     if (game.traits.get(t)?.kind === 'boon' && coldIron(game, life)) continue;
     next.traits.push(t);
   }
-  for (const t of fx.lose_traits ?? []) {
+  for (const t of lost) {
     next.traits = next.traits.filter((x) => x !== t);
     delete next.traitSteps[t];
   }
@@ -1075,7 +1106,7 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
  */
 export function concludeEvent(game: Game, ev: GameEvent, before: LifeState, after: LifeState, entry: LogEntry, rng: Rng, fx: (Effects | undefined)[]): ChoiceResult {
   // จบหนึ่งเรื่องระหว่างเรียน = เรียนไปหนึ่งปี (ดู advanceCourse)
-  let next = settle(game, advanceCourse(before, after, ev, fx.map((f) => f?.course)), rng);
+  let next = settle(game, advanceArc(before, advanceCourse(before, after, ev, fx.map((f) => f?.course)), ev), rng);
   const first = <K extends 'mark' | 'epitaph' | 'survive'>(k: K) => fx.find((f) => f?.[k] !== undefined)?.[k];
   const mark = first('mark') ?? ev.mark;
   if (mark) entry.mark = render(mark, next, before.cast ?? {});

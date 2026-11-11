@@ -163,7 +163,12 @@ export const CLERIC_MAX_DRIFT = 1;
 export const CLERIC_DRIFT_FLAG = 'cleric_drift';
 
 // ---------- คะแนนโลกลับ ----------
-export const WORLD_KEYS = ['gods', 'demon', 'star'] as const;
+/**
+ * gods เทพ · demon จอมมาร · star ดาว · land แผ่นดิน (ชุด 4)
+ * สามตัวแรกบอกว่าชีวิตนี้เอนไปทางฝ่ายไหน ส่วนแผ่นดินบอกว่าเจ้าเดิมพลิกตัวแค่ไหน:
+ * ขึ้นเมื่อข้อห้ามของแผ่นดินโดนฝืน (เหมือง โรงงาน สงคราม หรือมือของตัวละครเอง) ลงเมื่อมีคนรักษาและทำพิธี
+ */
+export const WORLD_KEYS = ['gods', 'demon', 'star', 'land'] as const;
 export type WorldKey = (typeof WORLD_KEYS)[number];
 export const WORLD_CAP = 20;
 
@@ -527,3 +532,56 @@ export const COURSES: Record<CourseId, CourseDef> = {
     done: 'institute_graduate',
   },
 };
+
+// ---------- ชุด 4: เจ้าเดิมและข้อห้ามของแผ่นดิน ----------
+/**
+ * เจ้าเดิมเจ็ดตนกับข้อห้ามที่คนยังถือ (กติกาอยู่ใน src/engine/land.ts เรื่องเล่าอยู่ในหัวข้อเจ้าเดิมของคัมภีร์โลก)
+ * th = ชื่อเจ้าเดิม · rule = ข้อห้ามแบบที่คนแก่สอน · boon = พรของคนที่ถือข้อห้ามข้อนี้มาตลอด (รหัสในทะเบียนสิ่งติดตัว)
+ * พรหลุดเองเมื่อฝืนข้อห้ามของเจ้าเดิมตนนั้น และกลายเป็นคำสาปถ้าทะเบียนเขียน becomes ไว้
+ */
+export const TABOO_IDS = ['river', 'field', 'fire', 'stone', 'forest', 'wind', 'night'] as const;
+export type TabooId = (typeof TABOO_IDS)[number];
+export const TABOOS: Record<TabooId, { th: string; rule: string; boon: string }> = {
+  river: { th: 'แม่น้ำเฒ่า', rule: 'ไม่เทของเสียลงน้ำตอนกลางคืน โยนเหรียญแรกของปีลงน้ำ', boon: 'old_river' },
+  field: { th: 'วัวใต้ทุ่ง', rule: 'ไถอ้อมเนิน เว้นรวงสุดท้ายไว้ในนา', boon: 'old_field' },
+  fire: { th: 'แม่เสือไฟ', rule: 'ไม่ดับเตาด้วยน้ำ ไฟที่ยืมมาต้องคืนก่อนรุ่ง', boon: 'old_fire' },
+  stone: { th: 'ยายหมีหิน', rule: 'เคาะหินสามครั้งก่อนเจาะ ไม่ขุดในเดือนที่หนาวที่สุด', boon: 'old_stone' },
+  forest: { th: 'กวางไม่มีเขา', rule: 'ไม่โค่นไม้เป็น ไม่ล่าสัตว์ที่มีลูกอ่อน', boon: 'old_forest' },
+  wind: { th: 'ฝูงนกไม่มีรัง', rule: 'ไม่ขังนกป่า เปิดหน้าต่างไว้บานหนึ่งเมื่อมีคนตาย', boon: 'old_wind' },
+  night: { th: 'เค้ากลางคืน', rule: 'ไม่ชี้ดาว ไม่นับดาวออกเสียง', boon: 'old_night' },
+};
+/** สิ่งที่ตัวเลือกทำกับข้อห้ามหนึ่งข้อ: learn รู้ข้อห้าม · keep ถือหนึ่งครั้ง · break ฝืนหนึ่งครั้ง · mend ทำพิธีขอขมา (ล้างครั้งที่เคยฝืน) */
+export const TABOO_ACTS = ['learn', 'keep', 'break', 'mend'] as const;
+export type TabooAct = (typeof TABOO_ACTS)[number];
+/**
+ * holds  = ถือครบเท่านี้ครั้งโดยไม่มีครั้งที่ฝืนค้างอยู่ นับเป็นคนถือข้อห้ามข้อนั้น (เงื่อนไข taboo.keeps ฉากรับพรใช้ข้อนี้)
+ * defies = ฝืนครบเท่านี้ครั้ง นับเป็นคนฝืนซ้ำ (เงื่อนไข taboo.defies ฉากคำสาปและลูกหลานของเจ้าเดิมใช้ข้อนี้)
+ * land   = คะแนนแผ่นดินที่ขึ้นเมื่อฝืนหนึ่งครั้ง · mend = คะแนนแผ่นดินที่ลงเมื่อทำพิธีขอขมาหนึ่งครั้ง
+ */
+export const TABOO = { holds: 2, defies: 2, land: 1, mend: 1 } as const;
+
+// ---------- ชุด 4: เส้นเรื่องยาว ----------
+/**
+ * เส้นเรื่องยาว (กติกาอยู่ใน src/engine/arcs.ts): เรื่องที่เดินเป็นตอนๆ ข้ามหลายสิบปี เหตุการณ์ที่มี arc: { id, step } คือตอนหนึ่งของเส้นนั้น
+ * maxOpen = จำนวนเส้นที่เปิดค้างพร้อมกันได้ในชีวิตเดียว ครบแล้วตอนแรกของเส้นใหม่ไม่ออก
+ * gap     = ตอนถัดไปออกได้เมื่อผ่านไปอย่างน้อยเท่านี้ปีนับจากตอนก่อน
+ * due     = ผ่านไปเท่านี้ปีแล้วตอนถัดไปยังไม่มา เรื่องถัดไปของชีวิตคือตอนนั้น (ถ้าเข้าเงื่อนไข) เส้นเรื่องจึงไม่ค้างเพราะดวง
+ * stale   = เส้นที่ไม่มีตอนไหนออกได้มานานเท่านี้ปี (คนในเรื่องตาย ย้ายถิ่น) เลิกนับเป็นเส้นที่เปิดค้าง ที่ว่างจึงคืนให้เส้นอื่น
+ */
+export const ARC_IDS = ['relics', 'debt', 'horned_child', 'pupil', 'feud', 'low_voice', 'glass', 'seal_secret', 'climb', 'faith', 'house', 'pillars'] as const;
+export type ArcId = (typeof ARC_IDS)[number];
+export const ARC_TH: Record<ArcId, string> = {
+  relics: 'ของของผู้กล้าทั้งหก',
+  debt: 'หนี้ที่ไม่ตายตามคน',
+  horned_child: 'ลูกมีเขา',
+  pupil: 'ศิษย์',
+  feud: 'คู่แค้น',
+  low_voice: 'เสียงทุ้มในฝัน',
+  glass: 'ผิวแก้ว',
+  seal_secret: 'ความลับของผนึก',
+  climb: 'ไต่ชนชั้น',
+  faith: 'ศรัทธาที่แตก',
+  house: 'บ้าน',
+  pillars: 'เจ็ดเสา',
+};
+export const ARC = { maxOpen: 3, gap: 3, due: 7, stale: 15 } as const;
