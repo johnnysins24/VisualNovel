@@ -279,6 +279,8 @@ const OutcomeSchema = z.object({ text: z.string().optional(), effects: EffectsSc
 
 /** เงื่อนไขร่วมของ when (เหตุการณ์) และ requires (ตัวเลือก) ในส่วนสถานะโลกและตัวละคร */
 const StateConds = {
+  /** มี flag อย่างน้อยหนึ่งอันในนี้ (when.flags กับ requires.flag ต้องมีครบทุกอัน) ใช้กับเรื่องที่เปิดได้จากหลายทาง เช่น ตอนแรกของเส้นเรื่องยาว */
+  any_flags: z.array(z.string()).min(2).optional(),
   /** เพศของตัวละคร เช่น ประกาศเกณฑ์ทหารที่เรียกเฉพาะผู้ชาย */
   gender: z.enum(['m', 'f']).optional(),
   /** ต้องไม่มีสิ่งติดตัวเหล่านี้ */

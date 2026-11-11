@@ -22,8 +22,8 @@ const raw = {
     {
       id: 'adult.woods', stage: 'adult', once: false, text: 'x',
       choices: [
-        { id: 'taught', label: 'x', effects: { taboo: { forest: 'learn' } } },
-        { id: 'spare', label: 'x', effects: { taboo: { forest: 'keep' } } },
+        { id: 'taught', label: 'x', effects: { taboo: { forest: 'learn' }, flags: ['taught_by_gran'] } },
+        { id: 'spare', label: 'x', effects: { taboo: { forest: 'keep' }, flags: ['spared_the_grove'] } },
         { id: 'fell', label: 'x', effects: { taboo: { forest: 'break' } } },
         { id: 'plant', label: 'x', effects: { taboo: { forest: 'mend' }, lose_traits: ['curse_woodcutter'] } },
         { id: 'coin', label: 'x', effects: { taboo: { river: 'keep' } } },
@@ -43,6 +43,7 @@ const raw = {
     ep('feud', 2),
     ep('house', 1),
     ep('house', 2),
+    { id: 'adult.either', stage: 'adult', when: { any_flags: ['taught_by_gran', 'spared_the_grove'] }, text: 'x', choices: ok },
     { id: 'adult.quiet', stage: 'adult', once: false, weight: 1000, text: 'x', choices: ok },
   ],
 };
@@ -98,6 +99,12 @@ describe('ข้อห้ามของแผ่นดิน', () => {
     expect(l.world.land).toBe(TABOO.defies * TABOO.land - TABOO.mend);
     // ขอขมาโดยไม่มีอะไรให้ขอ ไม่ทำให้แผ่นดินสงบลงกว่าเดิม
     expect(pick(l, 'plant').world.land).toBe(l.world.land);
+  });
+
+  it('any_flags opens an event on any one of its flags', () => {
+    expect(eligible(game, grown(), ev('adult.either'))).toBe(false);
+    expect(eligible(game, pick(grown(), 'spare'), ev('adult.either'))).toBe(true);
+    expect(eligible(game, pick(grown(), 'taught'), ev('adult.either'))).toBe(true);
   });
 
   it('a save from before this batch gets a land score of zero and keeps its other scores', () => {

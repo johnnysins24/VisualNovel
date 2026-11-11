@@ -404,6 +404,7 @@ export function lintContent(c: Content): string[] {
       if (new RegExp(`\\{${r}[}:]`).test(e.text + (e.mark ?? ''))) problems.push(`${where}: ข้อความของเหตุการณ์ใช้บท "${r}" ที่อาจไม่มีคนเล่น (optional) ให้ใช้ในตัวเลือกที่มี requires.cast เท่านั้น`);
     }
     for (const f of w.flags ?? []) if (!setFlags.has(f)) problems.push(`${where}: อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง (เหตุการณ์นี้ไม่มีทางเกิด)`);
+    for (const f of w.any_flags ?? []) if (!setFlags.has(f)) problems.push(`${where}: any_flags อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง`);
     if (w.trait) {
       knownTrait(where, w.trait);
       if (!setTraits.has(w.trait)) problems.push(`${where}: trait "${w.trait}" ไม่เคยถูกให้`);
@@ -417,6 +418,7 @@ export function lintContent(c: Content): string[] {
     /** เงื่อนไข requires ของตัวเลือกหรือของวิธีรับมือ */
     const lintRequires = (cw: string, r: Requires | undefined) => {
       if (r?.flag && !setFlags.has(r.flag)) problems.push(`${cw}: requires flag "${r.flag}" ที่ไม่เคยถูกตั้ง`);
+      for (const f of r?.any_flags ?? []) if (!setFlags.has(f)) problems.push(`${cw}: requires any_flags อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง`);
       if (r?.trait) {
         knownTrait(cw, r.trait);
         if (!setTraits.has(r.trait)) problems.push(`${cw}: requires trait "${r.trait}" ที่ไม่เคยถูกให้`);

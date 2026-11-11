@@ -131,6 +131,7 @@ const clamp = (n: number, cap: number) => Math.max(-cap, Math.min(cap, n));
 
 interface StateConds {
   gender?: 'm' | 'f' | undefined;
+  any_flags?: string[] | undefined;
   class?: string | undefined;
   god?: string | undefined;
   world?: Partial<Record<(typeof WORLD_KEYS)[number], [number, number]>> | undefined;
@@ -153,6 +154,7 @@ interface StateConds {
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
 function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean {
   if (c.gender && life.gender !== c.gender) return false;
+  if (c.any_flags && !c.any_flags.some((f) => life.flags.includes(f))) return false;
   if (c.class && life.classId !== c.class) return false;
   if (c.god && life.god !== c.god) return false;
   for (const [k, range] of Object.entries(c.world ?? {})) {
