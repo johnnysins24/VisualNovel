@@ -331,6 +331,8 @@ export const CastSpecSchema = z
     max_age: z.number().int().optional(),
     /** false = คนที่ตายไปแล้ว (เหตุการณ์รำลึก) */
     alive: z.boolean().default(true),
+    /** true = เฉพาะลูกที่เกิดมามีเขา false = เฉพาะคนที่ไม่ได้เกิดมามีเขา ไม่ใส่ = ใครก็ได้ (บ้านที่มีทั้งลูกมีเขาและเด็กในอุปการะ เรื่องของลูกมีเขาต้องได้ลูกคนนั้น) */
+    horned: z.boolean().optional(),
     pick: z.enum(CAST_PICKS).default('closest'),
     /** true = ไม่มีใครเข้าบทเหตุการณ์ก็ยังออกได้ ใช้ชื่อบทนี้ได้เฉพาะในตัวเลือกที่มี requires.cast */
     optional: z.boolean().default(false),

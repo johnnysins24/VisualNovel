@@ -664,10 +664,11 @@
   scene: home
   weight: 10
   cast:
-    kid: { kin: [child], min_age: 5, max_age: 12, pick: eldest }
+    kid: { kin: [child], horned: true, min_age: 5, max_age: 12, pick: eldest }
   when:
     age: [32, 46]
     flags: [child_horned]
+    not_flags: [child_lives_away]
   text: |
     {kid}โตพอจะถามคำถามที่{name}รอมาตั้งแต่เช้าวันที่สามหลังลูกมาถึงบ้าน ถามตอนกินข้าวเย็น ระหว่างคำ เหมือนถามเรื่องฝน
 

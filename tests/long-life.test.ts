@@ -318,6 +318,16 @@ describe('cast: events about the people in this life', () => {
     const hated = ContentSchema.parse({ items: [], events: [ev('adult.h', { cast: { who: { bond: ['rival'], max_closeness: -1 } }, text: '{who}' })] }).events[0]!;
     expect(bindCast(foes, hated)).toEqual({ who: 'vex' });
   });
+  it('a role for the horned child takes that child, not an older ward', () => {
+    const ward = person('ward_kin', { kin: 'child', bond: 'kin', closeness: 2, born: 300 });
+    const own = { ...person('child_1', { kin: 'child', bond: 'kin', closeness: 3, born: 305 }), horned: true };
+    const l = { ...base, people: [ward, own] };
+    const cast = (spec: Raw) => bindCast(l, ContentSchema.parse({ items: [], events: [ev('adult.c', { cast: { kid: spec }, text: '{kid}' })] }).events[0]!);
+    expect(cast({ kin: ['child'], pick: 'eldest' })).toEqual({ kid: 'ward_kin' });
+    expect(cast({ kin: ['child'], pick: 'eldest', horned: true })).toEqual({ kid: 'child_1' });
+    expect(cast({ kin: ['child'], pick: 'youngest', horned: false })).toEqual({ kid: 'ward_kin' });
+    expect(bindCast({ ...base, people: [ward] }, ContentSchema.parse({ items: [], events: [ev('adult.c', { cast: { kid: { kin: ['child'], horned: true } }, text: '{kid}' })] }).events[0]!)).toBeNull();
+  });
   it('a death through a role is a real death, dated', () => {
     const { life } = play(game, base, 'adult.visit', 'bury');
     expect(life.people.find((p) => p.id === 'rowen')).toMatchObject({ alive: false, diedAge: 30 });

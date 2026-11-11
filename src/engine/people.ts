@@ -80,6 +80,7 @@ function fits(p: Person, spec: CastSpec, life: LifeState): boolean {
   if (spec.id && p.id !== spec.id) return false;
   if (spec.kin && !(p.kin && spec.kin.includes(p.kin as KinRole))) return false;
   if (spec.bond && !(p.bond && spec.bond.includes(p.bond))) return false;
+  if (spec.horned !== undefined && Boolean(p.horned) !== spec.horned) return false;
   if (spec.min_closeness !== undefined && p.closeness < spec.min_closeness) return false;
   if (spec.max_closeness !== undefined && p.closeness > spec.max_closeness) return false;
   if (spec.min_age !== undefined || spec.max_age !== undefined) {

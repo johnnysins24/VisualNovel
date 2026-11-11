@@ -45,7 +45,7 @@
         people: [{ id: partner, closeness: 1 }]
     - id: into_child
       label: ลงกับ{kid} สอนของที่ตัวเองรู้ให้หมด
-      requires: { cast: [kid] }
+      requires: { cast: [kid], not_flags: [child_lives_away] }
       text: |
         {kid}เรียนเร็วกว่าที่{name}เคยเรียน และเถียงเก่งกว่าด้วย บางเรื่อง{kid:เขา|เธอ}ถามกลับมาว่าทำไมต้องทำแบบนั้น {name}ตอบไม่ได้ เพราะไม่เคยมีใครบอกเหมือนกัน
 
