@@ -1,0 +1,20 @@
+# เค้ากลางคืน (the Night Owl): the ash plain on the dark of the moon. The only primordial awake comes
+# over the stump of Astel's pillar, and the sky she covers has no stars in it. People sit with their
+# heads down and count nothing. By day this is the picture of the night that lasted till noon.
+# The owl is a studio drawing (art/props/land_owl.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 120, below: 58 }
+  - clouds: { count: 5, y: [40, 54], seed: 9, size: 30 }
+    haze: 0.5
+  - ridge: { mat: far, base: 61, amp: 4, scale: 0.02, seed: 21 }
+    haze: 0.5
+  - pillar: { x: 108, w: 9, base: 60, top: 36 }
+    haze: 0.3
+  - drawing: { art: land_owl, at: [0, 61] }
+  - ground: { y: 61, mat: ash, tufts: 70, tuft: silver_grass }
+  - cracks: { y: [64, 111], count: 16, seed: 5 }
+  - furn: { kind: seal_stone, at: [70, 64], along: { to: [-60, 104], every: 14 } }
+    outline: true
+  - furn: { kind: fern, at: [0, 96], xm: -4.2, hm: 0.4, mat: silver_grass }
+  - furn: { kind: fern, at: [0, 109], xm: 3.4, hm: 0.5, mat: silver_grass }

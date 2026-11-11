@@ -488,6 +488,8 @@ export const SCENES = [
   'home', 'market', 'temple', 'tavern', 'refinery', 'road', 'fort', 'noble_hall', 'workshop', 'smithy', 'golem_shop', 'healer',
   'ship_deck', 'mine', 'clan_hall', 'institute', 'belek_bank', 'star_hall',
   'classroom', 'library', 'dormitory', 'laboratory', 'observatory', 'council_hall', 'station',
+  // ฉากของเจ้าเดิมเจ็ดตน (ชุด 4): ที่ที่แผ่นดินเองเป็นรูปของเจ้าของเดิม
+  'land_river', 'land_field', 'land_fire', 'land_stone', 'land_forest', 'land_wind', 'land_night',
 ] as const;
 export type Scene = (typeof SCENES)[number];
 

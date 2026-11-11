@@ -1,0 +1,27 @@
+# กวางไม่มีเขา (the Hornless Doe): deep Ileth, where the old trunks stand so far apart that a herd
+# could walk between them, and one thing does. She is as tall as the crowns and far enough off to be
+# the colour of the mist. Nobody fells a living tree here or hunts a beast with young at foot.
+# The doe is a studio drawing (art/props/land_doe.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 60, below: 40 }
+  - body: { day: [26, 20, 6], dusk: [30, 30, 9], night: [28, 16, 5] }
+  - trees: { kind: round, mat: elf_leaf, base: 62, everym: 6, hm: [14, 20], seed: 51 }
+    haze: 0.45
+  - drawing: { art: land_doe, at: [44, 63] }
+    haze: 0.42
+  - trees: { kind: round, mat: elf_leaf, base: 64, everym: 9, hm: [9, 13], seed: 52 }
+    haze: 0.28
+  - ground: { y: 63, mat: grass, tufts: 60, tuft: elf_leaf }
+  - road: { y: [64, 111], wm: 2.0, mat: dirt }
+  - furn: { kind: bigtree, at: [0, 100], xm: -6.4, wm: 4, hm: 40, flare: 1.25, crown: [0.9, 1.2], clumps: 4 }
+    outline: true
+  - furn: { kind: bigtree, at: [0, 100], xm: 6.4, wm: 4, hm: 40, flare: 1.25, crown: [0.9, 1.2], clumps: 4 }
+    outline: true
+  - canopy: { count: 26, y: 12, r: [5, 10], mat: elf_leaf, seed: 3 }
+  - furn: { kind: lamp, at: [222, 96], on: 3.0, light: lamp }
+  - glow: { at: [222, 27], r: 14, colour: 'bad8fa', only: [dusk, night] }
+  - furn: { kind: fern, at: [0, 100], xm: -3.4, hm: 1.0, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 99], xm: 3.3, hm: 1.1, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 110], xm: -3.0, hm: 1.0, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 110], xm: 3.2, hm: 0.9, mat: elf_leaf }

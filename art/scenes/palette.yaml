@@ -56,6 +56,8 @@ materials:
   lamp: { ramp: ['8fa3bf', '9fb2cc', 'b1c3da', 'c4d4e7', 'd9e5f3'], lit: ['6fa7e0', '8cc0f0', 'aad6fb', 'cbe8ff', 'eef8ff'] }
   fire: { ramp: ['9a3a24', 'c2502a', 'e0742f', 'f39a45', 'ffc56e'], glow: true } # furnaces, demon coal
   star_dew: { ramp: ['5f86c4', '78a0da', '97bdec', 'bad8fa', 'e2f1ff'], glow: true }
+  # the Night Owl: a dark that no hour of the day lightens (never tinted, like a light)
+  deep_night: { ramp: ['0a0b1a', '10122a', '171a38', '222650', '363c72'], glow: true }
   # coats and gear (art/kit/things.mjs): horses, dogs, carriages, tents and stalls
   bay: { ramp: ['4a2c22', '5c3729', '704331', '83513b', '976349'] }
   chestnut: { ramp: ['6a3720', '7f4427', '93512f', 'a55f38', 'b97247'] }

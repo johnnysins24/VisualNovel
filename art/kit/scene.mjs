@@ -240,6 +240,17 @@ export function renderScene(S, id, time = 'day', opts = {}) {
       }
     },
     rect(p) { for (let y = p.y; y < p.y + p.h; y++) span(y, p.x, p.x + p.w - 1, p.mat, p.lvl ?? 3); },
+    water(p) {
+      // a river or the sea from row `y0` down to `y1`: pale where it meets the far bank, deeper toward
+      // the viewer, with ripples that get longer toward the front (`ripples`: how many on the stage)
+      const r = rng(`${id}:water:${p.y0}`), mat = p.mat ?? 'water', n = Math.max(1, p.y1 - p.y0);
+      for (let y = p.y0; y <= p.y1; y++) for (let x = XL; x <= XR; x++) put(x, y, mat, 3.5 - ((y - p.y0) / n) * 2.3 + (dither(x, y) - 0.5) * 0.7);
+      for (let i = 0; i < Math.round((p.ripples ?? 60) * SW / STAGE); i++) {
+        const y = p.y0 + 1 + Math.floor(r() * n), t = (y - p.y0) / n, x = XL + Math.floor(r() * SW);
+        const len = 2 + Math.round(t * 9 * (0.5 + r())), lvl = r() < 0.6 ? 4 : 0.4;
+        for (let k = 0; k < len; k++) put(x + k, y, mat, lvl);
+      }
+    },
     trees(p) {
       const r = rng(`${id}:trees:${p.seed ?? 0}`);
       const every = p.everym ? p.everym * ppm(p.base) : p.every;
@@ -635,6 +646,36 @@ export function renderScene(S, id, time = 'day', opts = {}) {
         const q = (Y * SW + CX) * 4;
         putRgb(X, Y, mix([out[q], out[q + 1], out[q + 2]], c, a * strength));
       }
+    },
+    drawing(p) {
+      // a picture from the studio (art/props/<art>.yaml, made with `npm run draw` or `npm run studio`):
+      // `at: [left column, bottom row]`, or `cx` (its middle column) with `bottom`. Its materials must
+      // be scene materials (ramps named `scene.<material>`), so it takes the time of day and the
+      // layer's `haze` like everything else. `flip: true` mirrors it; `frame` picks a frame by name.
+      const d = (S.drawings ??= {})[p.art] ??= readYaml(`props/${p.art}.yaml`);
+      const [w, h] = d.size, layers = p.frame ? d.frames[p.frame] : Object.values(d.frames)[0];
+      if (!layers) throw new Error(`${id}: drawing ${p.art} has no frame "${p.frame}"`);
+      const x0 = p.at ? p.at[0] : Math.round(p.cx - w / 2), y0 = (p.at ? p.at[1] : p.bottom) - h + 1;
+      const ref = {};
+      for (const [ch, v] of Object.entries(d.legend ?? {})) {
+        const [m, l] = String(v).split('@'), ramp = String(d.ramps?.[m] ?? '');
+        if (!ramp.startsWith('scene.')) throw new Error(`${id}: drawing ${p.art} uses "${m}" (${ramp || 'no ramp'}); a scene drawing may only use scene.* ramps`);
+        ref[ch] = [ramp.slice(6), Number(l)];
+      }
+      track = { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 };
+      for (const L of layers) {
+        if (L.hidden || L.ascii === undefined) continue;
+        String(L.ascii).replace(/\n$/, '').split('\n').forEach((row, j) => [...row].forEach((ch, i) => {
+          if (ch === '.') return;
+          const X = L.at[0] + i, Y = y0 + L.at[1] + j;
+          if (ch === '#') { put(x0 + (p.flip ? w - 1 - X : X), Y, 'ink', 0); return; }
+          const r = ref[ch];
+          if (!r) throw new Error(`${id}: drawing ${p.art} has no legend entry for "${ch}"`);
+          put(x0 + (p.flip ? w - 1 - X : X), Y, r[0], r[1]);
+        }));
+      }
+      if (opts.trace) items.push({ kind: 'drawing', row: p.row ?? Math.min(p.at ? p.at[1] : p.bottom, cam.stand), box: { ...track } });
+      track = null;
     },
     prop(p) {
       const legend = { ...pal.legend, ...(p.legend ?? {}) };

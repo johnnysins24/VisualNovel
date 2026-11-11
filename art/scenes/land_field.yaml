@@ -1,0 +1,30 @@
+# วัวใต้ทุ่ง (the Cow under the Field): the mound in the Arvel fields that nobody ploughs across. From
+# the road it is a long hill; anyone who looks a while sees the hip, the barrel of the ribs, the neck,
+# and the head laid down to the right with one horn of bare stone. Isel's sky pillar stands on her.
+# The hill is a studio drawing (art/props/land_cow.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 52 }
+  - body: { day: [40, 12, 6], dusk: [226, 46, 9], night: [36, 14, 5] }
+  - clouds: { count: 5, y: [3, 22], seed: 4 }
+  - ridge: { mat: far, base: 61, amp: 9, scale: 0.02, seed: 7 }
+    haze: 0.5
+  - pillar: { x: 106, w: 7, base: 14 }
+    haze: 0.35
+  - ground: { y: 62, mat: grass, tufts: 40 }
+  - drawing: { art: land_cow, at: [0, 64] }
+    haze: 0.16
+  - field: { y0: 66, y1: 80, mat: field, x0: -256, x1: 92 }
+  - field: { y0: 66, y1: 80, mat: field, x0: 164, x1: 511 }
+  - road: { y: [66, 111], wm: 3.2, mat: dirt, ruts: true }
+  - furn: { kind: fence, at: [0, 70], xm: -2.5, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: fence, at: [0, 70], xm: 2.5, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: haystack, at: [0, 76], xm: -9 }
+    outline: true
+  - furn: { kind: haystack, at: [0, 74], xm: 11.5 }
+    outline: true
+  - furn: { kind: fern, at: [0, 108], xm: -3.6, hm: 0.9, mat: field }
+  - furn: { kind: fern, at: [0, 110], xm: 3.5, hm: 1.0, mat: field }
+  - furn: { kind: fern, at: [0, 111], xm: -4.3, hm: 0.9, mat: field }

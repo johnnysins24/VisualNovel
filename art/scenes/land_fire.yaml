@@ -1,0 +1,21 @@
+# แม่เสือไฟ (the Fire Tigress): the oldest foundry in Kardin, built against the foot of Belek's pillar.
+# Its great mouth has never been let go out, and the fire in it lies like a tigress asleep, striped
+# with live coal. Nobody here puts a hearth out with water, and borrowed fire goes home before dawn.
+# The furnace mouth and the fire are a studio drawing (art/props/land_tigress.yaml).
+interior: true
+ceiling: 10.5
+width: 40
+back: 70
+layers:
+  - wall: { y0: 0, y1: 70, mat: dark_stone, pattern: blocks }
+  - drawing: { art: land_tigress, at: [0, 70] }
+  - floor: { y0: 71, mat: dark_stone, pattern: flags, tile: 16 }
+  - sides: { mat: brick, pattern: brick, left: -1.2, right: -0.8 }
+  - furn: { kind: anvil, at: [34, 100] }
+    outline: true
+  - furn: { kind: coal, at: [226, 102], wm: 1.4 }
+  - furn: { kind: sacks, at: [244, 96] }
+    outline: true
+  - furn: { kind: barrel, at: [14, 94], mat: metal, band: dark_stone }
+    outline: true
+  - vignette: { strength: 0.5 }

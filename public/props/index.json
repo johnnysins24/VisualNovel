@@ -1,0 +1,51 @@
+{
+ "land_bear": {
+  "w": 256,
+  "h": 61,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_catfish": {
+  "w": 256,
+  "h": 36,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_cow": {
+  "w": 256,
+  "h": 54,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_doe": {
+  "w": 141,
+  "h": 72,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_flock": {
+  "w": 248,
+  "h": 59,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_owl": {
+  "w": 254,
+  "h": 61,
+  "frames": [
+   "main"
+  ]
+ },
+ "land_tigress": {
+  "w": 252,
+  "h": 62,
+  "frames": [
+   "main"
+  ]
+ }
+}
