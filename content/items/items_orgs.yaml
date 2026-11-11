@@ -1,0 +1,34 @@
+# ของจากองค์กร (ชุด 3 ไฟล์ 88_org_*) ได้จาก effects.items ในฉากขึ้นยศ ซื้อขายไม่ได้ ไอคอนมาจากแบบกับวัสดุ
+
+- id: wardens_fort_key
+  name: กุญแจเหล็กดำด้ามเว้าของอูเลส
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { CON: 1 }
+  lore: กุญแจป้อมสามที่คนเลี้ยงล่อทีฟลิ่งห้อยคอไว้ใต้เสื้อจนวันตาย ร้อยเชือกหนังที่ต่อด้วยเงื่อนตายเจ็ดเงื่อน ด้ามสึกเป็นรอยเว้าตรงกลาง เว้าแบบที่ไม่ได้เกิดจากการไขประตู
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: fang_brass_tag
+  name: ป้ายทองเหลืองตอกเลขของโรงรับเขี้ยว
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: uncommon
+  stats: { WIS: 1 }
+  lore: ป้ายกลมขนาดเหรียญที่ออร์ริสตอกเลขเองทีละตัวด้วยค้อนหัวเล็ก เลขที่ได้เคยเป็นของนักล่าที่ตายไปแล้ว ด้านหลังยังมีรอยขีดนับของเจ้าของเก่าที่ขัดไม่ออก คนในเหมืองเห็นป้ายนี้แขวนเข็มขัดแล้วจะหลีกทางให้ครึ่งก้าว
+
+- id: fang_black_iron_tag
+  name: ป้ายเหล็กดำไม่มีเลขของโรงรับเขี้ยว
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { DEX: 1 }
+  lore: ป้ายเหล็กดำผิวด้าน ไม่มีเลข ไม่มีชื่อ มีแค่รอยตะไบเป็นเส้นขวางเส้นเดียวตรงขอบ คนที่ถือป้ายนี้เข้าห้องหลังโรงได้โดยไม่ต้องเคาะ
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
