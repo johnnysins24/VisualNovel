@@ -5,13 +5,14 @@ import { effectiveStats } from '../engine/items';
 import { personYears } from '../engine/people';
 import { STATS } from '../engine/schema';
 import { humanAge, lastRealAge, worldYear, type LifeState } from '../engine/state';
-import { piecesOfItem, personLook, playerLook } from '../sprites/looks';
-import { faceUrl, itemIconUrl, portraitUrl } from '../sprites/render';
+import { personLook, playerLook } from '../sprites/looks';
+import { faceUrl, portraitUrl } from '../sprites/render';
 import { bigRoll, endReasonOf, game, life, resumeLife, startLife } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { PLACE_TH, signed } from './Hud';
 import { BOND_TH, kinLabel } from './People';
 import { TraitsOfLife } from './Traits';
+import { ItemIcon } from './Gear';
 
 /** อายุที่ใช้เป็นสเกลของแถบ "เขียนเสร็จถึงอายุเท่าไร" (มนุษย์) */
 const SCALE_AGES = [0, 18, 40, 60, 70];
@@ -130,15 +131,12 @@ export function BiographyPage() {
         <section class="sec" aria-label="ของที่ทิ้งไว้">
           <h3><Icon name="bag" />ของที่ทิ้งไว้</h3>
           <ul class="heir">
-            {things.map((it) => {
-              const art = itemIconUrl(piecesOfItem(it.id, game.items));
-              return (
-                <li key={it.id}>
-                  <span class="slot on">{art ? <img class="slot-art" src={art} alt="" /> : <Icon name={it.slot ?? 'bag'} />}</span>
-                  {it.name}
-                </li>
-              );
-            })}
+            {things.map((it) => (
+              <li key={it.id}>
+                <span class={`slot on r-${it.rarity}`}><ItemIcon item={it} /></span>
+                {it.name}
+              </li>
+            ))}
           </ul>
         </section>
       )}

@@ -5,17 +5,16 @@ import { modifier } from '../engine/state';
 import { GODS, REPUTATION_CAP, STAT_TH, type FactionId, type GodId } from '../engine/balance';
 import { alignmentCell } from '../engine/rules';
 import { worldYear } from '../engine/state';
-import { equip, exportLife, game, importLife, life, meta, startLife, tab } from '../store';
+import { exportLife, game, importLife, life, meta, startLife, tab } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { SpriteView } from './SpriteView';
-import { piecesOfItem } from '../sprites/looks';
-import { itemIconUrl } from '../sprites/render';
 import { WorldMap } from './WorldMap';
 import { signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
 import { CREDITS } from './credits';
 import { TraitsSection } from './Traits';
+import { BagSection, ItemIcon, SLOT_TH, ShopSection, WornCard, isOpenItem, openItem, showItem } from './Gear';
 
 const FACTION_TH: Record<FactionId, string> = {
   crown: 'ราชสำนักอาร์เวล',
@@ -48,51 +47,24 @@ export function StatGrid() {
   );
 }
 
-export function Equipment() {
-  const l = life.value;
-  return (
-    <section class="sec" aria-label="กระเป๋า">
-      <h3><Icon name="bag" />กระเป๋า <span class="num">{l.inventory.length}</span></h3>
-      {l.inventory.length === 0 && <p class="muted">ยังไม่มีของ</p>}
-      <ul class="items">
-        {l.inventory.map((id) => {
-          const it = game.items.get(id);
-          if (!it) return null;
-          const on = it.slot !== undefined && l.equipped[it.slot] === id;
-          return (
-            <li key={id}>
-              <button class={`item ${on ? 'on' : ''}`} onClick={() => equip(id)} aria-pressed={on} title={it.passive?.description}>
-                {it.name}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-const SLOT_TH: Record<Slot, string> = {
-  head: 'หัว', body: 'ตัว', hands: 'มือ', legs: 'ขา', feet: 'เท้า',
-  weapon: 'อาวุธ', offhand: 'มือรอง', cloak: 'ผ้าคลุม', accessory: 'เครื่องประดับ',
-};
 const LEFT: Slot[] = ['head', 'body', 'hands', 'legs', 'feet'];
 const RIGHT: Slot[] = ['weapon', 'offhand', 'cloak', 'accessory'];
 
+/** ช่องสวมใส่หนึ่งช่อง: ของที่สวมอยู่ขึ้นรูปของชิ้นนั้นในกรอบสีตามระดับ แตะแล้วเปิดการ์ดของ ช่องว่างเป็นไอคอนของช่อง */
 function SlotBox({ slot }: { slot: Slot }) {
-  const l = life.value;
-  const id = l.equipped[slot];
+  const id = life.value.equipped[slot];
   const it = id ? game.items.get(id) : undefined;
   const label = `${SLOT_TH[slot]}: ${it?.name ?? 'ว่าง'}`;
-  // ของที่มีภาพในชุด sprite ขึ้นรูปของชิ้นนั้นแทนไอคอนช่อง (Phupha เลือก 10 พ.ย. 2026) แตะ/ชี้ดูชื่อ
-  const icon = it ? itemIconUrl(piecesOfItem(it.id, game.items)) : null;
-  const [shown, setShown] = useState(false);
+  if (!it) return <div class="slot empty" title={label} aria-label={label} role="img"><Icon name={slot} /></div>;
   return (
-    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img"
-      onClick={() => it && setShown(!shown)} onMouseLeave={() => setShown(false)}>
-      {icon ? <img class="slot-art" src={icon} alt="" /> : <Icon name={slot} />}
-      {shown && it && <span class="slot-name">{it.name}</span>}
-    </div>
+    <button
+      class={`slot on r-${it.rarity} ${isOpenItem(it.id) ? 'open' : ''}`}
+      title={label}
+      aria-label={label}
+      onClick={() => (isOpenItem(it.id) && tab.value === 'character' ? (openItem.value = null) : showItem(it.id))}
+    >
+      <ItemIcon item={it} />
+    </button>
   );
 }
 
@@ -112,10 +84,14 @@ export function SlotGrid({ doll }: { doll?: boolean }) {
 
 export function CharacterPanel() {
   const l = life.value;
+  // ลำดับ: ตัวละครกับช่องสวมใส่ สิ่งติดตัว ของในกระเป๋า ร้านของถิ่นนี้ แล้วค่าสถานะ (ค่าสถานะมีอยู่บนหน้าเรื่องราวแล้ว)
   return (
     <div class="panel-page">
       <SlotGrid doll />
+      <WornCard />
       <TraitsSection />
+      <BagSection />
+      <ShopSection />
       <section class="sec">
         <h3>ค่าสถานะ</h3>
         <StatGrid />
@@ -126,7 +102,6 @@ export function CharacterPanel() {
           <p>{GODS[l.god as GodId]?.th ?? l.god}</p>
         </section>
       )}
-      <Equipment />
     </div>
   );
 }

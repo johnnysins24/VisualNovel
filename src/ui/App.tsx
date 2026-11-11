@@ -1,5 +1,6 @@
 import { useEffect } from 'preact/hooks';
-import { CharacterPanel, DebugPanel, Equipment, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { CharacterPanel, DebugPanel, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { BagStrip } from './Gear';
 import { CloseList, PeoplePage } from './People';
 import { BiographyPage, RollDialog, bioOpen } from './Endings';
 import { TraitsStrip } from './Traits';
@@ -63,7 +64,7 @@ export function App() {
             <h3>สวมใส่</h3>
             <SlotGrid />
           </section>
-          <Equipment />
+          <BagStrip />
           <TraitsStrip />
         </aside>
         <aside class="side right" aria-label="ผู้คนและโลก">

@@ -12,6 +12,7 @@ import { Ending, bioOpen } from './Endings';
 import { Icon, STAT_ICON } from './icons';
 import { signed } from './Hud';
 import { Steps, TraitChip } from './Traits';
+import { ItemChip } from './Gear';
 import { autoSpeed, autoplay, cycleSpeed, fresh, justRead, revealAll, revealNext, revealing, scrolledBack, shownCount, tapNext } from './reading';
 
 /** อายุที่เปิดค้างไว้ อายุเก่ากว่านี้พับเป็นก้อนเดียว */
@@ -50,9 +51,7 @@ function Changes({ c }: { c: LifeChanges }) {
       {c.hp ? <span class={c.hp > 0 ? 'good' : 'bad'}><Icon name="heart" label="พลังชีวิต" /><span class="num">{signed(c.hp)}</span></span> : null}
       {c.maxHp ? <span class={c.maxHp > 0 ? 'good' : 'bad'}><Icon name="heart" label="พลังชีวิตสูงสุด" />สูงสุด <span class="num">{signed(c.maxHp)}</span></span> : null}
       {c.gold ? <span class={c.gold > 0 ? 'gold' : 'bad'}><Icon name="coin" label="ทอง" /><span class="num">{signed(c.gold)}</span></span> : null}
-      {c.items?.map((id) => (
-        <span key={id} class="gold"><Icon name="bag" label="ได้ของ" />{game.items.get(id)?.name ?? id}</span>
-      ))}
+      {c.items?.map((id) => <ItemChip key={id} id={id} />)}
     </p>
   );
 }
@@ -75,9 +74,11 @@ function YearChanges({ y }: { y: YearEnd }) {
   const lost = y.winter?.lost ?? 0;
   const down = new Map<Stat, number>();
   for (const s of y.decline ?? []) down.set(s, (down.get(s) ?? 0) + 1);
-  if (!lost && !down.size) return null;
+  const marks = y.marks ?? [];
+  if (!lost && !down.size && !marks.length) return null;
   return (
     <p class="changes">
+      {marks.map((id, i) => <TraitChip key={`${id}-${i}`} id={id} l={life.value} />)}
       {lost > 0 && <span class="bad"><Icon name="heart" label="พลังชีวิตสูงสุด" />สูงสุด <span class="num">-{lost}</span></span>}
       {[...down].map(([s, n]) => (
         <span key={s} class="bad"><Icon name={STAT_ICON[s]} label={STAT_TH[s]} /><span class="num">-{n}</span></span>

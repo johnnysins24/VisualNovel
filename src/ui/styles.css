@@ -179,9 +179,6 @@ ul { list-style: none; margin: 0; padding: 0; }
 .stat-grid li .icon { color: var(--muted); }
 .stat-grid b { margin-left: auto; font-size: .82rem; }
 .stat-grid small { color: var(--muted); font-size: .65rem; min-width: 22px; text-align: right; }
-.items { display: flex; flex-wrap: wrap; gap: 6px; }
-.item { min-height: 40px; padding: 4px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: .88rem; }
-.item.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .people li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .people small { margin-left: auto; color: var(--muted); }
 .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--subtle); display: grid; place-items: center; font-size: .8rem; color: var(--muted); }
@@ -223,9 +220,6 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node.on circle { stroke: var(--accent); stroke-width: 2; }
 .chart .node.dead { opacity: .5; }
 .face { image-rendering: pixelated; }
-.slot { position: relative; }
-.slot-name { position: absolute; top: calc(100% + 4px); left: 0; z-index: 5; white-space: nowrap; font-size: .75rem; padding: 2px 8px; border-radius: 999px; background: var(--ink); color: var(--bg); pointer-events: none; }
-.slot-art { width: 80%; height: 80%; object-fit: contain; image-rendering: pixelated; }
 .avatar.face { background: var(--subtle); object-fit: cover; }
 .node.dead .face { filter: grayscale(1); opacity: .6; }
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
@@ -259,10 +253,13 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .slots { display: grid; gap: 8px; justify-items: start; }
 .slots.right { justify-items: end; }
 .slot { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); background: var(--surface); }
-.slot.on { color: var(--ink); border-color: var(--ink); }
+.slot.on { color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--r, var(--ink)) 60%, var(--line)); background: color-mix(in srgb, var(--r, var(--ink)) 8%, var(--surface)); }
+button.slot.on:hover { border-color: var(--r, var(--ink)); }
+.slot.open { border-color: var(--r, var(--ink)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--r, var(--ink)) 22%, transparent); }
 .slot.empty { border-style: dashed; background: transparent; opacity: .7; }
 .slot-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .slot-row .slot { width: 38px; height: 38px; border-radius: 10px; }
+.slot-row .slot .iart { max-width: 28px; max-height: 28px; }
 
 /* ---------- แผนที่ ---------- */
 /* แผนที่โลก (WorldMap.tsx): ภาพพิกเซลจาก public/map ชื่อวาดทับเป็นตัวอักษร สีชื่อตามโปสเตอร์ (art/kit/map-poster.mjs)
@@ -390,6 +387,65 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .roll .kchip { font-size: .78rem; }
 .roll .what { color: var(--muted); }
 .choice.locked .kchip { font-size: .74rem; }
+
+/* ---------- ของ: กระเป๋า การ์ดของ ร้านค้า (สีเดียวต่อระดับผ่าน --r) ---------- */
+.kind-legend [class^='r-'] { --k: var(--r); }
+.r-common { --r: var(--muted); } .r-uncommon { --r: var(--good); } .r-rare { --r: var(--accent); } .r-enchanted { --r: var(--curse); } .r-hero { --r: var(--gold); }
+/* ไอคอนของเป็นภาพพิกเซล แสดงขนาดจริงไม่ยืด (ใหญ่สุด 34 px) */
+.iart { image-rendering: pixelated; max-width: 34px; max-height: 34px; flex: none; }
+.bag-row { display: flex; flex-wrap: wrap; gap: 12px 9px; padding-bottom: 5px; }
+.itile { position: relative; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none; color: var(--muted);
+  background: color-mix(in srgb, var(--r) 8%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--r) 50%, var(--line)); }
+button.itile:hover { border-color: var(--r); }
+.itile.on { border-color: var(--r); box-shadow: 0 0 0 3px color-mix(in srgb, var(--r) 22%, transparent); }
+.itile .count { position: absolute; bottom: -7px; right: -6px; min-width: 18px; height: 16px; padding: 0 4px; border-radius: 999px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-size: .56rem; line-height: 1; }
+.itile.small { width: 38px; height: 38px; border-radius: 10px; }
+.itile.small .iart { max-width: 28px; max-height: 28px; }
+.bag-row.small { gap: 11px 8px; }
+.purse { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--gold); }
+.purse .num { font-size: .78rem; }
+.shop-link { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 2px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: .82rem; }
+.shop-link .icon { width: 15px; height: 15px; color: var(--muted); }
+.shop-link:hover { border-color: var(--accent); }
+.side.left > .bag { grid-column: 1 / -1; }
+/* การ์ดของ: โครงเดียวกับการ์ดสิ่งติดตัว */
+.icard { --k: var(--r); }
+.icard .art .iart { width: auto; height: auto; max-width: none; max-height: none; transform: scale(1.5); }
+.icard .tc-kind > span + span::before { content: '·'; margin-right: 8px; }
+.tc-body .lore-line { color: var(--muted); }
+.card-actions { margin-top: 10px; }
+.card-actions:empty { display: none; }
+.card-actions button { min-height: 40px; padding: 2px 16px; font-size: .9rem; background: var(--bg); }
+.card-actions button .icon { width: 15px; height: 15px; }
+.card-actions .primary { border: 0; background: var(--ink); min-width: 96px; justify-content: center; }
+.card-actions .primary:disabled { background: var(--subtle); color: var(--muted); opacity: 1; }
+.card-actions .sure { border-color: var(--bad); color: var(--bad); }
+.tc-body .act-note { margin-top: 6px; }
+.tc-body .act-note.said { color: var(--ink); }
+/* ร้านค้า: คำทักของคนขาย และแผงของ (ช่องไอคอนกับราคาใต้ช่อง) */
+.greet { font-family: var(--f-head); font-size: .95rem; line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--line); }
+.greet::before { content: '\201C'; } .greet::after { content: '\201D'; }
+.greet.closed { color: var(--muted); }
+.greet.closed::before, .greet.closed::after { content: none; }
+.shelf { gap: 10px 9px; }
+.shelf-cell { display: grid; justify-items: center; gap: 2px; }
+.price { display: inline-flex; align-items: center; gap: 3px; color: var(--gold); font-size: .8rem; line-height: 1.5; white-space: nowrap; }
+.price .icon { width: 12px; height: 12px; }
+.price .num { font-size: .7rem; }
+.cant .price { color: var(--muted); }
+.price.have { font-size: .7rem; }
+.shelf-cell.cant .iart { opacity: .55; }
+/* ของในบรรทัด: ได้ของ ของที่ใช้ในจังหวะ และป้ายใต้วิธีรับมือ */
+.ichip { display: inline-flex; align-items: center; gap: 5px; color: color-mix(in srgb, var(--r) 72%, var(--ink)); }
+.ichip .iart, .tag .iart, .picked .iart { height: 16px; width: auto; max-width: none; max-height: none; }
+.entry .picked.used { font-weight: 400; align-items: center; }
+.entry .picked.used .iart { align-self: start; margin-top: .35em; }
+.tag.supply { color: var(--accent); }
+.tag.supply .icon { margin-left: 3px; fill: currentColor; stroke: none; }
+/* ของใช้แล้วหมดในแผ่นวิธีรับมือ: แตะหยิบหนึ่งชิ้นไว้ใช้กับวิธีถัดไป */
+.sup-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 9px; padding: 0 2px 7px; color: var(--muted); }
+.sup-row > .icon { width: 15px; height: 15px; }
+.sup-row .itile[aria-pressed='true'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
 
 /* ---------- การปะทะ (แบบ ก: สถานะอยู่บนเวที) ---------- */
 .pips { display: inline-flex; align-items: center; gap: 5px; padding: 0 2px; }

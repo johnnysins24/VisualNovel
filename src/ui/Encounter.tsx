@@ -4,16 +4,18 @@
  */
 import { signal } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { ENCOUNTER, ENCOUNTER_END_TH, FOE_TAG_TH, MOVE_TH, STAT_TH, TECHNIQUES, TECHNIQUE_HELP, type FoeSide, type FoeTag, type MoveKind, type TechniqueKind } from '../engine/balance';
+import { ENCOUNTER, ENCOUNTER_END_TH, FOE_TAG_TH, MATERIALS, MOVE_TH, STAT_TH, TECHNIQUES, TECHNIQUE_HELP, type FoeSide, type FoeTag, type MoveKind, type TechniqueKind } from '../engine/balance';
 import { foeOf, moveOdds, openMoves, techniqueOf, type FoeView, type TechniqueView } from '../engine/encounter';
+import { fightSupplies, supplyAid } from '../engine/gear';
 import { maxHp } from '../engine/items';
 import type { FoeDef, GameEvent } from '../engine/schema';
 import { paragraphs, render } from '../engine/text';
 import type { BeatRecord, EncounterState, LifeState, LogEntry } from '../engine/state';
-import { chooseMove, currentEvent, foeStruck, game, life, sheetCollapsed, techArmed } from '../store';
+import { chooseMove, currentEvent, foeStruck, game, life, sheetCollapsed, supplyArmed, techArmed } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { justRead } from './reading';
 import { TraitChip } from './Traits';
+import { ItemIcon, brief } from './Gear';
 
 const signed = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
 const pctClass = (p: number) => (p >= 0.7 ? 'good' : p >= 0.4 ? 'mid' : 'bad');
@@ -149,9 +151,10 @@ function Lore({ foe }: { foe: FoeDef }) {
 }
 
 function BeatChanges({ r }: { r: BeatRecord }) {
-  if (!r.damage && !r.pips && !r.blocked) return null;
+  if (!r.damage && !r.pips && !r.blocked && !r.healed) return null;
   return (
     <p class="changes">
+      {r.healed ? <span class="good"><Icon name="heart" label="พลังชีวิต" /><span class="num">+{r.healed}</span></span> : null}
       {r.pips ? <span class="good"><i class="pip on" role="img" aria-label="แรงใจของศัตรู" /><span class="num">-{r.pips}</span></span> : null}
       {r.damage ? <span class="bad"><Icon name="heart" label="พลังชีวิต" /><span class="num">-{r.damage}</span></span> : null}
       {r.blocked && <span class="good"><Icon name="CON" />{r.blocked === 'ward' ? 'พรรับไว้' : 'โล่รับไว้'}</span>}
@@ -164,10 +167,12 @@ function Beat({ tell, label, r, l, cast, limit, lore }: { tell: string[]; label:
   const text = r.text ? paragraphs(render(r.text, l, cast)) : [];
   const shown = text.slice(0, limit ?? Infinity);
   const done = shown.length >= text.length;
+  const used = r.supply ? game.items.get(r.supply) : undefined;
   return (
     <>
       {tell.map((p, i) => <p key={`t${i}`}>{p}</p>)}
       {label && <p class="picked"><Icon name="flag" />{label}</p>}
+      {used && <p class="picked used"><ItemIcon item={used} /><span>{used.use?.text ? render(used.use.text, l, cast) : used.name}</span></p>}
       <p class={`roll ${r.success ? 'good' : 'bad'}`}>
         <Icon name="d20" label="ทอยเต๋า" />
         <span class="num">{r.d20} {signed(r.mod)}</span>
@@ -281,10 +286,13 @@ export function EncounterSheet() {
       </div>
     );
   }
-  const tk = techniqueOf(l);
+  const tk = techniqueOf(l, game);
   const armed = techArmed.value && tk.armable && tk.ready;
   const bonus = tk.kind === 'spell' ? ENCOUNTER.weak : tk.kind === 'sense' || tk.kind === 'song' || tk.kind === 'at_hand' ? (Object.values(TECHNIQUES).find((t) => t.kind === tk.kind)?.amount ?? 0) : 0;
   const total = ev.encounter!.beats.length;
+  // ของใช้แล้วหมดที่หยิบไว้: ใช้กับวิธีรับมือถัดไป หนึ่งจังหวะหนึ่งชิ้น และหมดไปเมื่อมันช่วยวิธีที่เลือกเท่านั้น
+  const supplies = fightSupplies(game, l);
+  const held = supplies.find((x) => x.item.id === supplyArmed.value)?.item;
   return (
     <div class="sheet enc" role="group" aria-label="วิธีรับมือ">
       <div class="sheet-head enc-head">
@@ -305,12 +313,35 @@ export function EncounterSheet() {
         </button>
       </div>
       {(armed || hint) && <p class="tech-hint">{TECHNIQUE_HELP[tk.kind]}{tk.why ? ` (${WHY_TH[tk.why]})` : ''}</p>}
+      {supplies.length > 0 && (
+        <div class="sup-row" role="group" aria-label="ของใช้แล้วหมด">
+          <Icon name="bag" label="ของใช้แล้วหมด" />
+          {supplies.map(({ item, count }) => (
+            <button
+              key={item.id}
+              class={`itile small r-${item.rarity}`}
+              title={item.name}
+              aria-label={`${item.name} มี ${count}`}
+              aria-pressed={held?.id === item.id}
+              onClick={() => (supplyArmed.value = held?.id === item.id ? null : item.id)}
+            >
+              <ItemIcon item={item} />
+              <span class="count num">{count}</span>
+            </button>
+          ))}
+        </div>
+      )}
+      {held && <p class="tech-hint">{held.name}: {brief(held).join(' · ')} หมดไปเมื่อช่วยวิธีที่เลือกเท่านั้น</p>}
       {moves.map((m, i) => {
-        const o = moveOdds(game, l, ev, m, armed);
+        const o = moveOdds(game, l, ev, m, armed, held?.id);
         const part = (k: (typeof o.parts)[number]['kind']) => o.parts.find((p) => p.kind === k);
         const ally = m.ally ? (l.people ?? []).find((p) => p.id === l.cast?.[m.ally!]) : null;
         const foe = now.foe.def;
         const tech = part('tech');
+        const edge = part('edge');
+        const edgeItem = edge?.by ? game.items.get(edge.by) : undefined;
+        const heavy = part('heavy');
+        const aid = part('supply') ? supplyAid(game, l, foe, m, held?.id, ENCOUNTER.weak) : null;
         const tagged = m.kind === 'flee' || o.parts.length > 0 || o.traits.length > 0;
         return (
           <button key={m.id} class={`choice ${m.kind === 'flee' ? 'flee' : ''}`} onClick={() => !justRead() && chooseMove(m.id)}>
@@ -324,6 +355,15 @@ export function EncounterSheet() {
                   {part('strong') && <span class="tag strong"><Icon name="CON" />จุดแข็ง <span class="num">{signed(part('strong')!.amount)}</span></span>}
                   {part('ally') && <span class="tag ally"><Icon name="friend" />{ally?.name ?? 'มีคนช่วย'} <span class="num">{signed(part('ally')!.amount)}</span></span>}
                   {tech && <span class="tag tell"><Icon name="role" />{tk.th}{tech.amount ? <> <span class="num">{signed(tech.amount)}</span></> : null}</span>}
+                  {edge && edgeItem && <span class="tag ally"><ItemIcon item={edgeItem} />{edgeItem.material ? MATERIALS[edgeItem.material].th : edgeItem.name} <span class="num">{signed(edge.amount)}</span></span>}
+                  {heavy && <span class="tag strong"><Icon name="body" />เกราะหนัก <span class="num">{signed(heavy.amount)}</span></span>}
+                  {aid && (
+                    <span class="tag supply">
+                      <ItemIcon item={aid.item} />
+                      {part('supply')!.amount ? <span class="num">{signed(part('supply')!.amount)}</span> : null}
+                      {aid.heal ? <><Icon name="heart" label="ฟื้นพลังชีวิต" /><span class="num">+{aid.heal}</span></> : null}
+                    </span>
+                  )}
                   {o.traits.map((b) => <TraitChip key={b.id} id={b.id} l={l}><span class="num">{signed(b.amount)}</span></TraitChip>)}
                 </span>
               )}

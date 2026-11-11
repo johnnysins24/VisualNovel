@@ -246,3 +246,51 @@ test('an encounter plays beat by beat on the stage and hands back to the story w
   await expect(page.locator(CHOICE).first()).toBeVisible();
   expect(await noSideScroll(page)).toBe(true);
 });
+
+/** ชีวิตวัยหนุ่มสาวในหมู่บ้านของเนื้อหาทดสอบ มีเงินพอซื้อของที่แผง และเจ็บอยู่เล็กน้อย */
+const SHOP_LIFE = { version: 3, seed: 7, name: 'ทดสอบ', gender: 'f', raceApplied: 'human', age: 18, birthYear: 294, hp: 9, baseMaxHp: 12, gold: 8 };
+
+test('the local shop sells a thing, the bag holds it, a slot wears it, and a salve heals', async ({ page }, info) => {
+  await loadLife(page, SHOP_LIFE);
+  await tabButton(page, 1).click();
+  const read = page.locator('.read');
+  const shop = read.locator('.sec.shop');
+  await expect(shop).toContainText('[ทดสอบ] แผงขายของ');
+  // แตะของบนแผง การ์ดเปิดใต้แผง ซื้อแล้วเงินลดและของเข้ากระเป๋า
+  await shop.locator('.itile').first().click();
+  await expect(shop.locator('.icard')).toContainText('[ทดสอบ] หมวกผ้า');
+  await shop.getByRole('button', { name: /ซื้อ/ }).click();
+  await expect(read.locator('.bag .purse .num')).toHaveText('3');
+  await expect(read.locator('.bag .itile')).toHaveCount(1);
+  // สวมจากการ์ดของร้านได้เลย ของย้ายจากกระเป๋าไปอยู่ในช่องหัว และพลังชีวิตสูงสุดขึ้นตามของ
+  await shop.getByRole('button', { name: 'สวม' }).click();
+  await expect(read.locator('.doll button.slot')).toHaveCount(1);
+  await expect(read.locator('.bag .itile')).toHaveCount(0);
+  await expect(page.locator('.top')).toContainText('9/14');
+  // แตะช่องที่สวมอยู่ การ์ดเปิดใต้ตัวละคร มีปุ่มถอด
+  await read.locator('.doll button.slot').click();
+  await expect(read.locator('.icard').getByRole('button', { name: 'ถอด' })).toBeVisible();
+  // ซื้อขี้ผึ้งแล้วใช้จากกระเป๋า พลังชีวิตฟื้น ของหมดไปจากกระเป๋า
+  await shop.locator('.itile').nth(1).click();
+  await shop.getByRole('button', { name: /ซื้อ/ }).click();
+  await read.locator('.bag .itile').first().click();
+  await read.locator('.bag').getByRole('button', { name: 'ใช้', exact: true }).click();
+  await expect(page.locator('.top')).toContainText('11/14');
+  await expect(read.locator('.bag .itile')).toHaveCount(0);
+  expect(await noSideScroll(page)).toBe(true);
+  await page.screenshot({ path: `shots/${info.project.name}-gear.png`, fullPage: true });
+});
+
+test('a thing picked from the bag in an encounter shows what it adds and is spent when used', ONCE, async ({ page }) => {
+  await loadLife(page, { ...BRAWL_LIFE, supplies: { test_dart: 1 } });
+  const sheet = page.locator('.sheet.enc');
+  await expect(sheet.locator('.sup-row .itile')).toHaveCount(1);
+  await expect(sheet.locator('.tag.supply')).toHaveCount(0);
+  // หยิบลูกดอก: วิธีที่มันช่วยได้ขึ้นป้ายแต้มเพิ่ม ทางหนีไม่ขึ้น
+  await sheet.locator('.sup-row .itile').click();
+  await expect(sheet.locator('.tag.supply')).toHaveCount(2);
+  await sheet.locator('.choice').first().click();
+  // ใช้แล้วหมด: บันทึกบอกว่าใช้อะไร และแถวของหายไปเพราะไม่เหลือของ
+  await expect(page.locator('.entry .picked.used')).toContainText('ขว้างลูกดอก');
+  if (await sheet.count()) await expect(sheet.locator('.sup-row')).toHaveCount(0);
+});
