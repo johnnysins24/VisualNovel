@@ -9,7 +9,8 @@ import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { equip, maxHp } from '../src/engine/items';
-import { PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type RaceId, type Rarity } from '../src/engine/balance';
+import { ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { dutiesDue, dutyResting } from '../src/engine/orgs';
 import { foeOf, hitDamage, moveOdds, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
 import { buy, buyBlock, fightSupplies, isSupply, itemBudget, sell, sellPrice, shelfOf, shopOpen, shopsHere, supplyCount, useSupply } from '../src/engine/gear';
 import type { Effects, EncounterEnd, GameEvent, Item } from '../src/engine/schema';
@@ -39,6 +40,23 @@ export interface FightTally {
   wounds: number;
 }
 const newTally = (): FightTally => ({ n: 0, ends: {}, beats: 0, hits: 0, hpLost: 0, hpStart: 0, wounds: 0 });
+
+/** ชีวิตหนึ่งกับองค์กรหนึ่ง: นับตั้งแต่วันที่เข้า แม้ภายหลังจะออก (สถานะในเกมหายไปตอนออก จึงต้องจดไว้ที่นี่) */
+export interface OrgLife {
+  /** อายุแบบมนุษย์ตอนเข้า และตอนที่เห็นว่ายังเป็นสมาชิกครั้งสุดท้าย */
+  joinedAge: number;
+  lastAge: number;
+  maxRank: number;
+  /** งานที่องค์กรส่งมา (นับทุกเรื่องที่ออก) ที่ทำสำเร็จ และที่ปัด */
+  duties: number;
+  done: number;
+  refused: number;
+  left: boolean;
+  /** เงินค่าหัวที่ได้จากการปะทะ */
+  bounty: number;
+  /** ปีที่ถึงกำหนดงานแต่ไม่มีงานให้ส่ง (เนื้อหาไม่พอ) */
+  starved: number;
+}
 
 /**
  * ผู้เล่นจำลองสองแบบ สลับกันตามเลขชีวิต: แบบอ่านเกม (เลือกวิธีที่โอกาสสูงสุด ใช้ท่าของอาชีพเมื่อช่วยได้ ถอยเมื่อพลาดอีกครั้งเดียวจะล้ม)
@@ -239,6 +257,15 @@ export interface AuditResult {
     boughtById: Map<string, number>;
     lootById: Map<string, number>;
   };
+  /**
+   * องค์กร: เรียงตรงกับ finals ชีวิตเลขคู่ (ผู้เล่นที่อ่านเกม) รับงานทุกครั้งที่รับได้ ชีวิตเลขคี่กดสุ่ม
+   * จึงเทียบได้ว่าคนที่ตั้งใจไต่ยศไปถึงไหน และคนที่ปัดงานบ่อยค้างอยู่ที่ไหน
+   */
+  orgs: {
+    perLife: Partial<Record<OrgId, OrgLife>>[];
+    /** ฉากตามล่าที่ออก (ฝ่าย → จำนวนครั้งรวมทุกชีวิต) */
+    hunts: Map<string, number>;
+  };
 }
 
 export function auditLives(game: Game, lives: number): AuditResult {
@@ -266,6 +293,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
       deadlyByStyle: { reads: newTally(), random: newTally() }, deadlyReadsByGear: { shop: newTally(), none: newTally() }, perLife: [],
     },
     gear: { perLife: [], boughtById: new Map(), lootById: new Map() },
+    orgs: { perLife: [], hunts: new Map() },
   };
   const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
@@ -281,6 +309,22 @@ export function auditLives(game: Game, lives: number): AuditResult {
     const gearLife = seed % 4 < 2 ? newGearLife() : null;
     let shoppedYear = -Infinity;
     let fought = 0;
+    const orgLife: Partial<Record<OrgId, OrgLife>> = {};
+    /** จดสมาชิกภาพหลังทุกเหตุการณ์: ยศสูงสุด ผลงาน และการออก */
+    const noteOrgs = (now: LifeState) => {
+      for (const id of ORG_IDS) {
+        const m = now.orgs[id];
+        const rec = orgLife[id];
+        if (m) {
+          const o = rec ?? (orgLife[id] = { joinedAge: humanAge(now), lastAge: humanAge(now), maxRank: m.rank, duties: 0, done: 0, refused: 0, left: false, bounty: 0, starved: 0 });
+          o.lastAge = humanAge(now);
+          o.maxRank = Math.max(o.maxRank, m.rank);
+          o.done = m.done;
+          o.refused = m.refused;
+          o.left = false;
+        } else if (rec) rec.left = true;
+      }
+    };
     /** must ที่เข้าเงื่อนไขแล้วแต่ยังไม่ได้ออก → เรื่องที่แซงไปตอนมันเหลือโอกาสสุดท้าย (ถ้ามี) */
     const waiting = new Map<string, string | null>();
 
@@ -330,6 +374,20 @@ export function auditLives(game: Game, lives: number): AuditResult {
         const others = pool.filter((e) => e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id));
         if (others.length) bump(problems, `${ev.id}: ออกซ้ำภายใน ${REPEAT_GAP} เหตุการณ์ทั้งที่มีเรื่องอื่นให้ออก`);
       }
+      // จังหวะของงานองค์กร: งานไม่ออกติดกัน และงานที่ถึงกำหนดต้องออกก่อนเรื่องสุ่ม
+      if (!l.dying) {
+        const fresh = (e: GameEvent) => !e.fallback && (e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id)) && !fightResting(l, e) && !dutyResting(l, e, game.duties);
+        if (dutyResting(l, ev, game.duties)) {
+          if (pool.some(fresh)) bump(problems, `${ev.id}: งานขององค์กรออกติดกันทั้งที่มีเรื่องอื่นให้ออก`);
+          bump(res.counts, 'งานขององค์กรที่ออกติดกัน');
+        }
+        const due = dutiesDue(l, game.duties);
+        for (const id of due) if (!pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]!.starved++;
+        const owed = pool.filter((e) => e.duty && due.includes(e.duty) && fresh(e));
+        if (owed.length && !ev.must && !owed.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่งานขององค์กรถึงกำหนด (${owed[0]!.id})`);
+      }
+      if (ev.duty && orgLife[ev.duty]) orgLife[ev.duty]!.duties++;
+      if (ev.hunt) bump(res.orgs.hunts, ev.hunt);
       // จังหวะของการปะทะ: ฉากปะทะที่ยังพักอยู่ออกได้เฉพาะเมื่อไม่มีเรื่องอื่นที่สดให้ออก
       if (fightResting(l, ev)) {
         const fresh = pool.filter((e) => !fightResting(l, e) && (e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id)));
@@ -432,11 +490,18 @@ export function auditLives(game: Game, lives: number): AuditResult {
         if (choices.length === 1 && ev.choices.length > 1) bump(counts, 'เหตุการณ์ที่เหลือตัวเลือกเดียว');
         bump(counts, 'เหตุการณ์ทั้งหมด');
 
-        const c = choices[r.int(0, choices.length - 1)]!;
+        // ผู้เล่นที่อ่านเกมรับงานขององค์กรทุกครั้งที่รับได้ ผู้เล่นที่กดสุ่มปัดบ้างรับบ้าง
+        const taking = style === 'reads' && ev.duty ? choices.filter((x) => !x.refuse) : [];
+        const from = taking.length ? taking : choices;
+        const c = from[r.int(0, from.length - 1)]!;
         l = resolveChoice(game, l, ev.id, c.id).life;
         did = `${ev.id}/${c.id}`;
         fxs = [c.effects, c.success?.effects, c.failure?.effects];
       }
+
+      noteOrgs(l);
+      const paid = l.log.at(-1)?.encounter?.bounty;
+      if (paid) for (const id of ORG_IDS) if (ORGS[id].bounty && orgLife[id]) orgLife[id]!.bounty += paid;
 
       // ---- ตรวจผลของตัวเลือก ----
       for (const fx of fxs) {
@@ -494,6 +559,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
     bump(res.endReasons, l.endReason ?? 'cap');
     res.finals.push(l);
     res.gear.perLife.push(gearLife);
+    res.orgs.perLife.push(orgLife);
     fights.perLife.push(fought);
   }
 
@@ -710,6 +776,27 @@ export function formatReport(game: Game, res: AuditResult): string {
     const drops = new Set([...game.foes.values()].flatMap((f) => f.loot.flatMap((row) => (row.item ? [row.item] : []))));
     const undropped = [...drops].filter((id) => !res.gear.lootById.has(id));
     out.push(`- ของจากศัตรูที่ไม่มีชีวิตไหนได้: ${undropped.length ? undropped.map(name).join(', ') : 'ไม่มี'}`);
+  }
+
+  h('องค์กร');
+  {
+    const rows = finals.map((l, i) => ({ life: l, dutiful: i % 2 === 1, orgs: res.orgs.perLife[i] ?? {} }));
+    for (const id of ORG_IDS) {
+      const members = rows.flatMap((x) => (x.orgs[id] ? [{ ...x, o: x.orgs[id]! }] : []));
+      out.push(`- ${ORGS[id].th}: เคยเป็นสมาชิก ${members.length} ชีวิต (${pct(members.length, lives)}) · เข้าตอนอายุกลาง ${median(members.map((x) => x.o.joinedAge))} · ออกก่อนจบชีวิต ${pct(members.filter((x) => x.o.left).length, members.length)}`);
+      if (!members.length) continue;
+      for (const [label, dutiful] of [['รับงานทุกครั้ง', true], ['กดสุ่ม', false]] as const) {
+        const all = members.filter((x) => x.dutiful === dutiful);
+        // ยศต้องใช้เวลา: วัดจากคนที่อยู่ในองค์กรครบ 20 ปี
+        const long = all.filter((x) => x.o.lastAge - x.o.joinedAge >= 20);
+        const ranks = Array.from({ length: ORG_RANKS }, (_, k) => `${ORGS[id].ranks[k]} ${pct(long.filter((x) => x.o.maxRank === k + 1).length, long.length)}`);
+        out.push(`  - ${label}: ${all.length} ชีวิต · อยู่ครบ 20 ปี ${long.length} ชีวิต ยศสูงสุด: ${ranks.join(' · ')}`);
+        out.push(`    งานที่ได้ กลาง ${median(long.map((x) => x.o.duties))} (ทำสำเร็จ กลาง ${median(long.map((x) => x.o.done))} · ปัด กลาง ${median(long.map((x) => x.o.refused))}) · ถึงกำหนดงานแต่ไม่มีงานให้ส่ง กลาง ${median(long.map((x) => x.o.starved))} ครั้ง${ORGS[id].bounty ? ` · ค่าหัว กลาง ${median(long.map((x) => x.o.bounty))} เหรียญ สูงสุด ${Math.max(0, ...long.map((x) => x.o.bounty))}` : ''}`);
+      }
+    }
+    const hunts = [...res.orgs.hunts].sort((a, b) => b[1] - a[1]);
+    out.push(`- ฉากตามล่าที่ออก: ${hunts.length ? hunts.map(([k, n]) => `${k} ${n} ครั้ง`).join(' · ') : 'ไม่มี'} · ชีวิตที่จบโดยยังโดนตามล่า ${pct(finals.filter((l) => Object.values(l.hunted).some((v) => v > 0)).length, lives)}`);
+    out.push(`- งานขององค์กรที่ออกติดกันเพราะไม่มีเรื่องอื่น: ${res.counts.get('งานขององค์กรที่ออกติดกัน') ?? 0} ครั้ง · เกณฑ์ผลงานของยศ 2 ถึง ${ORG_RANKS}: ${ORG.merit.join(' ')}`);
   }
 
   h('เผ่าและอาชีพ');
