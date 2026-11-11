@@ -7,6 +7,7 @@
   scene: market
   weight: 14
   when:
+    not_orgs: [wick]
     age: [34, 46]
     not_flags: [has_partner, partner_died]
   text: |
@@ -43,6 +44,7 @@
   scene: healer
   weight: 12
   when:
+    not_orgs: [wick]
     age: [45, 60]
     not_flags: [has_partner]
   text: |
@@ -89,6 +91,7 @@
   cast:
     gone: { id: partner, alive: false }
   when:
+    not_orgs: [wick]
     age: [38, 60]
     flags: [partner_died]
     not_flags: [has_partner]
@@ -238,6 +241,7 @@
   stage: adult
   weight: 9
   when:
+    not_orgs: [wick]
     age: [36, 56]
     not_flags: [has_ward]
   text: |
@@ -298,6 +302,7 @@
   scene: temple
   weight: 14
   when:
+    not_orgs: [wick]
     age: [40, 60]
     not_flags: [has_child, has_ward, raised_a_ward]
   text: |
@@ -356,6 +361,7 @@
   stage: adult
   weight: 9
   when:
+    not_orgs: [wick]
     age: [42, 60]
     not_flags: [has_ward]
   text: |

@@ -49,6 +49,7 @@
   stage: adult
   weight: 35
   when:
+    not_orgs: [wick]
     age: [19, 24]
     not_flags: [has_partner]
   text: |

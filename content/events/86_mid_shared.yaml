@@ -15,6 +15,7 @@
   scene: market
   weight: 35
   when:
+    not_orgs: [wick]
     age: [25, 38]
     not_flags: [has_partner]
   text: |

@@ -13,6 +13,7 @@
     age: [41, 56]
     location_tag: arvel_village
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     วันตลาดของหมู่บ้านเคยมีทุกเจ็ดวัน ปีนี้เหลือเดือนละครั้ง คนหนุ่มสาวเข้าเมืองไปทำงานโรงกลั่นจนบางบ้านเหลือแต่คนแก่กับหมา งานที่เคยมาหา{name}ทุกสัปดาห์ ตอนนี้มาเดือนละสองสามงาน ส่วนใหญ่คนจ้างขอผัดค่าแรงไปหลังเกี่ยว
 
@@ -59,6 +60,7 @@
     age: [41, 56]
     location_tag: ventras
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     ตึกแถวที่{name}เช่าอยู่มาหลายปีขายให้โรงกลั่นแล้ว โรงกลั่นจะรื้อผนังกั้นห้องทั้งตึกทำห้องนอนรวมให้คนงานกะดึก คนเช่าทุกห้องได้เวลาหนึ่งเดือน เงินมัดจำไม่คืน เพราะสัญญาเช่าเขียนว่าคืนเมื่อออกตามกำหนด ไม่ได้เขียนว่าคืนเมื่อเจ้าของขาย
 
@@ -105,6 +107,7 @@
     age: [41, 56]
     location_tag: arvel_village
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter, race_elf]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     คนส่งข่าวจากหมู่บ้านชายป่าไอเลธมาถึงพร้อมลาตัวหนึ่ง เขาพูดภาษาอาร์เวลปนคำที่ไม่มีใครในหมู่บ้านรู้จัก ทุกประโยคลงท้ายด้วยเสียงสูงเหมือนคำถาม
 
@@ -151,6 +154,7 @@
     age: [41, 56]
     location_tag: ventras
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter, race_dwarf]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     หัวหน้าคนงานคนแคระคนหนึ่งนั่งโต๊ะมุมโรงเตี๊ยมใกล้สถานีรถไฟมาสามคืนแล้ว เคราถักเป็นเปียสามเส้น ปลายเปียผูกด้วยลวดทองแดง เขามาจากฮอร์ดุน ตระกูลรางเหล็กของเขาเปิดทางรถไฟสายใหม่ขึ้นเขาด้านตะวันออก เมืองใหม่ข้างรางต้องการคนจากข้างล่างทุกแบบ งานแบบที่{name}ทำก็อยู่ในรายชื่อ
 
@@ -197,6 +201,7 @@
     age: [41, 56]
     location_tag: hordun
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     บริษัทเหมืองที่ขุดถ่านมารในแดนเถ้าฝังแผ่นหินประกาศไว้ที่ปากสถานีรถไฟทุกสถานีในฮอร์ดุน อักษรคนแคระกับอักษรอาร์เวลคู่กัน รายชื่องานที่บริษัทต้องการยาวสิบแปดแถว งานของ{name}อยู่แถวที่เก้า ค่าแรงสองเท่าครึ่ง รถไฟขนถ่านเที่ยวขากลับไปแดนเถ้าทุกสามวัน ใครจะไปนั่งบนกองกระสอบเปล่าได้โดยไม่เสียค่ารถ
 
@@ -243,6 +248,7 @@
     age: [41, 56]
     location_tag: ashland
     not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     จดหมายมาจากหมู่บ้านในอาร์เวล คนเขียนเคยจ้าง{name}เมื่อหลายปีก่อน ลายมือเอียงขวาเหมือนคนที่ไม่ได้เขียนบ่อย หมู่บ้านนั้นอยู่ห่างกำแพงเวนทราสครึ่งวัน ยังจุดเทียน ในระยะหนึ่งวันเดินไม่มีใครทำงานแบบ{name} ถ้า{name}มา หมู่บ้านมีบ้านว่างหลังหนึ่งข้างลานนวดข้าว
 

@@ -517,6 +517,7 @@
   scene: temple
   weight: 5
   when:
+    not_orgs: [wick]
     age: [42, 60]
     not_flags: [has_ward]
     not_traits: [boon_hearth]

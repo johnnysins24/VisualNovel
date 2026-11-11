@@ -9,7 +9,7 @@ import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { equip, maxHp } from '../src/engine/items';
-import { ARC, ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REPEAT_GAP, STAT_CAP, TABOOS, TABOO_IDS, WORLD_KEYS, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { ARC, ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REALM_KEYS, REPEAT_GAP, STAT_CAP, TABOOS, TABOO_IDS, WORLD_KEYS, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
 import { openArcs } from '../src/engine/arcs';
 import { defiesTaboo, keepsTaboo } from '../src/engine/land';
 import { dutiesDue, dutyResting } from '../src/engine/orgs';
@@ -83,6 +83,8 @@ export interface OrgLife {
   /** ปีที่ถึงกำหนดงานแต่ไม่มีงานให้ส่ง (เนื้อหาไม่พอ) */
   starved: number;
   starvedOld: number;
+  /** ลัทธิที่ต้องปิดตัวตน: เคยโดนเปิดโปงระหว่างเป็นสมาชิก */
+  exposed: boolean;
 }
 
 /**
@@ -346,12 +348,13 @@ export function auditLives(game: Game, lives: number): AuditResult {
         const m = now.orgs[id];
         const rec = orgLife[id];
         if (m) {
-          const o = rec ?? (orgLife[id] = { joinedAge: humanAge(now), lastAge: humanAge(now), maxRank: m.rank, duties: 0, done: 0, refused: 0, left: false, bounty: 0, starved: 0, starvedOld: 0 });
+          const o = rec ?? (orgLife[id] = { joinedAge: humanAge(now), lastAge: humanAge(now), maxRank: m.rank, duties: 0, done: 0, refused: 0, left: false, bounty: 0, starved: 0, starvedOld: 0, exposed: false });
           o.lastAge = humanAge(now);
           o.maxRank = Math.max(o.maxRank, m.rank);
           o.done = m.done;
           o.refused = m.refused;
           o.left = false;
+          if (ORGS[id].covert && !m.secret) o.exposed = true;
         } else if (rec) rec.left = true;
       }
     };
@@ -433,7 +436,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
         }
         const due = dutiesDue(l, game.duties);
         // วัยชรา (65 ขึ้นไป) ยังไม่มีงานขององค์กร นับแยกไว้ให้เห็นช่องว่าง ไม่ปนกับปีที่ควรมีงาน
-        for (const id of due) if (!pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]![humanAge(l) < 65 ? 'starved' : 'starvedOld']++;
+        // สาวกที่โดนเปิดโปงแล้วไม่ได้งานอีก (กองตัดขาด) จึงไม่นับเป็นช่องว่างของเนื้อหา
+        const cutOff = (id: OrgId) => !!ORGS[id].covert && !l.orgs[id]?.secret;
+        for (const id of due) if (!cutOff(id) && !pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]![humanAge(l) < 65 ? 'starved' : 'starvedOld']++;
         const owed = pool.filter((e) => e.duty && due.includes(e.duty) && fresh(e));
         // นักเรียนได้เรื่องของหลักสูตรก่อนงานขององค์กร
         if (owed.length && !ev.must && !ev.course && !owed.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่งานขององค์กรถึงกำหนด (${owed[0]!.id})`);
@@ -852,7 +857,7 @@ export function formatReport(game: Game, res: AuditResult): string {
     const rows = finals.map((l, i) => ({ life: l, dutiful: i % 2 === 1, orgs: res.orgs.perLife[i] ?? {} }));
     for (const id of ORG_IDS) {
       const members = rows.flatMap((x) => (x.orgs[id] ? [{ ...x, o: x.orgs[id]! }] : []));
-      out.push(`- ${ORGS[id].th}: เคยเป็นสมาชิก ${members.length} ชีวิต (${pct(members.length, lives)}) · เข้าตอนอายุกลาง ${median(members.map((x) => x.o.joinedAge))} · ออกก่อนจบชีวิต ${pct(members.filter((x) => x.o.left).length, members.length)}`);
+      out.push(`- ${ORGS[id].th}: เคยเป็นสมาชิก ${members.length} ชีวิต (${pct(members.length, lives)}) · เข้าตอนอายุกลาง ${median(members.map((x) => x.o.joinedAge))} · ออกก่อนจบชีวิต ${pct(members.filter((x) => x.o.left).length, members.length)}${ORGS[id].covert ? ` · โดนเปิดโปง ${pct(members.filter((x) => x.o.exposed).length, members.length)}` : ''}`);
       if (!members.length) continue;
       for (const [label, dutiful] of [['รับงานทุกครั้ง', true], ['กดสุ่ม', false]] as const) {
         const all = members.filter((x) => x.dutiful === dutiful);
@@ -968,7 +973,7 @@ export function formatReport(game: Game, res: AuditResult): string {
   out.push(`- ของในถุง: กลาง ${median(full.map((l) => l.inventory.length))} · สวมอยู่: กลาง ${median(full.map((l) => Object.keys(l.equipped).length))}`);
   for (const k of WORLD_KEYS) {
     const xs = full.map((l) => l.world[k]);
-    out.push(`- คะแนนโลก ${k}: กลาง ${median(xs)} ช่วง ${Math.min(...xs)}–${Math.max(...xs)}`);
+    out.push(`- คะแนนโลก ${k}: กลาง ${median(xs)} ช่วง ${Math.min(...xs)}–${Math.max(...xs)}${(REALM_KEYS as readonly string[]).includes(k) ? ` · ชีวิตที่ขยับค่านี้เอง ${pct(xs.filter((x) => x !== 0).length, xs.length)} (ไม่นับที่ประวัติศาสตร์ขยับให้)` : ''}`);
   }
 
   h('กองเหตุการณ์ต่ออายุ (จำนวนเหตุการณ์ที่ออกได้ตอนสุ่ม)');
