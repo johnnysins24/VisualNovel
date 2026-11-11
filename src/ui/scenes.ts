@@ -4,10 +4,14 @@ import { currentEvent, game, life } from '../store';
 /** ภาพฉากหลังจาก thread ศิลป์ (public/scenes) รายชื่อโหลดจาก index.json ครั้งเดียว */
 export type TimeOfDay = 'day' | 'dusk' | 'night';
 const known = signal<Set<string> | null>(null);
+/** แถวที่เท้าตัวละครแตะในภาพสูง 112 (จาก index.json ของ thread ศิลป์) ไม่มี = 106 */
+const stands = signal<Record<string, number>>({});
+export const DEFAULT_STAND = 106;
 
 fetch('scenes/index.json')
   .then((r) => (r.ok ? r.json() : null))
-  .then((j: { scenes?: string[] } | null) => {
+  .then((j: { scenes?: string[]; stand?: Record<string, number> } | null) => {
+    if (j?.stand) stands.value = j.stand;
     if (j?.scenes) known.value = new Set(j.scenes);
   })
   .catch(() => {
@@ -43,5 +47,5 @@ export const sceneImage = computed(() => {
   const id = sceneId(ev?.scene, l.locationTag, have);
   if (!id) return null;
   const time = timeOf(ev?.id ?? l.locationTag);
-  return { id, time, url: `scenes/${id}_${time}.png` };
+  return { id, time, url: `scenes/${id}_${time}.png`, stand: stands.value[id] ?? DEFAULT_STAND };
 });
