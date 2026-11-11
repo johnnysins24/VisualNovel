@@ -331,6 +331,7 @@
 - id: adult.life_at_forty
   stage: adult
   weight: 100000
+  must: true
   scene: home
   when:
     age: [40, 40]

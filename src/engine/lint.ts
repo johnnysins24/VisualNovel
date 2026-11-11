@@ -41,6 +41,8 @@ export function lintContent(c: Content): string[] {
     const w = e.when;
     if (w.age && w.age[0] > w.age[1]) problems.push(`${where}: ช่วงอายุกลับด้าน`);
     if (w.year && w.year[0] > w.year[1]) problems.push(`${where}: ช่วงปีกลับด้าน`);
+    if (e.must && !e.once) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด)`);
+    if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag หรือ trait จะออกเป็นเรื่องแรกของทุกชีวิต`);
     for (const [k, r] of Object.entries(w.world ?? {})) if (r && r[0] > r[1]) problems.push(`${where}: ช่วง world.${k} กลับด้าน`);
     for (const t of unknownPlaceholders(e.text)) problems.push(`${where}: placeholder ไม่รู้จัก ${t}`);
     for (const f of w.flags ?? []) if (!setFlags.has(f)) problems.push(`${where}: อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง (เหตุการณ์นี้ไม่มีทางเกิด)`);

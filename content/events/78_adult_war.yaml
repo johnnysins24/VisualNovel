@@ -7,6 +7,7 @@
   stage: adult
   scene: market
   weight: 60
+  must: true
   when:
     age: [19, 24]
     year: [296, 300]
@@ -88,6 +89,7 @@
   stage: adult
   scene: fort
   weight: 60
+  must: true
   when:
     age: [19, 25]
     year: [296, 301]
@@ -147,6 +149,7 @@
   stage: adult
   scene: clan_hall
   weight: 60
+  must: true
   when:
     age: [19, 24]
     year: [296, 301]

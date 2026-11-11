@@ -1,12 +1,13 @@
 # ชุด 3a วัยผู้ใหญ่: เลือกงานตอนอายุ 18 (แผน: https://claude.ai/artifact/NznnLZKVWkN9knK2tZmwwD)
 # สัญญาลูกมือที่รับตอนพิธีอายุ 14 ครบสี่ปีพอดี ทุกชีวิตได้งานผู้ใหญ่ 1 งาน เป็น flag job_* ที่เหตุการณ์ 3a ถึง 3c ใช้ต่อ
-# ทางละฉาก (6 class กับชาวบ้าน) น้ำหนัก 1000 ทุกฉากมีงานเปิดอย่างน้อย 2 งาน
+# ทางละฉาก (6 class กับชาวบ้าน) must: true ทุกฉากมีงานเปิดอย่างน้อย 2 งาน
 # งานของราชสำนัก (ราชนาวี นักร้องบ้านขุนนาง) กับสถาบันเวทหลวงไม่รับคนมีเขา เว้นซ่อนเขาได้ (horns_sawn) ตามคำตอบ L14
 # ข้อความก่อนเลือกต้องใช้ได้ทุกถิ่น ห้ามใช้ {father} {mother} เพราะเด็กกำพร้าวิหารก็มาถึงฉากเหล่านี้
 
 - id: adult.job_pick_warrior
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: warrior
@@ -69,6 +70,7 @@
 - id: adult.job_pick_rogue
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: rogue
@@ -107,6 +109,7 @@
 - id: adult.job_pick_wizard
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: wizard
@@ -154,6 +157,7 @@
   stage: adult
   scene: temple
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: cleric
@@ -187,6 +191,7 @@
 - id: adult.job_pick_ranger
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: ranger
@@ -241,6 +246,7 @@
 - id: adult.job_pick_bard
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     class: bard
@@ -287,6 +293,7 @@
 - id: adult.job_pick_commoner
   stage: adult
   weight: 1000
+  must: true
   when:
     age: [18, 18]
     flags: [path_commoner]

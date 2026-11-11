@@ -34,6 +34,8 @@ export const EVEN_AGING_UNTIL = 40;
 export const ADULT_HP_REGEN = 3;
 /** ตัวละครของผู้เล่นตายไม่ได้ก่อนอายุนี้ (HP ไม่ต่ำกว่า 1 และ effect die ไม่มีผล) คนรอบตัวตายได้ตามเนื้อเรื่อง */
 export const PROTECTED_AGE = 12;
+/** เหตุการณ์ที่เกิดซ้ำได้ (once: false) จะไม่ออกซ้ำภายในจำนวนเหตุการณ์เท่านี้ ยกเว้นไม่มีเรื่องอื่นให้ออก */
+export const REPEAT_GAP = 5;
 
 export const RACES = {
   /** ageScale = จำนวนปีจริงต่อหนึ่งปีของชีวิตมนุษย์ หลังอายุ EVEN_AGING_UNTIL (อายุขัย ÷ 70) */

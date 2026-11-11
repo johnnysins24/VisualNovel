@@ -9,6 +9,7 @@
     "build": "npm run content && tsc --noEmit && vite build",
     "content": "tsx scripts/build-content.ts",
     "validate": "tsx scripts/validate-content.ts",
+    "audit": "tsx scripts/audit-lives.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "shots": "playwright test",

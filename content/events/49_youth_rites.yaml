@@ -10,6 +10,7 @@
   stage: youth
   scene: market
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_farm]
@@ -84,6 +85,7 @@
 - id: youth.rite_refinery
   stage: youth
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_refinery]
@@ -155,6 +157,7 @@
   stage: youth
   scene: clan_hall
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_dwarf_clan]
@@ -228,6 +231,7 @@
   stage: youth
   scene: star_hall
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_elf_bough]
@@ -298,6 +302,7 @@
 - id: youth.rite_kept
   stage: youth
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_marked_kept]
@@ -371,6 +376,7 @@
   stage: youth
   scene: noble_hall
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_marked_hidden]
@@ -442,6 +448,7 @@
   stage: youth
   scene: temple
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_marked_foundling]
@@ -528,6 +535,7 @@
 - id: youth.rite_ashland
   stage: youth
   weight: 1000
+  must: true
   when:
     age: [14, 14]
     flags: [origin_ashland]

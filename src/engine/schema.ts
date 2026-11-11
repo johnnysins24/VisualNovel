@@ -147,6 +147,11 @@ export const EventSchema = z.object({
   stage: StageSchema,
   weight: z.number().positive().default(10),
   once: z.boolean().default(true),
+  /**
+   * เหตุการณ์ที่ต้องเกิด (พิธีผ่านวัย การเลือกงาน หมุดเหตุการณ์ของโลก) ออกทันทีที่เข้าเงื่อนไขโดยไม่สุ่ม
+   * ถ้ามีหลายเรื่องพร้อมกัน เรื่องที่ช่วงอายุหรือช่วงปีจะปิดก่อนได้ออกก่อน ต้องใช้คู่กับ once: true
+   */
+  must: z.boolean().default(false),
   scene: z.enum(SCENES).optional(),
   /** ช่วงเวลาของภาพฉาก ไม่ใส่ = อ่านจากคำบอกเวลาในเนื้อเรื่อง (src/engine/timeOfDay.ts) */
   time: z.enum(TIMES).optional(),

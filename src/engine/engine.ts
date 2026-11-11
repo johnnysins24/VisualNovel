@@ -14,6 +14,7 @@ import {
   CLERIC_DRIFT_FLAG,
   PROTECTED_AGE,
   RACES,
+  REPEAT_GAP,
   REPUTATION_CAP,
   STAT_CAP,
   WORLD_CAP,
@@ -80,17 +81,56 @@ export function eligible(life: LifeState, ev: GameEvent): boolean {
   return stateConditionsMet(life, w);
 }
 
+/** เข้าเงื่อนไขและมีตัวเลือกให้กดอย่างน้อยหนึ่งข้อ เหตุการณ์ที่ไม่มีตัวเลือกเหลือจะไม่ถูกหยิบมาแสดง (กันทางตัน) */
+export function playable(life: LifeState, ev: GameEvent): boolean {
+  return eligible(life, ev) && ev.choices.some((c) => choiceAvailable(life, c));
+}
+
 /**
- * เลือกเหตุการณ์ถัดไปแบบถ่วงน้ำหนัก ถ้าส่ง forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง)
- * จะใช้เหตุการณ์นั้นแทนการสุ่ม
+ * จำนวนเหตุการณ์ที่เหลือก่อนช่วงอายุหรือช่วงปีของเหตุการณ์นี้จะปิด (0 = ครั้งนี้เป็นโอกาสสุดท้าย)
+ * ใช้เรียงเหตุการณ์ must ที่พร้อมกันหลายเรื่อง
+ */
+export function turnsLeft(life: LifeState, ev: GameEvent): number {
+  const w = ev.when;
+  const byAge = w.age ? Math.floor(w.age[1] - humanAge(life)) : Infinity;
+  const byYear = w.year ? Math.floor((w.year[1] - worldYear(life)) / yearsPerEvent(life)) : Infinity;
+  return Math.min(byAge, byYear);
+}
+
+/** เหตุการณ์ที่เกิดซ้ำได้ซึ่งเพิ่งออกไปใน REPEAT_GAP เหตุการณ์ล่าสุด */
+function recentlySeen(life: LifeState, ev: GameEvent): boolean {
+  if (ev.once) return false;
+  return life.log.slice(-REPEAT_GAP).some((e) => e.eventId === ev.id);
+}
+
+/**
+ * เลือกเหตุการณ์ถัดไป ลำดับคือ
+ * 1. forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง) ใช้เหตุการณ์นั้นแทนการสุ่ม
+ * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
+ * 3. สุ่มแบบถ่วงน้ำหนักจากเรื่องที่เหลือ โดยเว้นเรื่องเกิดซ้ำที่เพิ่งออกไป (ถ้าไม่มีเรื่องอื่นจึงยอมให้ซ้ำ)
  */
 export function pickEvent(game: Game, life: LifeState, forceId?: string): { event: GameEvent | null; life: LifeState } {
   if (forceId) {
     const forced = game.events.find((e) => e.id === forceId) ?? null;
     return { event: forced, life: forced ? { ...life, currentEventId: forced.id } : life };
   }
-  const pool = game.events.filter((e) => eligible(life, e));
-  if (pool.length === 0) return { event: null, life };
+  const all = game.events.filter((e) => playable(life, e));
+  if (all.length === 0) return { event: null, life };
+  const must = all.filter((e) => e.must);
+  if (must.length) {
+    let first = must[0]!;
+    let left = turnsLeft(life, first);
+    for (const e of must.slice(1)) {
+      const t = turnsLeft(life, e);
+      if (t < left || (t === left && e.weight > first.weight)) {
+        first = e;
+        left = t;
+      }
+    }
+    return { event: first, life: { ...life, currentEventId: first.id } };
+  }
+  const rested = all.filter((e) => !recentlySeen(life, e));
+  const pool = rested.length ? rested : all;
   const rng = Rng.fromState(life.rngState);
   const total = pool.reduce((n, e) => n + e.weight, 0);
   let r = rng.next() * total;
@@ -103,6 +143,18 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
     }
   }
   return { event: chosen, life: { ...life, rngState: rng.state, currentEventId: chosen.id } };
+}
+
+/**
+ * ซ่อมชีวิตที่โหลดมาแล้วเล่นต่อไม่ได้: ยังมีชีวิตอยู่แต่ไม่มีเหตุการณ์ปัจจุบัน เหตุการณ์ที่ค้างอยู่ถูกลบหรือเปลี่ยนชื่อไปแล้ว
+ * หรือเหตุการณ์นั้นไม่เหลือตัวเลือกให้กด (เนื้อหาเปลี่ยนหลังเซฟ) ให้หยิบเหตุการณ์ใหม่ ถ้าไม่มีให้หยิบถือว่าเรื่องหมด
+ */
+export function repairLife(game: Game, life: LifeState): LifeState {
+  if (!life.alive) return life;
+  const ev = game.events.find((e) => e.id === life.currentEventId);
+  if (ev && ev.choices.some((c) => choiceAvailable(life, c))) return life;
+  const { event, life: next } = pickEvent(game, { ...life, currentEventId: null });
+  return event ? next : { ...next, alive: false, endReason: 'content_end' };
 }
 
 export function choiceAvailable(life: LifeState, choice: Choice): boolean {
@@ -377,12 +429,14 @@ export function resolveChoice(game: Game, life: LifeState, eventId: string, choi
   if (choice.check) {
     const passives = activePassives(life, game.items);
     const mod = checkModifier(game, life, choice.check);
+    // natural 20 always succeeds, natural 1 always fails (SRD convention)
+    const passes = (d: number) => d === 20 || (d !== 1 && d + mod >= choice.check!.dc);
     let d20 = rng.d20();
-    if (d20 + mod < choice.check.dc && passives.some((p) => p.kind === 'reroll_failed_check')) {
+    // ทอยใหม่ทุกครั้งที่ครั้งแรกพลาด รวมถึงทอยได้ 1 ตอนโบนัสสูง ให้ตรงกับโอกาสที่ checkChance โชว์บนปุ่ม
+    if (!passes(d20) && passives.some((p) => p.kind === 'reroll_failed_check')) {
       d20 = Math.max(d20, rng.d20());
     }
-    // natural 20 always succeeds, natural 1 always fails (SRD convention)
-    const success = d20 === 20 || (d20 !== 1 && d20 + mod >= choice.check.dc);
+    const success = passes(d20);
     entry.roll = { d20, mod, dc: choice.check.dc, success };
     const outcome = success ? choice.success : choice.failure;
     next = applyEffects(game, next, outcome?.effects);

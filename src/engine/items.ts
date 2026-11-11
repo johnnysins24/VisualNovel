@@ -29,7 +29,9 @@ export function maxHp(life: LifeState, items: ItemIndex): number {
   return life.baseMaxHp + bonus + classMaxHpBonus(life);
 }
 
-export function equip(life: LifeState, item: Item): LifeState {
+/** สวมของลงช่องของมัน (แทนของเดิมในช่องนั้น) ถ้า HP สูงสุดลดลงเพราะของเดิมหลุด HP ปัจจุบันลดตามไม่ให้เกิน */
+export function equip(life: LifeState, item: Item, items: ItemIndex): LifeState {
   if (!life.inventory.includes(item.id)) return life;
-  return { ...life, equipped: { ...life.equipped, [item.slot]: item.id } };
+  const next = { ...life, equipped: { ...life.equipped, [item.slot]: item.id } };
+  return { ...next, hp: Math.min(next.hp, maxHp(next, items)) };
 }

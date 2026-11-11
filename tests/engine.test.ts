@@ -92,12 +92,12 @@ describe('equipment', () => {
   it('adds stats and passives only while equipped', () => {
     let life = { ...newLife(1), inventory: ['test_dagger', 'test_cap'] };
     expect(effectiveStats(life, game.items).DEX).toBe(10);
-    life = equip(equip(life, dagger), cap);
+    life = equip(equip(life, dagger, game.items), cap, game.items);
     expect(effectiveStats(life, game.items).DEX).toBe(11);
     expect(maxHp(life, game.items)).toBe(12);
   });
   it('cannot equip an item not owned', () => {
-    expect(equip(newLife(1), dagger).equipped).toEqual({});
+    expect(equip(newLife(1), dagger, game.items).equipped).toEqual({});
   });
 });
 

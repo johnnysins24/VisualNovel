@@ -1,7 +1,7 @@
 import { computed, signal } from '@preact/signals';
 import content from './generated/content.json';
 import { ContentSchema } from './engine/schema';
-import { makeGame, pickEvent, resolveChoice, type Game } from './engine/engine';
+import { makeGame, pickEvent, repairLife, resolveChoice, type Game } from './engine/engine';
 import { newLife, type EndReason, type LifeState, type LogEntry } from './engine/state';
 import type { Stat } from './engine/schema';
 import { newSeed } from './engine/rng';
@@ -94,23 +94,35 @@ export const endReasonOf = (l: LifeState): EndReason | null => (l.alive ? null :
 export function equip(itemId: string) {
   const item = game.items.get(itemId);
   if (item) {
-    life.value = equipItem(life.value, item);
+    life.value = equipItem(life.value, item, game.items);
     persist();
   }
+}
+
+/**
+ * รับชีวิตที่โหลดมา (เซฟ ช่องอื่น หรือรหัสนำเข้า) มาเป็นชีวิตปัจจุบัน เนื้อหาอาจเปลี่ยนไปหลังเซฟ จึงซ่อมก่อนเสมอ:
+ * เหตุการณ์ที่ค้างอยู่หายไปแล้วให้หยิบใหม่ และชีวิตที่เคยหยุดเพราะเรื่องหมดให้ลองเล่นต่อ
+ */
+function adopt(saved: LifeState) {
+  lastEntry.value = null;
+  revealed.value = null;
+  bigRoll.value = null;
+  sheetCollapsed.value = false;
+  const fixed = repairLife(game, saved);
+  life.value = fixed;
+  if (!resumeLife() && fixed !== saved) persist();
 }
 
 export async function loadFromSlot(n: number) {
   const saved = await loadSlot(n);
   slot.value = n;
-  if (saved) life.value = saved;
+  if (saved) adopt(saved);
   else startLife();
 }
 
 export const exportLife = () => exportCode(life.value);
 export function importLife(code: string) {
-  life.value = importCode(code);
-  lastEntry.value = null;
-  revealed.value = null;
+  adopt(importCode(code));
   persist();
 }
 
@@ -119,8 +131,7 @@ export async function boot() {
     meta.value = await loadMeta();
     const saved = await loadSlot(slot.value);
     if (saved) {
-      life.value = saved;
-      resumeLife();
+      adopt(saved);
       return;
     }
   } catch {

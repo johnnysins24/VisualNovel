@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { CLASSES, GODS, STAT_TH, type ClassId, type GodId } from '../engine/balance';
-import { worldYear } from '../engine/state';
+import { humanAge, worldYear } from '../engine/state';
 import { bigRoll, endReasonOf, life, resumeLife, startLife } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { PLACE_TH, signed } from './Hud';
@@ -49,7 +49,8 @@ function ToBeContinued() {
         <span><Icon name="year" label="ปี" /><span class="num">{worldYear(l)}</span></span>
       </p>
       <div class="progress" role="img" aria-label={`เนื้อเรื่องเขียนเสร็จถึงอายุ ${l.age}`}>
-        <div class="bar"><i style={{ width: `${Math.min(100, (l.age / max) * 100)}%` }} /></div>
+        {/* มาตรวัดเป็นอายุเทียบมนุษย์ เอลฟ์กับคนแคระที่อายุจริงมากกว่าจึงอยู่ตำแหน่งเดียวกับมนุษย์ที่อ่านมาถึงหน้าเดียวกัน */}
+        <div class="bar"><i style={{ width: `${Math.min(100, (humanAge(l) / max) * 100)}%` }} /></div>
         <div class="ticks">{SCALE_AGES.map((a) => <span key={a} class="num">{a === max ? `${a}+` : a}</span>)}</div>
       </div>
       <p>ชีวิตนี้มาถึงหน้าสุดท้ายที่เขียนเสร็จแล้ว {l.name} ยังไม่ตาย เซฟจะรออยู่ตรงนี้ พอบทต่อไปออก เปิดเกมแล้วเล่นต่อได้ทันที</p>
