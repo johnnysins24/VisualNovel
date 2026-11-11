@@ -1,0 +1,68 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: foe
+size: [ 40, 34 ]
+outline: false
+ramps: { star_dew: scene.star_dew, snow: scene.snow, lamp: scene.lamp, water: scene.water, dye_purple: dye_purple, metal_starsilver: metal_starsilver }
+legend: { a: star_dew@0, b: star_dew@1, c: star_dew@2, d: star_dew@3, e: star_dew@4, f: snow@0, g: snow@1, h: snow@2, i: snow@3, j: lamp@0, k: lamp@1, l: lamp@2, m: lamp@3, n: lamp@4, o: water@0, p: water@1, q: water@2, r: water@3, s: water@4, t: dye_purple@0, u: dye_purple@1, v: dye_purple@2, w: dye_purple@4, y: metal_starsilver@0, z: metal_starsilver@2, A: metal_starsilver@3 }
+meta: { from: dungeon-crawl/monster/abyss/apocalypse_crab.png }
+frames:
+  idle:
+    - layer: main
+      at: [ 6, 4 ]
+      ascii: |
+        .........#............#.........
+        ........#i#..........#i#........
+        ........#i#...#...#..#yd#.......
+        .......#it#..#s###c#.#u#..##....
+        ....####olq#.#zzacco##b#.#iv#...
+        ...#oho##roi#ozhdchddyzz#hott#..
+        ..#iotzhhoiqozmimdgbojzoso##ao#.
+        .#hc##uwwiozkAnhkgdijqlqlw#.#q#.
+        #iz#.###whzqmzihzjAislycw##.#wa#
+        #s#.#hhh#wqzniAzAndhhcwwcaw#.#o#
+        #v##hssccaai#tinjnh#thccwctu#.#.
+        .##hs#whdaatt#wihdwt#uoohs#jl#..
+        .#h#vsifdcawaoawwwwwoohmmh#wp#..
+        ..##hmptco##oaaawppa#owmmmg#rz#.
+        ..#odat######ppt#twv###wwsmuyq#.
+        .#woqt########v#.#v#...##hyt#q#.
+        .#hmquadihhhd##...#......#qo#q#.
+        .#amhimmqt###..........##nnk#q#.
+        .#oAlut####..........##Anmnkq#..
+        ..##lssgggh#........#hhdmqozr#..
+        ...#Aosmqlgh#........####vAbb#..
+        ....#ooklqzdA###.#####tadAdyb#..
+        .....##qpojcdnnm#ieiidhchcyjp#..
+        .......###jopyl#.#lmglAnldjp#...
+        ..........#####...##lggdpsp#....
+        ....................#######.....
+  strike:
+    - layer: main
+      at: [ 1, 4 ]
+      ascii: |
+        ........#............#..........
+        .......#i#..........#i#.........
+        .......#i#...#...#..#yd#........
+        ......#it#..#s###c#.#u#..##.....
+        ...####olq#.#zzacco##b#.#iv#....
+        ..#oho##roi#ozhdchddyzz#hott#...
+        .#iotzhhoiqozmimdgbojzoso##ao#..
+        .#hc##uwwiozkAnhkgdijqlqlw#.#q#.
+        #iz#.###whzqmzihzjAislycw##.#wa#
+        #s#.#hhh#wqzniAzAndhhcwwcaw#.#o#
+        #v##hssccaai#tinjnh#thccwctu#.#.
+        .##hs#whdaatt#wihdwt#uoohs#jl#..
+        .#h#vsifdcawaoawwwwwoohmmh#wp#..
+        ..##hmptco##oaaawppa#owmmmg#rz#.
+        ..#odat######ppt#twv###wwsmuyq#.
+        .#woqt########v#.#v#...##hyt#q#.
+        .#hmquadihhhd##...#......#qo#q#.
+        .#amhimmqt###..........##nnk#q#.
+        .#oAlut####..........##Anmnkq#..
+        ...##lssgggh#........#hhdmqozr#.
+        ....#Aosmqlgh#........####vAbb#.
+        .....#ooklqzdA###.#####tadAdyb#.
+        ......##qpojcdnnm#ieiidhchcyjp#.
+        ........###jopyl#.#lmglAnldjp#..
+        ...........#####...##lggdpsp#...
+        .....................#######....

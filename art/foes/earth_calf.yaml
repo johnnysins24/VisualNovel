@@ -1,0 +1,104 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: foe
+size: [ 72, 52 ]
+outline: false
+ramps: { dirt: scene.dirt, burlap: scene.burlap, canvas: scene.canvas, bone: scene.bone, thatch: scene.thatch, grey_coat: scene.grey_coat }
+legend: { a: dirt@0, b: dirt@1, c: dirt@2, d: dirt@3, e: burlap@0, f: burlap@1, g: burlap@2, h: burlap@3, i: burlap@4, j: canvas@0, k: canvas@2, l: canvas@3, m: bone@1, n: bone@2, o: bone@4, p: thatch@2, q: thatch@3, r: thatch@4, s: grey_coat@0, t: grey_coat@1, u: grey_coat@2 }
+meta: { from: dungeon-crawl/monster/animals/yak_new.png, big: 1 }
+frames:
+  idle:
+    - layer: main
+      at: [ 10, 4 ]
+      ascii: |
+        .................########################...................
+        ...............############################.................
+        .......##########aaaaaaaddffddbbddrrffcce########...........
+        .....###########aaaaaaaaddffddbbddrrffccee#########.........
+        .....##ooonnjjjjrrjjnnooooffhhffmmffccaahhggqqhhe####.......
+        ...##oooonnnjjjjrrrjnnnoooffhhffmmffccaahhggqqhhee#####.....
+        ...#ooonnnnmllllmrrrgnnnnnooaaggmmcceeeeddaahhffaaffa##.....
+        .##ooonnnnmmllllmmmrggnnnnoaaaggmmcceeeeddaahhffaaffaa###...
+        ##ooo#bbrrmmjjjjmmmmjjaaaaaaaoffjjggeejjccaaccccaaddaaa##...
+        ##oo###brmmmjjjjmmmmjjaaaaaaooffjjjgeejjccaaccccaaddaaaa##..
+        .###..##mm##bbllmm##bbaaaacceehhgjjjbbddggbbhhhhggkkffaa##..
+        ..##..##mm##blllmm##bbaaaacceehgggjjbbddggbbhhhhhgkkffaa##..
+        ......##mmmmllljmmmmjjaaaagggggggbjjggmmhhbbccqhhhqqbbaa##..
+        ......##mmmmlljjmmmmjjaaaaggggggbbjjggmmhhbbccqqhhqqbbaa###.
+        ......##jmmmlljjmmmgbbaaccggggggbbllffkkjjggddkkccggaappe##.
+        ......##jjmmmljmmmggbaaaccggggggbbllffkkjgggddkkccggaappee##
+        ......##jjrmmmmmmrggaaaeccgggrjjggkkddhhggghqqhhccddaammee##
+        ......##jjjrmmmrrrggaaeeccgrrrjjggkkddhggghhqqhccdddaammee##
+        ......##bjjjmmmrrhaaaaeehhrrrmggddhhccgggaffjjcccddcffjjaa##
+        ......##bbjjjmrrhhaaaaeehhrrmmggddhhccggaaffjjccddccffjjaa##
+        ......##aajjjjhhaagggghhkkggeeffhhqqggaaaaggqqffrraaffggaa##
+        .......##aajjjhhaagggghhkkggeeffhhqqggaaaaagqqffrraaffggaa##
+        .......##aaaaaaabbbbjjffggccaaccccffaacceaaarrcciieeeeggaa##
+        ........##aaaaaabbbbjjffggccaaccccffaacceeaaarcciieeeegga##.
+        ........##bbggjjggccaammeeffaaaaaaqqeelleefaaaffeeaaaaaa###.
+        ........##bbggjjgcccaammeeffaaaaaaqqeelleeffaaffeeaaaaaa##..
+        ........##aaggeeccckeeqqaaaaaaaaeebbbbrreeaaaaaaaaaaaaaa##..
+        .........##aggeecckkeeqqaaaaaaaaebbbbbrreeaaaaaaaaaaaaaa##..
+        .........###aaaaggbbbbaabbaaaaaabbbaaaaaccaaaaaaaaaassaa##..
+        ...........##aaaggbbbbaabbaaaaaabaaaaaaaccaaaaaaaaaassaa##..
+        ...........###aaaaaa####aaaassaaaaa#####aaaaaaaa##ssssaa##..
+        ............##aaaaa######aaassaaa########aaaaaaa###sssaa##..
+        ............##aaaa###..###aassaa###....#####aaaa####ssaa##..
+        ...........###aaaa##....##asssa##.......####aaaa####sssa##..
+        ...........##sssaa##....##sasaa##.......###sssaa####ssss##..
+        ..........##ssssa##....###ssaa##........##ssssa#####ssss##..
+        ..........##ttaa###....##ussaa##........##ttaaa####ussss##..
+        ...........##ta##.....##uussaa##.........##ta#####uussss##..
+        ...........######.....##uussaa##.........#####..##uusssa##..
+        .............##.......##uussa##............##...##uussa##...
+        ......................##uuuu###.................##uuuu###...
+        .......................##uu##....................##uu##.....
+        .......................######....................######.....
+        .........................##........................##.......
+  strike:
+    - layer: main
+      at: [ 1, 4 ]
+      ascii: |
+        ................########################.....................
+        ..............############################...................
+        ......##########aaaaaaaddffddbbddrrffcce########.............
+        ....###########aaaaaaaaddffddbbddrrffccee#########...........
+        ....##ooonnjjjjrrjjnnooooffhhffmmffccaahhggqqhhe####.........
+        ..##oooonnnjjjjrrrjnnnoooffhhffmmffccaahhggqqhhee#####.......
+        ..#ooonnnnmllllmrrrgnnnnnooaaggmmcceeeeddaahhffaaffa##.......
+        ##ooonnnnmmllllmmmrggnnnnoaaaggmmcceeeeddaahhffaaffaa###.....
+        ##ooo#bbrrmmjjjjmmmmjjaaaaaaaoffjjggeejjccaaccccaaddaaa##....
+        ##oo###brmmmjjjjmmmmjjaaaaaaooffjjjgeejjccaaccccaaddaaaa##...
+        .###..##mm##bbllmm##bbaaaacceehhgjjjbbddggbbhhhhggkkffaa##...
+        ..##..##mm##blllmm##bbaaaacceehgggjjbbddggbbhhhhhgkkffaa##...
+        ......##mmmmllljmmmmjjaaaagggggggbjjggmmhhbbccqhhhqqbbaa##...
+        ......##mmmmlljjmmmmjjaaaaggggggbbjjggmmhhbbccqqhhqqbbaa###..
+        ......##jmmmlljjmmmgbbaaccggggggbbllffkkjjggddkkccggaappe##..
+        ......##jjmmmljmmmggbaaaccggggggbbllffkkjgggddkkccggaappee##.
+        ......##jjrmmmmmmrggaaaeccgggrjjggkkddhhggghqqhhccddaammee##.
+        ......##jjjrmmmrrrggaaeeccgrrrjjggkkddhggghhqqhccdddaammee##.
+        ......##bjjjmmmrrhaaaaeehhrrrmggddhhccgggaffjjcccddcffjjaa##.
+        ......##bbjjjmrrhhaaaaeehhrrmmggddhhccggaaffjjccddccffjjaa##.
+        ......##aajjjjhhaagggghhkkggeeffhhqqggaaaaggqqffrraaffggaa##.
+        .......##aajjjhhaagggghhkkggeeffhhqqggaaaaagqqffrraaffggaa##.
+        ........##aaaaaaabbbbjjffggccaaccccffaacceaaarrcciieeeeggaa##
+        .........##aaaaaabbbbjjffggccaaccccffaacceeaaarcciieeeegga##.
+        .........##bbggjjggccaammeeffaaaaaaqqeelleefaaaffeeaaaaaa###.
+        .........##bbggjjgcccaammeeffaaaaaaqqeelleeffaaffeeaaaaaa##..
+        .........##aaggeeccckeeqqaaaaaaaaeebbbbrreeaaaaaaaaaaaaaa##..
+        ..........##aggeecckkeeqqaaaaaaaaebbbbbrreeaaaaaaaaaaaaaa##..
+        ..........###aaaaggbbbbaabbaaaaaabbbaaaaaccaaaaaaaaaassaa##..
+        ............##aaaggbbbbaabbaaaaaabaaaaaaaccaaaaaaaaaassaa##..
+        ............###aaaaaa####aaaassaaaaa#####aaaaaaaa##ssssaa##..
+        .............##aaaaa######aaassaaa########aaaaaaa###sssaa##..
+        .............##aaaa###..###aassaa###....#####aaaa####ssaa##..
+        ............###aaaa##....##asssa##.......####aaaa####sssa##..
+        ............##sssaa##....##sasaa##.......###sssaa####ssss##..
+        ...........##ssssa##....###ssaa##........##ssssa#####ssss##..
+        ............##ttaa###....##ussaa##........##ttaaa####ussss##.
+        .............##ta##.....##uussaa##.........##ta#####uussss##.
+        .............######.....##uussaa##.........#####..##uusssa##.
+        ...............##.......##uussa##............##...##uussa##..
+        ........................##uuuu###.................##uuuu###..
+        .........................##uu##....................##uu##....
+        .........................######....................######....
+        ...........................##........................##......

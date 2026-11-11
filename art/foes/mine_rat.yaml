@@ -1,0 +1,52 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: foe
+size: [ 36, 26 ]
+outline: false
+ramps: { dye_wine: dye_wine, plank: scene.plank, brick: scene.brick, leather: scene.leather, metal_silver: metal_silver, smoke: scene.smoke }
+legend: { a: dye_wine@0, b: dye_wine@1, c: plank@4, d: brick@3, e: leather@0, f: leather@3, g: metal_silver@3, h: smoke@4 }
+meta: { from: dungeon-crawl/monster/animals/rat.png }
+frames:
+  idle:
+    - layer: main
+      at: [ 6, 4 ]
+      ascii: |
+        ............#####...####....
+        ..........####aaa###cccc#...
+        .........###aaaaaaaba#fdc#..
+        ........##a#baaaaaaa####fc#.
+        .......#aaaaabbaba######fc#.
+        .......#abaaa#a#a##a#####cd#
+        ......##ababaa##aa#######dd#
+        ..##.#a##aa##aaaa#a######df#
+        .#cb#aabb#ba##a##a#######cf#
+        .#ddb#bcb###a#########.#cd#.
+        ..#fb#cdb############..#cd#.
+        ..#aaa#fa###########...#cf#.
+        .#haaa###########ff#...#df#.
+        .#aa#h##########cd#...#cf#..
+        ##############..##...##cd#..
+        ##g####efd#........##cdf#...
+        .#gg####cc#.......#cddf#....
+        ..####..##.........####.....
+  strike:
+    - layer: main
+      at: [ 2, 2 ]
+      ascii: |
+        ..........#####...####.....
+        ........####aaa###cccc#....
+        .......###aaaaaaaba#fdc#...
+        ......##a#baaaaaaa####fc#..
+        .....#aaaaabbaba######fc#..
+        ......#abaaa#a#a##a#####cd#
+        .....##ababaa##aa#######dd#
+        .##.#a##aa##aaaa#a######df#
+        #cb#aabb#ba##a##a#######cf#
+        #ddb#bcb###a#########.#cd#.
+        .#fb#cdb############..#cd#.
+        .#aaa#fa###########...#cf#.
+        #haaa###########ff#...#df#.
+        .#aa#h##########cd#...#cf#.
+        ##############..##...##cd#.
+        ##g####efd#........##cdf#..
+        .#gg####cc#.......#cddf#...
+        ..####..##.........####....

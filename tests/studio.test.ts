@@ -11,7 +11,7 @@ import {
 } from '../src/studio/core';
 import { CREDITS } from '../src/ui/credits';
 import {
-  DIRS, importTile, kindOfRef, listDrawings, listSources, palette, pathOf, previewImage, readDrawing, sourcePath, staleFiles,
+  DIRS, importTile, kindOfRef, listDrawings, listSources, palette, pathOf, peopleFoes, previewImage, readDrawing, sourcePath, staleFiles,
 } from '../scripts/studio-lib';
 
 const pal = makePalette(YAML.parse(readFileSync('art/palette.yaml', 'utf8')), YAML.parse(readFileSync('art/scenes/palette.yaml', 'utf8')));
@@ -175,6 +175,16 @@ describe('drawing room: commands', () => {
     expect(ascii(st).split('\n')[3]).toBe('.....22b');
     runScript(st, 'select none\nflip v');
     expect(ascii(st).split('\n')[2]).toBe('.....22b');
+  });
+
+  it('leans a shape: the bottom row stays, the top row moves the whole distance', () => {
+    const st = studio(8, 5);
+    runScript(st, 'rect 4,0 5,4 fill\nlean -4');
+    expect(ascii(st)).toBe(['22......', '.22.....', '..22....', '...22...', '....22..'].join('\n'));
+    // ในกรอบเลือก: เอนเฉพาะส่วนที่เลือก ส่วนที่เหลืออยู่กับที่
+    const b = studio(8, 4);
+    runScript(b, 'rect 2,0 3,3 fill\nselect 0,0 7,1\nlean 2');
+    expect(ascii(b)).toBe(['....22..', '..22....', '..22....', '..22....'].join('\n'));
   });
 
   it('mirrors one half onto the other, on a column or between two', () => {
@@ -478,6 +488,49 @@ describe('drawing room: files in the repo (scripts/studio-lib.ts)', () => {
         expect([0, 255]).toContain(a);
         if (a) expect(ok.has([0, 1, 2].map((k) => img.rgba[i + k]!.toString(16).padStart(2, '0')).join('')), ref).toBe(true);
       }
+    }
+  });
+
+  it('builds the human-shaped foes from the character pieces, two poses each', () => {
+    const ok = new Set([palette().outline, ...Object.values(palette().ramps).flat()]);
+    const index = JSON.parse(readFileSync('public/foes/index.json', 'utf8')) as Record<string, { w: number; h: number; frames: string[]; kit?: boolean }>;
+    const people = peopleFoes();
+    expect(people.map((p) => p.id)).toEqual(expect.arrayContaining(['ash_soldier', 'glass_one', 'extra_shadow', 'nameless_ghost', 'bandit', 'witch_hunter', 'mercenary', 'ash_cultist', 'star_listener']));
+    for (const p of people) {
+      expect(refs, p.id).not.toContain(`foes/${p.id}`); // ไม่ซ้ำกับภาพที่วาด
+      expect(index[p.id], p.id).toEqual({ w: p.w, h: p.h, frames: ['idle', 'strike'], lift: 0, kit: true });
+      expect(p.h, `${p.id} is taller than the stage`).toBeLessThanOrEqual(104);
+      const [idle, strike] = p.frames as [Img, Img];
+      expect([idle.w, idle.h, strike.w, strike.h], p.id).toEqual([p.w, p.h, p.w, p.h]);
+      expect(Buffer.from(idle.rgba).equals(Buffer.from(strike.rgba)), `${p.id}: strike is the same picture as idle`).toBe(false);
+      for (const f of p.frames) for (let i = 0; i < f.rgba.length; i += 4) {
+        if (f.rgba[i + 3]) expect(ok.has([0, 1, 2].map((k) => f.rgba[i + k]!.toString(16).padStart(2, '0')).join('')), p.id).toBe(true);
+      }
+    }
+  });
+
+  it('the first roster of foes is complete, and a strike pose never equals the standing pose', () => {
+    const index = JSON.parse(readFileSync('public/foes/index.json', 'utf8')) as Record<string, { w: number; h: number; frames: string[]; lift: number }>;
+    const roster = [
+      'ash_hound', 'coal_ghost', 'chimney_imp', 'walking_smoke', 'ash_soldier', // จอมมาร
+      'hum_moth', 'float_eye', 'great_eye', 'glass_walker', 'sky_spawn', 'sky_jelly', 'salt_crab', 'star_lump', 'fallen_star', 'glass_one', 'extra_shadow', // ดาว
+      'mad_sentry', 'house_servitor', 'nameless_ghost', // จักรกล และคำสาปของหิน
+      'old_wood', 'fire_cub', 'walking_water', 'waking_stone', 'night_scrap', 'stray_bird', 'earth_calf', // ลูกหลานของเจ้าเดิม
+      'wolf', 'bear', 'boar', 'snake', 'mine_rat', 'bat', // สัตว์ป่า
+      'bandit', 'witch_hunter', 'mercenary', 'ash_cultist', 'star_listener', // คน
+    ];
+    expect(Object.keys(index).sort()).toEqual([...roster].sort());
+    for (const id of roster) {
+      const info = index[id]!, img = decodePNG(readFileSync(`public/foes/${id}.png`));
+      expect(info.frames, id).toEqual(['idle', 'strike']);
+      let differs = false;
+      for (let y = 0; y < info.h && !differs; y++) for (let x = 0; x < info.w; x++) {
+        const a = (y * img.w + x) * 4, b = a + info.w * 4;
+        if (img.rgba[a] !== img.rgba[b] || img.rgba[a + 1] !== img.rgba[b + 1] || img.rgba[a + 2] !== img.rgba[b + 2] || img.rgba[a + 3] !== img.rgba[b + 3]) { differs = true; break; }
+      }
+      expect(differs, `${id}: strike is the same picture as idle`).toBe(true);
+      expect(info.lift, id).toBeGreaterThanOrEqual(0);
+      expect(info.h + info.lift, `${id} leaves the stage`).toBeLessThanOrEqual(104);
     }
   });
 

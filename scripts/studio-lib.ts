@@ -4,9 +4,9 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSy
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
-import { loadKit, renderLook } from '../art/kit/kit.mjs';
+import { loadKit, renderLook, type Look } from '../art/kit/kit.mjs';
 import { npcLook, UNDER } from '../art/kit/npc.mjs';
-import { adoptTile, blit, paletteOf } from '../art/kit/pixels.mjs';
+import { adoptTile, blit, crop, pad, paletteOf } from '../art/kit/pixels.mjs';
 import { decodePNG, encodePNG } from '../art/kit/png.mjs';
 import { sheet } from '../art/kit/sheet.mjs';
 import {
@@ -101,6 +101,47 @@ function strip(frames: Img[], w: number, h: number): Img {
   return out;
 }
 
+// ---------- ศัตรูทรงคน ----------
+
+interface PersonSpec { name?: string; npc?: { group: string; seed: number; body?: string; race?: string }; look?: Look; face?: string; strike_face?: string }
+export interface PersonFoe { id: string; name: string; w: number; h: number; frames: Img[] }
+
+/** เอนภาพทั้งก้อน (แถวล่างสุดอยู่กับที่ แถวบนสุดเลื่อน `lean`) แล้วเลื่อนทั้งภาพอีก `move` */
+function leaned(img: Img, lean: number, move: number): Img {
+  const out = { w: img.w, h: img.h, rgba: new Uint8ClampedArray(img.rgba.length) };
+  let y0 = img.h, y1 = -1;
+  for (let y = 0; y < img.h; y++) for (let x = 0; x < img.w; x++) if (img.rgba[(y * img.w + x) * 4 + 3]) { y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  for (let y = y0; y <= y1; y++) blit(out, crop(img, { x: 0, y, w: img.w, h: 1 }), move + (y1 === y0 ? 0 : Math.round((lean * (y1 - y)) / (y1 - y0))), y);
+  return out;
+}
+
+/** ตัดทุกเฟรมด้วยกรอบเดียวกัน (กรอบที่ครอบพิกเซลของทุกเฟรม) ตำแหน่งระหว่างเฟรมจึงไม่ขยับ */
+function sameBox(frames: Img[]): { w: number; h: number; frames: Img[] } {
+  let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1;
+  for (const f of frames) for (let y = 0; y < f.h; y++) for (let x = 0; x < f.w; x++) if (f.rgba[(y * f.w + x) * 4 + 3]) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+  if (x1 < 0) fail('ภาพว่าง');
+  const box = { x: x0, y: y0, w: x1 - x0 + 1, h: y1 - y0 + 1 };
+  return { w: box.w, h: box.h, frames: frames.map((f) => crop(f, box)) };
+}
+
+const PEOPLE = 'foe_people.yaml';
+/**
+ * ศัตรูทรงคนจาก art/foe_people.yaml: ประกอบจากร่างฐานและชิ้นส่วนของเกม ไม่ได้วาดใหม่
+ * ท่ายืนคือหน้าเฉย ท่าเข้าตีคือหน้าโกรธ โน้มตัวไปทางผู้เล่น
+ */
+export function peopleFoes(): PersonFoe[] {
+  if (!existsSync(join(ART, PEOPLE))) return [];
+  const kit = theKit(), specs = yamlAt(PEOPLE) as Record<string, PersonSpec>;
+  return Object.entries(specs).map(([id, s]) => {
+    if (!/^[a-z][a-z0-9_]*$/.test(id)) fail(`${PEOPLE}: ชื่อ "${id}" ต้องเป็นตัวพิมพ์เล็ก ตัวเลข หรือ _`);
+    if (existsSync(join(ART, `foes/${id}.yaml`))) fail(`${PEOPLE}: "${id}" ซ้ำกับภาพ art/foes/${id}.yaml`);
+    const look: Look = s.npc ? npcLook(kit, s.npc.group, s.npc.seed, { body: s.npc.body, race: s.npc.race }) : (s.look ?? fail(`${PEOPLE}: "${id}" ต้องมี npc หรือ look`));
+    const idle = pad(renderLook(kit, { ...look, face: s.face ?? 'neutral' }), 8);
+    const strike = leaned(pad(renderLook(kit, { ...look, face: s.strike_face ?? 'angry' }), 8), -3, -3);
+    return { id, name: s.name ?? id, ...sameBox([idle, strike]) };
+  });
+}
+
 export interface Built { path: string; data: Uint8Array | string }
 
 /**
@@ -109,7 +150,8 @@ export interface Built { path: string; data: Uint8Array | string }
  *   icons -> public/icons/<id>.png + public/icons/index.json
  *   props -> public/props/<id>.png + public/props/index.json
  *   wear  -> art/pieces/<meta.piece หรือ drawn/<id>>.yaml (ชิ้นของตัวละคร ใช้กับชุดเครื่องมือศิลป์เดิม)
- * และภาพรวมไว้ดู art/preview/foes.png (ศัตรูทุกตัว ทุกท่า ขยายสี่เท่า แถวละสามตัว)
+ *   art/foe_people.yaml -> public/foes/<id>.png ของศัตรูทรงคน (ประกอบจากชิ้นส่วนของตัวละคร)
+ * และภาพรวมไว้ดู art/preview/foes.png (ศัตรูทุกตัว ทุกท่า ขยายสองเท่า แถวละสี่ตัว)
  */
 export function buildAll(): Built[] {
   const out: Built[] = [], p = palette();
@@ -134,10 +176,15 @@ export function buildAll(): Built[] {
       ...(doc.meta.from ? { from: String(doc.meta.from) } : {}),
     };
   }
+  for (const person of peopleFoes()) {
+    foes.push(person.frames);
+    out.push({ path: `public/foes/${person.id}.png`, data: encodePNG(strip(person.frames, person.w, person.h)) });
+    index.foes![person.id] = { w: person.w, h: person.h, frames: ['idle', 'strike'], lift: 0, kit: true };
+  }
   if (foes.length) {
     const rows: Img[][] = [];
-    for (let i = 0; i < foes.length; i += 3) rows.push(foes.slice(i, i + 3).flat());
-    out.push({ path: 'art/preview/foes.png', data: encodePNG(sheet(rows, { scale: 4 })) });
+    for (let i = 0; i < foes.length; i += 4) rows.push(foes.slice(i, i + 4).flat());
+    out.push({ path: 'art/preview/foes.png', data: encodePNG(sheet(rows, { scale: 2 })) });
   }
   for (const [dir, items] of Object.entries(index)) if (Object.keys(items).length) out.push({ path: `public/${dir}/index.json`, data: `${JSON.stringify(items, null, 1)}\n` });
   return out;

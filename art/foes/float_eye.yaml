@@ -1,0 +1,48 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: foe
+size: [ 24, 24 ]
+outline: false
+ramps: { dye_grey: dye_grey, silver_grass: scene.silver_grass, metal: scene.metal, window_dark: scene.window_dark, water: scene.water, metal_starsilver: metal_starsilver }
+legend: { a: dye_grey@0, b: dye_grey@4, c: silver_grass@1, d: metal@4, e: window_dark@0, f: window_dark@3, g: water@0, h: water@2, i: water@4, j: metal_starsilver@0, k: metal_starsilver@4 }
+meta: { from: dungeon-crawl/monster/eyes/giant_eyeball.png, lift: 24 }
+frames:
+  idle:
+    - layer: main
+      at: [ 6, 4 ]
+      ascii: |
+        ......####......
+        ....##ccbb##....
+        ...#ccccdcbb#...
+        ..#ddcdcbcbbb#..
+        .#ddddcddbcbab#.
+        .#dkkdccbcbbbb#.
+        #ddkkhjccbccbaa#
+        #djhhjfebcbabab#
+        #dgj##gecbcbbba#
+        #dfg##gecbbabab#
+        .##fggeebbcbaa#.
+        .#ceeeebcbbbab#.
+        ..#acbacbabab#..
+        ...#aabbbbaa#...
+        ....##babb##....
+        ......####......
+  strike:
+    - layer: main
+      at: [ 2, 6 ]
+      ascii: |
+        ......####......
+        ....##ccbb##....
+        ...#ccccdcbb#...
+        ..#ddcdcbcbbb#..
+        .#ddddcddbcbab#.
+        .#dkkdccbcbbbb#.
+        #ddkkijccbccbaa#
+        #dj####ebcbabab#
+        #dh####ecbcbbba#
+        #df####ecbbabab#
+        .######ebbcbaa#.
+        .#ceeeebcbbbab#.
+        ..#acbacbabab#..
+        ...#aabbbbaa#...
+        ....##babb##....
+        ......####......

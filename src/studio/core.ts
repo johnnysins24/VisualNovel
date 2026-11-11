@@ -274,6 +274,28 @@ function flipBox(st: Studio, dir: 'h' | 'v') {
   }
 }
 
+/** เอนทั้งก้อนไปข้างๆ: แถวล่างสุดอยู่กับที่ แถวบนสุดเลื่อน dx แถวระหว่างนั้นเลื่อนตามสัดส่วน (ใช้ทำท่าโน้มตัวเข้าตี) */
+function leanBox(st: Studio, dx: number) {
+  const { w, h } = st.doc, L = target(st);
+  let b = st.sel;
+  if (!b) {
+    let x0 = w, y0 = h, x1 = -1, y1 = -1;
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) if (L.px[y * w + x]! >= 0) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y); }
+    if (x1 < 0) return;
+    b = { x0, y0, x1, y1 };
+  }
+  const x0 = Math.max(0, b.x0), y0 = Math.max(0, b.y0), x1 = Math.min(w - 1, b.x1), y1 = Math.min(h - 1, b.y1);
+  const src = L.px.slice();
+  for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) L.px[y * w + x] = EMPTY;
+  for (let y = y0; y <= y1; y++) {
+    const shift = y1 === y0 ? 0 : Math.round((dx * (y1 - y)) / (y1 - y0));
+    for (let x = x0; x <= x1; x++) {
+      const c = src[y * w + x]!, X = x + shift;
+      if (c >= 0 && X >= 0 && X < w) L.px[y * w + X] = c;
+    }
+  }
+}
+
 /** ลอกครึ่งหนึ่งไปทับอีกครึ่งรอบแกนตั้ง: axis เป็นคอลัมน์ (เช่น 15) หรือกึ่งกลางระหว่างสองคอลัมน์ (15.5) */
 function mirror(st: Studio, axis: number, from: 'left' | 'right') {
   const { w, h } = st.doc, W = writer(st);
@@ -484,6 +506,7 @@ function exec(st: Studio, cmd: string, a: string[], pal?: Palette): string {
       return '';
     }
     case 'move': { const [dx, dy] = point(a[0]); moveBox(st, dx, dy); return ''; }
+    case 'lean': { leanBox(st, int(a[0], 'ระยะเอน')); return ''; }
     case 'flip': { if (a[0] !== 'h' && a[0] !== 'v') fail('ใช้แบบ: flip h|v'); flipBox(st, a[0] as 'h' | 'v'); return ''; }
     case 'mirror': {
       const axis = Number(a[0]);
@@ -877,6 +900,7 @@ export const HELP: [string, string][] = [
   ['select x,y x,y | all | none', 'กรอบเลือก คำสั่งวาดจะแตะได้เฉพาะในกรอบ'],
   ['move dx,dy', 'ย้ายสิ่งที่อยู่ในกรอบเลือก (หรือทั้งชั้น)'],
   ['flip h|v', 'กลับซ้ายขวาหรือบนล่าง'],
+  ['lean <dx>', 'เอนสิ่งที่อยู่ในกรอบเลือก (หรือทั้งชั้น): แถวล่างอยู่กับที่ แถวบนเลื่อน dx (ลบคือไปทางซ้าย)'],
   ['sym <แกน> | off', 'วาดสมมาตร: ทุกอย่างที่วาดจะถูกวาดอีกฝั่งของคอลัมน์นั้นด้วย (เช่น 15 หรือ 15.5)'],
   ['mirror <แกน> [left|right]', 'ลอกครึ่งหนึ่งไปทับอีกครึ่ง'],
   ['resize <กว้าง> <สูง> [dx dy]', 'เปลี่ยนขนาดผืน'],

@@ -7,5 +7,363 @@
    "strike"
   ],
   "lift": 0
+ },
+ "bat": {
+  "w": 36,
+  "h": 28,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 24,
+  "from": "dungeon-crawl/monster/animals/giant_bat.png"
+ },
+ "bear": {
+  "w": 59,
+  "h": 61,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0
+ },
+ "boar": {
+  "w": 72,
+  "h": 56,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/animals/hog_new.png"
+ },
+ "chimney_imp": {
+  "w": 24,
+  "h": 26,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 6,
+  "from": "dungeon-crawl/monster/demons/imp.png"
+ },
+ "coal_ghost": {
+  "w": 23,
+  "h": 21,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/demons/shadow_imp_new.png"
+ },
+ "earth_calf": {
+  "w": 69,
+  "h": 44,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/animals/yak_new.png"
+ },
+ "fallen_star": {
+  "w": 31,
+  "h": 29,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 20,
+  "from": "dungeon-crawl/monster/abyss/wretched_star.png"
+ },
+ "fire_cub": {
+  "w": 37,
+  "h": 35,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/animals/raiju.png"
+ },
+ "float_eye": {
+  "w": 20,
+  "h": 18,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 24,
+  "from": "dungeon-crawl/monster/eyes/giant_eyeball.png"
+ },
+ "glass_walker": {
+  "w": 69,
+  "h": 64,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/nonliving/crystal_guardian.png"
+ },
+ "great_eye": {
+  "w": 62,
+  "h": 54,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 8,
+  "from": "dungeon-crawl/monster/eyes/great_orb_of_eyes.png"
+ },
+ "house_servitor": {
+  "w": 61,
+  "h": 59,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/nonliving/spellforged_servitor.png"
+ },
+ "hum_moth": {
+  "w": 36,
+  "h": 31,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 20,
+  "from": "dungeon-crawl/monster/animals/ghost_moth_new.png"
+ },
+ "mad_sentry": {
+  "w": 69,
+  "h": 63,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/nonliving/iron_golem.png"
+ },
+ "mine_rat": {
+  "w": 32,
+  "h": 20,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/animals/rat.png"
+ },
+ "night_scrap": {
+  "w": 65,
+  "h": 56,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/undead/shadow_new.png"
+ },
+ "old_wood": {
+  "w": 69,
+  "h": 64,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/fungi_plants/treant.png"
+ },
+ "salt_crab": {
+  "w": 37,
+  "h": 26,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/abyss/apocalypse_crab.png"
+ },
+ "sky_jelly": {
+  "w": 35,
+  "h": 31,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 14,
+  "from": "dungeon-crawl/monster/animals/jellyfish.png"
+ },
+ "sky_spawn": {
+  "w": 61,
+  "h": 62,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/abyss/tentacled_starspawn.png"
+ },
+ "snake": {
+  "w": 38,
+  "h": 30,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/animals/viper.png"
+ },
+ "star_lump": {
+  "w": 64,
+  "h": 58,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/abyss/starcursed_mass.png"
+ },
+ "stray_bird": {
+  "w": 36,
+  "h": 35,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 22,
+  "from": "dungeon-crawl/monster/animals/caustic_shrike.png"
+ },
+ "waking_stone": {
+  "w": 72,
+  "h": 61,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/nonliving/earth_elemental.png"
+ },
+ "walking_smoke": {
+  "w": 71,
+  "h": 66,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/demons/smoke_demon_new.png"
+ },
+ "walking_water": {
+  "w": 61,
+  "h": 54,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "from": "dungeon-crawl/monster/nonliving/water_elemental_new.png"
+ },
+ "wolf": {
+  "w": 57,
+  "h": 37,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0
+ },
+ "ash_soldier": {
+  "w": 35,
+  "h": 54,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "glass_one": {
+  "w": 27,
+  "h": 50,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "extra_shadow": {
+  "w": 29,
+  "h": 53,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "nameless_ghost": {
+  "w": 40,
+  "h": 55,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "bandit": {
+  "w": 38,
+  "h": 55,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "witch_hunter": {
+  "w": 40,
+  "h": 55,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "mercenary": {
+  "w": 46,
+  "h": 53,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "ash_cultist": {
+  "w": 41,
+  "h": 55,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
+ },
+ "star_listener": {
+  "w": 30,
+  "h": 53,
+  "frames": [
+   "idle",
+   "strike"
+  ],
+  "lift": 0,
+  "kit": true
  }
 }
