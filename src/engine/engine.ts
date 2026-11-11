@@ -474,6 +474,7 @@ export function applyPeople(people: Person[], fx: PersonEffect[], age: number, c
     }
     if (e.name) p.name = e.name;
     if (e.gender) p.gender = e.gender;
+    if (e.race) p.race = e.race;
     if (e.kin) p.kin = e.kin;
     if (e.bond) p.bond = e.bond;
     if (p.born === undefined && ctx?.life) {

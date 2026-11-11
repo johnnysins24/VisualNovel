@@ -5,6 +5,7 @@ import { lintContent } from '../src/engine/lint';
 import { applyEffects, applyPeople, checkChance, choiceLock, makeGame, pickEvent, resolveChoice, settle } from '../src/engine/engine';
 import { equip, effectiveStats, maxHp } from '../src/engine/items';
 import { newLife } from '../src/engine/state';
+import { personHumanAge } from '../src/engine/people';
 import { exportCode, importCode } from '../src/engine/save';
 import { ContentSchema } from '../src/engine/schema';
 
@@ -159,6 +160,15 @@ describe('people and endings', () => {
     expect(ppl[0]!.closeness).toBe(5);
     ppl = applyPeople(ppl, [{ id: 'rowen', dies: true }], 20);
     expect(ppl[0]).toMatchObject({ alive: false, diedAge: 20 });
+  });
+  it('a person the content names as an elf or a dwarf keeps that race, so they age slowly and outlast a human friend', () => {
+    const life = { ...newLife(5), age: 16 };
+    const [elf, human] = applyPeople([], [{ id: 'theril', name: 'เธริล', race: 'elf', bond: 'friend', age: 19 }, { id: 'edric', name: 'เอดริค', bond: 'friend', age: 16 }], 16, { life });
+    expect(elf!.race).toBe('elf');
+    expect(human!.race).toBeUndefined();
+    const later = { ...life, age: 96 };
+    expect(personHumanAge(elf!, later)).toBeLessThan(50);
+    expect(personHumanAge(human!, later)).toBeGreaterThan(90);
   });
   it('a die effect ends the life as a real death (at once when no death scene exists)', () => {
     const l = { ...newLife(5), age: 40, currentEventId: 'elder.test_end' };

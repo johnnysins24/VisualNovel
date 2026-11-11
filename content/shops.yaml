@@ -63,3 +63,15 @@
   stock:
     [ember_edge_dagger, bored_coal_pendant, retired_warden_spear, ash_digger_hood, overseer_coal_mace, coal_fed_lantern, unmarked_cold_ring, lost_hunter_knife, ash_officer_breastplate, smoke_pot, ward_salt,
     ash_wader_boots, coal_sack_trousers, warden_watch_breeches, horn_wrap_hood, fort_wall_shield, mage_hunter_gauntlets, cold_ring_mail, shift_change_pistol, seal_tremor_bell, warden_grey_cloak, dream_name_book, coal_chip_ring, fort_oath_blade, coal_ember, iron_caltrops]
+
+- id: kardin_junction_market
+  name: ตลาดชุมทางคาร์ดิน
+  location: kardin
+  greet:
+    - ขบวนบ่ายออกอีกครึ่งชั่วยาม ตัดสินใจให้ทันก่อนหวูดก็แล้วกัน
+    - จ่ายสดฉันไม่ลดให้ แต่ถ้าไปผ่อนกับวิหาร ฉันได้ค่านายหน้า เลือกเอาว่าอยากให้ใครรวย
+    - เหล็กแผงนี้ออกจากเตาเมื่อวานซืน ยังไม่ทันได้ขึ้นสนิมสักเม็ด
+  staples: [boiled_bandage, whetstone, lamp_oil_flask, roast_coffee]
+  stock:
+    [switchman_cap, foundry_hood, ticket_loupe_goggles, collector_shirt, rail_gang_coat, boiler_plate_vest, tong_gloves, vault_guard_gauntlets, brakeman_trousers, ballast_boots, soot_scarf,
+    sleeper_car_blanket, coupling_bar, spike_maul, furnace_poker, collector_pistol, station_hand_bell, rail_wrench, conductor_lantern, closed_debt_ledger, belek_scale_pendant, belek_contract_ring, hemp_rope, signal_flare, iron_caltrops, salt_meat]

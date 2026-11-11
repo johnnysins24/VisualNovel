@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RARITIES, WORLD_KEYS } from './balance';
+import { CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RACE_IDS, RARITIES, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -44,6 +44,8 @@ export const PersonEffectSchema = z
     /** อายุของคนนี้ตอนเข้ามาในชีวิต (ปี) ไม่ใส่ = ระบบกะจากบทบาท เช่น พ่อแม่แก่กว่าผู้เล่น 20 ถึง 34 ปี */
     age: z.number().int().min(0).optional(),
     gender: z.enum(['m', 'f']).optional(),
+    /** เผ่าของคนนี้ ใส่เมื่อไม่ใช่มนุษย์และไม่ใช่ญาติสายเลือด (เอลฟ์กับคนแคระแก่ช้าและอยู่นานกว่า รูปก็เป็นเผ่านั้น) */
+    race: z.enum(RACE_IDS as [string, ...string[]]).optional(),
     kin: z.enum(KIN_ROLES).optional(),
     bond: z.enum(BONDS).optional(),
     /** บวกลบความสนิท ช่วง −5 ถึง 5 */

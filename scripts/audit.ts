@@ -550,8 +550,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
         if (choices.length === 1 && ev.choices.length > 1) bump(counts, 'เหตุการณ์ที่เหลือตัวเลือกเดียว');
         bump(counts, 'เหตุการณ์ทั้งหมด');
 
-        // ผู้เล่นที่อ่านเกมรับงานขององค์กรทุกครั้งที่รับได้ ผู้เล่นที่กดสุ่มปัดบ้างรับบ้าง
-        const taking = style === 'reads' && ev.duty ? choices.filter((x) => !x.refuse) : [];
+        // ผู้เล่นที่อ่านเกมรับงานขององค์กรทุกครั้งที่รับได้ และในเมืองเลือกทางที่คนในย่านจำได้ (ทางที่ให้ผลงานของเมือง) เมื่อมี ผู้เล่นที่กดสุ่มปัดบ้างรับบ้าง
+        const civic = (x: (typeof choices)[number]) => [x.effects, x.success?.effects].some((fx) => (fx?.city?.merit ?? 0) > 0);
+        const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : cityOf(l) ? choices.filter(civic) : [];
         const from = taking.length ? taking : choices;
         const c = from[r.int(0, from.length - 1)]!;
         l = resolveChoice(game, l, ev.id, c.id).life;
@@ -863,12 +864,17 @@ export function formatReport(game: Game, res: AuditResult): string {
 
   h('เมืองและหลักสูตร');
   {
-    const rows = finals.map((l, i) => ({ life: l, t: res.towns[i]! }));
+    const rows = finals.map((l, i) => ({ life: l, keen: i % 2 === 1, t: res.towns[i]! }));
     const years = (l: LifeState) => l.log.flatMap((e) => (e.year ? [e.year] : []));
     for (const id of CITY_IDS) {
       const lived = rows.filter((x) => x.t.yearsIn[id]);
       const ranks = CITY_RANKS.map((th, k) => `${th} ${pct(lived.filter((x) => x.life.standing[id]?.rank === k + 1).length, lived.length)}`);
       out.push(`- ${CITIES[id].th}: เคยอยู่ ${lived.length} ชีวิต (${pct(lived.length, lives)}) · ปีที่อยู่ กลาง ${median(lived.map((x) => x.t.yearsIn[id]!))} · ชั้นตอนจบ: ${ranks.join(' · ')}`);
+      // คนที่อยู่เมืองนี้ครบ 15 ปี แยกผู้เล่นที่เลือกทางของย่านทุกครั้งที่มี กับผู้เล่นที่กดสุ่ม (แบบเดียวกับหัวข้อองค์กร)
+      for (const [label, keen] of [['เลือกทางของย่าน', true], ['กดสุ่ม', false]] as const) {
+        const long = lived.filter((x) => x.keen === keen && x.t.yearsIn[id]! >= 15);
+        if (long.length) out.push(`  - ${label} อยู่ครบ 15 ปี ${long.length} ชีวิต: ${CITY_RANKS.map((th, k) => `${th} ${pct(long.filter((x) => x.life.standing[id]?.rank === k + 1).length, long.length)}`).join(' · ')}`);
+      }
     }
     const urban = rows.filter((x) => Object.keys(x.t.yearsIn).length);
     out.push(`- ที่อยู่ที่เคยมี (จากชีวิตที่เคยอยู่เมือง ${urban.length} ชีวิต): ${HOME_KINDS.map((k) => `${HOME_TH[k]} ${pct(urban.filter((x) => x.t.homes.has(k)).length, urban.length)}`).join(' · ')} · ไม่เคยมีที่อยู่ ${pct(urban.filter((x) => !x.t.homes.size).length, urban.length)}`);
