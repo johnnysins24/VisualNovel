@@ -790,7 +790,7 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
         [{ id: PARTNER_PERSON_ID, name: next.partner.name, gender: next.partner.gender, bond: 'love', closeness: PARTNER_CLOSENESS, ...(married ? { kin: 'spouse' as const } : {}) }],
         next.age,
         { life: next },
-      ).map((p) => (p.id === PARTNER_PERSON_ID && race ? { ...p, race } : p)),
+      ).map((p) => (p.id === PARTNER_PERSON_ID && race ? { ...p, race, born: estimateBorn({ ...p, race }, next) } : p)),
     };
   }
   next = addChildren(game, next, rng);

@@ -3,7 +3,7 @@
  * ทุกอย่างคิดจาก seed ของชีวิตกับ id ของคน จึงได้ผลเดิมทุกครั้ง
  */
 import type { CastSpec, GameEvent, KinRole } from './schema';
-import { NPC_DEATH, RACES, type RaceId } from './balance';
+import { EVEN_AGING_UNTIL, NPC_DEATH, RACES, type RaceId } from './balance';
 import { Rng } from './rng';
 import { toHumanAge, worldYear, type LifeState, type Person } from './state';
 
@@ -36,20 +36,25 @@ export function personRace(p: Pick<Person, 'race' | 'kin'>, life: Pick<LifeState
  * ปีเกิดที่กะจากบทบาท สำหรับคนที่เนื้อหาไม่ได้บอกอายุ: พ่อแม่แก่กว่าผู้เล่น 20 ถึง 34 ปี ปู่ย่าตายายแก่กว่าพ่อแม่อีก 20 ถึง 29 ปี
  * พี่แก่กว่า 2 ถึง 6 ปี น้องและลูกที่เข้ามาหลังผู้เล่นเกิดคือเกิดปีนั้น ครูแก่กว่า 20 ถึง 34 ปี คู่ครอง เพื่อน และคู่แค้นรุ่นราวคราวเดียวกัน
  */
-export function estimateBorn(p: Pick<Person, 'id' | 'kin' | 'bond' | 'metAge'>, life: Ctx): number {
+export function estimateBorn(p: Pick<Person, 'id' | 'kin' | 'bond' | 'metAge' | 'race'>, life: Ctx): number {
   const r = seeded(`born:${life.seed}:${p.id}`);
   const span = (a: number, b: number) => r.int(a, b);
   const kin = p.kin ?? '';
   const met = life.birthYear + (p.metAge ?? 0);
+  // ปีเกิดของคน "รุ่นเดียวกับผู้เล่น": คนที่แก่เร็วช้าไม่เท่าผู้เล่นนับจากวัยตอนรู้จักกัน ไม่ใช่ปีเกิดของผู้เล่น
+  // (เอลฟ์อายุจริง 150 ร่างกายเท่ามนุษย์อายุ 51 เพื่อนมนุษย์ที่เพิ่งรู้จักต้องอายุราว 51 ไม่ใช่ 150) เผ่าที่แก่เท่ากันได้ปีเกิดของผู้เล่นเหมือนเดิม
+  const h = toHumanAge(p.metAge ?? 0, life.raceApplied);
+  const scale = RACES[personRace(p, life)].ageScale;
+  const peer = met - Math.floor((h <= EVEN_AGING_UNTIL ? h : EVEN_AGING_UNTIL + (h - EVEN_AGING_UNTIL) * scale) + 1e-9);
   if (kin === 'father' || kin === 'mother') return life.birthYear - span(20, 34);
   if (ELDER_KIN.has(kin)) return life.birthYear - span(20, 34) - span(20, 29);
   if (kin === 'sibling_older') return life.birthYear - span(2, 6);
   if (kin === 'sibling_younger') return (p.metAge ?? 0) > 0 ? met : life.birthYear + span(1, 4);
   if (kin === 'child') return met;
-  if (p.bond === 'mentor') return life.birthYear - span(20, 34);
-  if (kin === 'spouse' || p.bond === 'love' || p.bond === 'friend' || p.bond === 'rival') return Math.min(met, life.birthYear + span(-3, 3));
+  if (p.bond === 'mentor') return peer - span(20, 34);
+  if (kin === 'spouse' || p.bond === 'love' || p.bond === 'friend' || p.bond === 'rival') return Math.min(met, peer + span(-3, 3));
   // คนอื่นๆ: อายุห่างจากผู้เล่นไม่มาก และเป็นผู้ใหญ่แล้วตอนรู้จักกัน
-  return Math.min(met - 16, life.birthYear - span(-5, 15));
+  return Math.min(met - 16, peer - span(-5, 15));
 }
 
 /** ปีที่ใช้นับอายุของคนนี้: คนที่ยังอยู่นับถึงปีนี้ คนที่จากไปแล้วหยุดที่ปีที่ตาย */

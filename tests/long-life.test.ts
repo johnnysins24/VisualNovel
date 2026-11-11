@@ -508,6 +508,21 @@ describe('everyone has a birth year and grows old', () => {
     expect(personHumanAge(person('s', { bond: 'friend', born: 250 }), elfLife)).toBe(70); // เพื่อนมนุษย์
     expect(personHumanAge(person('p', { bond: 'love', born: 150, race: 'elf' }), life)).toBe(53);
   });
+  it('someone a long-lived player meets late in life is a peer by looks, not by birth year', () => {
+    // เอลฟ์อายุจริง 150 ร่างกายเท่ามนุษย์อายุ 51: เพื่อนมนุษย์ที่เพิ่งรู้จักต้องอายุราว 51 ไม่ใช่ 150
+    const elf = { ...life, age: 150, raceApplied: 'elf' };
+    for (const id of ['a', 'b', 'c', 'd']) {
+      const friend = person(id, { bond: 'friend', metAge: 150 });
+      expect(Math.abs(personHumanAge({ ...friend, born: estimateBorn(friend, elf) }, elf) - 51)).toBeLessThanOrEqual(3);
+      const mentor = person(id, { bond: 'mentor', metAge: 150 });
+      expect(personHumanAge({ ...mentor, born: estimateBorn(mentor, elf) }, elf)).toBeLessThanOrEqual(51 + 34);
+      // คู่ครองเผ่าเดียวกันแก่เท่ากัน จึงเกิดใกล้ปีเกิดของผู้เล่นเหมือนเดิม
+      const love = person(id, { bond: 'love', metAge: 150, race: 'elf' });
+      expect(Math.abs(estimateBorn(love, elf) - elf.birthYear)).toBeLessThanOrEqual(3);
+      // มนุษย์รู้จักใครตอนไหนก็ได้ปีเกิดใกล้ตัวเองเหมือนเดิม
+      expect(Math.abs(estimateBorn(person(id, { bond: 'friend', metAge: 55 }), { ...life, age: 55 }) - life.birthYear)).toBeLessThanOrEqual(3);
+    }
+  });
   it('parents are born before the player when names are drawn', () => {
     const game = gameOf([ev('adult.a')]);
     for (let s = 1; s <= 40; s++) {

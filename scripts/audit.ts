@@ -56,6 +56,7 @@ export interface OrgLife {
   bounty: number;
   /** ปีที่ถึงกำหนดงานแต่ไม่มีงานให้ส่ง (เนื้อหาไม่พอ) */
   starved: number;
+  starvedOld: number;
 }
 
 /**
@@ -316,7 +317,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
         const m = now.orgs[id];
         const rec = orgLife[id];
         if (m) {
-          const o = rec ?? (orgLife[id] = { joinedAge: humanAge(now), lastAge: humanAge(now), maxRank: m.rank, duties: 0, done: 0, refused: 0, left: false, bounty: 0, starved: 0 });
+          const o = rec ?? (orgLife[id] = { joinedAge: humanAge(now), lastAge: humanAge(now), maxRank: m.rank, duties: 0, done: 0, refused: 0, left: false, bounty: 0, starved: 0, starvedOld: 0 });
           o.lastAge = humanAge(now);
           o.maxRank = Math.max(o.maxRank, m.rank);
           o.done = m.done;
@@ -382,7 +383,8 @@ export function auditLives(game: Game, lives: number): AuditResult {
           bump(res.counts, 'งานขององค์กรที่ออกติดกัน');
         }
         const due = dutiesDue(l, game.duties);
-        for (const id of due) if (!pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]!.starved++;
+        // วัยชรา (65 ขึ้นไป) ยังไม่มีงานขององค์กร นับแยกไว้ให้เห็นช่องว่าง ไม่ปนกับปีที่ควรมีงาน
+        for (const id of due) if (!pool.some((e) => e.duty === id) && orgLife[id]) orgLife[id]![humanAge(l) < 65 ? 'starved' : 'starvedOld']++;
         const owed = pool.filter((e) => e.duty && due.includes(e.duty) && fresh(e));
         if (owed.length && !ev.must && !owed.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่งานขององค์กรถึงกำหนด (${owed[0]!.id})`);
       }
@@ -521,7 +523,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
       if (l.alive && maxHp(l, game.items) < 1 && !l.dying) bump(problems, `${did}: พลังชีวิตสูงสุดหมดแต่ยังไม่ตาย`);
       if (l.age < before.age) bump(problems, `${did}: อายุถอยหลัง`);
       for (const p of l.people) {
-        if (p.alive && personHumanAge(p, l) > 125) bump(problems, `คนรอบตัวอายุเกิน 125 ปีแบบมนุษย์แล้วยังอยู่ (${p.kin ?? p.bond ?? 'คนรู้จัก'})`);
+        if (p.alive && personHumanAge(p, l) > 125) bump(problems, `${p.id}: คนรอบตัวอายุเกิน 125 ปีแบบมนุษย์แล้วยังอยู่ (${p.kin ?? p.bond ?? 'คนรู้จัก'})`);
         if (p.born !== undefined && p.born > worldYear(l)) bump(problems, `${p.id}: เกิดหลังปีปัจจุบัน`);
       }
       if (l.hp > Math.max(0, maxHp(l, game.items))) bump(problems, `HP เกินค่าสูงสุดหลัง ${did}`);
@@ -791,7 +793,7 @@ export function formatReport(game: Game, res: AuditResult): string {
         const long = all.filter((x) => x.o.lastAge - x.o.joinedAge >= 20);
         const ranks = Array.from({ length: ORG_RANKS }, (_, k) => `${ORGS[id].ranks[k]} ${pct(long.filter((x) => x.o.maxRank === k + 1).length, long.length)}`);
         out.push(`  - ${label}: ${all.length} ชีวิต · อยู่ครบ 20 ปี ${long.length} ชีวิต ยศสูงสุด: ${ranks.join(' · ')}`);
-        out.push(`    งานที่ได้ กลาง ${median(long.map((x) => x.o.duties))} (ทำสำเร็จ กลาง ${median(long.map((x) => x.o.done))} · ปัด กลาง ${median(long.map((x) => x.o.refused))}) · ถึงกำหนดงานแต่ไม่มีงานให้ส่ง กลาง ${median(long.map((x) => x.o.starved))} ครั้ง${ORGS[id].bounty ? ` · ค่าหัว กลาง ${median(long.map((x) => x.o.bounty))} เหรียญ สูงสุด ${Math.max(0, ...long.map((x) => x.o.bounty))}` : ''}`);
+        out.push(`    งานที่ได้ กลาง ${median(long.map((x) => x.o.duties))} (ทำสำเร็จ กลาง ${median(long.map((x) => x.o.done))} · ปัด กลาง ${median(long.map((x) => x.o.refused))}) · ถึงกำหนดงานแต่ไม่มีงานให้ส่ง กลาง ${median(long.map((x) => x.o.starved))} ครั้งก่อนอายุ 65 และ ${median(long.map((x) => x.o.starvedOld))} ครั้งหลังจากนั้น${ORGS[id].bounty ? ` · ค่าหัว กลาง ${median(long.map((x) => x.o.bounty))} เหรียญ สูงสุด ${Math.max(0, ...long.map((x) => x.o.bounty))}` : ''}`);
       }
     }
     const hunts = [...res.orgs.hunts].sort((a, b) => b[1] - a[1]);
