@@ -5,13 +5,14 @@
 #   ราธิก เด็กฝึกงานโรงพิมพ์ที่มานั่งวงครั้งแรก · ดุสกา หญิงแก่บ้านติดกันที่หลานเป็นเด็กรับใช้ในวิหารตะเกียง
 # ของประจำยศ: สมุดปกผ้า (listeners_blue_notebook) ได้ในฉากขึ้นเป็นคนจดคำตอบทุกทาง เผาที่วิหารเมื่อตัดขาดจากวง
 # ทางถอดรอยดาว (curse_star_marks): listeners_after_the_oil_cart ตัวเลือกช่างเงินดาวที่หอนับดาว
+# ผลงานเพิ่มนอกงาน: ลัดลานวิหารไปส่งโถก่อนเวลา (สำเร็จ) 1 · อ่านให้ราธิกฟัง (สำเร็จ) 1 ชีวิตหนึ่งได้งานราวหกถึงแปดงาน ยศสาม (ผลงาน 7) จึงต้องมีทางแบบนี้ ทางเข้ารับถึงอายุ 45 ด้วยเหตุเดียวกัน
 
 # ---------- ทางเข้า ----------
 - id: adult.listeners_join_blue_card
   stage: adult
-  weight: 12
+  weight: 26
   when:
-    age: [25, 55]
+    age: [25, 45]
     location_tag: ventras
     not_orgs: [wick, cold_iron, reclaimers, ash_cult, star_listeners, crown_office, crown_army, crown_court, wardens]
     not_flags: [left_the_star_listeners]
@@ -72,9 +73,9 @@
 - id: adult.listeners_join_question
   stage: adult
   scene: tavern
-  weight: 6
+  weight: 13
   when:
-    age: [25, 55]
+    age: [25, 45]
     location_tag: [arvel_village, ventras, kardin]
     not_orgs: [wick, cold_iron, reclaimers, ash_cult, star_listeners, crown_office, crown_army, crown_court, wardens]
     not_flags: [left_the_star_listeners]
@@ -246,7 +247,7 @@
           ลานวิหารกำลังจุดตะเกียงเย็น นักบวชเด็กสองคนถือไม้ขอเกี่ยวตะเกียงขึ้นเสา ไม่มีใครสนใจคนอุ้มโถดินเผา {name}เดินผ่านกลางลานด้วยฝีเท้าเท่าคนกลับบ้าน
 
           ถึงประตูหลังร้านขายแว่นตาก่อนพลบนานพอให้ช่างแว่นเลิกคิ้ว เขารับโถไปโดยไม่ถามว่ามาทางไหน
-        effects: { flags: [took_the_jar_across_the_temple_yard] }
+        effects: { org: { id: star_listeners, merit: 1 }, flags: [took_the_jar_across_the_temple_yard] }
       failure:
         text: |
           กลางลานวิหาร ส้นรองเท้า{name}สะดุดร่องหิน โถกระเด้งในอ้อมแขน เสียงกระดิ่งข้างในดังทั่วลาน นักล่าแม่มดคนหนึ่งที่ยืนอยู่ข้างเสาหันมา ถามว่าในโถมีอะไร {name}ตอบว่าลูกปัดแก้ว เขาไม่ขอเปิด เขาขอดูถุงมือ ดูทั้งสองข้าง แล้วปล่อยให้ไป
@@ -289,7 +290,7 @@
           {name}อ่านช้ากว่าที่เคยอ่าน หยุดทุกที่ที่ควรหยุด ราธิกขยับปากตามคำท้ายของทุกประโยคโดยไม่มีเสียง พออ่านจบหน้า เขาขอยืมหนังสือกลับไปอ่านต่อที่บ้าน บรานเวลให้ยืมเล่มของตัวเอง
 
           ราธิกเอาหนังสือมาคืนวันอัสเทลถัดไป หน้าที่{name}อ่านให้ฟังมีรอยนิ้วหมึกพิมพ์ทุกบรรทัด
-        effects: { flags: [read_cordis_aloud_for_rathik] }
+        effects: { org: { id: star_listeners, merit: 1 }, flags: [read_cordis_aloud_for_rathik] }
       failure:
         text: |
           ถึงบรรทัดเรื่องเปลือกฟ้า เสียง{name}แหบลงกลางคำ ไอจนอ่านต่อไม่ได้ ราธิกยื่นมือมารับหนังสือไปอ่านต่อเองจนจบหน้า เสียงเขาดีกว่าเสียง{name} ช้ากว่า หนักกว่า ทั้งโต๊ะฟังไม่มีใครขยับ

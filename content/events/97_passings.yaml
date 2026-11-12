@@ -582,7 +582,7 @@
 - id: adult.life_second_child
   stage: adult
   scene: home
-  weight: 30
+  weight: 40
   mark: "{newborn}เกิด"
   cast:
     first: { kin: [child], min_age: 2, max_age: 9, pick: eldest }

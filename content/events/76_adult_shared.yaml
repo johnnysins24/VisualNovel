@@ -47,7 +47,7 @@
 
 - id: adult.love_meets
   stage: adult
-  weight: 35
+  weight: 45
   when:
     not_orgs: [wick]
     age: [19, 24]

@@ -9,7 +9,7 @@
 - id: adult.arc_relics_1_numberless_weight
   stage: adult
   scene: market
-  weight: 8
+  weight: 11
   arc: { id: relics, step: 1 }
   when:
     age: [26, 52]
@@ -178,7 +178,7 @@
 - id: adult.arc_debt_1_surety
   stage: adult
   scene: belek_bank
-  weight: 8
+  weight: 11
   arc: { id: debt, step: 1 }
   people: [{ id: surety_for, name: เกรวิน, gender: m, bond: friend, closeness: 1, age: 36 }]
   when:
@@ -512,7 +512,7 @@
 
 - id: adult.arc_pupil_1_tilva
   stage: adult
-  weight: 9
+  weight: 12
   arc: { id: pupil, step: 1 }
   when:
     age: [40, 58]

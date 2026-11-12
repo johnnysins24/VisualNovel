@@ -13,7 +13,7 @@
 - id: adult.life_new_love
   stage: adult
   scene: market
-  weight: 35
+  weight: 48
   when:
     not_orgs: [wick]
     age: [25, 38]
@@ -50,7 +50,7 @@
 - id: adult.life_proposal
   stage: adult
   scene: home
-  weight: 60
+  weight: 80
   when:
     age: [23, 40]
     flags: [has_partner]
@@ -101,7 +101,7 @@
 - id: adult.life_first_child
   stage: adult
   scene: home
-  weight: 70
+  weight: 95
   when:
     age: [24, 41]
     flags: [married]
@@ -145,7 +145,7 @@
 - id: adult.life_first_child_horned
   stage: adult
   scene: home
-  weight: 14
+  weight: 19
   when:
     age: [24, 41]
     flags: [married]

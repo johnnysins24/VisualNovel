@@ -10,7 +10,7 @@
 - id: adult.fang_join_headman
   stage: adult
   scene: road
-  weight: 3
+  weight: 4
   when:
     age: [28, 50]
     not_orgs: [fang_house, wardens]
@@ -63,7 +63,7 @@
 - id: adult.fang_join_board
   stage: adult
   scene: tavern
-  weight: 50
+  weight: 65
   when:
     age: [28, 50]
     flags: [job_bounty_hunter]
@@ -117,7 +117,7 @@
 - id: adult.fang_join_sack
   stage: adult
   scene: road
-  weight: 3
+  weight: 4
   when:
     age: [28, 50]
     not_orgs: [fang_house, wardens]
@@ -163,7 +163,7 @@
 - id: adult.fang_join_partner
   stage: adult
   scene: tavern
-  weight: 3
+  weight: 4
   when:
     age: [28, 50]
     not_orgs: [fang_house, wardens]
