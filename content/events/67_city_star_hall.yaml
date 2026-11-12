@@ -14,6 +14,8 @@
     location_tag: ileth
     city: none
     not_flags: [institute_student, left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    # คนของไส้ตะเกียงกับคนในสายงานของอาณาจักรไม่ย้ายเมืองไปหางาน (ชุด อ)
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     ทุกต้นฤดูลม หอนับดาวส่งแผ่นเปลือกไม้ลงมาตามหมู่บ้าน ถึงลานตะกร้าที่คนบนกิ่งกับคนบนดินแลกของกัน แผ่นเปลือกไม้เป็นรายการของที่หอต้องการปีนี้ ใครอ่านออกก็อ่านให้คนอื่นฟัง เกลือ น้ำมันตะเกียง ด้าย เชือกป่าน แล้วก็คน ปีนี้บรรทัดคนยาวกว่าทุกปี คนแบกตะกร้าขึ้นชาน คนผูกเชือก คนต้มข้าวให้คนนับในฤดูฟ้าเปิด คนคัดจดหมายที่อ่านอักษรเก่าออก
 

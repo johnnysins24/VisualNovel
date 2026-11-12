@@ -738,7 +738,7 @@
       effects: { flags: [job_road_healer], clear_flags: [job_city_priest, job_fort_priest], stats: { CON: 1 } }
     - id: to_fort_priest
       label: ไปเป็นนักบวชประจำป้อมสามในแดนเถ้า
-      requires: { not_flags: [job_fort_priest] }
+      requires: { not_flags: [job_fort_priest], not_orgs: [wick, cold_iron, reclaimers, star_listeners] }
       text: |
         ป้อมสามไม่มีนักบวชมาตั้งแต่ปลายหนาวก่อน ห้องสวดใช้เก็บถังน้ำมันชั่วคราว ชายมือซ้ายสามนิ้วชื่อการ์เวนยกถังออกเองทีละถัง ไม่ให้{name}ช่วย บอกว่าห้องนี้ควรว่างไว้ให้คนที่ต้องมานอนในนั้น
 

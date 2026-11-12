@@ -272,7 +272,7 @@
       effects: { city: { mood: riot }, flags: [barred_the_door_on_shift_bell_night] }
     - id: night_train
       label: ขึ้นรถไฟเที่ยวดึกไปคาร์ดิน ไม่กลับมาอีก
-      requires: { not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter] }
+      requires: { not_flags: [left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter], not_orgs: [wick, crown_office, crown_army, crown_court] }
       text: |
         {name}เก็บของใส่ถุงได้ถุงเดียว ไม่บอกใคร รถไฟเที่ยวดึกออกจากสถานีตอนสี่ทุ่ม ตู้ชั้นสามมีคนหอบของมาแบบเดียวกันอยู่ครึ่งตู้ ไม่มีใครถามใครว่าทำไม
 

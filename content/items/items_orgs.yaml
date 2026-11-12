@@ -32,3 +32,56 @@
   passive:
     description: พลังชีวิตสูงสุด +2
     effect: { kind: max_hp, amount: 2 }
+
+# ---------- ชุด อ: ของประจำยศขององค์กรลับและสายงานของอาณาจักร ----------
+- id: iron_clapperless_bell
+  name: กระดิ่งเหล็กเย็นไม่มีลูกตุ้ม ห่วงหนังเก่า
+  slot: accessory
+  pattern: bell
+  material: cold_iron
+  rarity: uncommon
+  stats: { WIS: 1 }
+  lore: ใบเล็กกว่ากำปั้น ข้างในกลวง สั่นเองเมื่ออยู่ห่างของมีเวทไม่ถึงสิบก้าว คนถือรู้สึกที่สะโพกก่อนหูจะได้ยิน กระดิ่งไม่บอกว่าของนั้นเป็นของใคร ไม่บอกว่าดีหรือร้าย
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: iron_halvins_hammer
+  name: ค้อนด้ามดำของฮัลวิน
+  slot: weapon
+  pattern: hammer
+  material: cold_iron
+  rarity: rare
+  tags: [blunt]
+  stats: { STR: 1, DEX: 1 }
+  lore: หัวเหล็กสีเทาด้าน เล็กกว่าค้อนตีเกือกม้า หนักกว่าที่ขนาดบอก เพชฌฆาตขายให้พ่อค้าเศษเหล็กหลังเจ้าของโดนแขวนคอ เตาซื้อกลับมาสองเหรียญ แล้วแขวนไว้เหนือประตูโรงไม้จนมีคนถือคนใหม่
+
+- id: reclaim_brass_seal
+  name: ตราทวงทองเหลืองรูปตะเกียง สลักเลขทะเบียน
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: uncommon
+  stats: { INT: 1 }
+  lore: หน้าตราเป็นตะเกียงของสถาบัน ใต้ตะเกียงมีเลขของตราเอง ถ้าหายก็ลงสมุดบัญชีหายเหมือนของชิ้นอื่น คนของนายอำเภอเห็นตรานี้แล้วถอยให้หนึ่งก้าวเสมอ
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }
+
+- id: office_second_key
+  name: กุญแจดอกที่สองของหีบภาษี ร้อยเชือกหนังดำ
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { INT: 1 }
+  lore: ดอกนี้อยู่กับปลัดอำเภอ เชือกหนังดำเป็นมันเพราะผ่านคอปลัดมาหลายคน คนที่นอนตะแคงทับจะตื่นมาพร้อมรอยฟันกุญแจบนหน้าอก
+
+- id: office_district_seal
+  name: ตราอำเภอในกล่องไม้บุผ้าแดงซีด
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: rare
+  stats: { CHA: 1, WIS: 1 }
+  lore: ตรานี้เปิดยุ้งหลวง ปิดยุ้งหลวง และรับรองใบเกณฑ์คน ผ้าบุกล่องเคยแดง ตอนนี้ซีดเป็นสีชมพู หมึกตราแห้งคาร่องลายจนล้างไม่ออกมาสามนายอำเภอแล้ว

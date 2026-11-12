@@ -758,7 +758,8 @@
       effects: { flags: [job_navy], clear_flags: [job_wardens, job_mercenary], location_tag: ventras, reputation: { crown: 1 } }
     - id: to_wardens
       label: ไปแดนเถ้า รับเตียงว่างในป้อมสามของผู้เฝ้าผนึก
-      requires: { not_flags: [job_wardens] }
+      # คนที่สาบานหรือลงชื่อกับองค์กรของชุด อ ไว้แล้วรับเตียงของภาคีอีกไม่ได้
+      requires: { not_flags: [job_wardens], not_orgs: [wick, cold_iron, reclaimers, star_listeners] }
       text: |
         หัวหน้าป้อมสามให้{name}เลือกเตียงเหมือนที่ให้ทุกคน เตียงไหนก็ได้ เจ้าของเดิมไม่กลับมาเอาแล้ว บนผนังห้องกินข้าวมีหัวหอกไหม้ดำแขวนเรียงอยู่หลายสิบอัน ใต้แต่ละอันเขียนชื่อไว้ด้วยถ่าน บางชื่อจางจนอ่านไม่ออกแล้ว แต่คนในป้อมยังเรียกได้ครบ
 

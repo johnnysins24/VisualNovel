@@ -12,6 +12,8 @@
     location_tag: arvel_village
     city: none
     not_flags: [institute_student, left_the_fort, deserted_the_fort, sold_the_fort, job_navy, job_wardens, job_fort_priest, job_mercenary, job_smuggler, job_bank_spy, job_swindler, job_researcher, job_house_singer, job_hedge_doctor, job_city_priest, job_farmer, job_miner, job_refinery_hand, job_docker, job_clerk, job_bough_crafter]
+    # คนของไส้ตะเกียงกับคนในสายงานของอาณาจักรไม่ย้ายเมืองไปหางาน (ชุด อ)
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     ประกาศจ้างงานของโรงหลอมแห่งหนึ่งในคาร์ดินตอกอยู่ที่เสาหน้าโรงเตี๊ยมของหมู่บ้าน กระดาษหนา หมึกพิมพ์ ตัวอักษรโตพอให้คนอ่านไม่คล่องอ่านออกจากอีกฝั่งถนน รับคนทุกฝีมือ ค่าแรงสามเท่าของลานนวดข้าว ห้องเหนือรางมีให้เช่าในวันที่ลงจากรถ
 
