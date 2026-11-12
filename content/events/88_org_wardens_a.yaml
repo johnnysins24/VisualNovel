@@ -76,7 +76,7 @@
 - id: adult.wardens_late_oil_cart
   stage: adult
   scene: road
-  weight: 7
+  weight: 8
   when:
     age: [28, 52]
     not_orgs: [wardens, fang_house]
@@ -145,7 +145,7 @@
 - id: adult.wardens_late_priest_boxes
   stage: adult
   scene: temple
-  weight: 16
+  weight: 18
   when:
     age: [28, 52]
     class: cleric
@@ -209,7 +209,7 @@
 - id: adult.wardens_late_horned_register
   stage: adult
   scene: market
-  weight: 7
+  weight: 8
   when:
     age: [28, 52]
     trait: curse_brand

@@ -10,7 +10,7 @@
 - id: adult.arc_feud_1_the_hearing
   stage: adult
   scene: council_hall
-  weight: 11
+  weight: 13
   arc: { id: feud, step: 1 }
   when:
     age: [28, 50]
@@ -216,7 +216,7 @@
   stage: adult
   scene: home
   time: night
-  weight: 40
+  weight: 46
   arc: { id: low_voice, step: 1 }
   when:
     age: [30, 55]
@@ -385,7 +385,7 @@
 - id: adult.arc_glass_1_the_first_patch
   stage: adult
   scene: refinery
-  weight: 40
+  weight: 46
   arc: { id: glass, step: 1 }
   when:
     age: [28, 52]
@@ -576,7 +576,7 @@
 - id: adult.arc_seal_secret_1_the_box
   stage: adult
   scene: home
-  weight: 40
+  weight: 46
   arc: { id: seal_secret, step: 1 }
   when:
     age: [28, 56]

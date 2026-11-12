@@ -55,7 +55,7 @@
 # ---------- b ย่าน: ซอยโรงสี ----------
 - id: adult.city_market_town_mill_dust
   stage: adult
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: market_town
@@ -100,7 +100,7 @@
 # ---------- c ย่าน: ย่านริมราง ----------
 - id: adult.city_market_town_unclaimed_parcels
   stage: adult
-  weight: 22
+  weight: 33
   scene: station
   when:
     age: [19, 64]
@@ -147,7 +147,7 @@
 # ---------- d เรื่องเริ่มตึง: ตาชั่งที่มีคนหาว่าโกง ----------
 - id: adult.city_market_town_short_sack
   stage: adult
-  weight: 14
+  weight: 21
   scene: market
   when:
     age: [19, 64]
@@ -245,7 +245,7 @@
 # ---------- f ไข้มาถึง: มากับรถไฟ ----------
 - id: adult.city_market_town_harvest_fever
   stage: adult
-  weight: 6
+  weight: 9
   scene: station
   when:
     age: [19, 64]
@@ -290,7 +290,7 @@
 # ---------- g คนมีหน้ามีตา: นายโรงชั่งขอลายมือชื่อ ----------
 - id: adult.city_market_town_peldens_contract
   stage: adult
-  weight: 30
+  weight: 45
   scene: market
   when:
     age: [25, 64]

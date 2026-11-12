@@ -70,7 +70,7 @@
 - id: adult.city_ventras_rent_round
   stage: adult
   scene: home
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: { id: ventras, home: [room], district: [sky_docks] }
@@ -122,7 +122,7 @@
 - id: adult.city_ventras_lamp_blessing
   stage: adult
   scene: temple
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: ventras
@@ -174,7 +174,7 @@
 - id: adult.city_ventras_late_grain
   stage: adult
   scene: market
-  weight: 14
+  weight: 21
   when:
     age: [19, 64]
     city: { id: ventras, mood: [calm] }
@@ -285,7 +285,7 @@
 - id: adult.city_ventras_fever_barge
   stage: adult
   scene: ship_deck
-  weight: 6
+  weight: 9
   when:
     age: [19, 64]
     city: { id: ventras, mood: [calm, tense], home: [family, room, house, shop] }
@@ -336,7 +336,7 @@
 - id: adult.city_ventras_marthis_seat
   stage: adult
   scene: council_hall
-  weight: 30
+  weight: 45
   when:
     age: [25, 64]
     city: { id: ventras, min_rank: 3 }

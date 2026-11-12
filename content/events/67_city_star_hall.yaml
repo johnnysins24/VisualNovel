@@ -57,7 +57,7 @@
 # ---------- b ย่าน: ลานโคนต้น ----------
 - id: adult.city_star_hall_blue_lamp
   stage: adult
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: star_hall
@@ -103,7 +103,7 @@
 # ---------- c ย่าน: ชานนับ ----------
 - id: adult.city_star_hall_rope_chair
   stage: adult
-  weight: 22
+  weight: 33
   scene: star_hall
   when:
     age: [19, 64]
@@ -164,7 +164,7 @@
 # ---------- d เรื่องเริ่มตึง: รอยถากของค่ายตัดไม้ ----------
 - id: adult.city_star_hall_red_blazes
   stage: adult
-  weight: 14
+  weight: 21
   scene: road
   when:
     age: [19, 64]
@@ -260,7 +260,7 @@
 # ---------- f ไข้มาถึง: มากับคนส่งคำตอบ ----------
 - id: adult.city_star_hall_answer_fever
   stage: adult
-  weight: 6
+  weight: 9
   scene: road
   when:
     age: [19, 64]
@@ -305,7 +305,7 @@
 # ---------- g คนมีหน้ามีตา: ลาเธียขอลายมือชื่อ ----------
 - id: adult.city_star_hall_yearly_letter
   stage: adult
-  weight: 30
+  weight: 45
   scene: star_hall
   when:
     age: [25, 64]

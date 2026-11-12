@@ -54,7 +54,7 @@
 # ---------- b ย่าน: ลานถ่าน ----------
 - id: adult.city_foothill_market_smoulder
   stage: adult
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: foothill_market
@@ -99,7 +99,7 @@
 # ---------- c ย่าน: ปลายราง ----------
 - id: adult.city_foothill_market_dead_mans_slate
   stage: adult
-  weight: 22
+  weight: 33
   scene: tavern
   when:
     age: [19, 64]
@@ -153,7 +153,7 @@
 # ---------- d เรื่องเริ่มตึง: ราคาถ่านบนกระดาน (ไม่มีกรอบปี) ----------
 - id: adult.city_foothill_market_price_slate
   stage: adult
-  weight: 14
+  weight: 21
   scene: market
   when:
     age: [19, 64]
@@ -251,7 +251,7 @@
 # ---------- f ไข้มาถึง: มากับขบวนล่อ ----------
 - id: adult.city_foothill_market_mule_fever
   stage: adult
-  weight: 6
+  weight: 9
   scene: road
   when:
     age: [19, 64]
@@ -296,7 +296,7 @@
 # ---------- g คนมีหน้ามีตา: เวอร์นากับม้านั่งเตากลาง ----------
 - id: adult.city_foothill_market_middle_chimney
   stage: adult
-  weight: 30
+  weight: 45
   scene: tavern
   when:
     age: [25, 64]

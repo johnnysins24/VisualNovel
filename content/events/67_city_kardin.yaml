@@ -55,7 +55,7 @@
 - id: adult.city_kardin_pour_night
   stage: adult
   scene: smithy
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: kardin
@@ -107,7 +107,7 @@
 - id: adult.city_kardin_witness_bench
   stage: adult
   scene: belek_bank
-  weight: 22
+  weight: 33
   when:
     age: [19, 64]
     city: kardin
@@ -159,7 +159,7 @@
 - id: adult.city_kardin_due_day
   stage: adult
   scene: home
-  weight: 14
+  weight: 21
   when:
     age: [19, 64]
     city: { id: kardin, mood: [calm], home: [room, house, shop] }
@@ -211,7 +211,7 @@
 - id: adult.city_kardin_cold_train
   stage: adult
   scene: station
-  weight: 35
+  weight: 53
   when:
     age: [19, 64]
     city: { id: kardin, mood: [tense] }
@@ -262,7 +262,7 @@
 - id: adult.city_kardin_fever_train
   stage: adult
   scene: station
-  weight: 6
+  weight: 9
   when:
     age: [19, 64]
     city: { id: kardin, mood: [calm, tense] }
@@ -313,7 +313,7 @@
 - id: adult.city_kardin_wreck_account
   stage: adult
   scene: station
-  weight: 30
+  weight: 45
   when:
     age: [25, 64]
     city: { id: kardin, min_rank: 3 }

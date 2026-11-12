@@ -10,7 +10,7 @@
 - id: adult.arc_climb_1_the_weigh_house_seal
   stage: adult
   scene: noble_hall
-  weight: 11
+  weight: 13
   arc: { id: climb, step: 1 }
   when:
     age: [30, 52]
@@ -188,7 +188,7 @@
 - id: adult.arc_faith_1_the_afternoon_fever
   stage: adult
   scene: temple
-  weight: 11
+  weight: 13
   arc: { id: faith, step: 1 }
   when:
     age: [30, 54]
@@ -342,7 +342,7 @@
 - id: adult.arc_house_1_the_eighth_notch
   stage: adult
   scene: home
-  weight: 40
+  weight: 46
   arc: { id: house, step: 1 }
   when:
     age: [30, 56]
@@ -502,7 +502,7 @@
 - id: adult.arc_pillars_1_five_knots
   stage: adult
   scene: road
-  weight: 40
+  weight: 46
   arc: { id: pillars, step: 1 }
   when:
     age: [36, 58]

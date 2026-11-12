@@ -239,7 +239,7 @@
 
 - id: adult.fam_ward_of_kin
   stage: adult
-  weight: 9
+  weight: 15
   when:
     not_orgs: [wick]
     age: [36, 56]
@@ -300,7 +300,7 @@
 - id: adult.fam_ward_from_the_temple
   stage: adult
   scene: temple
-  weight: 14
+  weight: 22
   when:
     not_orgs: [wick]
     age: [40, 60]
@@ -359,7 +359,7 @@
 
 - id: adult.fam_ward_left_behind
   stage: adult
-  weight: 9
+  weight: 15
   when:
     not_orgs: [wick]
     age: [42, 60]

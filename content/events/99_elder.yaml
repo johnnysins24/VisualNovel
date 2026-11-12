@@ -515,7 +515,7 @@
 - id: adult.hearth_child
   stage: adult
   scene: temple
-  weight: 5
+  weight: 8
   when:
     not_orgs: [wick]
     age: [42, 60]

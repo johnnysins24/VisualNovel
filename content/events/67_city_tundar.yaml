@@ -55,7 +55,7 @@
 # ---------- b ย่าน: ชั้นโรงหลอม ----------
 - id: adult.city_tundar_back_walls
   stage: adult
-  weight: 22
+  weight: 33
   scene: smithy
   when:
     age: [19, 64]
@@ -109,7 +109,7 @@
 # ---------- c ย่าน: ถนนวนของตระกูล ----------
 - id: adult.city_tundar_six_bearers
   stage: adult
-  weight: 22
+  weight: 33
   scene: clan_hall
   when:
     age: [19, 64]
@@ -155,7 +155,7 @@
 # ---------- d เรื่องเริ่มตึง: ชั้นที่ก่อปิดตาย ----------
 - id: adult.city_tundar_bright_lead
   stage: adult
-  weight: 14
+  weight: 21
   scene: home
   when:
     age: [19, 64]
@@ -263,7 +263,7 @@
 # ---------- f ไข้มาถึง: มากับเรือเหาะ ----------
 - id: adult.city_tundar_airship_fever
   stage: adult
-  weight: 6
+  weight: 9
   scene: ship_deck
   when:
     age: [19, 64]
@@ -308,7 +308,7 @@
 # ---------- g คนมีหน้ามีตา: ผู้ถือค้อนสภาขอที่นั่ง ----------
 - id: adult.city_tundar_back_stool
   stage: adult
-  weight: 30
+  weight: 45
   scene: council_hall
   when:
     age: [25, 64]

@@ -271,7 +271,7 @@
 # ---------- 7 ปีที่หน้าตึง (ซ้ำได้) ----------
 - id: adult.town_tense_year
   stage: adult
-  weight: 16
+  weight: 24
   once: false
   when:
     age: [19, 70]
@@ -315,7 +315,7 @@
 # ---------- 8 ปีจลาจล (ซ้ำได้) ----------
 - id: adult.town_riot_year
   stage: adult
-  weight: 40
+  weight: 60
   once: false
   scene: home
   when:
@@ -376,7 +376,7 @@
 # ---------- 9 ปีไข้ (ซ้ำได้) ----------
 - id: adult.town_fever_year
   stage: adult
-  weight: 40
+  weight: 60
   once: false
   scene: home
   when:
@@ -429,7 +429,7 @@
 # ---------- 10 งานของถนน (ซ้ำได้) ----------
 - id: adult.town_street_work
   stage: adult
-  weight: 10
+  weight: 15
   once: false
   when:
     age: [19, 64]
@@ -473,7 +473,7 @@
 # ---------- 11 เพื่อนบ้านทะเลาะกัน (ซ้ำได้) ----------
 - id: adult.town_neighbours_quarrel
   stage: adult
-  weight: 10
+  weight: 15
   once: false
   scene: home
   when:
@@ -525,7 +525,7 @@
 # ---------- 12 สิบห้าปีบนถนนเดียว ----------
 - id: adult.town_fifteen_years
   stage: adult
-  weight: 25
+  weight: 38
   when:
     age: [34, 70]
     city: { native: false, min_years: 15, home: [room, house, shop] }
