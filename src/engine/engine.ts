@@ -274,7 +274,8 @@ export function playable(game: Game, life: LifeState, ev: GameEvent): boolean {
   if (!eligible(game, life, ev)) return false;
   const cast = bindCast(life, ev) ?? {};
   const there = { ...life, cast };
-  if (ev.encounter ? !openMoves(game, there, ev, 0).length : !ev.choices.some((c) => choiceAvailable(game, there, c, ev))) return false;
+  // ฉากที่เหลือแต่ทางเดินผ่าน (choice.pass) ให้กด คือฉากชวนที่ชีวิตนี้รับไม่ได้สักทาง ไม่ออก
+  if (ev.encounter ? !openMoves(game, there, ev, 0).length : !ev.choices.some((c) => !c.pass && choiceAvailable(game, there, c, ev))) return false;
   // เรื่องที่ต้องใช้เวลานานจริงไม่ออกในปีที่เวลาเดินได้สั้นกว่านั้น (ใกล้หมุดของโลก ใกล้ปีสุดท้าย)
   return !ev.min_years || spanOf(game, life, ev) >= ev.min_years;
 }

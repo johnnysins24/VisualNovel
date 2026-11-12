@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { lintContent } from '../src/engine/lint';
-import { applyEffects, eligible, makeGame, resolveChoice } from '../src/engine/engine';
+import { applyEffects, eligible, makeGame, playable, resolveChoice } from '../src/engine/engine';
 import { beginEncounter, openMoves, resolveMove, techniqueOf } from '../src/engine/encounter';
 import { huntLevel, membership, realmNow } from '../src/engine/orgs';
 import { commitLife, newMeta } from '../src/engine/meta';
@@ -185,6 +185,28 @@ describe('องค์กรลับและอาณาจักร', () => {
     const broken = structuredClone(raw) as typeof raw;
     (broken.events.find((e) => e.id === 'adult.eighth_winter') as { choices: object[] }).choices.push({ id: 'stay', label: 'x', effects: { org: { id: 'crown_army', merit: 1 } } });
     expect(lintContent(ContentSchema.parse(broken)).join('\n')).toContain('adult.eighth_winter: must ใช้กับ once: false ไม่ได้');
+  });
+
+  it('an offer nobody would make to this life does not come: a scene left with only its way past stays away', () => {
+    const more = structuredClone(raw) as typeof raw;
+    more.events.push({
+      id: 'adult.notice', stage: 'adult', text: 'x',
+      choices: [
+        { id: 'apply', label: 'x', requires: { not_traits: ['wound_knee'] }, effects: { org: { id: 'crown_army', join: true } } },
+        { id: 'walk_on', label: 'x', pass: true, text: 'x' },
+      ],
+    } as never);
+    const parsed = ContentSchema.parse(more);
+    expect(lintContent(parsed)).toEqual([]);
+    const g = makeGame(parsed);
+    const notice = g.events.find((e) => e.id === 'adult.notice')!;
+    expect(playable(g, adult(), notice)).toBe(true);
+    const lame = adult({ traits: ['wound_knee'] });
+    expect(eligible(g, lame, notice)).toBe(true);
+    expect(playable(g, lame, notice)).toBe(false);
+    // ฉากที่มีแต่ทางเดินผ่านจะไม่มีวันออก ตัวตรวจจึงไม่รับ
+    (more.events.at(-1) as unknown as { choices: object[] }).choices.shift();
+    expect(lintContent(ContentSchema.parse(more)).join('\n')).toContain('adult.notice: ทุกตัวเลือกเป็นทางเดินผ่าน');
   });
 
   it('the linter refuses cult scenes that do not say whether the member is known, open entry to a cult, and a hunt that could reach the hunters own people', () => {

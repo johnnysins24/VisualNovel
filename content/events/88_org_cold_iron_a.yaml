@@ -12,7 +12,7 @@
 - id: adult.iron_join_blue_still
   stage: adult
   scene: home
-  weight: 5
+  weight: 8
   time: night
   when:
     age: [25, 50]
@@ -68,7 +68,7 @@
 - id: adult.iron_join_old_soldier
   stage: adult
   scene: smithy
-  weight: 14
+  weight: 18
   when:
     age: [25, 50]
     any_flags: [war_veteran, job_mercenary]
@@ -177,7 +177,7 @@
 - id: adult.iron_join_charcoal_forge
   stage: adult
   scene: smithy
-  weight: 10
+  weight: 14
   when:
     age: [25, 50]
     any_flags: [job_smith, job_miner, job_docker]

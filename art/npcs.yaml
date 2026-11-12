@@ -401,7 +401,7 @@ named:
       body: m
       pieces: [face/basic, under/briefs, hair/m/short, mark/scar_brow, body/chainmail, over/tabard, feet/iron_boots, acc/gloves, offhand/lantern]
       choices: { skin: honey, hair: dark_brown, eyes: grey }
-      colors: { metal: metal_black, over/tabard.cloth: dye_black, over/tabard.trim: dye_mustard, offhand/lantern.metal: metal_demoncoal, offhand/lantern.fitting: metal_black }
+      colors: { metal: metal_black, over/tabard.cloth: dye_black, over/tabard.trim: dye_mustard, offhand/lantern.fitting: metal_black }
   sywel:
     name: ไซเวล (ผู้ดับ หญิงชราที่จำชื่อเดิมของตัวเองไม่ได้)
     look:

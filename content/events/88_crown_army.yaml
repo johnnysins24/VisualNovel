@@ -11,7 +11,7 @@
 - id: adult.army_market_drum
   stage: adult
   scene: market
-  weight: 6
+  weight: 9
   when:
     age: [20, 40]
     location_tag: [arvel_village, ventras, kardin]
@@ -59,6 +59,7 @@
         flags: [signed_without_the_staff]
     - id: buy_fish_and_go
       label: ซื้อปลาเค็มแผงข้างๆ แล้วเดินออกจากเสียงกลอง
+      pass: true
       text: |
         แม่ค้าปลาเค็มห่อปลาให้สองตัว ด้วยกระดาษที่ฉีกมาจากประกาศรับคนแผ่นเก่า บอกว่ากลองมาทุกปีนับเตา ปีไหนคนในตลาดอดมาก ปีนั้นกลองตีไม่ถึงเที่ยงก็ได้คนครบ
 
@@ -68,7 +69,7 @@
 - id: adult.army_short_count
   stage: adult
   scene: fort
-  weight: 14
+  weight: 22
   time: dusk
   when:
     age: [20, 40]
@@ -108,6 +109,7 @@
         flags: [serves_the_crown_with_hidden_horns]
     - id: point_to_the_tavern
       label: ถอยออกจากแถว บอกราเวคว่าเห็นทหารคนหนึ่งหลับอยู่หลังร้านเหล้า
+      pass: true
       text: |
         ราเวคส่งทหารสองคนไปหิ้วตัวกลับมา แล้วยืนรอที่ท้ายแถวจนพวกนั้นกลับมา แถวยืนรอไปด้วยจนน้ำค้างลงหมวก เขาแตะไหล่คนที่หิ้วกลับมาเป็นคนสุดท้าย แตะแรงกว่าคนอื่น
 

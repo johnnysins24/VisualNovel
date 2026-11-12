@@ -379,6 +379,9 @@ export function lintContent(c: Content): string[] {
       }
     }
     for (const ch of e.choices) if (ch.refuse && !e.duty) problems.push(`${where}/${ch.id}: refuse ใช้ได้เฉพาะในงานขององค์กร (event.duty)`);
+    // ทางเดินผ่าน: งานขององค์กรมี refuse ของตัวเองอยู่แล้ว และฉากที่มีแต่ทางเดินผ่านจะไม่มีวันออก
+    for (const ch of e.choices) if (ch.pass && (e.duty || e.must)) problems.push(`${where}/${ch.id}: pass ใช้กับงานขององค์กร (duty) หรือเหตุการณ์ must ไม่ได้`);
+    if (e.choices.some((ch) => ch.pass) && e.choices.every((ch) => ch.pass)) problems.push(`${where}: ทุกตัวเลือกเป็นทางเดินผ่าน (pass) ฉากนี้จะไม่มีวันออก`);
     if (e.hunt) {
       if (!hunters.has(e.hunt)) problems.push(`${where}: เรื่องถูกตามล่าโดย "${e.hunt}" แต่ไม่มีเหตุการณ์ไหนทำให้ฝ่ายนี้ตามล่า`);
       // คนในไม่โดนฝ่ายของตัวเองล่า: เรื่องที่ฝ่ายนี้ตามล่าต้องกันสมาชิกขององค์กรที่ขึ้นกับฝ่ายนี้ออก (เว้นองค์กรที่ศัตรูคือคนร่วมองค์กรเอง)

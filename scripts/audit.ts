@@ -393,7 +393,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
       if (!l.dying) (res.poolByAge.get(age) ?? res.poolByAge.set(age, []).get(age)!).push(pool.filter((e) => !e.fallback).length);
       // เรื่องหลายปีที่ปีนี้เหลือเวลาไม่ถึง min_years ไม่ออกโดยตั้งใจ ไม่นับเป็นปัญหา
       const tooShort = (e: (typeof open)[number]) => !!e.min_years && spanOf(game, l, e) < e.min_years;
-      for (const e of open) if (!pool.includes(e) && !tooShort(e)) bump(problems, `${e.id}: เข้าเงื่อนไขแต่ไม่มีตัวเลือกให้กด`);
+      // ฉากชวนที่ชีวิตนี้รับไม่ได้สักทาง (เหลือแต่ทางเดินผ่าน) ไม่ออกโดยตั้งใจเช่นกัน
+      const passOnly = (e: (typeof open)[number]) => e.choices.some((c) => c.pass && choiceAvailable(game, l, c, e));
+      for (const e of open) if (!pool.includes(e) && !tooShort(e) && !passOnly(e)) bump(problems, `${e.id}: เข้าเงื่อนไขแต่ไม่มีตัวเลือกให้กด`);
 
       // ---- must ที่รออยู่จากปีก่อน: ถ้าช่วงเวลาปิดไปแล้วโดยยังไม่ได้เห็น คือหลุด ----
       for (const [id, lostTo] of waiting) {
@@ -562,7 +564,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
         const civic = (x: (typeof choices)[number]) => [x.effects, x.success?.effects].some((fx) => (fx?.city?.merit ?? 0) > 0);
         const devout = (x: (typeof choices)[number]) => [x.effects, x.success?.effects].some((fx) => Object.values(fx?.taboo ?? {}).some((a) => a === 'keep' || a === 'mend'));
         const held = style === 'reads' ? choices.filter(devout) : [];
-        const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : held.length ? held : cityOf(l) ? choices.filter(civic) : [];
+        // วันครบสัญญา: ผู้เล่นที่อ่านเกมและรับงานทุกครั้งคือคนที่ตั้งใจอยู่ในสายงาน จึงต่อสัญญา
+        const renew = choices.filter((x) => [x.effects, x.success?.effects].some((fx) => fx?.org?.term));
+        const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : renew.length ? renew : held.length ? held : cityOf(l) ? choices.filter(civic) : [];
         const from = taking.length ? taking : choices;
         const c = from[r.int(0, from.length - 1)]!;
         l = resolveChoice(game, l, ev.id, c.id).life;

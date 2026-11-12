@@ -372,6 +372,11 @@ export const ChoiceSchema = z.object({
   text: z.string().optional(),
   /** งานขององค์กร (event.duty) เท่านั้น: ตัวเลือกนี้คือการปฏิเสธงาน เสียผลงาน ORG.refused และนับเป็นการปฏิเสธหนึ่งครั้ง */
   refuse: z.boolean().optional(),
+  /**
+   * ทางเดินผ่าน: ตัวเลือกที่ไม่รับสิ่งที่ฉากนี้ยื่นให้ (อ่านประกาศแล้วเดินต่อ คืนสมุดแล้วกลับบ้าน)
+   * ถ้าตัวเลือกที่กดได้เหลือแต่ทางเดินผ่าน ฉากนี้ไม่ออกกับชีวิตนั้น เช่น ประกาศรับคนของหลวงไม่ออกกับคนที่หลวงไม่รับ
+   */
+  pass: z.boolean().optional(),
   requires: RequiresSchema.optional(),
   check: CheckSchema.optional(),
   effects: EffectsSchema.optional(),
