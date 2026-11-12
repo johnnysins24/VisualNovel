@@ -7,10 +7,12 @@
  */
 import { loadContent } from './content';
 import { makeGame } from '../src/engine/engine';
-import { auditLives, formatReport } from './audit';
+import { auditLives, auditPartisans, formatReport } from './audit';
 
 const lives = Number(process.argv[2] ?? 2000);
 const game = makeGame(loadContent());
 const res = auditLives(game, lives);
+// ผู้เล่นที่เข้าข้างฝ่ายเดียว ฝ่ายละหนึ่งในยี่สิบของชีวิตหลัก (อย่างน้อย 30) ใช้วัดเป้าคะแนนโลกของยุคดาวเร่ง
+auditPartisans(game, res, Math.max(30, Math.round(lives / 20)));
 console.log(formatReport(game, res));
 process.exitCode = res.problems.size ? 1 : 0;

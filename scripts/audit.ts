@@ -3,13 +3,13 @@
  * ใช้ได้ทั้งจากคำสั่ง (scripts/audit-lives.ts) และจากเทสต์ (tests/slow/audit.test.ts)
  * ทุกอย่างคำนวณจาก seed จึงได้ผลเดิมทุกครั้ง
  */
-import { choiceAvailable, eligible, fightResting, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';
+import { choiceAvailable, eligible, fightResting, markLevel, pickEvent, playable, resolveChoice, spanOf, traitBlock, turnsLeft, type Game } from '../src/engine/engine';
 import { humanAge, newLife, stageAge, worldYear, type LifeState } from '../src/engine/state';
 import { personHumanAge } from '../src/engine/people';
 import { Rng } from '../src/engine/rng';
 import { STATS } from '../src/engine/schema';
 import { equip, maxHp } from '../src/engine/items';
-import { ARC, ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, HOME_KINDS, HOME_TH, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REALM_KEYS, REPEAT_GAP, STAT_CAP, TABOOS, TABOO_IDS, WORLD_KEYS, type CityId, type CityMood, type CourseId, type HomeKind, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
+import { ARC, ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CITY_MOOD_TH, CITY_RANKS, COURSES, COURSE_IDS, ERAS, HOME_KINDS, HOME_TH, MARKS, MARK_IDS, MARK_MAX, ORG, ORG_IDS, ORG_RANKS, ORGS, PROTECTED_AGE, RACES, RARITIES, RARITY_TH, REALM_KEYS, REPEAT_GAP, STAR_SIDE_TRAITS, STAT_CAP, TABOOS, TABOO_IDS, WORLD_CAP, WORLD_KEYS, type CityId, type CityMood, type CourseId, type HomeKind, type MarkId, type OrgId, type RaceId, type Rarity } from '../src/engine/balance';
 import { openArcs } from '../src/engine/arcs';
 import { defiesTaboo, keepsTaboo } from '../src/engine/land';
 import { dutiesDue, dutyResting } from '../src/engine/orgs';
@@ -65,6 +65,27 @@ export interface TownLife {
     /** ปีในโลกที่ใช้ตั้งแต่เข้าเรียนจนพ้นหลักสูตร */
     span: number;
   };
+}
+
+/** ชีวิตหนึ่งกับมาตรสองอัน: ขั้นสูงสุดที่เคยถึง จำนวนครั้งที่ถูกเรียก และสิ่งติดตัวจากฟ้าที่เคยมี (สถานะตอนจบชีวิตไม่ได้เก็บสิ่งที่หายไปแล้ว) */
+export interface MarkLife {
+  peak: Record<MarkId, number>;
+  called: Record<MarkId, number>;
+  /** สิ่งติดตัวฝั่งฟ้าที่เคยมี ไม่นับรอยดาวเอง */
+  sky: Set<string>;
+  /** คะแนนโลกสามฝ่ายตอนชีวิตเดินเข้ายุคดาวเร่ง (ไม่มี = ชีวิตจบก่อนยุค) ใช้หาว่าได้เท่าไรระหว่างยุค */
+  entry?: Record<Side, number>;
+}
+/** สามฝ่ายของโลกที่ชีวิตหนึ่งเข้าข้างได้ */
+export const SIDES = ['gods', 'star', 'demon'] as const;
+export type Side = (typeof SIDES)[number];
+/**
+ * ตัวเลือกของการจำลอง: partisan = ผู้เล่นที่เลือกทางของฝ่ายนั้นทุกครั้งที่มีทางให้เลือก (ใช้วัดเป้าคะแนนโลกของชุด 5)
+ * seedFrom = เลขชีวิตแรก ชีวิตของผู้เล่นแบบนี้ใช้เลขชุดอื่น จึงไม่ปนกับชีวิตหลักของรายงาน
+ */
+export interface AuditOpts {
+  partisan?: Side;
+  seedFrom?: number;
 }
 
 /** ชีวิตหนึ่งกับองค์กรหนึ่ง: นับตั้งแต่วันที่เข้า แม้ภายหลังจะออก (สถานะในเกมหายไปตอนออก จึงต้องจดไว้ที่นี่) */
@@ -297,9 +318,13 @@ export interface AuditResult {
   };
   /** เมืองและหลักสูตร: เรียงตรงกับ finals */
   towns: TownLife[];
+  /** มาตรรอยดาวกับตราร้อน และสิ่งติดตัวจากฟ้า: เรียงตรงกับ finals */
+  marks: MarkLife[];
+  /** ชีวิตของผู้เล่นที่เข้าข้างฝ่ายเดียวทุกครั้ง (เล่นแยกจากชีวิตหลัก ดู auditPartisans) */
+  partisans?: Partial<Record<Side, { finals: LifeState[]; marks: MarkLife[] }>>;
 }
 
-export function auditLives(game: Game, lives: number): AuditResult {
+export function auditLives(game: Game, lives: number, opts: AuditOpts = {}): AuditResult {
   const res: AuditResult = {
     lives,
     events: game.events.length,
@@ -326,12 +351,14 @@ export function auditLives(game: Game, lives: number): AuditResult {
     gear: { perLife: [], boughtById: new Map(), lootById: new Map() },
     orgs: { perLife: [], hunts: new Map() },
     towns: [],
+    marks: [],
   };
   const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
   const mustEvents = game.events.filter((e) => e.must);
 
-  for (let seed = 1; seed <= lives; seed++) {
+  const seedFrom = opts.seedFrom ?? 1;
+  for (let seed = seedFrom; seed < seedFrom + lives; seed++) {
     let l = newLife(seed);
     const r = new Rng(seed * 7919 + 13);
     const inLife = new Map<string, number>();
@@ -378,6 +405,16 @@ export function auditLives(game: Game, lives: number): AuditResult {
         else if (!now.alive) c.end = 'died';
       }
     };
+    const markLife: MarkLife = { peak: { star: 0, brand: 0 }, called: { star: 0, brand: 0 }, sky: new Set() };
+    /** จดมาตรสองอันหลังทุกเหตุการณ์ */
+    const noteMarks = (was: LifeState, now: LifeState) => {
+      for (const id of MARK_IDS) {
+        markLife.peak[id] = Math.max(markLife.peak[id], markLevel(now, id));
+        if (now.flags.includes(MARKS[id].called) && !was.flags.includes(MARKS[id].called)) markLife.called[id]++;
+      }
+      for (const t of now.traits) if (t !== MARKS.star.trait && STAR_SIDE_TRAITS.includes(t)) markLife.sky.add(t);
+    };
+    const quickening = ERAS.find((e) => e.id === 'quickening')!;
     /** must ที่เข้าเงื่อนไขแล้วแต่ยังไม่ได้ออก → เรื่องที่แซงไปตอนมันเหลือโอกาสสุดท้าย (ถ้ามี) */
     const waiting = new Map<string, string | null>();
 
@@ -489,6 +526,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
       if (ev.stage === 'death') bump(res.deathScenes, ev.id);
 
       const before = l;
+      if (!markLife.entry && worldYear(l) >= quickening.from) markLife.entry = { gods: l.world.gods, star: l.world.star, demon: l.world.demon };
       /** ชื่อของสิ่งที่เพิ่งเลือก ใช้ในรายงาน และผลที่เพิ่งใช้ */
       let did: string;
       let fxs: (Effects | undefined)[];
@@ -567,7 +605,9 @@ export function auditLives(game: Game, lives: number): AuditResult {
         // วันครบสัญญา: ผู้เล่นที่อ่านเกมและรับงานทุกครั้งคือคนที่ตั้งใจอยู่ในสายงาน จึงต่อสัญญา
         const renew = choices.filter((x) => [x.effects, x.success?.effects].some((fx) => fx?.org?.term));
         const taking = style !== 'reads' ? [] : ev.duty ? choices.filter((x) => !x.refuse) : renew.length ? renew : held.length ? held : cityOf(l) ? choices.filter(civic) : [];
-        const from = taking.length ? taking : choices;
+        // ผู้เล่นที่เข้าข้างฝ่ายเดียว: มีทางของฝ่ายนั้นเมื่อไรเลือกทางนั้น
+        const sided = opts.partisan ? choices.filter((x) => [x.effects, x.success?.effects].some((fx) => (fx?.world?.[opts.partisan!] ?? 0) > 0)) : [];
+        const from = sided.length ? sided : taking.length ? taking : choices;
         const c = from[r.int(0, from.length - 1)]!;
         l = resolveChoice(game, l, ev.id, c.id).life;
         did = `${ev.id}/${c.id}`;
@@ -576,6 +616,7 @@ export function auditLives(game: Game, lives: number): AuditResult {
 
       noteOrgs(l);
       noteTown(before, l);
+      noteMarks(before, l);
       const paid = l.log.at(-1)?.encounter?.bounty;
       if (paid) for (const id of ORG_IDS) if (ORGS[id].bounty && orgLife[id]) orgLife[id]!.bounty += paid;
 
@@ -638,11 +679,22 @@ export function auditLives(game: Game, lives: number): AuditResult {
     res.gear.perLife.push(gearLife);
     res.orgs.perLife.push(orgLife);
     res.towns.push(town);
+    res.marks.push(markLife);
     fights.perLife.push(fought);
   }
 
   res.overlap = measureOverlap(res.finals);
   return res;
+}
+
+/** เล่นชีวิตของผู้เล่นที่เข้าข้างฝ่ายเดียวทุกครั้ง ฝ่ายละ n ชีวิต ด้วยเลขชีวิตชุดอื่น แล้วแนบผลไว้กับรายงานหลัก */
+export function auditPartisans(game: Game, res: AuditResult, n: number): void {
+  res.partisans = {};
+  SIDES.forEach((side, i) => {
+    const run = auditLives(game, n, { partisan: side, seedFrom: 500_001 + i * 10_000 });
+    res.partisans![side] = { finals: run.finals, marks: run.marks };
+    for (const [k, v] of run.problems) bump(res.problems, `[ผู้เล่นฝ่าย ${side}] ${k}`, v);
+  });
 }
 
 /** สองชีวิตเจอเหตุการณ์ซ้ำกันกี่ส่วน (นับเฉพาะชีวิตที่ถึงอายุ 40 เทียบกับชีวิตที่สั้นกว่าในคู่) */
@@ -946,6 +998,49 @@ export function formatReport(game: Game, res: AuditResult): string {
         for (let i = 1; i < ages.length; i++) gaps.push(ages[i]! - ages[i - 1]!);
       }
       out.push(`- ${ARC_TH[id]}: เจอตอนแรก ${met.length} ชีวิต (${pct(met.length, grown.length)}) · ${steps} · ปิดเรื่อง ${closed} · ค้างเลยกำหนด ${stuck}${gaps.length ? ` · ระยะระหว่างตอน กลาง ${median(gaps)} ปี` : ''}`);
+    }
+  }
+
+  h('ยุคดาวเร่ง: มาตรสองอัน สิ่งจากฟ้า และคะแนนโลก');
+  {
+    const first = ERAS.find((e) => e.id === 'quickening');
+    const rows = finals.map((l, i) => ({ l, m: res.marks[i]! }));
+    const lastYear = (l: LifeState) => l.birthYear + l.age;
+    const era = first ? rows.filter((x) => lastYear(x.l) >= first.from) : [];
+    if (!first || !era.length) out.push('- ไม่มีชีวิตไหนอยู่ถึงยุคดาวเร่ง');
+    else {
+      out.push(`- ชีวิตที่อยู่ถึงปี ${first.from}: ${era.length} (${pct(era.length, lives)}) · อยู่จนพ้นยุค (ปี ${first.to + 1}) ${pct(era.filter((x) => lastYear(x.l) > first.to).length, era.length)}`);
+      const born = (x: (typeof era)[number], id: MarkId) => !!MARKS[id].born && x.l.flags.includes(MARKS[id].born!);
+      for (const id of MARK_IDS) {
+        // คนที่เกิดมาพร้อมมาตร (ทีฟลิ่งกับตราร้อน) นับแยก เพราะขั้น 1 ของเขาไม่ได้มาจากการเลือก
+        const own = era.filter((x) => !born(x, id));
+        const peaks = Array.from({ length: MARK_MAX + 1 }, (_, k) => `ขั้น ${k} ${pct(own.filter((x) => x.m.peak[id] === k).length, own.length)}`);
+        const calledOnce = own.filter((x) => x.m.called[id] > 0).length;
+        const taken = own.filter((x) => x.l.deathCause === 'taken' && x.l.flags.includes(id === 'star' ? 'answered_the_sky' : 'walked_east_at_the_call')).length;
+        const natives = era.filter((x) => born(x, id));
+        out.push(`- ${game.traits.get(MARKS[id].trait)?.name ?? id} (ขั้นสูงสุดที่เคยถึง จาก ${own.length} ชีวิต): ${peaks.join(' · ')} · ถูกเรียก ${pct(calledOnce, own.length)} (เกินหนึ่งครั้ง ${pct(own.filter((x) => x.m.called[id] > 1).length, own.length)}) · ไปตามเสียงเรียก ${pct(taken, own.length)} · ยังติดตัวตอนจบ ${pct(own.filter((x) => markLevel(x.l, id) > 0).length, own.length)}`);
+        if (natives.length) out.push(`  - เกิดมาพร้อมมาตรนี้ ${natives.length} ชีวิต: ขั้นสูงสุด ${Array.from({ length: MARK_MAX }, (_, k) => `ขั้น ${k + 1} ${pct(natives.filter((x) => x.m.peak[id] === k + 1).length, natives.length)}`).join(' · ')} · ถูกเรียก ${pct(natives.filter((x) => x.m.called[id] > 0).length, natives.length)}`);
+      }
+      const sky = STAR_SIDE_TRAITS.filter((t) => t !== MARKS.star.trait && game.traits.has(t));
+      out.push(`- สิ่งติดตัวจากฟ้าที่เคยมี: ${sky.map((t) => `${game.traits.get(t)!.name} ${pct(era.filter((x) => x.m.sky.has(t)).length, era.length)} (ยังอยู่ตอนจบ ${pct(era.filter((x) => x.l.traits.includes(t)).length, era.length)})`).join(' · ')}`);
+      out.push(`- มีสิ่งจากฟ้าอย่างน้อยหนึ่งอย่าง ${pct(era.filter((x) => x.m.sky.size > 0).length, era.length)} · สองอย่างขึ้นไป ${pct(era.filter((x) => x.m.sky.size > 1).length, era.length)}`);
+      // คะแนนโลกของชีวิตที่อยู่จนพ้นยุค: ฝ่ายที่สูงสุดของแต่ละชีวิตคือฝ่ายที่ชีวิตนั้นเอนไปหา (เป้าของชุด 5: คนที่เข้าข้างฝ่ายเดียวตลอดยุคได้ 12 ถึง 16)
+      const through = era.filter((x) => lastYear(x.l) > first.to);
+      const sides = SIDES;
+      const line = (xs: number[]) => (xs.length ? `กลาง ${median(xs)} ช่วง 10–90% ${quantile(xs, 0.1)}–${quantile(xs, 0.9)} สูงสุด ${Math.max(...xs)}` : 'ไม่มี');
+      for (const k of sides) out.push(`- คะแนนโลกฝ่าย ${k} ตอนจบ (ชีวิตที่พ้นยุค ${through.length}): ${line(through.map((x) => x.l.world[k]))}`);
+      out.push(`- ฝ่ายที่สูงสุดของแต่ละชีวิต: ${line(through.map((x) => Math.max(...sides.map((k) => x.l.world[k]))))} · ถึง 12 ขึ้นไป ${pct(through.filter((x) => Math.max(...sides.map((k) => x.l.world[k])) >= 12).length, through.length)} · ชนเพดาน ${WORLD_CAP} ${pct(through.filter((x) => Math.max(...sides.map((k) => x.l.world[k])) >= WORLD_CAP).length, through.length)}`);
+      const gain = (x: { l: LifeState; m: MarkLife }, k: Side) => x.l.world[k] - (x.m.entry?.[k] ?? 0);
+      out.push(`- ได้ระหว่างยุค (ปี ${first.from} ถึงจบชีวิต ของชีวิตที่พ้นยุค): ${sides.map((k) => `${k} ${line(through.map((x) => gain(x, k)))}`).join(' · ')}`);
+      // ผู้เล่นที่เข้าข้างฝ่ายเดียวทุกครั้งที่มีทาง: เป้าคือได้ 12 ถึง 16 ระหว่างยุค
+      for (const k of sides) {
+        const p = res.partisans?.[k];
+        if (!p) continue;
+        const ps = p.finals.map((l, i) => ({ l, m: p.marks[i]! })).filter((x) => lastYear(x.l) > first.to && x.m.entry);
+        out.push(`- ผู้เล่นที่เข้าข้างฝ่าย ${k} ทุกครั้งที่มีทาง (${p.finals.length} ชีวิต พ้นยุค ${ps.length}): ได้ระหว่างยุค ${line(ps.map((x) => gain(x, k)))} · ตอนจบ ${line(ps.map((x) => x.l.world[k]))} · ถูกเรียก ${pct(ps.filter((x) => x.m.called.star + x.m.called.brand > 0).length, ps.length)} · ไปตามเสียงเรียก ${pct(p.finals.filter((l) => l.deathCause === 'taken').length, p.finals.length)}`);
+      }
+      const pins = game.events.filter((e) => e.must && e.id.startsWith('adult.world_') && (e.when.year?.[0] ?? 0) >= first.from && (e.when.year?.[0] ?? 0) <= first.to + 1);
+      out.push(`- หมุดของยุค (ชีวิตที่ได้เจอ): ${pins.map((e) => `${e.id.replace('adult.world_', '')} ${res.seenEvents.get(e.id) ?? 0}`).join(' · ') || 'ไม่มี'}`);
     }
   }
 

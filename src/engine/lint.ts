@@ -1,6 +1,6 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, TABOOS, TABOO_IDS, type CityId, type CourseId, type OrgId, type TabooAct, type TabooId } from './balance';
+import { ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, MARKS, MARK_IDS, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, STAR_SIDE_TRAITS, TABOOS, TABOO_IDS, type CityId, type CourseId, type OrgId, type TabooAct, type TabooId } from './balance';
 import type { TabooCond } from './land';
 import { unknownPlaceholders } from './text';
 import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
@@ -60,6 +60,15 @@ export function lintContent(c: Content): string[] {
       noteOrg(fx);
       noteCity(fx);
       noteTaboo(fx);
+      // มาตรที่ถูกดัน: ระบบให้สิ่งติดตัวประจำมาตร และตั้ง flag ถูกเรียกเองเมื่อเกินขั้นสุดท้าย
+      for (const id of MARK_IDS) {
+        const d = fx?.marks?.[id] ?? 0;
+        // มาตรที่จางลงจนพ้นขั้นหนึ่งคือทางถอดสิ่งติดตัวประจำมาตร
+        if (d < 0) lostTraits.add(MARKS[id].trait);
+        if (d <= 0) continue;
+        setTraits.add(MARKS[id].trait);
+        setFlags.add(MARKS[id].called);
+      }
     }
     for (const ch of e.choices) {
       for (const fx of outcomes(ch)) {
@@ -262,6 +271,8 @@ export function lintContent(c: Content): string[] {
   if (deathScenes.length) {
     // สิ้นอายุขัยไม่มีข้อความเล่าก่อน การเสียสละเล่าไปแล้วเสมอ (die: sacrifice) แผลกับการปะทะเป็นได้ทั้งสองแบบ
     const cases: [(typeof DEATH_CAUSES)[number], boolean][] = [['age', false], ['wound', false], ['wound', true], ['fight', false], ['fight', true], ['sacrifice', true]];
+    // ถูกเรียกไป (die: taken) เล่าความตายไปแล้วเสมอ ต้องมีฉากตายของมันเมื่อเนื้อหามีทางให้ชีวิตจบแบบนี้
+    if (c.events.some((e) => e.choices.some((ch) => outcomes(ch).some((fx) => fx?.die === 'taken')))) cases.push(['taken', true]);
     for (const [cause, told] of cases) {
       if (!deathScenes.some((e) => e.when.dying?.includes(cause) && (e.when.told === undefined || e.when.told === told) && unconditional(e))) {
         problems.push(`ฉากตาย: เหตุ "${cause}" ${told ? 'ที่เล่าความตายไปแล้ว (told: true)' : 'ที่ยังไม่ได้เล่าความตาย (told: false)'} ไม่มีฉากที่ออกได้เสมอ (ไม่มีเงื่อนไขอื่นและไม่ต้องมีตัวแสดง)`);
@@ -311,7 +322,11 @@ export function lintContent(c: Content): string[] {
     const termOrg = typeof w.org === 'object' && w.org.min_years !== undefined ? w.org.id : undefined;
     const closesTerm = (fx: Effects | undefined) => fx?.org?.id === termOrg && !!(fx?.org?.leave || fx?.org?.term);
     const termEnds = !!termOrg && !e.encounter && e.choices.length > 0 && e.choices.every((ch) => (ch.check ? closesTerm(ch.success?.effects) && closesTerm(ch.failure?.effects) : closesTerm(ch.effects)));
-    if (e.must && !e.once && !termEnds) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด) เว้นแต่วันครบสัญญาที่มี when.org.min_years และทุกทางมี org.leave หรือ org.term`);
+    // อีกแบบคือฉากถูกเรียกของมาตรรอยดาวกับตราร้อน: เงื่อนไขคือ flag ถูกเรียก และทุกทางล้าง flag นั้นหรือจบชีวิต
+    const called = MARK_IDS.map((id) => MARKS[id].called).find((f) => w.flags?.includes(f));
+    const closesCall = (fx: Effects | undefined) => !!fx?.die || !!(called && fx?.clear_flags?.includes(called));
+    const callEnds = !!called && !e.encounter && e.choices.length > 0 && e.choices.every((ch) => (ch.check ? closesCall(ch.success?.effects) && closesCall(ch.failure?.effects) : closesCall(ch.effects)));
+    if (e.must && !e.once && !termEnds && !callEnds) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด) เว้นแต่วันครบสัญญาที่มี when.org.min_years และทุกทางมี org.leave หรือ org.term หรือฉากถูกเรียกที่ทุกทางล้าง flag ถูกเรียกหรือจบชีวิต`);
     if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !w.city && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร เมือง หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
     // ---- องค์กร: งานที่ส่งมา และเรื่องถูกตามล่า ----
     const orgOf = (cond: Requires['org']) => (typeof cond === 'string' ? cond : cond?.id);
@@ -461,6 +476,16 @@ export function lintContent(c: Content): string[] {
       if (fx?.partner?.pool && !poolIds.has(fx.partner.pool)) problems.push(`${cw}: partner.pool "${fx.partner.pool}" ไม่มีใน names.yaml`);
       for (const t of [...(fx?.traits ?? []), ...(fx?.lose_traits ?? []), ...Object.keys(fx?.trait_step ?? {})]) knownTrait(cw, t);
       for (const t of Object.keys(fx?.trait_step ?? {})) if (registry.get(t) && !registry.get(t)!.steps) problems.push(`${cw}: trait_step "${t}" ไม่ใช่สิ่งติดตัวที่มีหลายขั้น`);
+      // มาตรสองอันไม่อยู่ในตัวคนเดียวกัน: ผลที่ให้หรือดันมาตรฝั่งหนึ่ง (และคำสาปของผู้อยู่นอกฟ้า) ต้องไม่ออกกับคนที่ถือฝั่งตรงข้าม
+      // ไม่อย่างนั้นข้อความเล่าว่าติด แต่ระบบไม่ให้ติด
+      for (const id of MARK_IDS) {
+        const def = MARKS[id], other = MARKS[def.other].trait;
+        const side = id === 'star' ? STAR_SIDE_TRAITS : [def.trait];
+        if (!((fx?.marks?.[id] ?? 0) > 0 || fx?.traits?.some((t) => side.includes(t)))) continue;
+        type Gate = Pick<Requires, 'not_traits' | 'marks' | 'trait'> | undefined;
+        const barred = (g: Gate) => !!g?.not_traits?.includes(other) || g?.marks?.[def.other]?.[1] === 0 || (g?.marks?.[id]?.[0] ?? 0) >= 1 || g?.trait === def.trait;
+        if (!barred(w) && !barred(r)) problems.push(`${cw}: ให้หรือดันมาตร "${id}" ต้องกันคนที่ถือฝั่งตรงข้ามด้วย not_traits: [${other}] ที่ when หรือ requires (สองมาตรไม่อยู่ในตัวคนเดียวกัน)`);
+      }
       for (const t of fx?.traits ?? []) {
         if (registry.get(t)?.big && !bigRoomOk) problems.push(`${cw}: ให้ของใหญ่ "${t}" ต้องกันด้วย big_room: true ที่ when หรือ requires`);
       }

@@ -722,3 +722,33 @@ button.itile:hover { border-color: var(--r); }
 .mooddot { width: 7px; height: 7px; border-radius: 50%; flex: none; margin-left: 5px; background: var(--gold); display: inline-block; }
 .mooddot.m-riot { background: var(--bad); } .mooddot.m-plague { background: var(--curse); }
 .changes .m-tense { color: var(--gold); } .changes .m-riot { color: var(--bad); } .changes .m-plague { color: var(--curse); }
+
+/* ---------- แถบยุคในแท็บโลก (ชุด 5) ---------- */
+.eracard { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.era-head { margin: 0; display: flex; align-items: baseline; gap: 10px; }
+.era-head b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.era-head .num { margin-left: auto; font-size: .8rem; }
+.era-line { display: grid; gap: 4px; }
+.era-bar { position: relative; display: grid; gap: 3px; height: 8px; }
+.era-bar i { border-radius: 4px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+.era-bar i.ahead { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 14%, transparent) 0 3px, transparent 3px 6px); }
+.era-bar u { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: color-mix(in srgb, var(--ink) 34%, transparent); text-decoration: none; }
+.era-bar b { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.era-bar em { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); }
+.era-names { display: grid; gap: 3px; font-size: .68rem; color: var(--muted); min-height: 1.2em; }
+.era-names span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.era-names span.on { color: var(--ink); }
+.era-last { margin: 0; display: flex; align-items: baseline; gap: 8px; font-size: .86rem; }
+.era-last .num { font-size: .72rem; }
+.era-marks { display: grid; gap: 0; }
+.era-marks li { display: grid; grid-template-columns: 30px 14px 1fr; gap: 0 8px; align-items: baseline; font-size: .9rem; line-height: 1.5; padding: 2px 0; }
+.era-marks .num { text-align: right; color: var(--muted); font-size: .72rem; }
+.era-marks i { position: relative; align-self: stretch; }
+.era-marks i::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line); }
+.era-marks i::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--accent); }
+.era-marks li:first-child i::before { top: 50%; } .era-marks li:last-child i::before { bottom: 50%; }
+.era-more { justify-self: start; min-height: 32px; padding: 0 2px; font-size: .78rem; color: var(--accent); }
+.era-chip { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); font-size: .86rem; }
+.era-chip .icon { width: 14px; height: 14px; align-self: center; color: var(--muted); }
+.era-chip b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.era-chip .num { font-size: .8rem; color: var(--muted); }

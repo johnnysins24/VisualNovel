@@ -193,6 +193,14 @@ export const REALM_ERAS: readonly { from: number; shift: Partial<Record<RealmKey
   { from: 324, shift: { peace: -1 } },
   // หนี้สงครามถ่านครบกำหนด คนแคระหยุดส่งถ่าน คลังต้องจ่ายธนาคารด้วยเงินที่ไม่มี
   { from: 332, shift: { treasury: -2 } },
+  // ยุคดาวเร่ง (ชุด 5): ปีเขาพันคู่ ศาสนจักรตะเกียงออกล่าครั้งใหญ่
+  { from: 355, shift: { peace: -1 } },
+  // ป้อมที่สามแตก ทหารถอนจากทางสายไกลไปยืนฝั่งตะวันออก
+  { from: 361, shift: { peace: -1 } },
+  // กองเรือสำรวจไม่กลับลงมา คลังจ่ายค่าเรือที่ไม่มีแล้ว
+  { from: 367, shift: { treasury: -1 } },
+  // ตราเทาย้ายไปคาร์ดิน อาณาจักรมีสองเมืองที่ต่างบอกว่าตัวเองคืออาณาจักร
+  { from: 373, shift: { throne: -2 } },
 ];
 
 // ---------- รอยจอมมาร ----------
@@ -200,6 +208,37 @@ export const REALM_ERAS: readonly { from: number; shift: Partial<Record<RealmKey
 export const DEMON_MARK_TRAIT = 'curse_brand';
 /** รหัสสิ่งติดตัวในเซฟและเนื้อหาเก่า → รหัสในทะเบียน */
 export const TRAIT_RENAMES: Record<string, string> = { demon_mark: 'curse_brand', born_empty_day: 'empty_day' };
+
+// ---------- มาตรสองอัน: รอยดาวกับตราร้อน ----------
+/**
+ * ตัวละครทุกคนมีมาตรสองอัน รอยดาวคือฝั่งดาวมองเห็นตัวแค่ไหน ตราร้อนคือฝั่งจอมมารถือตัวไว้แค่ไหน แต่ละมาตรคือสิ่งติดตัวหนึ่งอย่างที่มีสามขั้น
+ * ระดับ 0 = ไม่มีสิ่งติดตัวนั้น ระดับ 1 ถึง 3 = ขั้นของมัน เนื้อเรื่องขยับด้วย effects.marks และถามด้วยเงื่อนไข marks (กติกาใน engine.ts applyMarks)
+ * - สองมาตรไม่อยู่ในตัวคนเดียวกัน คนที่มีตราร้อนฝั่งดาวมองไม่เห็น คนที่มีรอยดาวจอมมารเอื้อมไม่ถึง ผลที่ดันมาตรฝั่งตรงข้ามจึงไม่มีผล
+ * - ดันต่อจากขั้นสุดท้ายแล้วตัวละครถูกเรียก (flag called) ฉากถูกเรียกเป็นเหตุการณ์ must ของเนื้อเรื่อง ของที่สวมดันได้ถึงขั้นสุดท้ายเท่านั้น ไม่เรียก
+ * - ลดลงจากขั้นหนึ่งแล้วสิ่งติดตัวหลุด ยกเว้นตราร้อนของคนที่เกิดมากับมัน (born) ซึ่งไม่ต่ำกว่าขั้นหนึ่ง
+ */
+export const MARK_IDS = ['star', 'brand'] as const;
+export type MarkId = (typeof MARK_IDS)[number];
+export const MARKS: Record<MarkId, { trait: string; other: MarkId; called: string; born?: string }> = {
+  star: { trait: 'curse_star_marks', other: 'brand', called: 'star_called' },
+  brand: { trait: 'curse_brand', other: 'star', called: 'brand_called', born: 'race_tiefling' },
+};
+export const MARK_MAX = 3;
+/**
+ * คำสาปของผู้อยู่นอกฟ้า: ฝั่งดาวมองไม่เห็นคนที่มีตราร้อน คำสาปพวกนี้จึงไม่ติดคนมีตรา (ชื่อหายไม่อยู่ในนี้ เพราะผีไร้ชื่อซึ่งไม่ใช่ฝั่งดาวก็เอาชื่อไปได้)
+ * ตัวตรวจเนื้อเรื่องบังคับให้ผลที่ให้คำสาปพวกนี้อยู่หลังเงื่อนไขที่กันคนมีตราร้อน
+ */
+export const STAR_SIDE_TRAITS: readonly string[] = ['curse_star_marks', 'curse_watcher', 'curse_hum', 'curse_glass', 'curse_not_yet', 'curse_sea', 'curse_shadow', 'curse_hunger'];
+
+// ---------- ยุคของโลก ----------
+/** ยุคที่ชีวิตของผู้เล่นเดินผ่านได้ ใช้กับแถบยุคในแท็บโลกและรายงานชีวิตจำลอง ปีสุดท้ายของเนื้อเรื่องคือ STORY_END_YEAR */
+export const ERAS = [
+  { id: 'starlight', th: 'ยุคแสงดาว', from: 241, to: 339 },
+  { id: 'quickening', th: 'ยุคดาวเร่ง', from: 340, to: 379 },
+  { id: 'two_perils', th: 'สงครามสองภัย', from: 380, to: 410 },
+] as const;
+export type EraId = (typeof ERAS)[number]['id'];
+export const eraOf = (year: number) => ERAS.find((e) => year >= e.from && year <= e.to) ?? (year < ERAS[0].from ? ERAS[0] : ERAS[ERAS.length - 1]!);
 export const FOE_SIDES = ['demon', 'star', 'machine', 'nature', 'human'] as const;
 export type FoeSide = (typeof FOE_SIDES)[number];
 
@@ -317,7 +356,7 @@ export const MATERIALS: Record<MaterialId, { th: string; gives?: string; costs?:
   black_iron: { th: 'เหล็กดำ', costs: 'เกราะหนัก หนียากขึ้น 1', costsOn: 'body' },
   ileth_wood: { th: 'ไม้ไอเลธ' },
   star_silver: { th: 'เงินดาว', gives: '+2 เมื่อเผชิญฝ่ายจอมมาร', costs: 'สวมติดตัวหลายปี รอยดาวขึ้นบนผิว' },
-  demon_coal: { th: 'หินถ่านมาร', gives: '+2 เมื่อเผชิญสิ่งที่มาจากดาว', costs: 'จอมมารรู้ว่าใครถือ และศาสนจักรห้ามพก' },
+  demon_coal: { th: 'หินถ่านมาร', gives: '+2 เมื่อเผชิญสิ่งที่มาจากดาว', costs: 'จอมมารรู้ว่าใครถือ ศาสนจักรห้ามพก และตราร้อนของคนที่สวมนานจะลุกลาม' },
   cold_iron: { th: 'เหล็กเย็น', gives: '+2 เมื่อเผชิญภูตผีและผู้ใช้เวท', costs: 'ผู้สวมร่ายเวทและขอพรไม่ได้' },
 };
 
@@ -338,7 +377,8 @@ export const ITEM_TAG_TH: Record<ItemTag, string> = { ...FOE_TAG_TH, rope: 'เ�
  * edge     = แต้มเมื่อสวมของที่ทำจากวัสดุที่ได้เปรียบศัตรูฝ่ายนั้น (บุก ชิงจังหวะ ตั้งรับ) ไม่ทบกันหลายชิ้น
  * heavyFlee= เกราะตัวที่ทำจากเหล็กดำทำให้หนียากขึ้นเท่านี้ · thrown = ของขว้างที่ไม่ตรงจุดอ่อนยังได้แต้มเท่านี้
  * starSilver = สวมเงินดาวครบ first ปีได้รอยดาว แล้วลุกลามหนึ่งขั้นทุก every ปีที่ยังสวม (ทีฟลิ่งไม่ติดรอยดาว)
- * demonCoal  = สวมหินถ่านมารข้ามปี คะแนนจอมมารของโลก +demon ต่อปี และชื่อเสียงกับศาสนจักรตะเกียง −1 ทุก church ปี
+ * demonCoal  = สวมหินถ่านมารข้ามปี คะแนนจอมมารของโลก +demon ต่อปี รวมทั้งชีวิตไม่เกิน demonMax (ของที่สวมอย่างเดียวพาโลกไปไม่ถึงครึ่งทาง ที่เหลือต้องมาจากทางที่เลือก) และชื่อเสียงกับศาสนจักรตะเกียง −1 ทุก church ปี
+ *              คนที่มีตราร้อนสวมครบ brand.first ปีตราลุกลามหนึ่งขั้น แล้วลุกลามอีกทุก brand.every ปีที่ยังสวม (คนไม่มีตราไม่ได้ตราจากของ ตรามาจากข้อตกลงเท่านั้น)
  * lootMax  = ชนะการปะทะหนึ่งครั้งได้ของจากศัตรูไม่เกินเท่านี้ชิ้น · winterMax = แต้มเช็คฤดูหนาวจากของกันหนาวรวมกันไม่เกินเท่านี้
  * hpCap    = พลังชีวิตสูงสุดจากของทุกชิ้นรวมกันไม่เกินเท่านี้ (ของชิ้นละ +2 สวมได้ผลสามชิ้น) กันการสวมของเพิ่มพลังชีวิตทุกช่องจนการปะทะและฤดูหนาวไม่มีความหมาย
  */
@@ -357,7 +397,7 @@ export const GEAR = {
   heavyFlee: 1,
   thrown: 1,
   starSilver: { first: 4, every: 6 },
-  demonCoal: { demon: 1, church: 3 },
+  demonCoal: { demon: 1, demonMax: 6, church: 3, brand: { first: 5, every: 7 } },
   lootMax: 1,
   winterMax: 2,
 } as const;

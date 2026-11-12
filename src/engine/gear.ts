@@ -263,7 +263,7 @@ export interface WearYear {
 
 /**
  * ของที่สวมข้ามปีเก็บราคาของวัสดุ: เงินดาวทิ้งรอยดาว (ครบ GEAR.starSilver.first ปี แล้วลุกลามทุก every ปี ทีฟลิ่งและคนมีตราร้อนไม่ติด)
- * หินถ่านมารทำให้จอมมารรู้ตัว (คะแนนโลก) และศาสนจักรตะเกียงจับตา (ชื่อเสียงลดทุก GEAR.demonCoal.church ปี)
+ * หินถ่านมารทำให้จอมมารรู้ตัว (คะแนนโลก) ศาสนจักรตะเกียงจับตา (ชื่อเสียงลดทุก GEAR.demonCoal.church ปี) และตราร้อนของคนที่มีตราลุกลาม (GEAR.demonCoal.brand)
  */
 export function wearYear(game: Game, life: LifeState): WearYear {
   const worn = { ...(life.worn ?? {}) };
@@ -286,12 +286,22 @@ export function wearYear(game: Game, life: LifeState): WearYear {
     }
   }
   if (mats.has('demon_coal')) {
-    const world = { ...next.world, demon: Math.min(WORLD_CAP, next.world.demon + GEAR.demonCoal.demon) };
-    next = { ...next, world };
+    // คะแนนจอมมารจากของที่สวมมีเพดานของมันเองตลอดชีวิต (นับจากจำนวนปีที่สวม จึงไม่ต้องเก็บค่าเพิ่มในเซฟ)
+    if (worn.demon_coal! * GEAR.demonCoal.demon <= GEAR.demonCoal.demonMax) {
+      const world = { ...next.world, demon: Math.min(WORLD_CAP, next.world.demon + GEAR.demonCoal.demon) };
+      next = { ...next, world };
+    }
     if (worn.demon_coal! % GEAR.demonCoal.church === 0) {
       const rep = Math.max(-REPUTATION_CAP, (next.reputation.lamp_church ?? 0) - 1);
       next = { ...next, reputation: { ...next.reputation, lamp_church: rep } };
       lines.push('gear_coal_church');
+    }
+    // คนที่มีตราร้อนอยู่แล้วสวมถ่านมารนาน ตราลุกลาม (ถึงขั้นสุดท้ายเท่านั้น ของที่สวมไม่ทำให้ถูกเรียก) คนไม่มีตราไม่ได้ตราจากของ
+    const { first, every } = GEAR.demonCoal.brand, years = worn.demon_coal!;
+    if (next.traits.includes(DEMON_MARK_TRAIT) && (years === first || (years > first && (years - first) % every === 0))) {
+      const before = next.traitSteps?.[DEMON_MARK_TRAIT] ?? 1;
+      next = applyEffects(game, next, { trait_step: { [DEMON_MARK_TRAIT]: 1 } });
+      if ((next.traitSteps?.[DEMON_MARK_TRAIT] ?? 1) > before) { lines.push('gear_coal_brand'); traits.push(DEMON_MARK_TRAIT); }
     }
   }
   return { life: next, lines, traits };

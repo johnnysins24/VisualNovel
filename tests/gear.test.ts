@@ -412,4 +412,11 @@ describe('what a material costs', () => {
     expect(l.reputation.lamp_church).toBe(-1);
     expect(year(wearing(['coal_knife']), church - 1).reputation.lamp_church ?? 0).toBe(0);
   });
+
+  it('worn demon coal stops moving the world once it has given its share', () => {
+    const { demon, demonMax } = GEAR.demonCoal;
+    const years = Math.floor(demonMax / demon);
+    expect(year(wearing(['coal_knife']), years).world.demon).toBe(years * demon);
+    expect(year(wearing(['coal_knife']), years + 9).world.demon).toBe(years * demon);
+  });
 });

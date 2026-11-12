@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { ARC_IDS, CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RACE_IDS, RARITIES, TABOO_ACTS, TABOO_IDS, WORLD_KEYS } from './balance';
+import { ARC_IDS, CITY_IDS, CITY_MOODS, CITY_RANKS, CLASS_IDS, COURSE_IDS, FACTIONS, FOE_SIDES, FOE_TAGS, GOD_IDS, HOME_KINDS, ITEM_TAGS, MARK_IDS, MARK_MAX, MATERIAL_IDS, MOVE_KINDS, ORG_IDS, ORG_RANKS, RACE_IDS, RARITIES, TABOO_ACTS, TABOO_IDS, WORLD_KEYS } from './balance';
 import { TIMES } from './timeOfDay';
 
 export const STATS = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA'] as const;
@@ -33,7 +33,8 @@ export const BONDS = ['kin', 'friend', 'mentor', 'love', 'rival'] as const;
 export type Bond = (typeof BONDS)[number];
 
 /** เหตุที่ตัวละครตาย ใช้เลือกฉากตาย: สิ้นอายุขัย แผล การปะทะ หรือเลือกสละเอง */
-export const DEATH_CAUSES = ['age', 'wound', 'fight', 'sacrifice'] as const;
+/** taken = ถูกเรียกไป: มาตรรอยดาวหรือตราร้อนเกินขั้นสุดท้ายแล้วตัวละครเลือกเดินตามเสียงเรียก (ดู MARKS ใน balance.ts) */
+export const DEATH_CAUSES = ['age', 'wound', 'fight', 'sacrifice', 'taken'] as const;
 export type DeathCause = (typeof DEATH_CAUSES)[number];
 
 /** คนในชีวิต อ้างด้วย id เดิมทุกครั้ง ครั้งแรกต้องมี name ส่วน id ที่ขึ้นต้นด้วย @ คือบทใน cast ของเหตุการณ์นั้น เช่น @who */
@@ -215,6 +216,11 @@ export const EffectsSchema = z
     lose_traits: z.array(z.string()).optional(),
     /** ขยับขั้นของสิ่งติดตัวที่มีหลายขั้น (บวกคือลุกลาม ลบคือทุเลา) ไม่ต่ำกว่าขั้น 1 ไม่เกินขั้นสุดท้าย */
     trait_step: z.record(z.string(), z.number().int()).optional(),
+    /**
+     * ขยับมาตรรอยดาว (star) หรือตราร้อน (brand): บวกคือลึกขึ้น ลบคือจางลง ยังไม่มีก็ได้สิ่งติดตัวนั้นที่ขั้นหนึ่ง ลดจากขั้นหนึ่งแล้วหลุด
+     * (ตราร้อนของทีฟลิ่งไม่ต่ำกว่าขั้นหนึ่ง) ดันต่อจากขั้นสุดท้ายแล้วถูกเรียก และคนที่ถือมาตรฝั่งตรงข้ามอยู่ไม่ติด ดู MARKS ใน balance.ts
+     */
+    marks: z.partialRecord(z.enum(MARK_IDS), z.number().int()).optional(),
     items: z.array(z.string()).optional(),
     /** ของที่หลุดจากมือด้วยผลของเรื่อง (คืนให้องค์กร โดนยึด) ชิ้นที่สวมอยู่หลุดจากช่องด้วย ไม่มีของชิ้นนั้นก็ไม่มีผล */
     lose_items: z.array(z.string()).optional(),
@@ -292,6 +298,8 @@ const StateConds = {
   gender: z.enum(['m', 'f']).optional(),
   /** ต้องไม่มีสิ่งติดตัวเหล่านี้ */
   not_traits: z.array(z.string()).optional(),
+  /** ระดับของมาตรรอยดาว (star) หรือตราร้อน (brand) อยู่ในช่วงนี้ 0 = ไม่มี 1 ถึง MARK_MAX = ขั้นของสิ่งติดตัวประจำมาตร เช่น { star: [2, 3] } */
+  marks: z.partialRecord(z.enum(MARK_IDS), z.tuple([z.number().int().min(0).max(MARK_MAX), z.number().int().min(0).max(MARK_MAX)])).optional(),
   /** true = ยังถือพรหรือคำสาปใหญ่ได้อีก (ไม่เกิน BIG_TRAITS_MAX) ใช้กับเหตุการณ์หรือตัวเลือกที่ให้ของใหญ่ */
   big_room: z.boolean().optional(),
   class: ClassSchema.optional(),

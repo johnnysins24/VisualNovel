@@ -16,6 +16,7 @@ import { CREDITS } from './credits';
 import { TraitsSection } from './Traits';
 import { BagSection, ItemIcon, SLOT_TH, ShopSection, WornCard, isOpenItem, openItem, showItem } from './Gear';
 import { FACTION_TH, OrgSection } from './Orgs';
+import { EraSection } from './Era';
 import { CitySection } from './City';
 
 export function StatGrid() {
@@ -102,6 +103,7 @@ export function WorldPanel() {
         <h3><Icon name="world" />แผนที่</h3>
         <WorldMap here={l.locationTag} />
       </section>
+      <EraSection />
       <CitySection />
       <OrgSection />
       <section class="sec">

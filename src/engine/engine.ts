@@ -30,6 +30,9 @@ import {
   ENCOUNTER,
   GEAR,
   HP_REGEN,
+  MARKS,
+  MARK_IDS,
+  type MarkId,
   PROTECTED_AGE,
   RACES,
   REALM_CAP,
@@ -37,6 +40,7 @@ import {
   type RealmKey,
   REPEAT_GAP,
   REPUTATION_CAP,
+  STAR_SIDE_TRAITS,
   STAT_CAP,
   STORY_END_YEAR,
   TABOO,
@@ -142,6 +146,7 @@ interface StateConds {
   min_reputation?: Partial<Record<string, number>> | undefined;
   max_reputation?: Partial<Record<string, number>> | undefined;
   not_traits?: string[] | undefined;
+  marks?: Partial<Record<MarkId, [number, number]>> | undefined;
   big_room?: boolean | undefined;
   has_tag?: ItemTag | undefined;
   wears?: MaterialId | undefined;
@@ -154,6 +159,10 @@ interface StateConds {
   city?: CityCond | undefined;
   taboo?: TabooCond | undefined;
 }
+
+/** ระดับของมาตรรอยดาวหรือตราร้อน: 0 = ไม่มีสิ่งติดตัวประจำมาตร 1 ขึ้นไป = ขั้นของมัน */
+export const markLevel = (life: Pick<LifeState, 'traits' | 'traitSteps'>, id: MarkId): number =>
+  life.traits.includes(MARKS[id].trait) ? (life.traitSteps?.[MARKS[id].trait] ?? 1) : 0;
 
 /** เงื่อนไขสถานะโลกและตัวละครที่ใช้ร่วมกันระหว่างเหตุการณ์ (when) และตัวเลือก (requires) */
 function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean {
@@ -169,6 +178,10 @@ function stateConditionsMet(game: Game, life: LifeState, c: StateConds): boolean
   for (const [f, min] of Object.entries(c.min_reputation ?? {})) if ((life.reputation[f] ?? 0) < (min ?? 0)) return false;
   for (const [f, max] of Object.entries(c.max_reputation ?? {})) if ((life.reputation[f] ?? 0) > (max ?? 0)) return false;
   if (c.not_traits?.some((t) => life.traits.includes(t))) return false;
+  for (const [id, range] of Object.entries(c.marks ?? {})) {
+    const v = markLevel(life, id as MarkId);
+    if (range && (v < range[0] || v > range[1])) return false;
+  }
   if (c.big_room !== undefined && hasBigRoom(life, game.traits) !== c.big_room) return false;
   if (c.has_tag && !hasTag(game, life, c.has_tag)) return false;
   if (c.wears && !wearsMaterial(game, life, c.wears)) return false;
@@ -619,6 +632,10 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     if (game.traits.get(t)?.big && !hasBigRoom(next, game.traits)) continue;
     // ผู้ถือเหล็กเย็น (สวมอยู่ หรือสาบานไว้) รับพรไม่ได้ พรที่มีอยู่แล้วยังอยู่ และตัวคำสาบานเองรับได้เสมอ
     if (game.traits.get(t)?.kind === 'boon' && t !== COLD_IRON_OATH && coldIron(game, life)) continue;
+    // สิ่งติดตัวประจำมาตรไม่ติดคนที่ถือมาตรฝั่งตรงข้ามอยู่ (ทีฟลิ่งและคนมีตราร้อนไม่ติดรอยดาว คนมีรอยดาวไม่ติดตราร้อน)
+    if (MARK_IDS.some((id) => MARKS[id].trait === t && markLevel(next, MARKS[id].other) > 0)) continue;
+    // คำสาปของผู้อยู่นอกฟ้าไม่ติดคนที่มีตราร้อน (ฝั่งดาวมองไม่เห็น)
+    if (STAR_SIDE_TRAITS.includes(t) && markLevel(next, 'brand') > 0) continue;
     next.traits.push(t);
   }
   for (const t of lost) {
@@ -629,6 +646,29 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     const def = game.traits.get(t);
     if (!next.traits.includes(t) || !def?.steps) continue;
     next.traitSteps[t] = Math.max(1, Math.min(def.steps.length, (next.traitSteps[t] ?? 1) + d));
+  }
+  // ---- มาตรรอยดาวกับตราร้อน (MARKS): ได้ ลุกลาม จาง หลุด และถูกเรียกเมื่อดันต่อจากขั้นสุดท้าย ----
+  for (const id of MARK_IDS) {
+    const d = fx.marks?.[id];
+    if (!d) continue;
+    const def = MARKS[id];
+    const max = game.traits.get(def.trait)?.steps?.length ?? 1;
+    let level = markLevel(next, id);
+    if (d > 0) {
+      // สองมาตรไม่อยู่ในตัวคนเดียวกัน คนที่ถือฝั่งตรงข้ามอยู่ไม่ติด
+      if (markLevel(next, def.other) > 0) continue;
+      if (level + d > max && !next.flags.includes(def.called)) next.flags.push(def.called);
+      level = Math.min(max, level + d);
+    } else {
+      level = Math.max(def.born && next.flags.includes(def.born) ? 1 : 0, level + d);
+    }
+    if (level === 0) {
+      next.traits = next.traits.filter((x) => x !== def.trait);
+      delete next.traitSteps[def.trait];
+    } else {
+      if (!next.traits.includes(def.trait)) next.traits.push(def.trait);
+      next.traitSteps[def.trait] = level;
+    }
   }
   next.baseMaxHp += traitMaxHp(next, game.traits) - hpFromTraits;
   if (fx.max_hp) next.baseMaxHp += fx.max_hp;
