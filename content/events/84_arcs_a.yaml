@@ -529,7 +529,7 @@
         ทิลวามาถึงตอนฟ้ายังมืด ยืนรออยู่ก่อนแล้ว {name}ให้งานที่น่าเบื่อที่สุดก่อน ทำซ้ำทั้งวัน นางทำจนมือแดง ไม่บ่น พอตกเย็นนางถามว่าทำไมต้องทำแบบนั้น ไม่ทำอีกแบบที่เร็วกว่า {name}ตอบไม่ได้ทันที
 
         คืนนั้น{name}นอนคิดอยู่นานว่าทำไมทำแบบนั้นมาทั้งชีวิต แล้วนึกออกตอนใกล้รุ่ง ว่ามีคนสอนมาแบบนั้น และคนนั้นก็คงไม่เคยถาม
-      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], stats: { INT: 1 }, flags: [took_a_pupil] }
+      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], stats: { INT: 1 }, flags: [took_a_pupil] }
     - id: one_small_job
       label: ให้ลองงานชิ้นเล็กชิ้นเดียวก่อน แล้วค่อยตัดสิน
       check: { stat: WIS, dc: 13 }
@@ -538,13 +538,13 @@
           ทิลวาทำงานชิ้นนั้นผิดตั้งแต่ขั้นแรก ผิดแบบเดียวกับที่{name}เคยทำผิดในวันแรกของตัวเอง แล้วนางก็แก้เองโดยไม่มีใครบอก แก้ผิดไปอีกทาง แต่เป็นทางที่คนเคยดูมาแล้วเท่านั้นถึงจะคิดออก {name}เห็นว่านางไม่ได้นั่งดูมือเฉยๆ ตลอดครึ่งเดือน นางนั่งจำ
 
           {name}บอกให้มาพรุ่งนี้ ทิลวาไม่ขอบคุณ ถามว่ากี่โมง
-        effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], stats: { WIS: 1 }, flags: [took_a_pupil, tested_the_pupil_first] }
+        effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], stats: { WIS: 1 }, flags: [took_a_pupil, tested_the_pupil_first] }
       failure:
         text: |
           ทิลวาทำของชิ้นนั้นเสียทั้งชิ้น เสียแบบที่ต้องทิ้ง {name}บอกว่าเสียไปหนึ่งเหรียญ นางเถียงว่าเครื่องมือของ{name}ไม่ดี ไม่ใช่มือนาง เถียงจนเสียงแหบ
 
           {name}นึกถึงตัวเองในวันแรก วันที่เถียงครูของตัวเองด้วยประโยคเดียวกันนี้ แล้วบอกให้นางมาพรุ่งนี้ ทั้งที่ยังโกรธอยู่ ทิลวาเก็บเศษของที่เสียใส่กระเป๋าเสื้อกลับบ้านไปด้วย
-        effects: { gold: -1, people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], flags: [took_a_pupil, pupil_ruined_the_first_piece] }
+        effects: { gold: -1, people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], flags: [took_a_pupil, pupil_ruined_the_first_piece] }
     - id: send_her_on
       label: พาไปฝากกับคนที่เก่งกว่าในถิ่น
       text: |
@@ -559,7 +559,7 @@
         ลูกมือคนแรกโตแล้ว มีงานของตัวเอง แต่ยังมาเมื่อ{name}เรียก มายืนดูทิลวาทำท่าด้วยมือเปล่าอยู่ครู่หนึ่ง แล้วบอก{name}เบาๆ ว่าตอนมานั่งหน้าบ้าน{name}วันนั้น ตัวเองก็ทำท่าแบบนี้อยู่ในหัวทั้งคืน
 
         {name}รับทิลวา ลูกมือคนแรกสอนนางผูกปมเชือกแบบที่{name}สอนตัวเองเมื่อหลายปีก่อน สอนผิดไปหนึ่งปม {name}ไม่ได้แก้
-      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], alignment: { moral: 1 }, flags: [took_a_pupil, first_apprentice_vouched] }
+      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], alignment: { moral: 1 }, flags: [took_a_pupil, first_apprentice_vouched] }
     - id: hammer_for_a_day
       label: ให้จับค้อนหน้าทั่งหนึ่งวันเต็ม
       requires: { flag: job_smith }
@@ -567,7 +567,7 @@
         ค้อนเล่มเบาที่สุดในร้านยังหนักเกินข้อมือของทิลวา ครึ่งเช้านางตีเหล็กเส้นแรกจนงอผิดมุม ครึ่งบ่ายนางเลิกเหวี่ยงแรง เริ่มปล่อยให้น้ำหนักค้อนตกลงเอง ตกเย็นเหล็กเส้นที่สามตรงพอใช้ได้ ฝ่ามือนางพองทั้งสองข้าง
 
         {name}เอาน้ำมันหมูทาให้ บอกว่าพรุ่งนี้แผลจะแตก มะรืนจะด้าน ทิลวาถามว่าด้านแล้วจะไม่เจ็บอีกไหม {name}ชูฝ่ามือตัวเองให้ดู
-      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], stats: { STR: 1 }, flags: [took_a_pupil, pupil_at_the_anvil] }
+      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], stats: { STR: 1 }, flags: [took_a_pupil, pupil_at_the_anvil] }
     - id: sing_it_back
       label: ร้องท่อนหนึ่งให้ฟังครั้งเดียว แล้วให้ร้องกลับ
       requires: { flag: job_house_singer }
@@ -575,7 +575,7 @@
         {name}ร้องท่อนที่ยากที่สุดที่ร้องอยู่ทุกคืน ท่อนที่เสียงต้องขึ้นแล้วค้างโดยไม่สั่น ทิลวาร้องกลับ ค้างไม่ถึงครึ่ง เสียงแตก แต่ทุกคำถูก ทุกจังหวะถูก รวมทั้งจังหวะหายใจที่{name}แอบเปลี่ยนเองเมื่อหลายปีก่อนและไม่เคยบอกใคร
 
         {name}ถามว่าได้ยินจังหวะหายใจนั้นจากไหน นางบอกว่านั่งฟังอยู่หลังร้านเหล้าทุกคืนตั้งแต่หน้าฝน หายใจตามจนชิน
-      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], stats: { CHA: 1 }, flags: [took_a_pupil, pupil_learns_the_songs] }
+      effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], stats: { CHA: 1 }, flags: [took_a_pupil, pupil_learns_the_songs] }
     - id: the_back_way
       label: พาเดินทางลับที่ใช้ขนของหนึ่งรอบ แล้วให้เดินกลับเองคนเดียว
       requires: { flag: job_smuggler }
@@ -585,13 +585,13 @@
           {name}พาเดินตอนดึก ผ่านรั้ว ผ่านรางน้ำ ผ่านหลังคาโรงเก็บของสองหลัง ไม่บอกว่าตรงไหนต้องระวัง ทิลวาเดินตามโดยไม่ถาม แล้วเดินกลับคนเดียว ถึงก่อน{name}ครึ่งชั่วยาม เพราะนางตัดผ่านลานซักผ้าที่{name}ไม่เคยรู้ว่าเดินผ่านได้
 
           {name}เดินผ่านลานซักผ้านั้นในคืนถัดมา เงียบกว่าทางเดิม เร็วกว่าทางเดิม แล้วรับทิลวาไว้
-        effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], stats: { DEX: 1 }, flags: [took_a_pupil, pupil_found_a_shorter_way] }
+        effects: { people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], stats: { DEX: 1 }, flags: [took_a_pupil, pupil_found_a_shorter_way] }
       failure:
         text: |
           ครึ่งทางกลับ ทิลวาเหยียบแผ่นสังกะสีบนหลังคาโรงเก็บของ เสียงดังไปสามซอย หมาเห่าทั้งถนน {name}ต้องปีนลงไปลากนางหลบอยู่ในรางน้ำจนยามเดินผ่าน เข่าซ้ายของ{name}กระแทกขอบรางจนบวม
 
           ทิลวาขอโทษไม่หยุดตลอดทางกลับ {name}บอกให้หุบปาก แล้วบอกให้มาพรุ่งนี้ นางเงียบไปทันที
-        effects: { hp: -1, people: [{ id: pupil, name: ทิลวา, gender: f, bond: friend, closeness: 1, age: 14 }], flags: [took_a_pupil, pupil_on_the_tin_roof] }
+        effects: { hp: -1, people: [{ id: pupil, name: ทิลวา, gender: f, bond: pupil, closeness: 1, age: 14 }], flags: [took_a_pupil, pupil_on_the_tin_roof] }
 
 - id: adult.arc_pupil_2_the_deposit
   stage: adult

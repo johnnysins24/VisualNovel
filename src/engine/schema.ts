@@ -25,11 +25,11 @@ const FoeSchema = z.enum(FOE_SIDES);
 export const KIN_ROLES = [
   'father', 'mother',
   'grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal',
-  'sibling_older', 'sibling_younger', 'spouse', 'child',
+  'sibling_older', 'sibling_younger', 'spouse', 'child', 'grandchild',
 ] as const;
 export type KinRole = (typeof KIN_ROLES)[number];
-/** ชนิดความสัมพันธ์บนผังความสัมพันธ์ */
-export const BONDS = ['kin', 'friend', 'mentor', 'love', 'rival'] as const;
+/** ชนิดความสัมพันธ์บนผังความสัมพันธ์ (pupil = ศิษย์ที่ตัวละครรับไว้สอน ตั้งแต่ชุด 6) */
+export const BONDS = ['kin', 'friend', 'mentor', 'love', 'rival', 'pupil'] as const;
 export type Bond = (typeof BONDS)[number];
 
 /** เหตุที่ตัวละครตาย ใช้เลือกฉากตาย: สิ้นอายุขัย แผล การปะทะ หรือเลือกสละเอง */
@@ -236,6 +236,11 @@ export const EffectsSchema = z
     max_hp: z.number().int().optional(),
     /** มีลูกเพิ่มหนึ่งคน ระบบตั้งชื่อจากกลุ่มชื่อของบ้าน สุ่มเพศถ้าไม่ระบุ และจดปีเกิด ใช้ในข้อความด้วย {child} */
     child: z.object({ gender: z.enum(['m', 'f']).optional(), horned: z.boolean().optional() }).strict().optional(),
+    /**
+     * มีหลานเพิ่มหนึ่งคน (ตั้งแต่ชุด 6) of = บทในตัวแสดงของเหตุการณ์ที่เป็นพ่อหรือแม่ของเด็ก เขียน "@ชื่อบท" (บทนั้นต้องเป็นลูกที่โตแล้ว)
+     * ระบบตั้งชื่อจากกลุ่มชื่อของบ้าน สุ่มเพศถ้าไม่ระบุ จดปีเกิด และจดว่าเป็นลูกของใคร ใช้ในข้อความด้วย {newborn}
+     */
+    grandchild: z.object({ of: z.string().regex(/^@[a-z0-9_]+$/), gender: z.enum(['m', 'f']).optional() }).strict().optional(),
     /** ป้ายสั้นๆ ของเหตุการณ์นี้บนเส้นชีวิตในหน้าชีวประวัติ เช่น "เลือกทางพราน" (ทับ mark ของเหตุการณ์) */
     mark: z.string().optional(),
     /** ประโยคสุดท้ายของชีวิต ใช้ในฉากตาย แสดงใต้ชื่อในหน้าชีวประวัติ */
@@ -353,6 +358,8 @@ export const CastSpecSchema = z
     alive: z.boolean().default(true),
     /** true = เฉพาะลูกที่เกิดมามีเขา false = เฉพาะคนที่ไม่ได้เกิดมามีเขา ไม่ใส่ = ใครก็ได้ (บ้านที่มีทั้งลูกมีเขาและเด็กในอุปการะ เรื่องของลูกมีเขาต้องได้ลูกคนนั้น) */
     horned: z.boolean().optional(),
+    /** บทนี้ต้องเป็นพ่อหรือแม่ของหลานที่เล่นบทที่ระบุ (บทนั้นต้องเขียนไว้ก่อนใน cast และรับเฉพาะหลาน) เช่น kid: { kin: [child], parent_of: cub } */
+    parent_of: z.string().optional(),
     pick: z.enum(CAST_PICKS).default('closest'),
     /** true = ไม่มีใครเข้าบทเหตุการณ์ก็ยังออกได้ ใช้ชื่อบทนี้ได้เฉพาะในตัวเลือกที่มี requires.cast */
     optional: z.boolean().default(false),

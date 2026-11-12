@@ -170,7 +170,7 @@ const HOME_GROUP: Record<string, string> = {
   marked_hidden: 'noble', marked_kept: 'worker', marked_foundling: 'dockrat', ashland: 'worker',
 };
 const ELDER = new Set(['grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal']);
-const BLOOD = new Set(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', ...ELDER]);
+const BLOOD = new Set(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', 'grandchild', ...ELDER]);
 
 /** ส่วนของ Person ที่ใช้วาดรูป (alive, metAge ไม่ส่ง = ยังมีชีวิต รู้จักตั้งแต่เกิด) */
 export type PersonLike = Pick<Person, 'id'> & Partial<Pick<Person, 'gender' | 'kin' | 'bond' | 'metAge' | 'alive' | 'diedAge' | 'born' | 'race' | 'horned'>>;

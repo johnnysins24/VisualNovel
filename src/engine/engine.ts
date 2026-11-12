@@ -21,6 +21,7 @@ import {
   ALIGN_CAP,
   ARMED_CLASSES,
   CHILD_CLOSENESS,
+  GRANDCHILD_CLOSENESS,
   CLASSES,
   CLASS_PRIMARY_BONUS,
   CLASS_SECONDARY_BONUS,
@@ -209,6 +210,8 @@ export const PARTNER_CLOSENESS = 3;
 export const MARRIED_FLAG = 'married';
 export const HAS_PARTNER_FLAG = 'has_partner';
 export const HAS_CHILD_FLAG = 'has_child';
+/** flag ที่ระบบตั้งเองเมื่อมีหลานคนแรก (effects.grandchild) */
+export const HAS_GRANDCHILD_FLAG = 'has_grandchild';
 /**
  * flag ที่ตั้งเมื่อคนสำคัญจากไป ไม่ว่าจะจากเนื้อหาหรือจากวัย เหตุการณ์ที่เล่าถึงคนที่ตายแล้วด้วย {partner} {father} {mother}
  * ต้องมี flag ของคนนั้นใน when.flags ไม่อย่างนั้นระบบไม่ให้ออก
@@ -730,6 +733,13 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   if (fx.people?.length) next.people = applyPeople(next.people ?? [], fx.people, next.age, { life: next, cast: next.cast ?? {} });
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
   if (fx.child) next.pendingChildren = [...(next.pendingChildren ?? []), fx.child];
+  if (fx.grandchild) {
+    // พ่อหรือแม่ของหลานคือคนที่เล่นบทนั้นในเหตุการณ์นี้ บทที่ไม่มีคนเล่น (หรือคนนั้นไม่อยู่แล้ว) ไม่มีหลานเกิด
+    const parent = (next.cast ?? {})[fx.grandchild.of.slice(1)];
+    if (parent && (next.people ?? []).some((p) => p.id === parent && p.alive)) {
+      next.pendingGrandchildren = [...(next.pendingGrandchildren ?? []), { parent, ...(fx.grandchild.gender ? { gender: fx.grandchild.gender } : {}) }];
+    }
+  }
   if (fx.partner) {
     const gender = fx.partner.gender === 'opposite' ? (next.gender === 'm' ? 'f' : 'm') : fx.partner.gender;
     next.partner = { name: fx.partner.name ?? '', gender, pool: fx.partner.pool ?? defaultPartnerPool(next) };
@@ -863,6 +873,37 @@ function addChildren(game: Game, life: LifeState, rng: Rng): LifeState {
   return { ...rest, people, flags };
 }
 
+/** หลานที่รอตั้งชื่อ (effects.grandchild) กลายเป็นคนจริงในผัง มีชื่อจากกลุ่มชื่อของบ้าน เพศ ปีเกิด และรู้ว่าเป็นลูกของใคร */
+function addGrandchildren(game: Game, life: LifeState, rng: Rng): LifeState {
+  const pending = life.pendingGrandchildren ?? [];
+  if (!pending.length) return life;
+  const people = [...(life.people ?? [])];
+  const pool = childPool(game, life);
+  for (const spec of pending) {
+    const gender = spec.gender ?? (rng.int(0, 1) === 0 ? 'm' : 'f');
+    const taken = [life.name, life.partner?.name ?? '', ...people.map((p) => p.name)];
+    const name = pickName(pool, gender, rng, taken) ?? (gender === 'm' ? 'หลานชาย' : 'หลานสาว');
+    const n = people.filter((p) => p.kin === 'grandchild').length + 1;
+    people.push({
+      id: `grandchild_${n}`,
+      name,
+      gender,
+      kin: 'grandchild',
+      bond: 'kin',
+      closeness: GRANDCHILD_CLOSENESS,
+      alive: true,
+      metAge: life.age,
+      born: life.birthYear + life.age,
+      parent: spec.parent,
+      // ลูกที่เกิดมามีเขามีลูกมีเขา
+      ...(people.find((p) => p.id === spec.parent)?.horned ? { horned: true } : {}),
+    });
+  }
+  const flags = life.flags.includes(HAS_GRANDCHILD_FLAG) ? life.flags : [...life.flags, HAS_GRANDCHILD_FLAG];
+  const { pendingGrandchildren: _done, ...rest } = life;
+  return { ...rest, people, flags };
+}
+
 /**
  * ค่าที่ต้องคำนวณตามหลังผลของตัวเลือก: โบนัสเผ่า (ครั้งแรกที่มี flag race_<id>), ชื่อตัวละครและพ่อแม่, ชื่อคู่ครองและลูก,
  * และ flag cleric_drift ที่ซิงก์กับแนวทางของนักบวช
@@ -927,6 +968,7 @@ export function settle(game: Game, life: LifeState, rng: Rng): LifeState {
     };
   }
   next = addChildren(game, next, rng);
+  next = addGrandchildren(game, next, rng);
   const drifted = clericDrifted(next);
   const has = next.flags.includes(CLERIC_DRIFT_FLAG);
   if (drifted !== has) {
@@ -972,10 +1014,10 @@ export function winterDc(life: Pick<LifeState, 'raceApplied'>, h: number): numbe
   }, WINTER.dc);
 }
 
-/** มีคนดูแลไหม: คู่ครองหรือลูกที่โตแล้ว ยังอยู่ และสนิทพอ */
+/** มีคนดูแลไหม: คู่ครอง หรือลูกหรือหลานที่โตแล้ว ยังอยู่ และสนิทพอ */
 export function caredFor(life: LifeState): boolean {
   return (life.people ?? []).some(
-    (p) => p.alive && p.closeness >= WINTER.careCloseness && (p.kin === 'spouse' || (p.kin === 'child' && personYears(p, life) >= 14)),
+    (p) => p.alive && p.closeness >= WINTER.careCloseness && (p.kin === 'spouse' || ((p.kin === 'child' || p.kin === 'grandchild') && personYears(p, life) >= 14)),
   );
 }
 

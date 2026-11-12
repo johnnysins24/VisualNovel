@@ -80,6 +80,8 @@ export interface LifeState {
   span?: number;
   /** ลูกที่เพิ่งเกิดจากผลของตัวเลือก รอ settle ตั้งชื่อและใส่ลงผัง (ไม่ค้างข้ามเหตุการณ์) */
   pendingChildren?: { gender?: 'm' | 'f' | undefined; horned?: boolean | undefined }[];
+  /** หลานที่รอตั้งชื่อ (effects.grandchild) parent = id ของลูกคนที่เป็นพ่อหรือแม่ */
+  pendingGrandchildren?: { parent: string; gender?: 'm' | 'f' | undefined }[];
   /** การปะทะที่กำลังเดินอยู่ (เหตุการณ์ปัจจุบันมี encounter) ไม่มี = ไม่ได้อยู่ในการปะทะ */
   encounter?: EncounterState;
   /** องค์กรที่เป็นสมาชิกอยู่ (กติกาใน orgs.ts) ไม่มีในนี้ = ไม่ได้เป็นสมาชิก */
@@ -308,6 +310,8 @@ export interface Person {
   race?: string;
   /** ลูกที่เกิดมามีเขา */
   horned?: boolean;
+  /** หลาน: id ของลูกคนที่เป็นพ่อหรือแม่ของเด็ก (ใช้วางผังครอบครัว และทายาทในชุดถัดไป) */
+  parent?: string;
 }
 
 /** ชีวิตจบเพราะตายจริง หรือเพราะเนื้อเรื่องที่เขียนไว้หมดก่อน */

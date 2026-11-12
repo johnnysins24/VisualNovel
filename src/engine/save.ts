@@ -57,6 +57,7 @@ export function importCode(code: string): LifeState {
  * เซฟก่อนมีระบบเมือง: ไม่มีเมือง ที่อยู่ ชั้นของคนเมือง และสภาพเมือง ค่าตั้งต้นมาจาก newLife แล้วให้เมืองตรงกับถิ่นที่อยู่
  * เซฟก่อนชุด 4: ไม่มีคะแนนแผ่นดิน รอยของข้อห้าม และเส้นเรื่องยาว เริ่มนับจากศูนย์
  * เซฟก่อนชุด อ: ไม่มีสภาพของอาณาจักร (คลัง ความสงบ ความชอบธรรมของราชวงศ์) เริ่มนับจากศูนย์
+ * เซฟก่อนชุด 6: ศิษย์ (id pupil) อยู่ในผังเป็นเพื่อน เปลี่ยนเป็นความสัมพันธ์แบบศิษย์
  */
 export function migrate(raw: unknown): LifeState {
   const old = raw as Partial<Omit<LifeState, 'version'>> & { version?: number };
@@ -67,6 +68,8 @@ export function migrate(raw: unknown): LifeState {
   life.world = { ...fresh.world, ...(old.world ?? {}) };
   life.traits = [...new Set((life.traits ?? []).map((t) => TRAIT_RENAMES[t] ?? t))];
   life.people = (life.people ?? []).map((p) => (p.born === undefined ? { ...p, born: estimateBorn(p, life) } : p));
+  // เซฟก่อนชุด 6: ศิษย์ของเส้นเรื่องศิษย์เคยอยู่ในผังเป็นเพื่อน
+  life.people = life.people.map((p) => (p.id === 'pupil' && p.bond === 'friend' ? { ...p, bond: 'pupil' as const } : p));
   // เซฟก่อนมีระบบเมือง: คนที่อยู่ถิ่นที่มีเมืองหลัก (เวนทราส ทุนดาร์) ถือว่าอยู่เมืองนั้น ชั้นของคนเมืองเริ่มนับจากวันที่โหลด
   return syncCity(syncJobOrgs(life));
 }

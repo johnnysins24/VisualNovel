@@ -9,7 +9,7 @@ import { toHumanAge, worldYear, type LifeState, type Person } from './state';
 
 const ELDER_KIN = new Set<string>(['grandfather_paternal', 'grandmother_paternal', 'grandfather_maternal', 'grandmother_maternal']);
 /** ญาติสายเลือด: เผ่าเดียวกับผู้เล่น */
-const BLOOD_KIN = new Set<string>(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', ...ELDER_KIN]);
+const BLOOD_KIN = new Set<string>(['father', 'mother', 'sibling_older', 'sibling_younger', 'child', 'grandchild', ...ELDER_KIN]);
 /** คนที่มีฉากลาของตัวเอง ระบบไม่เอาไปเงียบๆ จนกว่าจะแก่มากจริง */
 const CLOSE_KIN = new Set<string>(['father', 'mother', 'spouse']);
 
@@ -50,8 +50,10 @@ export function estimateBorn(p: Pick<Person, 'id' | 'kin' | 'bond' | 'metAge' | 
   if (ELDER_KIN.has(kin)) return life.birthYear - span(20, 34) - span(20, 29);
   if (kin === 'sibling_older') return life.birthYear - span(2, 6);
   if (kin === 'sibling_younger') return (p.metAge ?? 0) > 0 ? met : life.birthYear + span(1, 4);
-  if (kin === 'child') return met;
+  if (kin === 'child' || kin === 'grandchild') return met;
   if (p.bond === 'mentor') return peer - span(20, 34);
+  // ศิษย์ที่เนื้อหาไม่บอกอายุ: เด็กรุ่นที่เพิ่งเริ่มฝึกงาน
+  if (p.bond === 'pupil') return met - span(12, 17);
   if (kin === 'spouse' || p.bond === 'love' || p.bond === 'friend' || p.bond === 'rival') return Math.min(met, peer + span(-3, 3));
   // คนอื่นๆ: อายุห่างจากผู้เล่นไม่มาก และเป็นผู้ใหญ่แล้วตอนรู้จักกัน
   return Math.min(met - 16, peer - span(-5, 15));
@@ -120,7 +122,9 @@ export function bindCast(life: LifeState, ev: Pick<GameEvent, 'id' | 'cast'>): R
   if (!ev.cast) return out;
   const used = new Set<string>();
   for (const [role, spec] of Object.entries(ev.cast)) {
-    const found = (life.people ?? []).filter((p) => !used.has(p.id) && fits(p, spec, life));
+    // parent_of: บทนี้คือพ่อหรือแม่ของหลานที่เล่นบทก่อนหน้า
+    const childOf = spec.parent_of ? (life.people ?? []).find((x) => x.id === out[spec.parent_of!])?.parent : undefined;
+    const found = (life.people ?? []).filter((p) => !used.has(p.id) && fits(p, spec, life) && (!spec.parent_of || p.id === childOf));
     if (!found.length) {
       if (spec.optional) continue;
       return null;
@@ -159,6 +163,13 @@ export function yearlyPassings(life: LifeState, rng: Rng, fated?: ReadonlySet<st
     if (chance > 0 && rng.next() < chance) gone.push(p);
   }
   return gone;
+}
+
+/** หลานที่ยังมีชีวิต เรียงจากคนโต */
+export function livingGrandchildren(life: Pick<LifeState, 'people' | 'seed' | 'birthYear' | 'age' | 'raceApplied'>): Person[] {
+  return (life.people ?? [])
+    .filter((p) => p.kin === 'grandchild' && p.alive)
+    .sort((a, b) => (a.born ?? estimateBorn(a, life)) - (b.born ?? estimateBorn(b, life)));
 }
 
 /** ลูกที่ยังมีชีวิต เรียงจากคนโต */

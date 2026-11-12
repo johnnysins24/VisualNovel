@@ -32,16 +32,20 @@ const KIN_TH: Record<KinRole, (g?: 'm' | 'f') => string> = {
   sibling_younger: (g) => (g === 'f' ? 'น้องสาว' : g === 'm' ? 'น้องชาย' : 'น้อง'),
   spouse: (g) => (g === 'f' ? 'ภรรยา' : g === 'm' ? 'สามี' : 'คู่ครอง'),
   child: (g) => (g === 'f' ? 'ลูกสาว' : g === 'm' ? 'ลูกชาย' : 'ลูก'),
+  grandchild: (g) => (g === 'f' ? 'หลานสาว' : g === 'm' ? 'หลานชาย' : 'หลาน'),
 };
 export const kinLabel = (p: Person) => (p.kin ? KIN_TH[p.kin](p.gender) : '');
 
-export const BOND_TH: Record<Bond, string> = { kin: 'ญาติ', friend: 'เพื่อน', mentor: 'อาจารย์', love: 'รัก', rival: 'ศัตรู' };
-const BOND_ICON: Record<Bond, IconName> = { kin: 'kin', friend: 'friend', mentor: 'mentor', love: 'love', rival: 'rival' };
+export const BOND_TH: Record<Bond, string> = { kin: 'ญาติ', friend: 'เพื่อน', mentor: 'อาจารย์', love: 'รัก', rival: 'ศัตรู', pupil: 'ศิษย์' };
+// ศิษย์ใช้ไอคอนและสีเดียวกับอาจารย์ (ความสัมพันธ์เดียวกัน มองจากอีกฝั่ง)
+const BOND_ICON: Record<Bond, IconName> = { kin: 'kin', friend: 'friend', mentor: 'mentor', love: 'love', rival: 'rival', pupil: 'mentor' };
 
 /* ---------------- ผังครอบครัว ---------------- */
 
-interface Slot { x: number; y: number; p: Person | 'me' }
+interface Slot { x: number; y: number; p: Person | 'me'; small?: boolean }
 const GAP = 84;
+/** ระยะห่างของหลานในแถวล่างสุด แคบกว่าแถวอื่น (วงเล็กลงและบอกแค่ "หลาน" กับอายุ) ครอบครัวที่มีหลานห้าหกคนจึงยังพอดีจอมือถือ */
+const GRAND_GAP = 66;
 const ROW = 96;
 const R = 19;
 /** ระยะจากแถวบนลงถึงเส้นแยกพี่น้อง ต้องพ้นชื่อและบทบาทใต้วงกลม */
@@ -51,6 +55,14 @@ const MIN_SCALE = 0.75;
 
 /** อักษรแรกของชื่อ ข้ามสระหน้า (เ แ โ ใ ไ) */
 export const initial = (name: string) => name.replace(/^[เแโใไ]/, '').charAt(0);
+
+/** แบบของหลานในผังที่กำลังให้เลือก อ่านจาก ?gk= ในที่อยู่หน้า (ก = row แถวใต้พ่อแม่, ข = badge เลขที่มุมวงของลูก, ค = none ไม่อยู่ในผัง) */
+const grandVariant = (): 'row' | 'badge' | 'none' => {
+  const v = new URLSearchParams(globalThis.location?.search ?? '').get('gk');
+  return v === 'badge' || v === 'none' ? v : 'row';
+};
+/** หลานที่เป็นลูกของคนนี้ */
+const grandkidsOf = (l: LifeState, p: Person) => (l.people ?? []).filter((g) => g.kin === 'grandchild' && g.parent === p.id);
 
 function familyLayout(l: LifeState) {
   const ppl = l.people ?? [];
@@ -120,16 +132,39 @@ function familyLayout(l: LifeState) {
     hearts.push({ x: meX + GAP / 2, y });
   }
   if (kids.length) {
+    // หลานอยู่ใต้ลูกคนที่เป็นพ่อหรือแม่ ลูกแต่ละคนจึงกินที่กว้างเท่าจำนวนหลานใต้ตัว (หลานที่หาพ่อแม่ไม่เจออยู่ใต้ลูกคนแรก)
+    const grandkids = grandVariant() === 'row' ? by('grandchild') : [];
+    const under = kids.map((k, i) => grandkids.filter((g) => g.parent === k.id || (i === 0 && !kids.some((x) => x.id === g.parent))));
+    const span = under.map((u) => Math.max(GAP, u.length * GRAND_GAP));
     const cx = spouse ? meX + GAP / 2 : meX;
     const ky = y + ROW;
-    const ks = cx - ((kids.length - 1) * GAP) / 2;
+    let edge = cx - span.reduce((a, b) => a + b, 0) / 2;
+    const kx = span.map((w) => {
+      const x = edge + w / 2;
+      edge += w;
+      return x;
+    });
     lines.push(`M${cx} ${y}V${y + BAR}`);
-    if (kids.length > 1) lines.push(`M${ks} ${y + BAR}H${ks + (kids.length - 1) * GAP}`);
+    if (kids.length > 1) lines.push(`M${kx[0]} ${y + BAR}H${kx[kx.length - 1]}`);
     kids.forEach((k, i) => {
-      slots.push({ x: ks + i * GAP, y: ky, p: k });
-      lines.push(`M${ks + i * GAP} ${y + BAR}V${ky - R - 2}`);
+      slots.push({ x: kx[i]!, y: ky, p: k });
+      lines.push(`M${kx[i]} ${y + BAR}V${ky - R - 2}`);
     });
     y = ky;
+    if (grandkids.length) {
+      const gy = ky + ROW;
+      under.forEach((u, i) => {
+        if (!u.length) return;
+        const gs = kx[i]! - ((u.length - 1) * GRAND_GAP) / 2;
+        lines.push(`M${kx[i]} ${ky + R + 34}V${ky + BAR}`);
+        if (u.length > 1) lines.push(`M${gs} ${ky + BAR}H${gs + (u.length - 1) * GRAND_GAP}`);
+        u.forEach((g, j) => {
+          slots.push({ x: gs + j * GRAND_GAP, y: gy, p: g, small: true });
+          lines.push(`M${gs + j * GRAND_GAP} ${ky + BAR}V${gy - R + 1}`);
+        });
+      });
+      y = gy;
+    }
   }
   // กรอบของผังวัดจากตำแหน่งจริงของทุกคน (ลูกหลายคนอาจยื่นเลยแถวพี่น้องไปทางขวา) เผื่อครึ่งช่องสองข้างให้ชื่อใต้วงกลม
   const xs = slots.map((s) => s.x);
@@ -143,17 +178,25 @@ function PersonNode({ s, l, on, onPick }: { s: Slot; l: LifeState; on: boolean; 
   const p = me ? null : (s.p as Person);
   const name = me ? l.name : p!.name;
   // เลขหลังบทบาทคืออายุ คนที่จากไปแล้วคืออายุตอนเสีย
-  const sub = me ? 'คุณ' : `${kinLabel(p!)} · ${personYears(p!, l)}`;
+  // หลานในแถวล่างบอกสั้นว่า "หลาน" ชื่อเต็มของบทบาท (หลานสาว หลานชาย) อยู่ในการ์ดกับคำอ่านของปุ่ม
+  const sub = me ? 'คุณ' : `${s.small ? 'หลาน' : kinLabel(p!)} · ${personYears(p!, l)}`;
+  const r = me ? R + 4 : s.small ? R - 3 : R;
   const dead = p && !p.alive;
   const said = me ? 'คุณ' : `${kinLabel(p!)} ${dead ? 'เสียชีวิตตอนอายุ' : 'อายุ'} ${personYears(p!, l)}`;
   return (
     <g class={`node ${me ? 'me' : ''} ${dead ? 'dead' : ''} ${on ? 'on' : ''}`} tabIndex={0} role="button" aria-label={`${name} ${said}`} aria-pressed={on} onClick={() => onPick(s.p)}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onPick(s.p)}>
-      <circle cx={s.x} cy={s.y} r={me ? R + 4 : R} />
-      <Face look={me ? currentPlayerLook() : personLook(p!, l)} x={s.x} y={s.y} r={me ? R + 4 : R} id={`t-${me ? 'me' : p!.id}`} />
-      {dead && <path class="cross" d={`M${s.x + R - 4} ${s.y - R - 8}v12M${s.x + R - 8} ${s.y - R - 4}h8`} />}
-      <text x={s.x} y={s.y + R + 17} class="nm">{name}</text>
-      <text x={s.x} y={s.y + R + 31} class="sub">{sub}</text>
+      <circle cx={s.x} cy={s.y} r={r} />
+      <Face look={me ? currentPlayerLook() : personLook(p!, l)} x={s.x} y={s.y} r={r} id={`t-${me ? 'me' : p!.id}`} />
+      {dead && <path class="cross" d={`M${s.x + r - 4} ${s.y - r - 8}v12M${s.x + r - 8} ${s.y - r - 4}h8`} />}
+      {p && grandVariant() === 'badge' && grandkidsOf(l, p).length > 0 && (
+        <g class="gk-badge" aria-label={`หลาน ${grandkidsOf(l, p).length} คน`}>
+          <circle cx={s.x + R - 2} cy={s.y + R - 5} r={9} />
+          <text x={s.x + R - 2} y={s.y + R - 1.5}>{grandkidsOf(l, p).length}</text>
+        </g>
+      )}
+      <text x={s.x} y={s.y + r + 17} class="nm">{name}</text>
+      <text x={s.x} y={s.y + r + 31} class="sub">{sub}</text>
     </g>
   );
 }
@@ -221,6 +264,12 @@ function PersonCard({ p, onClose }: { p: Person; onClose: () => void }) {
           </span>
           <Closeness n={p.closeness} />
         </p>
+        {grandVariant() === 'badge' && grandkidsOf(l, p).length > 0 && (
+          <p class="muted gk-list">
+            <Icon name="kin" label="หลาน" />
+            {grandkidsOf(l, p).map((g) => <span key={g.id}>{g.name} <span class="num">{personYears(g, l)}</span></span>)}
+          </p>
+        )}
       </div>
       <button class="icon-btn" onClick={onClose} aria-label="ปิด"><Icon name="close" /></button>
     </div>

@@ -1,9 +1,9 @@
 import type { Choice, Content, Effects, Encounter, GameEvent, Requires } from './schema';
 import { DEATH_CAUSES } from './schema';
-import { ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, MARKS, MARK_IDS, ORGS, ORG_IDS, RACES, RARITIES, RARITY_TH, STAR_SIDE_TRAITS, TABOOS, TABOO_IDS, type CityId, type CourseId, type OrgId, type TabooAct, type TabooId } from './balance';
+import { ARC_IDS, ARC_TH, CITIES, CITY, CITY_IDS, CLERIC_DRIFT_FLAG, COURSES, COURSE_IDS, DEMON_MARK_TRAIT, GEAR, HOME_TH, MARKS, MARK_IDS, ORGS, ORG_IDS, PARENT_MIN_AGE, RACES, RARITIES, RARITY_TH, STAR_SIDE_TRAITS, TABOOS, TABOO_IDS, type CityId, type CourseId, type OrgId, type TabooAct, type TabooId } from './balance';
 import type { TabooCond } from './land';
 import { unknownPlaceholders } from './text';
-import { DIED_FLAG, HAS_CHILD_FLAG } from './engine';
+import { DIED_FLAG, HAS_CHILD_FLAG, HAS_GRANDCHILD_FLAG } from './engine';
 import { knowsFlag } from './encounter';
 import { itemBudget } from './gear';
 
@@ -73,6 +73,7 @@ export function lintContent(c: Content): string[] {
     for (const ch of e.choices) {
       for (const fx of outcomes(ch)) {
         fx?.flags?.forEach((f) => setFlags.add(f));
+        if (fx?.grandchild) setFlags.add(HAS_GRANDCHILD_FLAG);
         fx?.traits?.forEach((t) => setTraits.add(t));
         fx?.lose_traits?.forEach((t) => lostTraits.add(t));
       }
@@ -432,7 +433,7 @@ export function lintContent(c: Content): string[] {
     for (const t of unknownPlaceholders(e.mark ?? '', roles)) problems.push(`${where}: mark มี placeholder ไม่รู้จัก ${t}`);
     if (!e.years && [e.text, e.mark, ...e.choices.flatMap((c) => [c.label, c.text, c.success?.text, c.failure?.text])].some((t) => t?.includes('{years}'))) problems.push(`${where}: {years} ใช้ได้เฉพาะเหตุการณ์ที่มี years`);
     for (const r of optional) {
-      if (new RegExp(`\\{${r}[}:]`).test(e.text + (e.mark ?? ''))) problems.push(`${where}: ข้อความของเหตุการณ์ใช้บท "${r}" ที่อาจไม่มีคนเล่น (optional) ให้ใช้ในตัวเลือกที่มี requires.cast เท่านั้น`);
+      if (new RegExp(`\\{(?:grand:)?${r}[}:]`).test(e.text + (e.mark ?? ''))) problems.push(`${where}: ข้อความของเหตุการณ์ใช้บท "${r}" ที่อาจไม่มีคนเล่น (optional) ให้ใช้ในตัวเลือกที่มี requires.cast เท่านั้น`);
     }
     for (const f of w.flags ?? []) if (!setFlags.has(f)) problems.push(`${where}: อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง (เหตุการณ์นี้ไม่มีทางเกิด)`);
     for (const f of w.any_flags ?? []) if (!setFlags.has(f)) problems.push(`${where}: any_flags อ่าน flag "${f}" ที่ไม่เคยถูกตั้ง`);
@@ -444,6 +445,15 @@ export function lintContent(c: Content): string[] {
     for (const [role, spec] of Object.entries(e.cast ?? {})) {
       if (spec.id && !namedPeople.has(spec.id) && !/^child_\d+$|^partner_\d+$/.test(spec.id)) problems.push(`${where}: cast.${role} อ้างถึงคน "${spec.id}" ที่ไม่เคยมี`);
       if (spec.min_age !== undefined && spec.max_age !== undefined && spec.min_age > spec.max_age) problems.push(`${where}: cast.${role} ช่วงอายุกลับด้าน`);
+      if (spec.parent_of !== undefined) {
+        // พ่อแม่ของหลาน: บทของหลานต้องอยู่ก่อนใน cast (บทถูกเติมตามลำดับ) รับเฉพาะหลาน และไม่เป็นบทที่อาจไม่มีคนเล่น
+        const names = Object.keys(e.cast ?? {});
+        const of = e.cast?.[spec.parent_of];
+        if (!of || names.indexOf(spec.parent_of) > names.indexOf(role)) problems.push(`${where}: cast.${role}.parent_of "${spec.parent_of}" ต้องเป็นบทที่เขียนไว้ก่อนใน cast`);
+        else if (!(of.kin?.length === 1 && of.kin[0] === 'grandchild')) problems.push(`${where}: cast.${role}.parent_of ต้องอ้างบทที่รับเฉพาะหลาน (kin: [grandchild])`);
+        else if (of.optional && !spec.optional) problems.push(`${where}: cast.${role}.parent_of อ้างบทที่อาจไม่มีคนเล่น บทนี้ต้องเป็น optional ด้วย`);
+        if (!(spec.kin?.length === 1 && spec.kin[0] === 'child')) problems.push(`${where}: cast.${role}.parent_of ใช้กับบทที่รับเฉพาะลูก (kin: [child])`);
+      }
     }
     const eventBigRoom = w.big_room === true;
     /** เงื่อนไข requires ของตัวเลือกหรือของวิธีรับมือ */
@@ -528,6 +538,18 @@ export function lintContent(c: Content): string[] {
         if (cs.hold && !e.course) problems.push(`${cw}: course.hold ใช้ได้ในเหตุการณ์ของหลักสูตรเท่านั้น`);
         if (cs.track && ids.length && !ids.some((id) => COURSES[id].tracks[cs.track!])) problems.push(`${cw}: ไม่มีสาย "${cs.track}" ใน${COURSES[ids[0]!].th}`);
       }
+      if (fx?.grandchild) {
+        // หลานต้องมีพ่อหรือแม่ที่เป็นลูกของตัวละครและโตแล้ว: บทที่อ้างต้องรับเฉพาะลูก (kin: [child]) อายุ PARENT_MIN_AGE ขึ้นไป
+        const role = fx.grandchild.of.slice(1);
+        const spec = e.cast?.[role];
+        if (!spec) problems.push(`${cw}: grandchild.of "${fx.grandchild.of}" ไม่มีบทนี้ใน cast ของเหตุการณ์`);
+        else {
+          if (!(spec.kin?.length === 1 && spec.kin[0] === 'child')) problems.push(`${cw}: grandchild.of ต้องอ้างบทที่รับเฉพาะลูก (kin: [child])`);
+          if ((spec.min_age ?? 0) < PARENT_MIN_AGE) problems.push(`${cw}: grandchild.of ต้องอ้างบทที่มี min_age อย่างน้อย ${PARENT_MIN_AGE}`);
+          if (spec.alive === false) problems.push(`${cw}: grandchild.of อ้างบทของคนที่จากไปแล้วไม่ได้`);
+          if (spec.optional && !r?.cast?.includes(role)) problems.push(`${cw}: grandchild.of อ้างบทที่อาจไม่มีคนเล่น ตัวเลือกต้องมี requires.cast: [${role}]`);
+        }
+      }
       if (fx?.epitaph !== undefined && e.stage !== 'death') problems.push(`${cw}: epitaph ใช้ได้เฉพาะในฉากตาย`);
       if (fx?.survive && e.stage !== 'death') problems.push(`${cw}: survive ใช้ได้เฉพาะในฉากตาย`);
       return [fx?.mark, fx?.epitaph];
@@ -535,7 +557,7 @@ export function lintContent(c: Content): string[] {
     const lintTexts = (cw: string, texts: (string | undefined)[]) => {
       for (const t of texts) for (const ph of unknownPlaceholders(t ?? '', roles)) problems.push(`${cw}: placeholder ไม่รู้จัก ${ph}`);
     };
-    const usesRole = (texts: (string | undefined)[], r: string) => texts.some((t) => t && new RegExp(`\\{${r}[}:]`).test(t));
+    const usesRole = (texts: (string | undefined)[], r: string) => texts.some((t) => t && new RegExp(`\\{(?:grand:)?${r}[}:]`).test(t));
 
     if (!e.encounter && !e.choices.length) problems.push(`${where}: ไม่มีตัวเลือก`);
     const ids = new Set<string>();

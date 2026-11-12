@@ -27,7 +27,7 @@ effect(() => {
 const STAGE_FROM = [0, 12, 18, 41, 61, 81];
 /** อายุจริงปีแรกที่นับเป็นอายุเทียบมนุษย์ h ของเผ่านั้น */
 const realAgeAt = (h: number, race: string | null) => (h <= 0 ? 0 : lastRealAge(h - 1, race) + 1);
-const KIN_ORDER = ['spouse', 'child', 'sibling_older', 'sibling_younger', 'mother', 'father'];
+const KIN_ORDER = ['spouse', 'child', 'grandchild', 'sibling_older', 'sibling_younger', 'mother', 'father'];
 
 /** เส้นชีวิต: แถบแบ่งตามวัย จุดคือเหตุการณ์ที่ติดป้ายไว้ จุดสีน้ำเงินคือเหตุการณ์ของโลกที่ชีวิตนี้ได้อยู่เห็น */
 function LifeLine({ l }: { l: LifeState }) {

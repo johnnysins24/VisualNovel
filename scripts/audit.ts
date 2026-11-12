@@ -811,6 +811,29 @@ export function formatReport(game: Game, res: AuditResult): string {
   out.push(`- คนที่ถึงวัยชรา ${elders.length} ชีวิต: มีคู่ครอง ${pct(wed.length, elders.length)} ในนั้นคู่จากไปก่อน ${pct(wed.filter((l) => !l.people.find((p) => p.kin === 'spouse')!.alive).length, wed.length)}`);
   const kids = full40(finals).map((l) => l.people.filter((p) => p.kin === 'child').length);
   out.push(`- ลูกต่อชีวิต (ชีวิตที่ถึง 40): กลาง ${median(kids)} สูงสุด ${Math.max(0, ...kids)} · ไม่มีลูก ${pct(kids.filter((k) => k === 0).length, kids.length)}`);
+  // วัยปลาย (ชุด 6): หลาน ศิษย์ และฉากวางมือ วัดจากชีวิตที่อายุเทียบมนุษย์ถึง 61
+  const late = finals.filter((l) => humanAge(l) >= 61);
+  if (late.length) {
+    const kin = (l: LifeState, k: string) => l.people.filter((p) => p.kin === k);
+    const grownKid = (l: LifeState) => kin(l, 'child').some((p) => personHumanAge(p, l) >= 20);
+    const withGrown = late.filter(grownKid);
+    const cubs = withGrown.map((l) => kin(l, 'grandchild').length);
+    const saw = (l: LifeState, re: RegExp) => l.log.filter((e) => re.test(e.eventId)).length;
+    const lateStories = late.map((l) => l.log.filter((e) => /^elder\./.test(e.eventId) || /^adult\.(fam_grand|late_)/.test(e.eventId)).length);
+    out.push(
+      `- วัยปลาย ${late.length} ชีวิตที่ถึง 61: มีลูกโตแล้ว ${pct(withGrown.length, late.length)} · ในนั้นมีหลาน ${pct(cubs.filter((n) => n > 0).length, cubs.length)}` +
+        ` (หลานต่อชีวิต กลาง ${median(cubs)} ช่วง 10–90% ${quantile(cubs, 0.1)}–${quantile(cubs, 0.9)} สูงสุด ${Math.max(0, ...cubs)} · เกินหกคน ${pct(cubs.filter((n) => n > 6).length, cubs.length)})` +
+        ` · มีศิษย์ ${pct(late.filter((l) => l.people.some((p) => p.bond === 'pupil')).length, late.length)}` +
+        ` · เรื่องของวัยปลายต่อชีวิต กลาง ${median(lateStories)} ช่วง 10–90% ${quantile(lateStories, 0.1)}–${quantile(lateStories, 0.9)}`,
+    );
+    const laid = late.filter((l) => saw(l, /_lays_down$/) > 0);
+    const stayed = laid.filter((l) => l.flags.some((f) => f.startsWith('elder_of_')));
+    const twice = late.filter((l) => saw(l, /_lays_down$/) > 1).length;
+    out.push(
+      `- ฉากวางมือจากองค์กร: ${laid.length} ชีวิตได้เจอ (${pct(laid.length, late.length)} ของคนที่ถึง 61) · อยู่ต่อเป็นคนเก่าขององค์กร ${pct(stayed.length, laid.length)}` +
+        ` · เจอมากกว่าหนึ่งฉาก ${twice} ชีวิต · เรื่องคนเก่าขององค์กรออก ${late.filter((l) => saw(l, /_old_hand_/) > 0).length} ชีวิต`,
+    );
+  }
   const held = full40(finals).map((l) => l.traits.length);
   out.push(`- สิ่งติดตัวตอนจบ (ชีวิตที่ถึง 40): กลาง ${median(held)} ช่วง ${Math.min(0, ...held)}–${Math.max(0, ...held)}`);
   const kindOf = (id: string) => game.traits.get(id)?.kind ?? '?';

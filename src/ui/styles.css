@@ -225,6 +225,9 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
 .chart .node.me .initial { fill: var(--ink); font-weight: 600; }
 .chart .nm { text-anchor: middle; font-size: 12.5px; fill: var(--ink); }
+/* แบบ ข ของหลานในผัง: เลขจำนวนหลานที่มุมวงของลูก */
+.chart .node .gk-badge circle { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart .node .gk-badge text { text-anchor: middle; font-family: var(--f-num); font-size: 9px; fill: var(--surface); }
 .chart .node.me .nm { font-weight: 600; }
 .chart .sub { text-anchor: middle; font-size: 10.5px; fill: var(--muted); }
 .chart .cross { stroke: var(--muted); stroke-width: 1.6; fill: none; }
@@ -235,10 +238,10 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .relmap .badge path { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .edge.kin, .badge.kin circle, .badge.kin path { stroke: var(--kin); }
 .edge.friend, .badge.friend circle, .badge.friend path { stroke: var(--friend); }
-.edge.mentor, .badge.mentor circle, .badge.mentor path { stroke: var(--mentor); }
+.edge.mentor, .badge.mentor circle, .badge.mentor path, .edge.pupil, .badge.pupil circle, .badge.pupil path { stroke: var(--mentor); }
 .edge.love, .badge.love circle, .badge.love path { stroke: var(--love); }
 .edge.rival, .badge.rival circle, .badge.rival path { stroke: var(--rival); }
-.bond-kin { color: var(--kin); } .bond-friend { color: var(--friend); } .bond-mentor { color: var(--mentor); } .bond-love { color: var(--love); } .bond-rival { color: var(--rival); }
+.bond-kin { color: var(--kin); } .bond-friend { color: var(--friend); } .bond-mentor, .bond-pupil { color: var(--mentor); } .bond-love { color: var(--love); } .bond-rival { color: var(--rival); }
 .icon.love { color: var(--love); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--muted); }
 .legend > span { display: inline-flex; align-items: center; gap: 4px; }
