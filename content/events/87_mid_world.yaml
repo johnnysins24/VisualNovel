@@ -247,7 +247,7 @@
       effects: { stats: { DEX: 1 }, reputation: { star_hall: 1 }, flags: [posted_elf_leaflets] }
     - id: take_card
       label: รับบัตรเชิญไปวงอ่านหนังสือ
-      requires: { not_flags: [race_tiefling] }
+      requires: { not_flags: [race_tiefling], not_orgs: [star_listeners] }
       text: |
         ชายที่ยื่นบัตรถาม{name}คำถามเดียวก่อนยื่น ว่าตอนกลางคืนเคยได้ยินเสียงต่ำๆ ไหม เสียงที่ดังอยู่ใต้เสียงอื่น {name}บอกว่าเคย ใครๆ ก็เคย เขายิ้ม แล้ววางบัตรลงในมือ{name}ด้วยมือทั้งสองข้าง
 

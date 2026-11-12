@@ -249,8 +249,9 @@ export const EffectsSchema = z
     /**
      * มีคนรัก (แทนคนเดิมถ้ามีอยู่แล้ว) ชื่อสุ่มจากกลุ่มชื่อ pool ตามเพศที่ระบุ ไม่ระบุ pool ใช้กลุ่มชื่อของพ่อแม่หรือเผ่า
      * ใช้ในข้อความด้วย {partner} และ {p:เขา|เธอ}
+     * name = คนที่เรื่องเอ่ยชื่อไว้แล้วก่อนจะมาเป็นคนรัก (ไม่สุ่มชื่อ) · gender: opposite = เพศตรงข้ามกับตัวละคร ใช้เมื่อข้อความไม่บอกเพศของคนนั้น
      */
-    partner: z.object({ gender: z.enum(['m', 'f']), pool: z.string().optional() }).strict().optional(),
+    partner: z.object({ gender: z.enum(['m', 'f', 'opposite']), pool: z.string().optional(), name: z.string().min(1).optional() }).strict().optional(),
     /** เพิ่มหรือปรับคนในชีวิต (ผังครอบครัวและผังความสัมพันธ์) */
     people: z.array(PersonEffectSchema).optional(),
     /** สถานะสมาชิกองค์กร: เข้า ออก ผลงาน เลื่อนยศ */

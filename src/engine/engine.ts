@@ -675,7 +675,8 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
   if (fx.name_pool) next.namePool = { ...next.namePool, ...fx.name_pool };
   if (fx.child) next.pendingChildren = [...(next.pendingChildren ?? []), fx.child];
   if (fx.partner) {
-    next.partner = { name: '', gender: fx.partner.gender, pool: fx.partner.pool ?? defaultPartnerPool(next) };
+    const gender = fx.partner.gender === 'opposite' ? (next.gender === 'm' ? 'f' : 'm') : fx.partner.gender;
+    next.partner = { name: fx.partner.name ?? '', gender, pool: fx.partner.pool ?? defaultPartnerPool(next) };
     // คนรักคนเก่ายังอยู่บนผังความสัมพันธ์ แต่ไม่ใช่คู่ครองแล้ว
     const old = (next.people ?? []).find((p) => p.id === PARTNER_PERSON_ID);
     if (old) {

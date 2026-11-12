@@ -373,6 +373,11 @@ describe('text never names someone who is not there', () => {
     expect(eligible(game, wed, byId('adult.with_partner'))).toBe(true);
     expect(eligible(game, wed, byId('adult.grave'))).toBe(false);
   });
+  it('a love interest the story named beforehand keeps that name and takes the other gender', () => {
+    const met = settle(game, applyEffects(game, born, { partner: { gender: 'opposite', name: 'ไวเลน' }, flags: ['has_partner'] }), new Rng(5));
+    expect(met.partner).toMatchObject({ name: 'ไวเลน', gender: born.gender === 'm' ? 'f' : 'm' });
+    expect(met.people.find((p) => p.id === 'partner')).toMatchObject({ name: 'ไวเลน', bond: 'love' });
+  });
   it('when the partner dies the engine sets the flag, ends the marriage, and only grave scenes may name them', () => {
     const widowed = applyEffects(game, wed, { people: [{ id: 'partner', dies: true }] });
     expect(widowed.flags).toContain('partner_died');
