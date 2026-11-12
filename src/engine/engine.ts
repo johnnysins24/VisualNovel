@@ -333,10 +333,36 @@ function withEvent(game: Game, life: LifeState, ev: GameEvent): LifeState {
   return next;
 }
 
+/** เหตุการณ์ must ที่ได้ออกก่อนในกองนี้: เรื่องที่ช่วงเวลาจะปิดก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่า */
+function firstMust(life: LifeState, pool: readonly GameEvent[]): GameEvent | null {
+  let first: GameEvent | null = null;
+  let left = Infinity;
+  for (const e of pool) {
+    if (!e.must) continue;
+    const t = turnsLeft(life, e);
+    if (!first || t < left || (t === left && e.weight > first.weight)) {
+      first = e;
+      left = t;
+    }
+  }
+  return first;
+}
+
+/**
+ * หมุดสองเรื่องที่ปีนี้เป็นโอกาสสุดท้ายของทั้งคู่ (เช่น คนที่เพิ่งย้ายเข้าถิ่นในปีสุดท้ายของเรื่องประจำถิ่น ซึ่งตรงกับวันเกิดครบสี่สิบพอดี)
+ * หลังเรื่องแรกจบ ถ้าเรื่องที่จะออกถัดไปเป็นหมุดที่ชีวิตนี้ยังไม่เคยเจอและปีนี้เป็นปีสุดท้ายของมัน เวลายังไม่เดิน เรื่องนั้นออกต่อในปีเดียวกัน
+ * หมุดจึงไม่มีวันแพ้กันเอง ถามจากเรื่องที่ pickEvent จะหยิบจริง หมุดที่ออกซ้ำได้ (once: false) จึงไม่มีทางรั้งปีไว้เป็นวง
+ */
+function mustOwedThisYear(game: Game, life: LifeState): boolean {
+  const m = firstMust(life, game.events.filter((e) => e.must && playable(game, life, e)));
+  return !!m && !life.seen.includes(m.id) && turnsLeft(life, m) === 0;
+}
+
 /**
  * เลือกเหตุการณ์ถัดไป ลำดับคือ
  * 1. forceId (เช่น ตอนสร้างตัวละครเลือกกำเนิดเอง) ใช้เหตุการณ์นั้นแทนการสุ่ม
  * 2. เหตุการณ์ must ที่เข้าเงื่อนไข ออกทันทีโดยไม่สุ่ม เรื่องที่ช่วงเวลาจะปิดก่อนได้ก่อน ถ้าเท่ากันเรื่องที่ weight สูงกว่าได้ก่อน
+ *    (สองเรื่องที่ปีนี้เป็นโอกาสสุดท้ายพร้อมกัน ออกทั้งคู่ในปีเดียวกัน ดู mustOwedThisYear)
  * 3. คนที่กำลังเรียนหลักสูตร: เรื่องถัดไปคือเหตุการณ์ของหลักสูตรในปีที่เรียนอยู่ สุ่มแบบถ่วงน้ำหนักถ้ามีหลายเรื่อง (ปีที่ไม่มีเรื่องของหลักสูตรให้ออก ชีวิตเดินตามปกติ)
  * 4. สมาชิกองค์กรที่ไม่ได้งานมา ORG.dutyGap.max เหตุการณ์ติดกัน: เรื่องถัดไปคืองานขององค์กรนั้น (ถ้ายังมีงานที่ออกได้)
  *    ถ้าไม่มีงานค้าง: เส้นเรื่องยาวที่ตอนถัดไปค้างมาครบ ARC.due ปี เรื่องถัดไปคือตอนนั้น
@@ -351,19 +377,8 @@ export function pickEvent(game: Game, life: LifeState, forceId?: string): { even
   }
   const all = game.events.filter((e) => playable(game, life, e));
   if (all.length === 0) return { event: null, life };
-  const must = all.filter((e) => e.must);
-  if (must.length) {
-    let first = must[0]!;
-    let left = turnsLeft(life, first);
-    for (const e of must.slice(1)) {
-      const t = turnsLeft(life, e);
-      if (t < left || (t === left && e.weight > first.weight)) {
-        first = e;
-        left = t;
-      }
-    }
-    return { event: first, life: withEvent(game, life, first) };
-  }
+  const first = firstMust(life, all);
+  if (first) return { event: first, life: withEvent(game, life, first) };
   const lessons = life.course ? all.filter((e) => e.course) : [];
   const normal = all.filter((e) => !e.fallback);
   const rested = normal.filter((e) => !recentlySeen(life, e) && !fightResting(life, e) && !dutyResting(life, e, game.duties));
@@ -1193,6 +1208,12 @@ export function concludeEvent(game: Game, ev: GameEvent, before: LifeState, afte
     return { life: close(finishDeath(next)), entry };
   }
   if (next.dying) return { life: close(next), entry };
+
+  // หมุดอีกเรื่องรออยู่ในปีสุดท้ายของมัน: จบเรื่องนี้โดยเวลายังไม่เดิน (ดู mustOwedThisYear) สิ่งที่เกิดเองตอนสิ้นปีไปเกิดหลังเรื่องนั้น
+  if (ev.must && !ev.years) {
+    const held = close(next);
+    if (mustOwedThisYear(game, held)) return { life: held, entry };
+  }
 
   // จำนวนปีกำหนดไว้ตั้งแต่ตอนเลือกเหตุการณ์ (ข้อความบอกผู้เล่นไปแล้วว่ากี่ปี) เซฟเก่าที่ไม่มีค่านี้คิดใหม่
   const span = ev.years ? (before.span ?? spanOf(game, next, ev)) : 1;

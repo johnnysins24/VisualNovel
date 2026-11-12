@@ -506,7 +506,8 @@ export function lintContent(c: Content): string[] {
         if (!ct.move && !ct.leave && !ct.district && !ct.home && !ct.merit && !ct.promote && !ct.mood) problems.push(`${cw}: effects.city ไม่มีผลอะไร`);
         if (ct.district && !at.some((id) => CITIES[id].districts[ct.district!])) problems.push(`${cw}: ไม่มีย่าน "${ct.district}" ใน${at.length === 1 ? CITIES[at[0]!].th : 'เมืองที่ระบุ'}`);
         if (!ct.move && !gated && (ct.leave || ct.district || ct.home)) problems.push(`${cw}: city.leave district home ใช้ได้เมื่อตัวละครอยู่ในเมือง ต้องมี when.city หรือ requires.city (หรือ city.move ในผลเดียวกัน)`);
-        if (!ct.move && !gated && !ct.of && (ct.merit || ct.promote || ct.mood)) problems.push(`${cw}: city.merit promote mood ต้องรู้ว่าเป็นเมืองไหน ต้องมี when.city หรือ requires.city หรือระบุ city.of`);
+        if (ct.here && (gated || ct.move || ct.leave || ct.district || ct.home || ct.promote || ct.mood || ct.of || !((ct.merit ?? 0) > 0))) problems.push(`${cw}: city.here ใช้กับ merit ที่เป็นบวกอย่างเดียว ในเรื่องที่ไม่ได้กันด้วย when.city หรือ requires.city`);
+        if (!ct.move && !gated && !ct.of && !ct.here && (ct.merit || ct.promote || ct.mood)) problems.push(`${cw}: city.merit promote mood ต้องรู้ว่าเป็นเมืองไหน ต้องมี when.city หรือ requires.city หรือระบุ city.of (ผลงานในเรื่องที่ออกได้ทุกถิ่นใช้ city.here: true)`);
         if (ct.of && !ct.merit && !ct.mood && !ct.promote) problems.push(`${cw}: city.of ใช้คู่กับ merit mood หรือ promote`);
         if (ct.promote && !(typeof w.city === 'object' && w.city.ready === true)) problems.push(`${cw}: city.promote ใช้ได้ในฉากขึ้นชั้นที่กันด้วย when.city.ready: true เท่านั้น`);
         // ซื้อบ้านหรือร้าน: จ่ายเงินจริงในผลเดียวกัน และตัวเลือกต้องกันคนที่เงินไม่พอ (ไม่มีหนี้จากการซื้อบ้าน)

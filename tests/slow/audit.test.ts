@@ -16,12 +16,16 @@ describe('life audit (real content, 400 lives)', () => {
   });
 
   it('every must event has lives that can reach it', () => {
-    const unreachable = game.events.filter((e) => e.must && !res.must.has(e.id)).map((e) => e.id);
     // youth.own_try_* เป็นกันพลาดของเด็กที่ยังไม่ได้ลองทางของตัวเองเมื่ออายุ 13 ซึ่งมีน้อย 400 ชีวิตจึงอาจไม่เจอครบทุกถิ่น
     // (ของเอลฟ์ไม่เคยถูกใช้เลย เพราะเด็กเอลฟ์ทุกคนได้ความโน้มเอียงนอกทางประจำถิ่นก่อนอายุ 13 เสมอ)
     // must เรื่องอื่นทุกเรื่องต้องมีชีวิตที่ไปถึง
-    expect(unreachable.filter((id) => !id.startsWith('youth.own_try_'))).toEqual([]);
-  });
+    const reached = new Set(res.must.keys());
+    const unreachable = () => game.events.filter((e) => e.must && !reached.has(e.id) && !e.id.startsWith('youth.own_try_')).map((e) => e.id);
+    // ฉากขึ้นยศสูงสุดขององค์กรเล็ก (ราชสำนักมีสมาชิกราว 4% ของชีวิต) มีคนไปถึงไม่ถึงหนึ่งในร้อยชีวิต 400 ชีวิตจึงพลาดได้ทั้งที่ทางยังเปิดอยู่
+    // เรื่องที่ยังไม่มีใครถึงได้ชีวิตชุดถัดไปอีกทีละ 400 จนครบ 2,000 ชีวิต ถ้ายังไม่มีใครถึงคือทางปิดจริง
+    for (let from = 401; unreachable().length && from <= 1601; from += 400) for (const id of auditLives(game, 400, { seedFrom: from }).must.keys()) reached.add(id);
+    expect(unreachable()).toEqual([]);
+  }, 600_000);
 
   it('no life loses a must event to a clash', () => {
     // must สองเรื่องที่ถึงโอกาสสุดท้ายในปีเดียวกันออกได้เรื่องเดียว ตั้งแต่ทุกเผ่าใช้ปฏิทินเดียวกัน (ข้อ D3 ของแผนชีวิต 100 ปี) ต้องไม่มีชีวิตไหนเจอ

@@ -124,6 +124,11 @@ export const CityEffectSchema = z
     promote: z.boolean().optional(),
     mood: MoodSchema.optional(),
     of: CityIdSchema.optional(),
+    /**
+     * ใช้คู่กับ merit ในเรื่องที่ออกได้ทุกถิ่น (หมุดของโลก เรื่องของยุค): ผลงานนับให้เมืองที่ตัวละครอยู่ตอนนั้น คนที่ไม่ได้อยู่ในเมืองไม่ได้อะไร
+     * เรื่องที่กันด้วย when.city หรือ requires.city อยู่แล้วไม่ต้องใส่
+     */
+    here: z.literal(true).optional(),
   })
   .strict();
 export type CityEffect = z.infer<typeof CityEffectSchema>;

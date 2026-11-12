@@ -261,10 +261,12 @@ export interface AuditResult {
   /** logic ที่ผิดจริง ต้องว่างเสมอ (ข้อความ → จำนวนครั้ง) */
   problems: Map<string, number>;
   /**
-   * เหตุการณ์ must สองเรื่องที่ถึงโอกาสสุดท้ายในปีเดียวกัน ระบบเลือกได้เรื่องเดียว อีกเรื่องหลุด
-   * เป็นปัญหาของการวางช่วงเวลาในเนื้อหา ไม่ใช่ของ engine (ข้อความ → จำนวนครั้ง)
+   * เหตุการณ์ must ที่หลุดเพราะอีกเรื่องได้ออกแทนในปีสุดท้ายของมัน (ข้อความ → จำนวนครั้ง)
+   * ตั้งแต่ชุด 5 สองเรื่องที่ถึงโอกาสสุดท้ายพร้อมกันออกทั้งคู่ในปีเดียวกัน (mustOwedThisYear ใน engine) ตรงนี้จึงต้องว่างเสมอ
    */
   collisions: Map<string, number>;
+  /** หมุดสองเรื่องที่ออกในปีเดียวกันเพราะถึงโอกาสสุดท้ายพร้อมกัน (เรื่องแรก + เรื่องที่ออกต่อ → จำนวนชีวิต) */
+  sameYear: Map<string, number>;
   /** ชีวิตที่เจอการชนกันข้างบน (เผ่าของชีวิตนั้น เรื่องที่หลุด และเรื่องที่ได้ออกแทน) */
   collisionLives: { seed: number; race: string | null; lost: string; to: string }[];
   /** จำนวนชีวิตที่เคยเข้าเงื่อนไขของ must แต่ละเรื่อง และจำนวนที่ได้เห็น */
@@ -330,6 +332,7 @@ export function auditLives(game: Game, lives: number, opts: AuditOpts = {}): Aud
     events: game.events.length,
     problems: new Map(),
     collisions: new Map(),
+    sameYear: new Map(),
     collisionLives: [],
     must: new Map(),
     finals: [],
@@ -356,6 +359,13 @@ export function auditLives(game: Game, lives: number, opts: AuditOpts = {}): Aud
   const { problems, collisions, counts, fights } = res;
   const byId = new Map(game.events.map((e) => [e.id, e]));
   const mustEvents = game.events.filter((e) => e.must);
+  // หมุดเดียวกันที่เล่าต่างกันตามถิ่น: ป้ายบนเส้นชีวิตเดียวกันและช่วงปีเดียวกัน ชีวิตหนึ่งต้องเจอแค่ฉบับเดียว
+  const pinVariants = new Map<string, string[]>();
+  for (const e of mustEvents) {
+    if (!e.mark || !e.when.year) continue;
+    const k = `${e.mark} ${e.when.year.join('-')}`;
+    (pinVariants.get(k) ?? pinVariants.set(k, []).get(k)!).push(e.id);
+  }
 
   const seedFrom = opts.seedFrom ?? 1;
   for (let seed = seedFrom; seed < seedFrom + lives; seed++) {
@@ -461,7 +471,8 @@ export function auditLives(game: Game, lives: number, opts: AuditOpts = {}): Aud
         else if (!waiting.get(e.id)) waiting.set(e.id, turnsLeft(l, e) <= 0 ? ev.id : null);
       }
       if (!pool.includes(ev)) bump(problems, `${ev.id}: ถูกหยิบทั้งที่ไม่เข้าเงื่อนไขหรือไม่มีตัวเลือก`);
-      if (!ev.once && l.log.slice(-REPEAT_GAP).some((x) => x.eventId === ev.id)) {
+      // ฉากถูกเรียก (must ที่ออกซ้ำได้) ไม่ได้มาจากการสุ่ม: คนที่ดันมาตรเกินขั้นสามอีกรอบโดนเรียกอีกรอบ ไม่นับเป็นเรื่องซ้ำเร็ว
+      if (!ev.once && !ev.must && l.log.slice(-REPEAT_GAP).some((x) => x.eventId === ev.id)) {
         bump(res.closeRepeats, ev.id);
         const others = pool.filter((e) => e.once || !l.log.slice(-REPEAT_GAP).some((x) => x.eventId === e.id));
         if (others.length) bump(problems, `${ev.id}: ออกซ้ำภายใน ${REPEAT_GAP} เหตุการณ์ทั้งที่มีเรื่องอื่นให้ออก`);
@@ -674,6 +685,14 @@ export function auditLives(game: Game, lives: number, opts: AuditOpts = {}): Aud
       if (!l.epitaph) bump(problems, `ตายโดยไม่มีคำจารึก (ฉากตาย ${l.log.at(-1)?.eventId})`);
       if (!l.log.at(-1)?.mark) bump(problems, `ตายโดยไม่มีป้ายสุดท้ายบนเส้นชีวิต (ฉากตาย ${l.log.at(-1)?.eventId})`);
     }
+    for (let i = 1; i < l.log.length; i++) {
+      const a = l.log[i - 1]!, b = l.log[i]!;
+      if (a.age === b.age && byId.get(a.eventId)?.must && byId.get(b.eventId)?.must) bump(res.sameYear, `${a.eventId} + ${b.eventId}`);
+    }
+    for (const ids of pinVariants.values()) {
+      const saw = ids.filter((id) => l.seen.includes(id));
+      if (saw.length > 1) bump(problems, `${saw.join(' กับ ')}: ชีวิตเดียวเจอหมุดเดียวกันสองฉบับ`);
+    }
     bump(res.endReasons, l.endReason ?? 'cap');
     res.finals.push(l);
     res.gear.perLife.push(gearLife);
@@ -837,12 +856,14 @@ export function formatReport(game: Game, res: AuditResult): string {
     for (const [id, t] of [...fights.byFoe].sort((a, b) => b[1].n - a[1].n)) out.push(`  - ${game.foes.get(id)?.name ?? id} (ภัย ${game.foes.get(id)?.threat}): ${row(t)}`);
     const never = game.events.filter((e) => e.encounter && !fights.byEvent.has(e.id)).map((e) => e.id);
     out.push(`- ฉากปะทะที่ไม่มีชีวิตไหนได้เจอ: ${never.length ? never.join(', ') : 'ไม่มี'}`);
-    const unwon = [...fights.byEvent].filter(([, t]) => t.n >= 20 && !(t.ends.win ?? 0)).map(([id]) => id);
-    out.push(`- ฉากปะทะที่เจอเกิน 20 ครั้งแต่ไม่มีใครชนะ: ${unwon.length ? unwon.join(', ') : 'ไม่มี'}`);
+    // เจรจาสำเร็จนับเป็นทางที่ผ่านฉากได้: งานที่ศัตรูแพ้ทางคำพูด คนที่อ่านเกมจะจบด้วยการเจรจาแทบทุกครั้ง
+    const unwon = [...fights.byEvent].filter(([, t]) => t.n >= 20 && !(t.ends.win ?? 0) && !(t.ends.parley ?? 0)).map(([id]) => id);
+    out.push(`- ฉากปะทะที่เจอเกิน 20 ครั้งแต่ไม่มีใครชนะหรือเจรจาได้: ${unwon.length ? unwon.join(', ') : 'ไม่มี'}`);
     const grim = [...fights.byEvent].filter(([, t]) => t.n >= 20 && (t.ends.death ?? 0) / t.n > 0.15).map(([id, t]) => `${id} ${share(t, 'death')}`);
     out.push(`- ฉากปะทะที่ตายเกิน 15%: ${grim.length ? grim.join(' · ') : 'ไม่มี'}`);
-    const careful = [...fights.byEventReads].filter(([, t]) => t.n >= 10 && (t.ends.death ?? 0) / t.n > 0.08).map(([id, t]) => `${id} ${share(t, 'death')} จาก ${t.n} ครั้ง (ชนะ ${share(t, 'win')})`);
-    out.push(`- ฉากปะทะที่ผู้เล่นอ่านเกมยังตายเกิน 8%: ${careful.length ? careful.join(' · ') : 'ไม่มี'}`);
+    // ต้องตายอย่างน้อยสามครั้ง: ฉากที่เจอสิบกว่าครั้งแล้วตายสองครั้งขึ้นป้ายนี้ได้ทั้งที่วัดซ้ำด้วยตัวอย่างร้อยครั้งแล้วตายราว 2%
+    const careful = [...fights.byEventReads].filter(([, t]) => t.n >= 10 && (t.ends.death ?? 0) >= 3 && (t.ends.death ?? 0) / t.n > 0.08).map(([id, t]) => `${id} ${share(t, 'death')} จาก ${t.n} ครั้ง (ชนะ ${share(t, 'win')})`);
+    out.push(`- ฉากปะทะที่ผู้เล่นอ่านเกมยังตายเกิน 8% (ตายอย่างน้อยสามครั้ง): ${careful.length ? careful.join(' · ') : 'ไม่มี'}`);
     const hard = [...fights.byEventReads].filter(([, t]) => t.n >= 10 && (t.ends.win ?? 0) + (t.ends.parley ?? 0) < t.n * 0.35).map(([id, t]) => `${id} ชนะหรือเจรจา ${pct((t.ends.win ?? 0) + (t.ends.parley ?? 0), t.n)} จาก ${t.n} ครั้ง`);
     out.push(`- ฉากปะทะที่ผู้เล่นอ่านเกมชนะหรือเจรจาได้ไม่ถึง 35%: ${hard.length ? hard.join(' · ') : 'ไม่มี'}`);
     // ฉากที่เกิดซ้ำได้: ถ้าชีวิตเดียวเจอฉากเดิมหลายรอบเกินไป ผู้เล่นจะอ่านข้อความเดิมซ้ำ
@@ -1022,7 +1043,12 @@ export function formatReport(game: Game, res: AuditResult): string {
         if (natives.length) out.push(`  - เกิดมาพร้อมมาตรนี้ ${natives.length} ชีวิต: ขั้นสูงสุด ${Array.from({ length: MARK_MAX }, (_, k) => `ขั้น ${k + 1} ${pct(natives.filter((x) => x.m.peak[id] === k + 1).length, natives.length)}`).join(' · ')} · ถูกเรียก ${pct(natives.filter((x) => x.m.called[id] > 0).length, natives.length)}`);
       }
       const sky = STAR_SIDE_TRAITS.filter((t) => t !== MARKS.star.trait && game.traits.has(t));
-      out.push(`- สิ่งติดตัวจากฟ้าที่เคยมี: ${sky.map((t) => `${game.traits.get(t)!.name} ${pct(era.filter((x) => x.m.sky.has(t)).length, era.length)} (ยังอยู่ตอนจบ ${pct(era.filter((x) => x.l.traits.includes(t)).length, era.length)})`).join(' · ')}`);
+      // ทางออกของคำสาปแต่ละอย่าง = เหตุการณ์ที่มีทางเสียสิ่งติดตัวนั้น คนที่เคยติดได้เจอเหตุการณ์นั้นกี่คน และหายกี่คน
+      for (const t of sky) {
+        const cures = new Set(game.events.filter((e) => e.choices.some((c) => [c.effects, c.success?.effects].some((fx) => fx?.lose_traits?.includes(t)))).map((e) => e.id));
+        const had = era.filter((x) => x.m.sky.has(t));
+        out.push(`- ${game.traits.get(t)!.name}: เคยมี ${had.length} ชีวิต (${pct(had.length, era.length)}) · ได้เจอทางออก ${pct(had.filter((x) => x.l.seen.some((id) => cures.has(id))).length, had.length)} · หายก่อนจบชีวิต ${pct(had.filter((x) => !x.l.traits.includes(t)).length, had.length)}`);
+      }
       out.push(`- มีสิ่งจากฟ้าอย่างน้อยหนึ่งอย่าง ${pct(era.filter((x) => x.m.sky.size > 0).length, era.length)} · สองอย่างขึ้นไป ${pct(era.filter((x) => x.m.sky.size > 1).length, era.length)}`);
       // คะแนนโลกของชีวิตที่อยู่จนพ้นยุค: ฝ่ายที่สูงสุดของแต่ละชีวิตคือฝ่ายที่ชีวิตนั้นเอนไปหา (เป้าของชุด 5: คนที่เข้าข้างฝ่ายเดียวตลอดยุคได้ 12 ถึง 16)
       const through = era.filter((x) => lastYear(x.l) > first.to);
@@ -1036,8 +1062,12 @@ export function formatReport(game: Game, res: AuditResult): string {
       for (const k of sides) {
         const p = res.partisans?.[k];
         if (!p) continue;
-        const ps = p.finals.map((l, i) => ({ l, m: p.marks[i]! })).filter((x) => lastYear(x.l) > first.to && x.m.entry);
-        out.push(`- ผู้เล่นที่เข้าข้างฝ่าย ${k} ทุกครั้งที่มีทาง (${p.finals.length} ชีวิต พ้นยุค ${ps.length}): ได้ระหว่างยุค ${line(ps.map((x) => gain(x, k)))} · ตอนจบ ${line(ps.map((x) => x.l.world[k]))} · ถูกเรียก ${pct(ps.filter((x) => x.m.called.star + x.m.called.brand > 0).length, ps.length)} · ไปตามเสียงเรียก ${pct(p.finals.filter((l) => l.deathCause === 'taken').length, p.finals.length)}`);
+        // นับชีวิตที่เดินทางของฝ่ายนั้นได้จนสุด: อยู่จนพ้นยุค หรือไปตามเสียงเรียกระหว่างยุค (คนที่เข้าข้างดาวจำนวนมากจบแบบนี้ ถ้านับแต่คนที่พ้นยุคจะเหลือแต่คนที่ได้ทางของดาวน้อย)
+        // มาตรสองอันไม่อยู่ในตัวคนเดียวกัน คนมีตราร้อนจึงรับทางของดาวไม่ได้ และคนมีรอยดาวรับถ่านไม่ได้ ชีวิตแบบนั้นไม่นับในฝ่ายที่ตัวเองเข้าไม่ได้
+        const barred = (m: MarkLife) => (k === 'star' ? m.peak.brand > 0 : k === 'demon' ? m.peak.star > 0 : false);
+        const all = p.finals.map((l, i) => ({ l, m: p.marks[i]! })).filter((x) => x.m.entry && !barred(x.m));
+        const ps = all.filter((x) => lastYear(x.l) > first.to || x.l.deathCause === 'taken');
+        out.push(`- ผู้เล่นที่เข้าข้างฝ่าย ${k} ทุกครั้งที่มีทาง (${p.finals.length} ชีวิต เข้าฝ่ายนี้ได้และถึงยุค ${all.length} เดินจนสุดทาง ${ps.length}): ได้ระหว่างยุค ${line(ps.map((x) => gain(x, k)))} · ตอนจบ ${line(ps.map((x) => x.l.world[k]))} · ถูกเรียก ${pct(all.filter((x) => x.m.called.star + x.m.called.brand > 0).length, all.length)} · ไปตามเสียงเรียก ${pct(all.filter((x) => x.l.deathCause === 'taken').length, all.length)}`);
       }
       const pins = game.events.filter((e) => e.must && e.id.startsWith('adult.world_') && (e.when.year?.[0] ?? 0) >= first.from && (e.when.year?.[0] ?? 0) <= first.to + 1);
       out.push(`- หมุดของยุค (ชีวิตที่ได้เจอ): ${pins.map((e) => `${e.id.replace('adult.world_', '')} ${res.seenEvents.get(e.id) ?? 0}`).join(' · ') || 'ไม่มี'}`);
@@ -1090,6 +1120,8 @@ export function formatReport(game: Game, res: AuditResult): string {
   for (const [id, m] of missed) out.push(`  - ${id}: เข้าเงื่อนไข ${m.could} ชีวิต ไม่ได้เห็น ${m.could - m.seen} (${pct(m.could - m.seen, m.could)}) รวมชีวิตที่ตายก่อนถึงคิว`);
   const col = [...res.collisions].sort((a, b) => b[1] - a[1]);
   out.push(col.length ? col.map(([k, n]) => `- ชนกัน: ${k} · ${n} ชีวิต`).join('\n') : '- ไม่มี must ที่ชนกัน');
+  const same = [...res.sameYear].sort((a, b) => b[1] - a[1]);
+  out.push(`- หมุดสองเรื่องที่ออกในปีเดียวกันเพราะถึงโอกาสสุดท้ายพร้อมกัน: ${same.reduce((n, [, x]) => n + x, 0)} ครั้ง${same.length ? ' (' + same.map(([k, n]) => `${k} ${n}`).join(' · ') + ')' : ''}`);
 
   h('ความหลากหลาย');
   out.push(`- สองชีวิตที่ถิ่นกำเนิดและอาชีพเดียวกันเจอเหตุการณ์ซ้ำกัน ${pct(res.overlap.sameOriginAndClass, 1)}`);

@@ -957,6 +957,30 @@ describe('passage events (years) and spare events (fallback)', () => {
     // หมุดที่เห็นไปแล้วไม่กันอีก
     expect(spanOf(game, { ...life, seen: ['adult.pin'] }, game.events[0]!)).toBe(5);
   });
+  it('two pins on their last year both play, in the same year', () => {
+    const life = at(40);
+    const year = worldYear(life);
+    const game = gameOf([
+      ev('adult.forty', { must: true, weight: 100000, when: { age: [40, 40] } }),
+      // เรื่องประจำถิ่นที่ชีวิตนี้เพิ่งเข้าเงื่อนไขในปีสุดท้ายของมัน
+      ev('adult.land_year', { must: true, weight: 500, when: { year: [year - 1, year] } }),
+      // หมุดที่ยังเหลือปีหน้า ไม่รั้งเวลา
+      ev('adult.next_pin', { must: true, when: { year: [year, year + 1] } }),
+    ]);
+    expect(pickEvent(game, life).event?.id).toBe('adult.forty');
+    const mid = resolveChoice(game, life, 'adult.forty', 'ok').life;
+    expect(mid.age).toBe(40);
+    expect(pickEvent(game, mid).event?.id).toBe('adult.land_year');
+    const after = resolveChoice(game, mid, 'adult.land_year', 'ok').life;
+    expect(after.age).toBe(41);
+    expect(after.log.map((e) => e.age)).toEqual([40, 40]);
+    expect(pickEvent(game, after).event?.id).toBe('adult.next_pin');
+    // หมุดที่ออกซ้ำได้และยังเข้าเงื่อนไขอยู่ไม่รั้งปีไว้เป็นวง
+    const loop = gameOf([ev('adult.again', { must: true, once: false, weight: 9, when: { age: [40, 40] } }), ev('adult.forty', { must: true, weight: 1, when: { age: [40, 40] } })]);
+    let l = at(40);
+    for (let i = 0; i < 6 && l.age === 40; i++) l = resolveChoice(loop, l, pickEvent(loop, l).event!.id, 'ok').life;
+    expect(l.age).toBe(41);
+  });
   it('a death in the first winter of a span stops the clock there', () => {
     const game = gameOf([ev('adult.long', { once: false, years: 4 }), death('death.age', ['age'])]);
     // ทีฟลิ่งอายุ 67 ยังไม่ถึงฤดูหนาว (70) ช่วงถูกตัดเหลือ 3 ปี
