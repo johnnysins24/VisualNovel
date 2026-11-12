@@ -8,7 +8,7 @@
 # ---------- รอยดาวขั้นสูง ----------
 - id: adult.star_mark_unasked_answer
   stage: adult
-  weight: 20
+  weight: 60
   scene: home
   when:
     age: [16, 130]
@@ -22,6 +22,7 @@
   choices:
     - id: open_it
       label: เปิดอ่าน (ของแบบนี้ติดตัวไปนาน)
+      habit: curious
       text: |
         ข้างในยาวสี่บรรทัด ถูกทุกคำ ใช้ได้จริง {name}ทำตามเสร็จก่อนเที่ยง เรื่องที่คิดวนอยู่หลายเดือนจบลงในเช้าเดียว จบแบบที่ไม่ต้องกลับไปคิดอีก
 
@@ -36,6 +37,7 @@
       effects: { world: { gods: 1 }, flags: [burned_the_unasked_answer] }
     - id: jar_it
       label: เก็บใส่ไหปิดฝา ไม่เปิด
+      habit: cool_headed
       text: |
         {name}ใส่กระดาษลงไหเกลือเปล่า ปิดฝา เอาขี้ผึ้งหยอดรอบขอบ แล้ววางไว้บนชั้นสูงสุดของครัว หลังไหน้ำมันหมู ทุกครั้งที่เรื่องนั้นวนกลับมาในหัว ตาจะเหลือบขึ้นไปบนชั้นเอง
 
@@ -44,7 +46,7 @@
 
 - id: adult.star_mark_sleeve
   stage: adult
-  weight: 26
+  weight: 80
   scene: market
   when:
     age: [16, 130]
@@ -73,6 +75,7 @@
       effects: { gold: -4, hp: -1, marks: { star: -1 }, flags: [had_star_marks_drawn] }
     - id: say_it_was_a_guess
       label: ดึงแขนเสื้อลง แล้วบอกว่าเดาเอา
+      habit: sweet_tongue
       check: { stat: CHA, dc: 12 }
       success:
         text: |
@@ -89,7 +92,7 @@
 
 - id: adult.star_mark_night_hand
   stage: adult
-  weight: 30
+  weight: 100
   scene: home
   when:
     age: [16, 130]
@@ -103,6 +106,7 @@
   choices:
     - id: read_every_page
       label: อ่านทุกแผ่น (อีกขั้นเดียวคือฟ้าเรียกตัว)
+      habit: curious
       text: |
         ตัวเลขกับชื่อถนนคือที่อยู่ของคนที่{name}ไม่รู้จัก พร้อมจำนวนเงินที่เขาซ่อนไว้ใต้พื้นเรือน วิธีสิบสองขั้นคือวิธีเปิดกลอนชนิดหนึ่งโดยไม่ทิ้งรอย ทุกอย่างถูก ทุกอย่างใช้ได้ และไม่มีอย่างไหนที่{name}เคยอยากรู้
 
@@ -140,7 +144,7 @@
 
 - id: adult.star_mark_roofed_year
   stage: adult
-  weight: 12
+  weight: 60
   once: false
   scene: home
   when:
