@@ -36,7 +36,8 @@ const EVENTS = readdirSync('content/events')
 
 describe('world map: where the "you are here" pin stands', () => {
   it('every location tag the story uses has exactly one pin on the map', () => {
-    const tags = new Set(EVENTS.flatMap((e) => collect(e, 'location_tag')).map((x) => String(x.value)));
+    // เงื่อนไข when.location_tag เขียนได้ทั้งแดนเดียวและหลายแดน
+    const tags = new Set(EVENTS.flatMap((e) => collect(e, 'location_tag')).flatMap((x) => (Array.isArray(x.value) ? x.value.map(String) : [String(x.value)])));
     expect(tags.size).toBeGreaterThanOrEqual(5);
     for (const t of tags) expect(DATA.labels.filter((l) => l.tag === t && l.pin).map((l) => l.id), `pins for ${t}`).toHaveLength(1);
   });

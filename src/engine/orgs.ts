@@ -27,6 +27,9 @@ export function promotionReady(life: LifeState, id: OrgId): boolean {
   return !!m && need !== undefined && m.merit >= need;
 }
 
+/** ปีที่อยู่มาในสัญญารอบนี้ (รอบแรกนับจากปีที่เข้า) */
+export const yearsInTerm = (life: LifeState, m: Membership) => worldYear(life) - (m.term ?? m.joined);
+
 /** เงื่อนไข org ของ when และ requires */
 export function orgCondMet(life: LifeState, cond: OrgCond): boolean {
   const c = typeof cond === 'string' ? { id: cond } : cond;
@@ -37,6 +40,7 @@ export function orgCondMet(life: LifeState, cond: OrgCond): boolean {
   if (c.ready !== undefined && promotionReady(life, c.id) !== c.ready) return false;
   if (c.secret !== undefined && !!m.secret !== c.secret) return false;
   if (c.min_refused !== undefined && m.refused < c.min_refused) return false;
+  if (c.min_years !== undefined && yearsInTerm(life, m) < c.min_years) return false;
   return true;
 }
 
@@ -67,12 +71,14 @@ function enemyNotices(life: LifeState, id: OrgId): LifeState {
 /**
  * เข้าเป็นสมาชิกที่ยศแรก ศัตรูขององค์กรรู้จักหน้าตั้งแต่วันนั้น (เป็นสมาชิกอยู่แล้วไม่มีผล)
  * องค์กรที่ต้องปิดตัวตน (covert) เข้าได้แบบลับเท่านั้น · สายงานของอาณาจักร (career) เข้าแล้วงานเดิมหมดไป
+ * ฝ่ายขององค์กรเองเลิกตามคนที่เข้ามาเป็นพวก (เว้นองค์กรที่ตามล่าคนของตัวเอง และสายงานของอาณาจักรที่ไม่รับคนมีหมาย)
  */
 export function joinOrg(life: LifeState, id: OrgId, secret = false): LifeState {
   if (isMember(life, id)) return life;
   const hidden = secret || !!ORGS[id].covert;
   let next = withOrg(life, id, { rank: 1, joined: worldYear(life), merit: 0, done: 0, refused: 0, ...(hidden ? { secret: true } : {}) });
   if (ORGS[id].career) next = { ...next, flags: next.flags.filter((f) => !f.startsWith('job_')) };
+  else if (ORGS[id].faction !== ORGS[id].enemy) next = setHunt(next, ORGS[id].faction, 0);
   return hidden ? next : enemyNotices(next, id);
 }
 
@@ -93,6 +99,7 @@ export function applyOrgEffects(life: LifeState, fx: Pick<Effects, 'org' | 'hunt
     if (o.join && !linked) next = joinOrg(next, o.id, o.secret === true);
     if (o.merit) next = changeMember(next, o.id, (m) => ({ ...m, merit: Math.max(0, m.merit + o.merit!) }));
     if (o.promote) next = changeMember(next, o.id, (m) => ({ ...m, rank: Math.min(ORG_RANKS, m.rank + 1) }));
+    if (o.term) next = changeMember(next, o.id, (m) => ({ ...m, term: worldYear(next) }));
     if (o.secret === false && membership(next, o.id)?.secret) {
       // ตัวตนถูกเปิดเผย: เป็นสมาชิกอย่างเปิดหน้า และศัตรูขององค์กรเริ่มตาม
       next = changeMember(next, o.id, ({ secret: _s, ...m }) => m);

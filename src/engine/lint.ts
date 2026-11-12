@@ -307,7 +307,11 @@ export function lintContent(c: Content): string[] {
     const optional = roles.filter((r) => e.cast![r]!.optional);
     if (w.age && w.age[0] > w.age[1]) problems.push(`${where}: ช่วงอายุกลับด้าน`);
     if (w.year && w.year[0] > w.year[1]) problems.push(`${where}: ช่วงปีกลับด้าน`);
-    if (e.must && !e.once) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด)`);
+    // must ที่เกิดซ้ำได้มีแบบเดียว: วันครบสัญญา (when.org.min_years) ที่ทุกทางออกจากองค์กรหรือเริ่มสัญญารอบใหม่ เงื่อนไขจึงดับเองจนกว่าจะครบรอบหน้า
+    const termOrg = typeof w.org === 'object' && w.org.min_years !== undefined ? w.org.id : undefined;
+    const closesTerm = (fx: Effects | undefined) => fx?.org?.id === termOrg && !!(fx?.org?.leave || fx?.org?.term);
+    const termEnds = !!termOrg && !e.encounter && e.choices.length > 0 && e.choices.every((ch) => (ch.check ? closesTerm(ch.success?.effects) && closesTerm(ch.failure?.effects) : closesTerm(ch.effects)));
+    if (e.must && !e.once && !termEnds) problems.push(`${where}: must ใช้กับ once: false ไม่ได้ (จะออกซ้ำทุกปีไม่มีที่สิ้นสุด) เว้นแต่วันครบสัญญาที่มี when.org.min_years และทุกทางมี org.leave หรือ org.term`);
     if (e.must && !w.age && !w.year && !w.flags?.length && !w.trait && !w.org && !w.city && !roles.length) problems.push(`${where}: must ที่ไม่มีเงื่อนไขอายุ ปี flag trait องค์กร เมือง หรือตัวแสดง จะออกเป็นเรื่องแรกของทุกชีวิต`);
     // ---- องค์กร: งานที่ส่งมา และเรื่องถูกตามล่า ----
     const orgOf = (cond: Requires['org']) => (typeof cond === 'string' ? cond : cond?.id);
@@ -441,7 +445,7 @@ export function lintContent(c: Content): string[] {
     };
     /** ผลของตัวเลือกหรือของทางจบการปะทะ คืนข้อความที่ผลนั้นพกมา (mark epitaph) ให้ตรวจ placeholder ต่อ */
     const lintEffects = (cw: string, fx: Effects | undefined, bigRoomOk: boolean, r?: Requires): (string | undefined)[] => {
-      for (const id of fx?.items ?? []) if (!itemIds.has(id)) problems.push(`${cw}: ไม่มีของ "${id}"`);
+      for (const id of [...(fx?.items ?? []), ...(fx?.lose_items ?? [])]) if (!itemIds.has(id)) problems.push(`${cw}: ไม่มีของ "${id}"`);
       for (const [k, id] of Object.entries(fx?.name_pool ?? {})) {
         if (id && id !== 'none' && !(k === 'parents' && id === 'none') && !poolIds.has(id)) problems.push(`${cw}: name_pool.${k} "${id}" ไม่มีใน names.yaml`);
       }
@@ -460,7 +464,7 @@ export function lintContent(c: Content): string[] {
       if (fx?.org) {
         const o = fx.org;
         if (ORGS[o.id].jobs && (o.join || o.leave)) problems.push(`${cw}: "${o.id}" เป็นองค์กรที่ผูกกับงาน เข้าและออกด้วย flag ของงาน (${ORGS[o.id].jobs!.join(', ')}) ใช้ org.join กับ org.leave ไม่ได้`);
-        if (!o.join && !o.leave && !o.merit && !o.promote && o.secret === undefined) problems.push(`${cw}: effects.org ไม่มีผลอะไร`);
+        if (!o.join && !o.leave && !o.merit && !o.promote && !o.term && o.secret === undefined) problems.push(`${cw}: effects.org ไม่มีผลอะไร`);
         if (o.secret === true && !o.join) problems.push(`${cw}: org.secret: true ใช้คู่กับ join เท่านั้น (เปิดเผยตัวใช้ secret: false)`);
         if (o.join && ORGS[o.id].covert && o.secret !== true) problems.push(`${cw}: "${o.id}" เป็นองค์กรที่สมาชิกต้องปิดตัวตน เข้าได้แบบลับเท่านั้น (join: true คู่กับ secret: true)`);
         if (!o.join && !joinable.has(o.id)) problems.push(`${cw}: เปลี่ยนสถานะสมาชิกของ "${o.id}" แต่ไม่มีเหตุการณ์ไหนพาเข้าองค์กรนี้`);

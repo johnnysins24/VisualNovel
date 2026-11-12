@@ -65,6 +65,7 @@ const RankSchema = z.number().int().min(1).max(ORG_RANKS);
  * ผลต่อสถานะสมาชิกขององค์กรหนึ่ง (กติกาใน orgs.ts)
  * join = เข้าเป็นสมาชิกที่ยศแรก · secret = เข้าแบบลับ (ใช้คู่กับ join) หรือ secret: false = ตัวตนถูกเปิดเผย · leave = ออก (ผลงานและยศหายไป)
  * merit = บวกลบผลงานนอกเหนือจากที่ระบบให้เองเมื่อทำงานขององค์กร · promote = เลื่อนยศหนึ่งขั้น (ใช้ในฉากเลื่อนยศ)
+ * term = เริ่มนับสัญญารอบใหม่ตั้งแต่ปีนี้ (คู่กับเงื่อนไข org.min_years เช่น ทหารที่ต่อสัญญาอีกแปดฤดูหนาว)
  * องค์กรที่ผูกกับงาน (ORGS[id].jobs) เข้าและออกตาม flag ของงาน ใช้ join กับ leave ไม่ได้
  */
 export const OrgEffectSchema = z
@@ -75,12 +76,14 @@ export const OrgEffectSchema = z
     leave: z.boolean().optional(),
     merit: z.number().int().optional(),
     promote: z.boolean().optional(),
+    term: z.boolean().optional(),
   })
   .strict();
 export type OrgEffect = z.infer<typeof OrgEffectSchema>;
 /**
  * เงื่อนไขสมาชิก: เขียนแค่รหัสองค์กร = เป็นสมาชิก หรือระบุยศและผลงาน
  * ready: true = ผลงานถึงเกณฑ์ของยศถัดไปแล้ว (ใช้กับฉากเลื่อนยศ ตัวเลขอยู่ใน ORG.merit) · min_refused = ปฏิเสธงานมาแล้วอย่างน้อยเท่านี้ครั้ง
+ * min_years = อยู่มาแล้วอย่างน้อยเท่านี้ปี นับจากปีที่เข้า หรือปีที่เริ่มสัญญารอบล่าสุด (effects.org.term)
  */
 export const OrgCondSchema = z.union([
   OrgIdSchema,
@@ -92,6 +95,7 @@ export const OrgCondSchema = z.union([
       ready: z.boolean().optional(),
       secret: z.boolean().optional(),
       min_refused: z.number().int().min(1).optional(),
+      min_years: z.number().int().min(1).optional(),
     })
     .strict(),
 ]);
@@ -212,6 +216,8 @@ export const EffectsSchema = z
     /** ขยับขั้นของสิ่งติดตัวที่มีหลายขั้น (บวกคือลุกลาม ลบคือทุเลา) ไม่ต่ำกว่าขั้น 1 ไม่เกินขั้นสุดท้าย */
     trait_step: z.record(z.string(), z.number().int()).optional(),
     items: z.array(z.string()).optional(),
+    /** ของที่หลุดจากมือด้วยผลของเรื่อง (คืนให้องค์กร โดนยึด) ชิ้นที่สวมอยู่หลุดจากช่องด้วย ไม่มีของชิ้นนั้นก็ไม่มีผล */
+    lose_items: z.array(z.string()).optional(),
     location_tag: z.string().optional(),
     /** ตัวละครตาย true = ระบบเดาเหตุเอง (เช็คที่มี foe คือการปะทะ นอกนั้นคือแผล) หรือระบุเหตุเองเช่น sacrifice */
     die: z.union([z.boolean(), z.enum(DEATH_CAUSES)]).optional(),

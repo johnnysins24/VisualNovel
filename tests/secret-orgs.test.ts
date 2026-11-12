@@ -19,7 +19,7 @@ const fight = (id: string, foe: string) => ({
   },
 });
 const raw = {
-  items: [],
+  items: [{ id: 'bell', name: 'กระดิ่ง', slot: 'accessory', stats: { WIS: 1 } }],
   traits: [
     { id: 'oath_cold_iron', name: 'คำสาบานเหล็กเย็น', kind: 'boon', how: 'x', gives: ['x'], breaks: 'x' },
     { id: 'boon_lamp', name: 'พรตะเกียง', kind: 'boon', how: 'x', gives: ['x'], breaks: 'x' },
@@ -39,7 +39,7 @@ const raw = {
         { id: 'farm', label: 'x', effects: { flags: ['job_farmer'] } },
         { id: 'fort', label: 'x', effects: { flags: ['job_wardens'] } },
         { id: 'enlist', label: 'x', effects: { org: { id: 'crown_army', join: true } } },
-        { id: 'swear', label: 'x', effects: { org: { id: 'cold_iron', join: true }, traits: ['oath_cold_iron'] } },
+        { id: 'swear', label: 'x', effects: { org: { id: 'cold_iron', join: true }, traits: ['oath_cold_iron'], items: ['bell'] } },
         { id: 'pray', label: 'x', effects: { traits: ['boon_lamp'] } },
         { id: 'tax', label: 'x', effects: { world: { treasury: 5 } } },
         { id: 'riot', label: 'x', effects: { world: { peace: -3 } } },
@@ -50,6 +50,10 @@ const raw = {
     { id: 'adult.pyre', stage: 'adult', once: false, hunt: 'lamp_church', text: 'x', choices: [{ id: 'hide', label: 'x', text: 'x' }] },
     { id: 'adult.lean_year', stage: 'adult', once: false, when: { world: { peace: [-20, -2] } }, text: 'x', choices: [{ id: 'ok', label: 'x', text: 'x' }] },
     { id: 'adult.empty_chair', stage: 'adult', once: false, when: { location_tag: ['arvel_village', 'ventras'], world: { throne: [-8, -2] } }, text: 'x', choices: [{ id: 'ok', label: 'x', text: 'x' }] },
+    {
+      id: 'adult.eighth_winter', stage: 'adult', must: true, once: false, when: { org: { id: 'crown_army', min_years: 8 } }, text: 'x',
+      choices: [{ id: 'out', label: 'x', effects: { org: { id: 'crown_army', leave: true } } }, { id: 'again', label: 'x', effects: { org: { id: 'crown_army', term: true } } }],
+    },
     fight('witch', 'witch'),
     fight('thug', 'thug'),
     { id: 'death.any', stage: 'death', when: { dying: ['fight', 'wound', 'age', 'sacrifice'] }, text: 'x', choices: [{ id: 'go', label: 'go', effects: { mark: 'จบ', epitaph: 'จบ' } }] },
@@ -103,6 +107,12 @@ describe('องค์กรลับและอาณาจักร', () => {
     expect(techniqueOf(sworn, game)).toMatchObject({ ready: false, why: 'cold_iron' });
     expect(start(sworn, 'pray').traits).not.toContain('boon_lamp');
     expect(start(wizard, 'pray').traits).toContain('boon_lamp');
+    // เตาเลิกตามคนที่สาบานแล้ว ส่วนสถาบันเริ่มรู้จักหน้า
+    const marked = start({ ...wizard, hunted: { cold_iron: 2 } }, 'swear');
+    expect([huntLevel(marked, 'cold_iron'), huntLevel(marked, 'royal_institute')]).toEqual([0, ORG.enemyLevel]);
+    // ของขององค์กรที่วางคืนตอนออก หลุดจากมือและจากช่องที่สวม
+    const laid = applyEffects(game, { ...sworn, equipped: { accessory: 'bell' } }, { lose_items: ['bell'] });
+    expect([sworn.inventory.includes('bell'), laid.inventory.includes('bell'), laid.equipped.accessory]).toEqual([true, false, undefined]);
     // คนถือกระดิ่งขึ้นไป: สำเร็จครั้งแรกกับผู้ใช้เวท ศัตรูเสียแรงใจเพิ่มหนึ่งขีด กับคนธรรมดาไม่ได้
     const bell = { ...sworn, classId: null, orgs: { cold_iron: { ...sworn.orgs.cold_iron!, rank: 2 } } };
     const firstHit = (id: string) => {
@@ -153,6 +163,28 @@ describe('องค์กรลับและอาณาจักร', () => {
     expect(realmNow(at(331), 'treasury')).toBe(0);
     expect(realmNow(at(332), 'treasury')).toBe(-2);
     expect(realmNow(applyEffects(game, at(332), { world: { treasury: -8 } }), 'treasury')).toBe(-REALM_CAP);
+  });
+
+  it('a soldier\'s contract comes due after eight winters, and again only eight winters after signing on anew', () => {
+    const winter = ev('adult.eighth_winter');
+    // ปีที่นับคือปีของโลก: เข้าปีไหน ครบแปดฤดูหนาวในปีที่แปดถัดจากนั้น ไม่ว่าระหว่างนั้นจะเจอเรื่องกี่เรื่อง
+    const inYear = (l: LifeState, year: number): LifeState => ({ ...l, age: year - l.birthYear });
+    const sign = (l: LifeState, choice: string) => resolveChoice(game, { ...l, currentEventId: winter.id }, winter.id, choice).life;
+    const soldier = start(adult(), 'enlist');
+    const joined = membership(soldier, 'crown_army')!.joined;
+    expect(eligible(game, inYear(soldier, joined + 7), winter)).toBe(false);
+    const due = inYear(soldier, joined + 8);
+    expect(eligible(game, due, winter)).toBe(true);
+    const again = sign(due, 'again');
+    expect(membership(again, 'crown_army')).toMatchObject({ rank: 1, joined, term: joined + 8 });
+    expect(eligible(game, again, winter)).toBe(false);
+    expect(eligible(game, inYear(again, joined + 15), winter)).toBe(false);
+    expect(eligible(game, inYear(again, joined + 16), winter)).toBe(true);
+    expect(membership(sign(due, 'out'), 'crown_army')).toBeUndefined();
+    // วันครบสัญญาที่มีทางหนึ่งไม่ปิดรอบ จะออกซ้ำทุกปี ตัวตรวจจึงไม่รับ
+    const broken = structuredClone(raw) as typeof raw;
+    (broken.events.find((e) => e.id === 'adult.eighth_winter') as { choices: object[] }).choices.push({ id: 'stay', label: 'x', effects: { org: { id: 'crown_army', merit: 1 } } });
+    expect(lintContent(ContentSchema.parse(broken)).join('\n')).toContain('adult.eighth_winter: must ใช้กับ once: false ไม่ได้');
   });
 
   it('the linter refuses cult scenes that do not say whether the member is known, open entry to a cult, and a hunt that could reach the hunters own people', () => {

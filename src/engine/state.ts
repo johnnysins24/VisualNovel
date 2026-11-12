@@ -156,6 +156,8 @@ export interface Membership {
   refused: number;
   /** เป็นสมาชิกแบบลับ คนนอกไม่รู้ */
   secret?: boolean;
+  /** ปีของโลกที่เริ่มสัญญารอบล่าสุด (ไม่มี = ยังอยู่ในรอบแรก นับจาก joined) */
+  term?: number;
 }
 
 /**

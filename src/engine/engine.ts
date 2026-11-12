@@ -59,7 +59,7 @@ import { bindCast, estimateBorn, livingChildren, personYears, yearlyPassings } f
 import { mentionsOf, render, type Mention } from './text';
 import { countHabit, deathWard, hasBigRoom, isAgeless, traitCheckBonus, traitCheckBonuses, traitMaxHp, traitRegen, traitWinter, type TraitIndex, habitBlockers } from './traits';
 import { beginEncounter, openMoves } from './encounter';
-import { addItem, coldIron, hasTag, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
+import { addItem, coldIron, hasTag, loseItem, owns, wearYear, wearsMaterial, wearsRarity } from './gear';
 import { applyOrgEffects, dutiesDue, dutyResting, eventWeight, fadeHunts, fightsForOrg, huntLevel, isMember, orgCondMet, realmNow, recordDuty, syncJobOrgs, type DutyResult } from './orgs';
 import { applyCityEffects, cityCondMet, cityRank, cityYear, homeHere, moodOf, roofBonus, standingIn, syncCity } from './cities';
 import { advanceCourse, applyCourseEffects, courseSlotOpen } from './course';
@@ -636,6 +636,12 @@ export function applyEffects(game: Game, life: LifeState, fx: Effects | undefine
     const got = addItem(game, next, i);
     next.inventory = got.inventory;
     next.supplies = got.supplies;
+  }
+  for (const i of fx.lose_items ?? []) {
+    const left = loseItem(game, next, i);
+    next.inventory = left.inventory;
+    next.equipped = left.equipped;
+    next.hp = left.hp;
   }
   if (fx.location_tag) {
     next.locationTag = fx.location_tag;

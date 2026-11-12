@@ -64,6 +64,14 @@ export function addItem(game: Game, life: LifeState, id: string): LifeState {
   return life.inventory.includes(id) ? life : { ...life, inventory: [...life.inventory, id] };
 }
 
+/** ของชิ้นหนึ่งหลุดจากมือด้วยผลของเรื่อง (effects.lose_items) ชิ้นที่สวมอยู่หลุดจากช่องด้วย พลังชีวิตปัจจุบันลดตามเพดานใหม่ */
+export function loseItem(game: Game, life: LifeState, id: string): LifeState {
+  if (!life.inventory.includes(id)) return life;
+  const equipped = Object.fromEntries(Object.entries(life.equipped).filter(([, worn]) => worn !== id)) as LifeState['equipped'];
+  const next = { ...life, equipped, inventory: life.inventory.filter((i) => i !== id) };
+  return { ...next, hp: Math.min(next.hp, Math.max(1, maxHp(next, game.items))) };
+}
+
 /** ใช้ของใช้แล้วหมดไปหนึ่งชิ้น ลำดับของที่เหลือไม่ขยับ (หน้าจอเรียงตามลำดับที่ได้มา) */
 function spendSupply(life: LifeState, id: string): LifeState {
   const left = Object.entries(life.supplies ?? {}).flatMap(([k, n]): [string, number][] => (k !== id ? [[k, n]] : n > 1 ? [[k, n - 1]] : []));
