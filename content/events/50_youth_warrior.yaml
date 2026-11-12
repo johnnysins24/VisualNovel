@@ -81,6 +81,7 @@
         effects: { stats: { STR: 1 }, hp: -2 }
     - id: wear_down
       label: ถอยวนรอบลาน ให้เขาไล่จนหมดแรง
+      habit: cool_headed
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -221,6 +222,7 @@
   choices:
     - id: hold_line
       label: ยืนอยู่ในแถว ไม่ขยับ
+      habit: stubborn
       text: |
         ป้าหยุดที่เส้นปูนพอดี ปลายเท้าแตะเส้นแต่ไม่เกิน แกจ้องหน้า{name}อยู่นาน แล้วถ่มน้ำลายลงบนรองเท้า{name}หนึ่งที เดินกลับไปนั่งที่เดิม
 

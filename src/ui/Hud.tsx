@@ -3,19 +3,28 @@ import { STATS, type Stat } from '../engine/schema';
 import { effectiveStats, maxHp } from '../engine/items';
 import { modifier, worldYear } from '../engine/state';
 import { CLASSES, STAT_TH, type ClassId } from '../engine/balance';
-import { game, life, tab, type Tab } from '../store';
+import { cityName } from '../engine/cities';
+import { currentEvent, endReasonOf, game, life, tab, type Tab } from '../store';
 import { Icon, STAT_ICON, type IconName } from './icons';
 import { SpriteView } from './SpriteView';
 import { resolvedTheme, theme, toggleTheme } from './theme';
+import { sceneImage } from './scenes';
+import { namedInText, namedLook, namedName } from '../sprites/looks';
+import { EncounterChips, FoeSprite, encounterNow } from './Encounter';
+import { MoodDot } from './City';
 
 /** ชื่อไทยของ location_tag (ตามคัมภีร์โลก) */
 export const PLACE_TH: Record<string, string> = {
   arvel_village: 'หมู่บ้านในอาร์เวล',
   ventras: 'เวนทราส',
+  kardin: 'คาร์ดิน',
   hordun: 'ฮอร์ดุน',
   ileth: 'ป่าไอเลธ',
   ashland: 'แดนเถ้า',
 };
+
+/** ชื่อของที่ที่ตัวละครอยู่ตอนนี้: ชื่อเมืองถ้าอยู่ในเมือง ไม่อย่างนั้นชื่อถิ่น ใช้ทั้งบนแถบบนและป้ายมุมภาพฉาก */
+export const placeName = (l: { city: string | null; locationTag: string }): string | undefined => cityName(l as Parameters<typeof cityName>[0]) ?? PLACE_TH[l.locationTag];
 
 export const NAV: { id: Tab; th: string; icon: IconName }[] = [
   { id: 'story', th: 'เรื่องราว', icon: 'story' },
@@ -56,7 +65,7 @@ export function Vitals() {
 export function TopBar() {
   const l = life.value;
   const cls = l.classId ? CLASSES[l.classId as ClassId]?.th : null;
-  const place = PLACE_TH[l.locationTag];
+  const place = placeName(l);
   return (
     <header class="top">
       <div class="who">
@@ -64,7 +73,7 @@ export function TopBar() {
         <p class="meta">
           <span title="อายุ"><Icon name="age" label="อายุ" /><b class="num">{l.age}</b></span>
           <span title="ปี"><Icon name="year" label="ปี" /><b class="num">{worldYear(l)}</b></span>
-          {place && <span><Icon name="place" label="ถิ่น" />{place}</span>}
+          {place && <span class="shrink" title={place}><Icon name="place" label="ถิ่น" /><span class="t">{place}</span><MoodDot l={l} /></span>}
           {cls && <span><Icon name="role" label="อาชีพ" />{cls}</span>}
         </p>
       </div>
@@ -81,14 +90,30 @@ export function TopBar() {
   );
 }
 
+/** NPC ที่มีชื่อซึ่งเหตุการณ์ตอนนี้เอ่ยถึง ยืนข้างตัวผู้เล่นในฉาก */
+function sceneNpc(text: string) {
+  const id = namedInText(text);
+  const look = id ? namedLook(id) : null;
+  return id && look ? { id, look, name: namedName(id) } : null;
+}
+
 export function Scene() {
-  const place = PLACE_TH[life.value.locationTag];
+  const place = placeName(life.value);
+  const img = sceneImage.value;
+  const npc = sceneNpc(currentEvent.value?.text ?? '');
+  // ชีวิตจบแล้ว: ห้องยังอยู่ แต่ไม่มีใครยืนอยู่ในนั้น
+  const ended = endReasonOf(life.value) === 'death';
+  // ระหว่างการปะทะ: ศัตรูยืนแทน NPC และป้ายสถานะของทั้งสองฝ่ายอยู่บนเวทีแทนป้ายชื่อถิ่น
+  const fight = encounterNow();
   return (
-    <div class="scene">
-      <div class="hill" />
-      <div class="hill back" />
-      <SpriteView />
-      {place && <span class="scene-place"><Icon name="place" />{place}</span>}
+    <div class={`scene ${img ? `has-img ${img.time}` : ''} ${ended ? 'ended' : ''} ${fight ? 'enc-a' : ''}`} style={img ? { backgroundImage: `url(${img.url})`, '--stand': img.stand } : undefined}>
+      {!img && <div class="hill" />}
+      {!img && <div class="hill back" />}
+      <div class="actors">
+        <SpriteView />
+        {fight ? <FoeSprite foe={fight.foe} /> : npc && <SpriteView look={npc.look} label={npc.name} class="npc" />}
+      </div>
+      {fight ? <EncounterChips foe={fight.foe} st={fight.st} /> : place && <span class="scene-place"><Icon name="place" />{place}</span>}
     </div>
   );
 }

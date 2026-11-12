@@ -1,6 +1,10 @@
 - id: test_dagger
   name: "[ทดสอบ] มีดสั้น"
   slot: weapon
+  rarity: rare
+  pattern: dagger
+  material: black_iron
+  tags: [edge]
   stats: { DEX: 1 }
   sprite: weapon_dagger
   passive:
@@ -9,8 +13,25 @@
 - id: test_cap
   name: "[ทดสอบ] หมวกผ้า"
   slot: head
+  rarity: uncommon
+  pattern: cap
+  material: ileth_wood
+  price: 5
   stats: { CON: 1 }
   sprite: head_cap
   passive:
-    description: "[ทดสอบ] เลือดสูงสุด +2"
+    description: "[ทดสอบ] พลังชีวิตสูงสุด +2"
     effect: { kind: max_hp, amount: 2 }
+# ของใช้แล้วหมดของชุดทดสอบ: ยาหนึ่งอย่าง กับของแหลมที่ตรงจุดอ่อนของหมาเถ้าทดสอบ (ไอคอนยืมจากของจริง)
+- id: test_salve
+  name: "[ทดสอบ] ขี้ผึ้ง"
+  icon: temple_salve
+  tags: [medicine]
+  price: 1
+  use: { heal: 2, text: "[ทดสอบ] {name}ทาขี้ผึ้ง" }
+- id: test_dart
+  name: "[ทดสอบ] ลูกดอก"
+  icon: whetstone
+  tags: [pierce]
+  price: 1
+  use: { text: "[ทดสอบ] {name}ขว้างลูกดอก" }

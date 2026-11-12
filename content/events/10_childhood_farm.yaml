@@ -17,6 +17,7 @@
   choices:
     - id: hug_calf
       label: มุดลงไปนอนกอดลูกวัวในกองฟาง
+      habit: soft_heart
       text: |
         {name}มุดลงไปนอนแนบตัวลูกวัว ห่มผ้าห่มคลุมไว้ทั้งสองตัว {father}ไม่ห้าม เขาเอาผ้าห่มของตัวเองมาคลุมทับอีกชั้น แล้วนั่งพิงเสาหลับไป
 
@@ -152,6 +153,7 @@
   choices:
     - id: carry_to_temple
       label: อุ้มเด็กวิ่งไปวิหารอีเซลที่โคนเสา
+      habit: soft_heart
       check: { stat: CON, dc: 11 }
       success:
         text: |

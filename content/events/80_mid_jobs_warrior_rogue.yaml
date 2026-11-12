@@ -213,7 +213,7 @@
           ฐานหินลื่นด้วยไอน้ำที่พ่นออกมา {name}อัดปูนเข้าไปได้ครึ่งรอย แล้วจุดแดงสามจุดก็ขึ้นมาถึงพร้อมกัน
 
           ซาธิลอุดรอยที่เหลือจนเสร็จตอนฟ้าสาง ปูนที่แห้งอยู่ในรอยร้าวมีรอยมือสองคู่ คู่หนึ่งใหญ่กว่า เช้าวันนั้นมีหัวหอกขึ้นไปแขวนบนผนังห้องกินข้าวเพิ่มอีกอัน ข้างหัวหอกของคนรุ่นก่อนอีกหลายสิบอัน
-        effects: { die: true }
+        effects: { die: sacrifice }
     - id: send_the_young
       label: สอนซาธิลอุดรอย ส่วนตัวเองถือหอกยืนกันอยู่ข้างล่าง
       check: { stat: STR, dc: 13, foe: demon }
@@ -236,7 +236,7 @@
       effects: { stats: { CON: 1 }, alignment: { law: 1 }, flags: [reported_the_knock] }
     - id: stand_at_the_crack
       label: เอาหลังพิงรอยร้าว ยืนขวางหมาเถ้าไว้คนเดียว ให้ซาธิลอุด
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       check: { stat: CON, dc: 12, foe: demon }
       success:
         text: |
@@ -273,6 +273,7 @@
       effects: { gold: -4, alignment: { moral: 1 }, flags: [convoy_spill_ledger] }
     - id: fire_warning
       label: ยิงขึ้นฟ้าหนึ่งนัด แล้วสั่งขบวนเดินต่อ
+      habit: cool_headed
       text: |
         เสียงปืนของ{name}สะท้อนไปตามรางไกลถึงเนินเถ้า เด็กคนนั้นกระโดดลงจากกองหิน ชาวบ้านแหวกทางให้ ขบวนผ่านไปครบทุกกระสอบ บริษัทจ่ายรางวัลเที่ยวที่ไม่หายสักกระสอบห้าเหรียญ
 
@@ -317,6 +318,7 @@
   choices:
     - id: lamps_out
       label: สั่งดับตะเกียงทั้งขบวน นอนราบ ให้มันเดินผ่านไป
+      habit: cool_headed
       check: { stat: CON, dc: 12 }
       success:
         text: |
@@ -332,6 +334,7 @@
         effects: { hp: -3, flags: [ash_soldier_burn] }
     - id: open_fire
       label: สั่งยิงแถวหน้าก่อนมันถึงขบวน
+      habit: cold_blood
       check: { stat: DEX, dc: 14, foe: demon }
       success:
         text: |
@@ -388,9 +391,10 @@
           ข้อโซ่กลางคลองเปียกน้ำค้าง มือของ{name}ลื่นตอนลมกระโชก {name}ยังเกาะโซ่ด้วยมือข้างเดียวได้นานพอให้เด็กคนโตปลดผ้าพันคอ ดึงน้องคนเล็กออกจากหลัง{name}มากอดไว้กับโซ่ แล้วมือข้างนั้นก็หลุด
 
           เด็กสามคนไปถึงเรือ เช้าวันรุ่งขึ้นคนเก็บขยะริมคลองเจอรองเท้าข้างหนึ่งลอยติดอยู่ที่เสาท่า ในห้องใต้ร้านขายเชือก มีคนขีดเส้นทับชื่อบนสุดบนกระดานดำ แล้วไม่มีชื่อใหม่ขึ้นแทนอยู่หลายเดือน
-        effects: { die: true }
+        effects: { die: sacrifice }
     - id: wait_a_night
       label: รอไว้อีกคืน นั่งบนหลังคานับจังหวะยามของปาเดรนก่อน
+      habit: cool_headed
       check: { stat: INT, dc: 13 }
       success:
         text: |
@@ -414,7 +418,7 @@
       effects: { stats: { CON: 1 }, reputation: { dock_rats: 1 }, flags: [ran_the_sewer_again] }
     - id: draw_the_dogs
       label: ออกไปให้หมาของปาเดรนได้กลิ่นตัวเอง แล้ววิ่งล่อไปอีกทาง
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       check: { stat: DEX, dc: 12 }
       success:
         text: |
@@ -625,6 +629,7 @@
         effects: { hp: -2, flags: [hobran_grudge] }
     - id: lift_his_papers
       label: ล้วงแฟ้มเอกสารจากเสื้อของชายผมทาน้ำมัน แล้วขายเรื่องของเขาแทน
+      habit: light_fingers
       check: { stat: DEX, dc: 13 }
       success:
         text: |
@@ -647,6 +652,7 @@
       effects: { alignment: { law: 1 }, flags: [let_the_title_go] }
     - id: widow_as_aunt
       label: ขอให้ท่านหญิงอิสเวลมาเล่าว่าเคยรู้จักตระกูลนั้น
+      habit: sweet_tongue
       requires: { flag: widow_tea_friend }
       text: |
         ท่านหญิงอิสเวลอายุแปดสิบแล้ว ยังรินชาเองทุกครั้ง นางฟังเรื่องฮอบรันจนจบ แล้วหัวเราะเหมือนวันที่ได้ยินว่ามีคนแย่งกันโกงนาง บอกว่านางเคยเต้นรำกับหลานชายคนสุดท้ายของตระกูลกาเรดอสตอนอายุสิบห้า เขาเหยียบเท้านางสามครั้ง
@@ -661,6 +667,7 @@
   when:
     age: [33, 40]
     flags: [job_swindler]
+    not_orgs: [star_listeners]
   text: |
     งานเก่าตายไปทีละงาน หุ้นทุ่งจานรับดาวขายไม่ได้แล้วเพราะทุ่งจริงมีขึ้นใหม่ทุกเดือน ตระกูลขุนนางที่สูญไปแล้วมีคนขุดขึ้นมาขายหมด ตาของ{name}ต้องหรี่ทุกครั้งที่อ่านตัวเลขเล็ก และหน้าของ{name}มีคนในเวนทราสจำได้มากเกินไป
 
@@ -752,7 +759,8 @@
       effects: { flags: [job_navy], clear_flags: [job_wardens, job_mercenary], location_tag: ventras, reputation: { crown: 1 } }
     - id: to_wardens
       label: ไปแดนเถ้า รับเตียงว่างในป้อมสามของผู้เฝ้าผนึก
-      requires: { not_flags: [job_wardens] }
+      # คนที่สาบานหรือลงชื่อกับองค์กรของชุด อ ไว้แล้วรับเตียงของภาคีอีกไม่ได้
+      requires: { not_flags: [job_wardens], not_orgs: [wick, cold_iron, reclaimers, star_listeners, ash_cult] }
       text: |
         หัวหน้าป้อมสามให้{name}เลือกเตียงเหมือนที่ให้ทุกคน เตียงไหนก็ได้ เจ้าของเดิมไม่กลับมาเอาแล้ว บนผนังห้องกินข้าวมีหัวหอกไหม้ดำแขวนเรียงอยู่หลายสิบอัน ใต้แต่ละอันเขียนชื่อไว้ด้วยถ่าน บางชื่อจางจนอ่านไม่ออกแล้ว แต่คนในป้อมยังเรียกได้ครบ
 

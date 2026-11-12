@@ -55,6 +55,7 @@
       effects: { stats: { INT: 1 }, world: { star: 1 } }
     - id: pick_pockets
       label: เดินผ่านฝูงคนที่กำลังแหงนหน้า
+      habit: light_fingers
       text: |
         คนที่แหงนหน้ามองฟ้าไม่มีใครมองกระเป๋าตัวเอง {name}เดินผ่านฝูงคนหนึ่งรอบ ออกมาอีกฝั่งถนนพร้อมเหรียญที่ไม่ใช่ของตัวเองสามเหรียญ
       effects: { gold: 3, alignment: { moral: -1, law: -1 } }

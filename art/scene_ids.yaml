@@ -2,9 +2,11 @@
 # `<scene>_<location_tag>` if there is one, else `<scene>`, else its `<location_tag>` (outdoors).
 # Each id is a file art/scenes/<id>.yaml; `npm run scenes` (node art/kit/build.mjs scenes) writes
 # public/scenes/<id>_<day|dusk|night>.png and public/scenes/index.json.
-locations: [arvel_village, ventras, hordun, ileth, ashland]
+locations: [arvel_village, ventras, hordun, ileth, ashland, kardin]
 # a scene drawn once per location: <scene>_<location_tag>
 per_location: [home, market]
 # one picture wherever it happens
-shared: [temple, tavern, refinery, road, fort, noble_hall, workshop, ship_deck, mine, clan_hall, institute, belek_bank, star_hall]
+shared: [temple, tavern, refinery, road, fort, noble_hall, workshop, smithy, golem_shop, healer, ship_deck, mine, clan_hall, institute, belek_bank, star_hall, classroom, library, dormitory, laboratory, observatory, council_hall, station,
+  # the seven primordials (batch 4): the land itself in the owner's shape, each a studio drawing in art/props/
+  land_river, land_field, land_fire, land_stone, land_forest, land_wind, land_night]
 times: [day, dusk, night]

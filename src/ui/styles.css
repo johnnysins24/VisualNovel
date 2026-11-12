@@ -5,7 +5,7 @@
  */
 :root {
   --bg: #faf7f0; --surface: #ffffff; --subtle: #f2eee4; --ink: #2a2824; --muted: #8a8478; --line: #e7e1d3;
-  --accent: #4a5ba8; --gold: #a8801f; --good: #4f8a4b; --bad: #c0533f;
+  --accent: #4a5ba8; --gold: #a8801f; --good: #4f8a4b; --bad: #c0533f; --curse: #7b5ea7;
   --sky1: #e9eef3; --sky2: #f7f1e6; --hill: #dfe5d6; --hill2: #cfd8c4;
   --love: #d0607a; --friend: #4f8a4b; --mentor: #4a5ba8; --rival: #c0533f; --kin: #a8801f;
   --forest: #dfe8d9; --stone: #e6e2da; --field: #f0e7d0; --ash: #dedad6;
@@ -18,7 +18,7 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     --bg: #17171a; --surface: #1f1f23; --subtle: #29292e; --ink: #ecebe6; --muted: #918f88; --line: #313137;
-    --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574;
+    --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574; --curse: #b9a2ee;
     --sky1: #1b1e2b; --sky2: #24222c; --hill: #22261f; --hill2: #1d211b;
     --love: #ef8aa1; --friend: #82c47c; --mentor: #9eabff; --rival: #ef8574; --kin: #d9b55e;
     --forest: #243026; --stone: #2c2b2a; --field: #332e22; --ash: #2a2828;
@@ -27,7 +27,7 @@
 }
 :root[data-theme='dark'] {
   --bg: #17171a; --surface: #1f1f23; --subtle: #29292e; --ink: #ecebe6; --muted: #918f88; --line: #313137;
-  --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574;
+  --accent: #9eabff; --gold: #d9b55e; --good: #82c47c; --bad: #ef8574; --curse: #b9a2ee;
   --sky1: #1b1e2b; --sky2: #24222c; --hill: #22261f; --hill2: #1d211b;
   --love: #ef8aa1; --friend: #82c47c; --mentor: #9eabff; --rival: #ef8574; --kin: #d9b55e;
   --forest: #243026; --stone: #2c2b2a; --field: #332e22; --ash: #2a2828;
@@ -55,7 +55,10 @@ ul { list-style: none; margin: 0; padding: 0; }
 .who { flex: 1; min-width: 0; display: grid; line-height: 1.3; }
 .name { font-family: var(--f-head); font-weight: 600; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .meta { display: flex; gap: 10px; font-size: .75rem; color: var(--muted); white-space: nowrap; overflow: hidden; }
-.meta > span { display: inline-flex; align-items: center; gap: 3px; }
+.meta > span { display: inline-flex; align-items: center; gap: 3px; flex: none; }
+/* ที่แคบ: ชื่อถิ่นย่อด้วยจุดไข่ปลาก่อน อายุ ปี และอาชีพไม่โดนตัดกลางคำ */
+.meta > .shrink { flex: 0 1 auto; min-width: 0; }
+.meta .t { overflow: hidden; text-overflow: ellipsis; }
 .meta b { color: var(--ink); }
 .meta .icon { width: 13px; height: 13px; }
 .vital { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; white-space: nowrap; }
@@ -67,10 +70,20 @@ ul { list-style: none; margin: 0; padding: 0; }
 .top-tabs button[aria-current='true'] { background: var(--subtle); color: var(--ink); }
 
 /* ---------- ฉาก ---------- */
-.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); min-height: 0; display: grid; place-items: end center; }
+.stage { display: contents; }
+/* ฉากคงสัดส่วนภาพ 256×112 เสมอ ไม่ครอปพื้นหลัง ตัวละครสูง 96/112 ของฉาก = พิกเซลขนาดเท่าพื้นหลัง */
+.scene { grid-area: scene; position: relative; overflow: hidden; background: linear-gradient(var(--sky1), var(--sky2)); aspect-ratio: 256 / 112; width: 100%; min-height: 0; }
+.actors { position: absolute; inset: 0; display: flex; align-items: flex-end; justify-content: center; gap: 6%; }
 .scene .hill { position: absolute; left: -10%; right: -10%; bottom: -45%; height: 70%; background: var(--hill); border-radius: 50% 50% 0 0; }
 .scene .hill.back { left: 35%; right: -30%; bottom: -52%; background: var(--hill2); }
-.sprite { position: relative; image-rendering: pixelated; height: 88%; max-height: 288px; aspect-ratio: 64 / 96; margin-bottom: 4%; }
+.sprite { position: relative; image-rendering: pixelated; aspect-ratio: 64 / 96; }
+/*
+ * ตัวละคร (ผ้าใบ 64×96 เท้าที่แถว 93) วาดพิกเซลเท่าฉาก 256×112: สูง 96/112 ของฉาก
+ * แล้วยกขึ้นให้เท้าแตะแถว --stand ของภาพ (ค่าจาก thread ศิลป์ ค่าเริ่ม 106)
+ */
+.actors .sprite { height: calc(96 / 112 * 100%); transform: translateY(calc((var(--stand, 106) - 109) / 96 * 100%)); }
+.scene.has-img { background-size: cover; background-position: center bottom; background-repeat: no-repeat; image-rendering: pixelated; }
+.scene.has-img .scene-place { background: color-mix(in srgb, var(--bg) 82%, transparent); padding: 2px 8px; border-radius: 999px; }
 .scene-place { position: absolute; top: 8px; left: 12px; font-size: .75rem; color: var(--muted); display: inline-flex; align-items: center; gap: 4px; }
 .scene-place .icon { width: 14px; height: 14px; }
 
@@ -113,7 +126,7 @@ ul { list-style: none; margin: 0; padding: 0; }
 .ending { display: grid; gap: 12px; justify-items: start; padding: 12px 0; }
 
 /* ---------- แผ่นตัวเลือก ---------- */
-.sheet { background: var(--surface); border-top: 1px solid var(--line); border-radius: 18px 18px 0 0; padding: 6px 12px 10px; display: grid; gap: 6px; box-shadow: 0 -8px 20px rgb(40 30 10 / .06); max-height: 60%; overflow: auto; }
+.sheet { background: var(--surface); border-top: 1px solid var(--line); border-radius: 18px 18px 0 0; padding: 6px 12px 10px; display: grid; grid-auto-rows: max-content; gap: 6px; box-shadow: 0 -8px 20px rgb(40 30 10 / .06); max-height: 60%; overflow: auto; }
 .sheet-head { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: .8rem; min-height: 28px; }
 .sheet-head .icon { width: 15px; height: 15px; }
 .later { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); min-height: 32px; padding: 0 4px; }
@@ -155,14 +168,17 @@ ul { list-style: none; margin: 0; padding: 0; }
 .sec { display: grid; gap: 8px; }
 .sec h3 { font-size: .78rem; font-weight: 500; color: var(--muted); display: flex; align-items: center; gap: 6px; }
 .sec h3 .icon { width: 14px; height: 14px; }
+.credits summary { cursor: pointer; list-style: none; }
+.credits summary::-webkit-details-marker { display: none; }
+.credits summary h3::after { content: "▸"; margin-left: auto; }
+.credits[open] summary h3::after { content: "▾"; }
+.credits ul { display: grid; gap: 6px; padding: 0; margin: 0; list-style: none; font-size: .78rem; line-height: 1.5; }
+.credits a { color: inherit; }
 .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px 16px; }
 .stat-grid li { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
 .stat-grid li .icon { color: var(--muted); }
 .stat-grid b { margin-left: auto; font-size: .82rem; }
 .stat-grid small { color: var(--muted); font-size: .65rem; min-width: 22px; text-align: right; }
-.items { display: flex; flex-wrap: wrap; gap: 6px; }
-.item { min-height: 40px; padding: 4px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); font-size: .88rem; }
-.item.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .people li { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--line); }
 .people small { margin-left: auto; color: var(--muted); }
 .avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--subtle); display: grid; place-items: center; font-size: .8rem; color: var(--muted); }
@@ -201,10 +217,17 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .chart .node circle { fill: var(--subtle); stroke: var(--line); stroke-width: 1.2; }
 .chart .node:focus-visible circle, .chart .node:hover circle { stroke: var(--accent); }
 .chart .node.me circle { fill: var(--surface); stroke: var(--accent); stroke-width: 2.5; }
+.chart .node.on circle { stroke: var(--accent); stroke-width: 2; }
 .chart .node.dead { opacity: .5; }
+.face { image-rendering: pixelated; }
+.avatar.face { background: var(--subtle); object-fit: cover; }
+.node.dead .face { filter: grayscale(1); opacity: .6; }
 .chart .initial { text-anchor: middle; font-size: 14px; fill: var(--muted); }
 .chart .node.me .initial { fill: var(--ink); font-weight: 600; }
 .chart .nm { text-anchor: middle; font-size: 12.5px; fill: var(--ink); }
+/* แบบ ข ของหลานในผัง: เลขจำนวนหลานที่มุมวงของลูก */
+.chart .node .gk-badge circle { fill: var(--accent); stroke: var(--surface); stroke-width: 2; }
+.chart .node .gk-badge text { text-anchor: middle; font-family: var(--f-num); font-size: 9px; fill: var(--surface); }
 .chart .node.me .nm { font-weight: 600; }
 .chart .sub { text-anchor: middle; font-size: 10.5px; fill: var(--muted); }
 .chart .cross { stroke: var(--muted); stroke-width: 1.6; fill: none; }
@@ -215,10 +238,10 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .relmap .badge path { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .edge.kin, .badge.kin circle, .badge.kin path { stroke: var(--kin); }
 .edge.friend, .badge.friend circle, .badge.friend path { stroke: var(--friend); }
-.edge.mentor, .badge.mentor circle, .badge.mentor path { stroke: var(--mentor); }
+.edge.mentor, .badge.mentor circle, .badge.mentor path, .edge.pupil, .badge.pupil circle, .badge.pupil path { stroke: var(--mentor); }
 .edge.love, .badge.love circle, .badge.love path { stroke: var(--love); }
 .edge.rival, .badge.rival circle, .badge.rival path { stroke: var(--rival); }
-.bond-kin { color: var(--kin); } .bond-friend { color: var(--friend); } .bond-mentor { color: var(--mentor); } .bond-love { color: var(--love); } .bond-rival { color: var(--rival); }
+.bond-kin { color: var(--kin); } .bond-friend { color: var(--friend); } .bond-mentor, .bond-pupil { color: var(--mentor); } .bond-love { color: var(--love); } .bond-rival { color: var(--rival); }
 .icon.love { color: var(--love); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: .78rem; color: var(--muted); }
 .legend > span { display: inline-flex; align-items: center; gap: 4px; }
@@ -233,19 +256,74 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .slots { display: grid; gap: 8px; justify-items: start; }
 .slots.right { justify-items: end; }
 .slot { width: 44px; height: 44px; border-radius: 12px; border: 1px solid var(--line); display: grid; place-items: center; color: var(--muted); background: var(--surface); }
-.slot.on { color: var(--ink); border-color: var(--ink); }
+.slot.on { color: var(--ink); border: 1.5px solid color-mix(in srgb, var(--r, var(--ink)) 60%, var(--line)); background: color-mix(in srgb, var(--r, var(--ink)) 8%, var(--surface)); }
+button.slot.on:hover { border-color: var(--r, var(--ink)); }
+.slot.open { border-color: var(--r, var(--ink)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--r, var(--ink)) 22%, transparent); }
 .slot.empty { border-style: dashed; background: transparent; opacity: .7; }
 .slot-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .slot-row .slot { width: 38px; height: 38px; border-radius: 10px; }
+.slot-row .slot .iart { max-width: 28px; max-height: 28px; }
 
 /* ---------- แผนที่ ---------- */
-.map { position: relative; aspect-ratio: 16 / 10; border-radius: 16px; background: var(--surface); border: 1px solid var(--line); overflow: hidden; max-width: 520px; }
-.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-.map .region { stroke: var(--line); }
-.map .region.forest { fill: var(--forest); } .map .region.stone { fill: var(--stone); } .map .region.field { fill: var(--field); } .map .region.ash { fill: var(--ash); }
-.map text { font-family: var(--f-body); font-size: 10.5px; fill: var(--muted); }
-.map .here circle { fill: var(--bad); }
-.map .here .halo { fill: none; stroke: var(--bad); opacity: .4; }
+/* แผนที่โลก (WorldMap.tsx): ภาพพิกเซลจาก public/map ชื่อวาดทับเป็นตัวอักษร สีชื่อตามโปสเตอร์ (art/kit/map-poster.mjs)
+   ภาพเป็นสีของโลกเอง ไม่เปลี่ยนตามธีม ชื่อจึงใช้ตัวสีอ่อนขอบเข้มที่อ่านออกทั้งบนทุ่งและบนทะเล */
+.map { position: relative; display: block; width: 100%; aspect-ratio: 16 / 10; border-radius: 16px; overflow: hidden;
+  background: #364a72; border: 1px solid var(--line); padding: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.map:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.map-img { position: absolute; left: 0; top: 0; max-width: none; transform-origin: 0 0; image-rendering: pixelated; pointer-events: none; }
+.map-labels { position: absolute; inset: 0; overflow: visible; pointer-events: none; }
+.map-labels text { paint-order: stroke; stroke-linejoin: round; dominant-baseline: central; }
+.lbl { pointer-events: auto; cursor: pointer; outline: none; }
+.lbl .hit { fill: transparent; }
+.lbl:focus-visible .hit { stroke: #fff8e8; stroke-width: 2px; rx: 4px; }
+.lbl.pin:focus-visible rect, .lbl.sel:focus-visible rect { stroke: var(--accent); stroke-width: 2px; }
+.lbl.region, .lbl.sea, .lbl.river { pointer-events: none; }
+.lbl.region text { fill: #fbf6ea; stroke: rgb(43 40 64 / .78); stroke-width: 4px; }
+.lbl.sea text { fill: #d8e6f6; stroke: rgb(37 52 88 / .55); stroke-width: 3px; }
+.lbl.river text { fill: #e3eefa; stroke: rgb(43 40 64 / .75); stroke-width: 2.6px; }
+.lbl.capital text, .lbl.city text { fill: #fff8e8; stroke: #2b2840; stroke-width: 4px; }
+.lbl.pillar text { fill: #f6e6bd; stroke: #2b2840; stroke-width: 3.4px; }
+.lbl.town text, .lbl.name text { fill: #fffdf7; stroke: rgb(43 40 64 / .92); stroke-width: 3.4px; }
+.lbl.minor text { fill: #f3efe6; stroke: rgb(43 40 64 / .9); stroke-width: 3px; }
+.lbl.pin rect { fill: rgb(43 40 64 / .9); }
+.lbl.pin text { fill: #fff8e8; stroke: none; }
+.lbl.sel rect { fill: rgb(255 250 238 / .95); stroke: rgb(43 40 64 / .5); stroke-width: 1px; }
+.lbl.sel text { fill: #2b2840; stroke: none; }
+.map-pin path { fill: var(--bad); stroke: #fff; stroke-width: 1.5px; stroke-linejoin: round; }
+.map-pin .dot { fill: #fff; }
+.map-pin .pulse { fill: none; stroke: #fff; stroke-width: 2px; opacity: 0; transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .map-pin .pulse { animation: map-pulse 2.2s ease-out infinite; }
+}
+@keyframes map-pulse { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.8); opacity: 0; } }
+.map-sel circle { fill: none; stroke: #fff8e8; stroke-width: 2px; }
+.map-sel .out { stroke: rgb(43 40 64 / .8); stroke-width: 4.5px; }
+.map.big { cursor: grab; touch-action: pan-y; }
+.map.big.dragging { cursor: grabbing; }
+/* แถวปุ่มมุมขวาล่าง ขนาดตรงกับ TOOL ใน WorldMap.tsx (ชื่อบนแผนที่หลบที่ตรงนี้) */
+.map-tools { position: absolute; right: 8px; bottom: 8px; display: flex; gap: 6px; }
+.map-tools .icon-btn { width: 34px; height: 34px; background: color-mix(in srgb, var(--surface) 90%, transparent); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 1px 4px rgb(20 18 30 / .18); }
+.map-tools .icon { width: 16px; height: 16px; }
+.map-tools .icon-btn:hover { background: var(--surface); }
+.map-tools .icon-btn:disabled { opacity: .4; cursor: default; }
+.world-map { display: grid; gap: 10px; }
+.place-card { display: grid; gap: 4px; padding: 10px 14px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.pc-head { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; min-height: 32px; }
+.pc-head > .icon { width: 16px; height: 16px; color: var(--muted); }
+.place-card.here .pc-head > .icon { color: var(--bad); }
+.pc-head b { font-family: var(--f-head); font-weight: 600; font-size: 1.02rem; }
+.pc-head .muted { font-size: .78rem; }
+.pc-home { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 6px; font-size: .78rem; color: var(--accent); }
+.pc-home .icon { width: 14px; height: 14px; }
+.place-card p { margin: 0; line-height: 1.6; }
+.map-hint { margin: 0; font-size: .75rem; }
+.map.small { cursor: pointer; }
+.map.small:hover { border-color: var(--accent); }
+.map-here { position: absolute; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 4px; max-width: calc(100% - 16px);
+  padding: 2px 9px 2px 6px; border-radius: 999px; background: color-mix(in srgb, var(--bg) 86%, transparent); color: var(--ink); font-size: .75rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.map-here .icon { width: 14px; height: 14px; color: var(--bad); }
+/* แท็บโลกเปิดอยู่ (เดสก์ท็อป) แผนที่ใหญ่อยู่ฝั่งขวาแล้ว ไม่ต้องมีแผนที่เล็กซ้ำ */
+.game[data-tab='world'] .side.right .sec:has(> .map.small) { display: none; }
 
 /* ---------- จบชีวิต / เรื่องยังมีต่อ ---------- */
 .end-card { display: grid; gap: 12px; justify-items: center; text-align: center; padding: 18px 4px 8px; }
@@ -260,6 +338,251 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 .progress .ticks { display: flex; justify-content: space-between; }
 .end-card .row-buttons { justify-content: center; }
 .row-buttons button { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ---------- สิ่งติดตัว: พร คำสาป ลักษณะ แผล (สีเดียวต่อชนิดผ่าน --k) ---------- */
+.k-boon { --k: var(--gold); } .k-curse { --k: var(--curse); } .k-trait { --k: var(--muted); } .k-wound { --k: var(--bad); }
+.trait-row { display: flex; flex-wrap: wrap; gap: 10px 8px; padding-bottom: 4px; }
+.trait { position: relative; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none;
+  background: color-mix(in srgb, var(--k) 8%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--k) 50%, var(--line)); }
+.trait img { width: 34px; height: 34px; object-fit: contain; image-rendering: pixelated; }
+.trait:hover { border-color: var(--k); }
+.trait.on { border-color: var(--k); box-shadow: 0 0 0 3px color-mix(in srgb, var(--k) 22%, transparent); }
+.steps { display: inline-flex; gap: 3px; align-items: center; }
+.steps i { width: 6px; height: 6px; border-radius: 50%; border: 1.2px solid var(--k); flex: none; }
+.steps i.on { background: var(--k); }
+.trait .steps { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); padding: 2px 5px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); }
+.trait-row.small { gap: 9px 7px; }
+.trait-row.small .trait { width: 38px; height: 38px; border-radius: 10px; }
+.trait-row.small .trait img { width: 27px; height: 27px; }
+.trait-row.small .steps i { width: 4px; height: 4px; }
+.kind-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .75rem; color: var(--muted); }
+.kind-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.kind-legend i { width: 9px; height: 9px; border-radius: 3px; border: 1.5px solid var(--k); background: color-mix(in srgb, var(--k) 18%, transparent); }
+/* การ์ดรายละเอียด เปิดเมื่อแตะป้าย */
+.trait-card { display: grid; grid-template-columns: auto 1fr auto; gap: 2px 12px; padding: 12px 8px 12px 12px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.trait-card .art { width: 60px; height: 60px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--k) 9%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--k) 50%, var(--line)); }
+.trait-card .art img { width: 46px; height: 46px; object-fit: contain; image-rendering: pixelated; }
+.trait-card .tc-head { display: grid; align-content: center; gap: 0; min-width: 0; }
+.trait-card .tc-head b { font-family: var(--f-head); font-weight: 600; font-size: 1.05rem; line-height: 1.4; }
+.tc-kind { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 8px; font-size: .78rem; color: var(--muted); line-height: 1.5; }
+.tc-kind .k { color: var(--k); font-weight: 500; }
+.trait-card .icon-btn { margin: -4px 0 0; }
+.tc-body { grid-column: 1 / -1; display: grid; gap: 3px; margin-top: 8px; padding-right: 4px; }
+.tc-body p { display: flex; gap: 8px; align-items: baseline; font-size: .9rem; line-height: 1.55; }
+.tc-body .icon { width: 14px; height: 14px; align-self: center; flex: none; }
+.tc-body p > .icon { align-self: start; margin-top: .32em; }
+.tc-body .plus .icon { color: var(--good); } .tc-body .minus .icon { color: var(--bad); }
+.tc-body .note { color: var(--muted); font-size: .8rem; margin-top: 4px; }
+.tc-body .note + .note { margin-top: 0; }
+/* สิ่งติดตัวในหน้าเล่น: ป้ายสั้นในบันทึก บรรทัดทอย และใต้ตัวเลือก */
+.side.left > .traits { grid-column: 1 / -1; }
+.kchip { display: inline-flex; align-items: center; gap: 4px; color: var(--k); }
+.kchip .icon { width: 14px; height: 14px; }
+.kchip.lost { text-decoration: line-through; opacity: .7; }
+.kchip .steps { margin-left: 2px; }
+.tags { display: flex; flex-wrap: wrap; gap: 2px 10px; font-size: .72rem; line-height: 1.5; }
+.tags .kchip { gap: 3px; }
+.tags .kchip .icon { width: 13px; height: 13px; }
+.tags .num { font-size: .68rem; }
+.choice .label.two { display: grid; gap: 1px; }
+.choice .l1 { display: flex; gap: 8px; align-items: baseline; }
+.roll { flex-wrap: wrap; }
+.roll .kchip { font-size: .78rem; }
+.roll .what { color: var(--muted); }
+.choice.locked .kchip { font-size: .74rem; }
+
+/* ---------- ของ: กระเป๋า การ์ดของ ร้านค้า (สีเดียวต่อระดับผ่าน --r) ---------- */
+.kind-legend [class^='r-'] { --k: var(--r); }
+.r-common { --r: var(--muted); } .r-uncommon { --r: var(--good); } .r-rare { --r: var(--accent); } .r-enchanted { --r: var(--curse); } .r-hero { --r: var(--gold); }
+/* ไอคอนของเป็นภาพพิกเซล แสดงขนาดจริงไม่ยืด (ใหญ่สุด 34 px) */
+.iart { image-rendering: pixelated; max-width: 34px; max-height: 34px; flex: none; }
+.bag-row { display: flex; flex-wrap: wrap; gap: 12px 9px; padding-bottom: 5px; }
+.itile { position: relative; width: 48px; height: 48px; border-radius: 12px; display: grid; place-items: center; flex: none; color: var(--muted);
+  background: color-mix(in srgb, var(--r) 8%, var(--surface)); border: 1.5px solid color-mix(in srgb, var(--r) 50%, var(--line)); }
+button.itile:hover { border-color: var(--r); }
+.itile.on { border-color: var(--r); box-shadow: 0 0 0 3px color-mix(in srgb, var(--r) 22%, transparent); }
+.itile .count { position: absolute; bottom: -7px; right: -6px; min-width: 18px; height: 16px; padding: 0 4px; border-radius: 999px; display: grid; place-items: center; background: var(--surface); border: 1px solid var(--line); color: var(--ink); font-size: .56rem; line-height: 1; }
+.itile.small { width: 38px; height: 38px; border-radius: 10px; }
+.itile.small .iart { max-width: 28px; max-height: 28px; }
+.bag-row.small { gap: 11px 8px; }
+.purse { margin-left: auto; display: inline-flex; align-items: center; gap: 4px; color: var(--gold); }
+.purse .num { font-size: .78rem; }
+.shop-link { justify-self: start; display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 2px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: .82rem; }
+.shop-link .icon { width: 15px; height: 15px; color: var(--muted); }
+.shop-link:hover { border-color: var(--accent); }
+.side.left > .bag { grid-column: 1 / -1; }
+/* การ์ดของ: โครงเดียวกับการ์ดสิ่งติดตัว */
+.icard { --k: var(--r); }
+.icard .art .iart { width: auto; height: auto; max-width: none; max-height: none; transform: scale(1.5); }
+.icard .tc-kind > span + span::before { content: '·'; margin-right: 8px; }
+.tc-body .lore-line { color: var(--muted); }
+.card-actions { margin-top: 10px; }
+.card-actions:empty { display: none; }
+.card-actions button { min-height: 40px; padding: 2px 16px; font-size: .9rem; background: var(--bg); }
+.card-actions button .icon { width: 15px; height: 15px; }
+.card-actions .primary { border: 0; background: var(--ink); min-width: 96px; justify-content: center; }
+.card-actions .primary:disabled { background: var(--subtle); color: var(--muted); opacity: 1; }
+.card-actions .sure { border-color: var(--bad); color: var(--bad); }
+.tc-body .act-note { margin-top: 6px; }
+.tc-body .act-note.said { color: var(--ink); }
+/* ร้านค้า: คำทักของคนขาย และแผงของ (ช่องไอคอนกับราคาใต้ช่อง) */
+.greet { font-family: var(--f-head); font-size: .95rem; line-height: 1.6; padding-left: 12px; border-left: 2px solid var(--line); }
+.greet::before { content: '\201C'; } .greet::after { content: '\201D'; }
+.greet.closed { color: var(--muted); }
+.greet.closed::before, .greet.closed::after { content: none; }
+.shelf { gap: 10px 9px; }
+.shelf-cell { display: grid; justify-items: center; gap: 2px; }
+.price { display: inline-flex; align-items: center; gap: 3px; color: var(--gold); font-size: .8rem; line-height: 1.5; white-space: nowrap; }
+.price .icon { width: 12px; height: 12px; }
+.price .num { font-size: .7rem; }
+.cant .price { color: var(--muted); }
+.price.have { font-size: .7rem; }
+.shelf-cell.cant .iart { opacity: .55; }
+/* ของในบรรทัด: ได้ของ ของที่ใช้ในจังหวะ และป้ายใต้วิธีรับมือ */
+.ichip { display: inline-flex; align-items: center; gap: 5px; color: color-mix(in srgb, var(--r) 72%, var(--ink)); }
+.ichip .iart, .tag .iart, .picked .iart { height: 16px; width: auto; max-width: none; max-height: none; }
+.entry .picked.used { font-weight: 400; align-items: center; }
+.entry .picked.used .iart { align-self: start; margin-top: .35em; }
+.tag.supply { color: var(--accent); }
+.tag.supply .icon { margin-left: 3px; fill: currentColor; stroke: none; }
+/* ของใช้แล้วหมดในแผ่นวิธีรับมือ: แตะหยิบหนึ่งชิ้นไว้ใช้กับวิธีถัดไป */
+.sup-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 9px; padding: 0 2px 7px; color: var(--muted); }
+.sup-row > .icon { width: 15px; height: 15px; }
+.sup-row .itile[aria-pressed='true'] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--surface)); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+
+/* ---------- การปะทะ (แบบ ก: สถานะอยู่บนเวที) ---------- */
+.pips { display: inline-flex; align-items: center; gap: 5px; padding: 0 2px; }
+.pip { width: 8px; height: 8px; transform: rotate(45deg); border: 1.5px solid var(--bad); border-radius: 1.5px; flex: none; display: inline-block; }
+.pip.on { background: var(--bad); }
+.threat { display: inline-flex; align-items: center; gap: 2px; }
+.threat i { width: 3px; height: 10px; border-radius: 1px; background: color-mix(in srgb, var(--ink) 18%, transparent); }
+.threat i.on { background: var(--ink); }
+.hpbar { width: 52px; height: 6px; border-radius: 3px; background: color-mix(in srgb, var(--ink) 16%, transparent); overflow: hidden; flex: none; }
+.hpbar i { display: block; height: 100%; background: var(--bad); border-radius: 3px; transition: width .3s ease-out; }
+.weak { display: inline-flex; align-items: center; color: var(--gold); }
+.weak .icon { width: 14px; height: 14px; }
+.foe-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.side-icon { color: var(--muted); width: 15px; height: 15px; flex: none; }
+/* ศัตรูบนเวที: หนึ่งพิกเซลของภาพเท่ากับของตัวละคร เท้าแตะแถว --stand เหมือนกัน ตัวที่ลอยยกขึ้นตาม --lift */
+.actors .sprite.foe { height: calc(var(--fh) / 112 * 100%); background-repeat: no-repeat; transform: translateY(calc((var(--stand, 106) - 112 - var(--lift, 0)) / var(--fh) * 100%)); }
+.enc-chip { position: absolute; top: 8px; display: inline-flex; align-items: center; gap: 7px; min-height: 26px; padding: 2px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent); color: var(--ink); font-size: .78rem; line-height: 1.4; white-space: nowrap; max-width: calc(100% - 20px); }
+.enc-chip.me { left: 10px; color: var(--bad); }
+.enc-chip.me .icon { width: 14px; height: 14px; fill: currentColor; stroke: none; }
+.enc-chip.me b { color: var(--ink); }
+.enc-chip.foe { right: 10px; max-width: calc(100% - 130px); }
+.scene { container-type: inline-size; }
+@container (max-width: 350px) {
+  .enc-chip { gap: 5px; padding: 2px 8px; }
+  .enc-chip.me .hpbar { display: none; }
+  .enc-chip.foe { max-width: calc(100% - 90px); }
+}
+/* หัวแผ่นวิธีรับมือ: จังหวะ ท่าของอาชีพ พักไว้ */
+.enc-head { gap: 8px; }
+.beats { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); }
+.beats .icon { width: 15px; height: 15px; margin-right: 2px; }
+.beat { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--muted); flex: none; display: inline-block; }
+.beat.won { background: var(--good); border-color: var(--good); }
+.beat.lost { background: var(--bad); border-color: var(--bad); }
+.beat.now { width: 11px; height: 11px; border-color: var(--ink); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ink) 14%, transparent); }
+.tech { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; min-height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); color: var(--ink); font-size: .8rem; white-space: nowrap; }
+.tech .icon { width: 14px; height: 14px; color: var(--accent); }
+.tech .num { color: var(--accent); }
+.tech[aria-pressed='true'] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.tech[aria-pressed='true'] .icon, .tech[aria-pressed='true'] .num { color: var(--bg); }
+.tech.spent { color: var(--muted); border-style: dashed; background: transparent; }
+.tech.spent .icon, .tech.spent .num { color: var(--muted); }
+.tech-hint { margin: 0; font-size: .76rem; line-height: 1.5; color: var(--muted); padding: 0 4px 2px; }
+/* วิธีรับมือ: บรรทัดที่สองบอกว่าได้แต้มเพิ่มหรือเสียแต้มเพราะอะไร */
+.enc .tags { color: var(--muted); gap: 4px 10px; }
+.tag { display: inline-flex; align-items: center; gap: 3px; }
+.tag .icon { width: 13px; height: 13px; }
+.tag.tell { color: var(--accent); }
+.tag.weakness { color: var(--gold); }
+.tag.strong { color: var(--bad); }
+.tag.ally { color: var(--good); }
+.choice.flee { background: transparent; }
+.choice.flee .l1 { color: var(--muted); }
+/* ผลของแต่ละจังหวะและบรรทัดผลของการปะทะในบันทึก */
+.changes .pip { width: 7px; height: 7px; border-color: currentColor; margin: 0 2px; }
+.changes .pip.on { background: currentColor; }
+.entry .lore { display: flex; gap: 6px; align-items: baseline; font-size: .86rem; font-weight: 400; line-height: 1.6; color: var(--gold); }
+.entry .lore .icon { width: 14px; height: 14px; flex: none; transform: translateY(2px); }
+.entry .outcome { display: inline-flex; align-items: center; gap: 8px; font-family: var(--f-head); font-weight: 600; font-size: 1.05rem; color: var(--ink); }
+.outcome .icon { width: 16px; height: 16px; color: var(--muted); }
+.outcome .beats { gap: 5px; }
+.roll .what { display: inline-flex; align-items: center; gap: 3px; }
+.roll .what .icon { width: 13px; height: 13px; }
+
+/* ---------- การ์ดคนในผังครอบครัว ---------- */
+.person-card.kin-card { align-items: center; }
+.person-card.kin-card .avatar { width: 44px; height: 44px; flex: none; image-rendering: pixelated; }
+.person-card.kin-card .avatar.gone { filter: grayscale(1); opacity: .6; }
+.person-card.kin-card > div { flex: 1; min-width: 0; }
+.person-card.kin-card p { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; }
+.person-card.kin-card p > span { display: inline-flex; align-items: center; gap: 4px; }
+.person-card.kin-card p .icon { width: 13px; height: 13px; }
+.hearts { display: inline-flex; gap: 2px; color: var(--love); }
+.hearts .icon { width: 12px !important; height: 12px !important; fill: currentColor; stroke: none; }
+.hearts .icon.off { fill: none; stroke: currentColor; stroke-width: 1.7; opacity: .45; }
+.hearts.cold { color: var(--rival); }
+
+/* ---------- หน้าตาย (ท้ายบันทึกชีวิต) ---------- */
+.scene.ended .actors { display: none; }
+.scene.ended::after { content: ''; position: absolute; inset: 0; background: linear-gradient(rgb(20 18 30 / .1), rgb(20 18 30 / .38)); pointer-events: none; }
+.end-mark { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: .8rem; margin: 8px 0 2px; }
+.end-mark::before, .end-mark::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.end-mark .icon { width: 13px; height: 13px; }
+.sheet.farewell { justify-items: center; gap: 4px; padding: 16px 12px 18px; text-align: center; }
+.sheet.farewell .muted { font-size: .8rem; }
+.sheet.farewell .primary { margin-top: 4px; min-width: 60%; justify-content: center; }
+
+/* ---------- หน้าชีวประวัติ ---------- */
+.bio { display: grid; gap: 22px; max-width: 560px; width: 100%; margin: 0 auto; padding-bottom: 10px; }
+.bio-hero { display: grid; gap: 4px; justify-items: center; text-align: center; }
+.bio-hero .eyebrow { font-size: .75rem; letter-spacing: .1em; color: var(--muted); }
+.bio-portrait { position: relative; width: 132px; height: 150px; margin: 6px 0 8px; border-radius: 18px; overflow: hidden; border: 1px solid var(--line); background: linear-gradient(var(--sky1), var(--sky2)); }
+.bio-portrait::before { content: ''; position: absolute; left: -30%; right: -30%; bottom: -34%; height: 62%; border-radius: 50% 50% 0 0; background: var(--hill); }
+.bio-portrait img { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); image-rendering: pixelated; max-height: 124px; width: auto; }
+.bio-hero h2 { font-family: var(--f-head); font-size: 1.6rem; font-weight: 600; line-height: 1.3; }
+.bio-years { display: inline-flex; align-items: center; gap: 10px; font-size: .9rem; }
+.bio-years .icon { width: 14px; height: 14px; color: var(--muted); }
+.bio-last { font-style: italic; font-weight: 300; max-width: 26em; margin-top: 6px; line-height: 1.7; text-wrap: balance; }
+.bio .sec { gap: 10px; }
+.lifeline { display: grid; gap: 5px; }
+.ll-bar { position: relative; display: grid; gap: 3px; height: 8px; }
+.ll-bar i { border-radius: 4px; background: color-mix(in srgb, var(--ink) 16%, transparent); }
+.ll-bar b { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--ink); border: 2px solid var(--bg); }
+.ll-bar b.world { background: var(--accent); }
+.ll-ticks { position: relative; height: 1.2em; font-size: .7rem; color: var(--muted); }
+.ll-ticks span { position: absolute; transform: translateX(-50%); }
+.ll-ticks span:first-child { transform: none; } .ll-ticks span:last-child { transform: translateX(-100%); }
+.marks { display: grid; gap: 0; }
+.marks li { display: grid; grid-template-columns: 30px 14px 1fr; gap: 0 8px; align-items: baseline; font-size: .93rem; line-height: 1.5; padding: 3px 0; }
+.marks .num { text-align: right; color: var(--muted); font-size: .72rem; }
+.marks i { position: relative; align-self: stretch; }
+.marks i::before { content: ''; position: absolute; left: 50%; top: -3px; bottom: -3px; width: 1px; background: var(--line); }
+.marks li:first-child i::before { top: 50%; } .marks li:last-child i::before { bottom: 50%; }
+.marks li:only-child i::before { display: none; }
+.marks i::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--ink); }
+.marks li.world i::after { background: var(--accent); }
+.marks li.world span:last-child { color: var(--accent); }
+.bio-facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.bio-facts li { display: grid; justify-items: center; gap: 0; padding: 8px 2px; border-radius: 12px; background: var(--subtle); font-size: .72rem; color: var(--muted); line-height: 1.5; text-align: center; }
+.bio-facts .icon { width: 16px; height: 16px; }
+.bio-facts b { font-size: .95rem; color: var(--ink); }
+.bio-stats { display: grid; grid-template-columns: repeat(6, 1fr); }
+.bio-stats li { display: flex; align-items: center; justify-content: center; gap: 5px; color: var(--muted); }
+.bio-stats b { font-size: .9rem; color: var(--ink); }
+.bio-people { display: flex; flex-wrap: wrap; gap: 10px 18px; }
+.bio-people li { display: flex; align-items: center; gap: 8px; font-size: .9rem; line-height: 1.3; }
+.bio-people .avatar { width: 40px; height: 40px; image-rendering: pixelated; }
+.bio-people small { display: block; color: var(--muted); font-size: .75rem; }
+.heir { display: grid; }
+.heir li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 0 12px; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: .92rem; }
+.heir .slot { width: 44px; height: 44px; }
+.bio .row-buttons { justify-content: center; margin-top: 2px; }
+.bio .row-buttons .primary { border: 0; }
 
 /* ---------- กล่องทอยเต๋า ---------- */
 .overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; padding: 20px; background: color-mix(in srgb, var(--bg) 70%, transparent); backdrop-filter: blur(3px); }
@@ -279,11 +602,10 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
   padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right);
 }
 /* มือถือแนวตั้ง (ค่าเริ่ม) */
-.game { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 24% auto 1fr auto; grid-template-areas: 'top' 'scene' 'stats' 'read' 'nav'; }
+.game { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto auto 1fr auto; grid-template-areas: 'top' 'scene' 'stats' 'read' 'nav'; }
 .game { transition: grid-template-rows .25s ease; }
 @media (orientation: portrait) and (max-width: 1023px) {
-  .game[data-back] { grid-template-rows: auto 64px auto 1fr auto; }
-  .game[data-back] .sprite { height: 56px; margin-bottom: 2px; }
+  .game[data-back] .scene { aspect-ratio: auto; height: 64px; }
 }
 @media (prefers-reduced-motion: reduce) { .game { transition: none; } }
 .game:not([data-tab='story']) { grid-template-rows: auto 1fr auto; grid-template-areas: 'top' 'read' 'nav'; }
@@ -298,6 +620,7 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
   .game:not([data-tab='story']) .scene, .game:not([data-tab='story']) .stats { display: grid; }
   .top { border-right: 1px solid var(--line); padding-top: 6px; }
   .scene, .stats { border-right: 1px solid var(--line); }
+  .scene { aspect-ratio: auto; height: 100%; }
   .stats { border-bottom: 0; border-top: 1px solid var(--line); }
   .bottom-nav { grid-template-columns: 1fr; grid-template-rows: repeat(5, 1fr); border-top: 0; border-right: 1px solid var(--line); padding: max(6px, env(safe-area-inset-top)) 4px 6px; }
   .sheet { border-radius: 0; box-shadow: none; padding: 4px 10px 8px; }
@@ -307,19 +630,128 @@ textarea { width: 100%; font: inherit; font-size: .8rem; color: var(--ink); back
 
 /* แท็บเล็ตและเดสก์ท็อป: ฉากเต็มความกว้าง ซ้ายตัวละคร กลางเรื่อง (ไม่เกิน 700 px) ขวาผู้คนและโลก */
 @media (min-width: 1024px) and (min-height: 501px) {
+  /* เวทีซ้าย (ฉาก ค่าสถานะ ผู้คน) หนังสือขวา (เรื่องและตัวเลือก) ทั้งคู่สูงเต็มจอ */
   .game, .game:not([data-tab='story']) {
-    grid-template-columns: 280px minmax(0, 1fr) 300px; grid-template-rows: auto 160px 1fr;
-    grid-template-areas: 'top top top' 'scene scene scene' 'left read right';
+    grid-template-columns: minmax(360px, 1fr) minmax(0, 760px); grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas: 'top top' 'stage read';
   }
-  .game:not([data-tab='story']) .scene { display: grid; }
-  .scene .sprite { height: 136px; }
+  .stage { grid-area: stage; display: flex; flex-direction: column; gap: 22px; padding: 18px; overflow: auto; min-height: 0; border-right: 1px solid var(--line); }
+  .stage .scene, .game:not([data-tab='story']) .scene { display: block; flex: none; border-radius: 14px; }
   .game .stats, .bottom-nav { display: none !important; }
   .top-tabs { display: flex; }
-  .side { display: grid; align-content: start; gap: 18px; padding: 16px; overflow: auto; min-height: 0; }
-  .side.left { grid-area: left; border-right: 1px solid var(--line); }
-  .side.right { grid-area: right; border-left: 1px solid var(--line); }
-  .read { width: 100%; max-width: 700px; justify-self: center; }
-  .log, .page { padding: 18px 28px; }
-  .sheet { border: 1px solid var(--line); border-bottom: 0; box-shadow: none; }
+  .top { padding: 10px 20px; }
+  .name { font-size: 1.2rem; }
+  .side { display: grid; align-content: start; gap: 22px; }
+  .side.left { grid-template-columns: 1fr 1fr; align-items: start; }
+  .side.left > .sec:first-child { grid-column: 1 / -1; }
+  .game[data-tab='character'] .side.left { display: none; }
+  .read { width: 100%; }
+  .log, .page { padding: 22px 36px; }
+  .entry p { font-size: 1.06rem; }
+  .sheet { margin: 0 24px; border: 1px solid var(--line); border-bottom: 0; box-shadow: none; }
   .choice kbd { display: inline-block; }
 }
+
+/* ---------- องค์กร (ชุด 3): การ์ดสังกัดในหน้าโลก ป้ายงาน และรายการผู้ตามล่า ---------- */
+.orgcard { display: grid; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.orgcard header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.orgcard header b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.orgcard header .muted { display: inline-flex; align-items: center; gap: 4px; font-size: .74rem; color: var(--muted); }
+.orgcard header .muted .icon { width: 13px; height: 13px; }
+.orgcard .rank { margin-left: auto; font-size: .86rem; font-weight: 500; color: var(--accent); }
+.ladder { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); }
+.ladder li { display: grid; justify-items: center; gap: 4px; position: relative; font-size: .68rem; line-height: 1.35; color: var(--muted); text-align: center; min-width: 0; }
+.ladder li span { padding: 0 3px; overflow-wrap: anywhere; }
+.ladder li i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--surface); position: relative; z-index: 1; }
+.ladder li::before { content: ''; position: absolute; top: 5px; right: 50%; width: 100%; height: 1.5px; background: var(--line); }
+.ladder li:first-child::before { display: none; }
+.ladder li.past i, .ladder li.now i { border-color: var(--accent); background: var(--accent); }
+.ladder li.past::before, .ladder li.now::before { background: var(--accent); }
+.ladder li.now i { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent); }
+.ladder li.now { color: var(--ink); font-weight: 500; }
+.orgcard p { margin: 0; }
+.merit { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; font-size: .82rem; }
+.merit.muted { display: block; color: var(--muted); }
+.merit .bar { height: 4px; border-radius: 2px; background: var(--subtle); overflow: hidden; }
+.merit .bar i { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+.merit .num { font-size: .72rem; }
+.orgcard .ready { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--gold); }
+.orgcard .ready .icon { width: 14px; height: 14px; flex: none; }
+.orgfacts { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: .82rem; color: var(--muted); }
+.orgfacts b { color: var(--ink); font-size: .74rem; margin-left: 2px; }
+.orgtech { display: flex; gap: 8px; align-items: flex-start; padding-top: 10px; border-top: 1px solid var(--line); font-size: .8rem; line-height: 1.6; color: var(--muted); }
+.orgtech .icon { width: 15px; height: 15px; flex: none; margin-top: .25em; color: var(--accent); }
+.orgtech b { color: var(--ink); font-weight: 500; margin-right: 6px; }
+.orgtech.locked .icon { color: var(--muted); }
+.hunters { list-style: none; margin: 0; padding: 0; }
+.hunters li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: .88rem; padding: 4px 0; }
+.evtag { display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-body); font-size: .76rem !important; font-weight: 500; line-height: 1.5; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: 999px; padding: 1px 10px; width: max-content; max-width: 100%; }
+.evtag .icon { width: 13px; height: 13px; flex: none; }
+.evtag.hunt { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+.entry.old .evtag { color: var(--muted); border-color: var(--line); }
+.tags .refuse { display: inline-flex; align-items: center; gap: 4px; color: var(--bad); }
+.tags .refuse .icon { width: 13px; height: 13px; }
+
+/* ---------- เมือง (ชุด ม): การ์ดเมืองในหน้าโลก ย่าน ชั้นของคนเมือง ที่อยู่ สภาพเมือง และช่วงเรียน ---------- */
+.citycard { display: grid; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.citycard header { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+.citycard header b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.citycard .rank { margin-left: auto; font-size: .86rem; font-weight: 500; color: var(--accent); }
+.citycard p { margin: 0; }
+.mood { display: inline-flex; align-items: center; gap: 4px; font-size: .74rem; font-weight: 500; line-height: 1.5; padding: 1px 8px 1px 6px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.mood .icon { width: 13px; height: 13px; }
+.mood.m-tense { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.mood.m-riot { color: var(--bad); border-color: color-mix(in srgb, var(--bad) 45%, transparent); }
+.mood.m-plague { color: var(--curse); border-color: color-mix(in srgb, var(--curse) 45%, transparent); }
+.districts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.districts li { display: inline-flex; align-items: center; gap: 4px; font-size: .78rem; line-height: 1.5; padding: 2px 9px; border-radius: 999px; background: var(--subtle); color: var(--muted); }
+.districts li.now { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--ink); font-weight: 500; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 50%, transparent); }
+.districts li .icon { width: 12px; height: 12px; color: var(--accent); }
+.citycard .ready { display: flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--gold); }
+.citycard .ready .icon { width: 14px; height: 14px; flex: none; }
+.homeline { display: flex; gap: 8px; align-items: flex-start; margin: 0; font-size: .84rem; line-height: 1.6; }
+.citycard .homeline { padding-top: 10px; border-top: 1px solid var(--line); }
+.homeline .icon { width: 15px; height: 15px; flex: none; margin-top: .3em; color: var(--accent); }
+.homeline b { font-weight: 500; margin-right: 6px; }
+.homeline small, .homeline em { display: block; font-size: .76rem; font-style: normal; color: var(--muted); }
+.homeline em { color: var(--bad); }
+.homeline.none .icon, .homeline.none b { color: var(--muted); }
+.homeline.none span { color: var(--muted); }
+.homeline.away { padding: 10px 14px; border: 1px dashed var(--line); border-radius: var(--radius); }
+.citycard .years { display: grid; gap: 4px; }
+.citycard .years i { height: 5px; border-radius: 3px; background: var(--subtle); }
+.citycard .years i.past { background: color-mix(in srgb, var(--accent) 55%, transparent); }
+.citycard .years i.now { background: var(--accent); }
+.mooddot { width: 7px; height: 7px; border-radius: 50%; flex: none; margin-left: 5px; background: var(--gold); display: inline-block; }
+.mooddot.m-riot { background: var(--bad); } .mooddot.m-plague { background: var(--curse); }
+.changes .m-tense { color: var(--gold); } .changes .m-riot { color: var(--bad); } .changes .m-plague { color: var(--curse); }
+
+/* ---------- แถบยุคในแท็บโลก (ชุด 5) ---------- */
+.eracard { display: grid; gap: 8px; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+.era-head { margin: 0; display: flex; align-items: baseline; gap: 10px; }
+.era-head b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.era-head .num { margin-left: auto; font-size: .8rem; }
+.era-line { display: grid; gap: 4px; }
+.era-bar { position: relative; display: grid; gap: 3px; height: 8px; }
+.era-bar i { border-radius: 4px; background: color-mix(in srgb, var(--ink) 14%, transparent); }
+.era-bar i.ahead { background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--ink) 14%, transparent) 0 3px, transparent 3px 6px); }
+.era-bar u { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: color-mix(in srgb, var(--ink) 34%, transparent); text-decoration: none; }
+.era-bar b { position: absolute; top: 50%; width: 10px; height: 10px; margin: -5px 0 0 -5px; border-radius: 50%; background: var(--accent); border: 2px solid var(--surface); }
+.era-bar em { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; border-radius: 1px; background: var(--ink); }
+.era-names { display: grid; gap: 3px; font-size: .68rem; color: var(--muted); min-height: 1.2em; }
+.era-names span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.era-names span.on { color: var(--ink); }
+.era-last { margin: 0; display: flex; align-items: baseline; gap: 8px; font-size: .86rem; }
+.era-last .num { font-size: .72rem; }
+.era-marks { display: grid; gap: 0; }
+.era-marks li { display: grid; grid-template-columns: 30px 14px 1fr; gap: 0 8px; align-items: baseline; font-size: .9rem; line-height: 1.5; padding: 2px 0; }
+.era-marks .num { text-align: right; color: var(--muted); font-size: .72rem; }
+.era-marks i { position: relative; align-self: stretch; }
+.era-marks i::before { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; width: 1px; background: var(--line); }
+.era-marks i::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: var(--accent); }
+.era-marks li:first-child i::before { top: 50%; } .era-marks li:last-child i::before { bottom: 50%; }
+.era-more { justify-self: start; min-height: 32px; padding: 0 2px; font-size: .78rem; color: var(--accent); }
+.era-chip { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); font-size: .86rem; }
+.era-chip .icon { width: 14px; height: 14px; align-self: center; color: var(--muted); }
+.era-chip b { font-family: var(--f-head); font-weight: 600; font-size: 1rem; }
+.era-chip .num { font-size: .8rem; color: var(--muted); }

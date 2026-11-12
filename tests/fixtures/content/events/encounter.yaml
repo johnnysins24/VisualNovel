@@ -1,0 +1,41 @@
+# เนื้อหาชั่วคราวสำหรับทดสอบระบบเท่านั้น ไม่ใช่ lore หรือเนื้อเรื่องจริง
+# ฉากปะทะออกเฉพาะชีวิตที่มีธง test_brawl (ไม่มีเหตุการณ์ไหนให้ธงนี้) ชีวิตสุ่มของเทสต์อื่นจึงไม่เจอ
+- id: youth.test_brawl
+  stage: youth
+  weight: 10
+  when: { age: [13, 30], flags: [test_brawl] }
+  text: "[ทดสอบ] มีตัวอะไรขวางทางอยู่"
+  encounter:
+    foe: ash_hound
+    beats:
+      - text: "[ทดสอบ] มันย่อตัว"
+        answer: guard
+        moves:
+          - { id: brawl_hold, label: "[ทดสอบ] ตั้งรับ", kind: guard }
+          - { id: brawl_stab, label: "[ทดสอบ] แทง", kind: attack, tags: [pierce] }
+          - { id: brawl_run, label: "[ทดสอบ] ถอย", kind: flee }
+      - text: "[ทดสอบ] มันวนซ้าย"
+        answer: quick
+        moves:
+          - { id: brawl_step, label: "[ทดสอบ] เบี่ยงตัว", kind: quick }
+          - { id: brawl_torch, label: "[ทดสอบ] ชูคบไฟ", kind: item, stat: INT, tags: [fire] }
+          - { id: brawl_run2, label: "[ทดสอบ] ถอย", kind: flee }
+    win: { text: "[ทดสอบ] มันหนีไป", effects: { stats: { STR: 1 } } }
+    lose: { text: "[ทดสอบ] ล้มลง", effects: { gold: -1 } }
+    stalemate: { text: "[ทดสอบ] ต่างคนต่างถอย" }
+    flee: { text: "[ทดสอบ] หนีพ้น" }
+
+# ทางเดียวที่ให้ธง test_brawl: ตัวเลือกที่สองซึ่งต้องมีมีดทดสอบ ชีวิตสุ่มของเทสต์ที่กดตัวเลือกแรกจึงไม่ได้ธงนี้
+- id: youth.test_brawl_rumour
+  stage: youth
+  weight: 1
+  when: { age: [13, 30], flags: [test_has_dagger], not_flags: [test_brawl] }
+  text: "[ทดสอบ] มีข่าวว่ามีตัวอะไรอยู่ที่ทางออกหมู่บ้าน"
+  choices:
+    - id: ignore
+      label: "[ทดสอบ] ไม่สนใจ"
+      effects: { stats: { WIS: 1 } }
+    - id: follow
+      label: "[ทดสอบ] ไปดู"
+      requires: { item: test_dagger }
+      effects: { flags: [test_brawl] }

@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: navy }
+legend: { a: shape@0, b: shape@1, c: shape@2, d: shape@3, e: shape@4 }
+meta: { from: game-icons/lorc/owl.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 4, 1 ]
+      ascii: |
+        d.....ddddccc......c
+        .ddeed.......cceecc.
+        ...ea..........ea...
+        ..eddd........eccc..
+        ..edaac......eaaaa..
+        .eda...c....ea...ec.
+        .ea....ec..ea....ea.
+        .ddc...ea..ea....ea.
+        ..ecc.ecceeccc..eca.
+        .cccceccaccacceecca.
+        c.eaaaaa.ca.caaaaa.c
+        c.c..............c.c
+        c.cc.............c.c
+        c..c............c..c
+        c..c.c........c.c..c
+        c..c.cc......ca.c..c
+        cc.c.....cc.....c..c
+        .c..c..........c..c.
+        .cc.c..........c.ea.
+        ..c.ec.c....c..eea..
+        ...caa..c..c..eca...
+        .....ec......cca....
+        .....eaec...c.c.....
+        .....c.eaceca.c.....
+        ....ea.c..c.c..b....
+        ....c..c..c.c..b....

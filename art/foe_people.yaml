@@ -1,0 +1,57 @@
+# ศัตรูทรงคน: ไม่วาดใหม่ ประกอบจากร่างฐานและชิ้นส่วนที่เกมมีอยู่ (art/pieces) แล้วเปลี่ยนสีด้วย palette
+# ตามคัมภีร์โลก หัวข้อสัตว์ประหลาดรุ่นแรก  `npm run draw -- build` สร้าง public/foes/<id>.png สองท่าเหมือนศัตรูตัวอื่น:
+# idle = ยืนหน้าเฉย, strike = หน้าโกรธ โน้มตัวเข้าหา
+#   npc:  { group, seed, body?, race? }  หยิบคนจากสูตร NPC ใน art/npcs.yaml (คนเดิมทุกครั้งที่ seed เดิม)
+#   look: { body, pieces, choices, colors }  กำหนดเองทั้งตัว (colors เปลี่ยน ramp ของวัสดุใดก็ได้ รวมถึง skin, eye)
+#   face / strike_face: สีหน้าของสองท่า (ค่าเริ่มต้น neutral กับ angry)
+ash_soldier:
+  name: ทหารเถ้า
+  look:
+    body: m
+    pieces: [face/basic, under/briefs, body/halfplate, feet/iron_boots, head/helm, weapon/spear, offhand/shield]
+    colors: { skin: metal_black, lip: metal_black, blush: metal_black, eye: eye_amber, white: metal_black, lash: metal_black, hair: metal_black, metal: metal_black, chain: metal_black, fitting: metal_demoncoal, cloth: dye_black, trim: dye_wine, leather: leather_black }
+glass_one:
+  name: คนแก้ว
+  look:
+    body: f
+    pieces: [face/basic, under/bra, under/panties, hair/f/bob, body/overalls, feet/boots]
+    colors: { skin: metal_starsilver, lip: metal_starsilver, blush: sky, eye: sky, hair: sky, lash: blue, cloth: dye_grey, trim: dye_navy, leather: leather_black }
+  face: sleepy
+  strike_face: surprised
+extra_shadow:
+  name: เงาเกิน
+  look:
+    body: m
+    pieces: [face/basic, under/briefs, hair/m/short]
+    colors: { skin: hair_black, lip: hair_black, blush: hair_black, eye: hair_black, white: hair_black, lash: hair_black, hair: hair_black, cloth: hair_black }
+nameless_ghost:
+  name: ผีไร้ชื่อ
+  look:
+    body: m
+    pieces: [face/basic, under/briefs, hair/m/long, beard/m/long, body/overalls, feet/boots, head/miner_helmet, weapon/pickaxe]
+    colors: { skin: hair_silver, lip: dye_grey, blush: hair_silver, eye: eye_grey, hair: sky, cloth: dye_grey, trim: dye_grey, leather: dye_grey, metal: metal_silver, fitting: metal_silver, wood: dye_grey }
+  face: sad
+bandit:
+  name: โจรปล้นทาง
+  npc: { group: bandit, seed: 5 }
+witch_hunter:
+  name: นักล่าแม่มด
+  npc: { group: witch_hunter, seed: 1 }
+mercenary:
+  name: ทหารรับจ้าง
+  npc: { group: mercenary, seed: 2 }
+ash_cultist:
+  name: สาวกลัทธิเถ้า
+  look:
+    body: m
+    pieces: [face/basic, under/briefs, hair/m/short, body/cleric_robe, feet/sandals, head/hood, offhand/fire_bowl, weapon/mace]
+    choices: { skin: honey, hair: black, eyes: brown }
+    colors: { cloth: dye_black, trim: dye_wine, fitting: metal_demoncoal, metal: metal_black }
+star_listener:
+  name: ผู้ฟังดาว
+  look:
+    body: f
+    pieces: [face/basic, under/bra, under/panties, hair/f/long, body/mage_robe, feet/shoes, head/hood, acc/lens, offhand/lamp_glass, weapon/staff]
+    choices: { skin: porcelain, hair: silver, eyes: violet }
+    colors: { cloth: dye_navy, trim: dye_sky, fitting: metal_starsilver }
+  face: smile

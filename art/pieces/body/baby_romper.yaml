@@ -1,0 +1,11 @@
+# Baby romper (1 year old): one piece from the neck to the knees, short sleeves, two buttons; bare feet.
+ages: [baby]
+z: 30
+colors: { cloth: dye_sky, trim: dye_white }
+shapes:
+  - { mat: cloth, region: { parts: [torso], rows: [neck, crotch] } }
+  - { mat: cloth, region: { parts: [leg], rows: [crotch, knee] } }
+  - { mat: cloth, region: { parts: [arm], rows: [chest, chest+1] } }
+  - { mat: trim, sym: [[neck, 2]] }
+  - { mat: trim@1, rect: [0, chest+1, 1, 1] }
+  - { mat: trim@1, rect: [0, waist+1, 1, 1] }

@@ -15,7 +15,9 @@ jobs:
       - run: npm run content
       - run: npm run typecheck
       - run: npm test
-      - run: npx playwright install --with-deps chromium
+      # --with-deps ลงฟอนต์สำรองผ่าน apt ด้วย ถ้าคลังแพ็กเกจของ Ubuntu ต่อไม่ได้ ขั้นนี้เคยค้างราว 20 นาทีแล้วล้ม ทั้งที่เทสต์ยังไม่ได้รัน
+      # จึงให้เวลา 3 นาที เกินนั้นหรือล้ม ให้ลงเฉพาะเบราว์เซอร์แล้วไปต่อ (ไลบรารีที่ Chromium ใช้มีใน runner อยู่แล้ว เกมโหลดฟอนต์จากเว็บ)
+      - run: timeout 180 npx playwright install --with-deps chromium || npx playwright install chromium
       - run: npm run shots
       - uses: actions/upload-artifact@v4
         if: always()

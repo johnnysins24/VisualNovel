@@ -11,3 +11,11 @@ elf_f: { body: f, pieces: [face/basic, under/bra, under/panties, hair/f/long, ea
 dwarf_m: { body: m, pieces: [face/basic, under/briefs, hair/m/short, beard/m/long], choices: { hair: auburn } }
 tiefling_m: { body: m, pieces: [face/basic, under/briefs, hair/m/messy, horns/curved, tail/tiefling], choices: { hair: black, eyes: amber } }
 tiefling_child: { body: cf, pieces: [face/basic, under/briefs, under/vest, hair/f/pixie, horns/stumps, tail/tiefling], choices: { eyes: amber } }
+# Age stages (bodies.yaml bm/bf, tm/tf, ym/yf): newborn in its swaddle and basket, a one-year-old in
+# a romper, toddlers in the child clothes, teens in the grown-up ones.
+newborn: { body: bf, pieces: [face/basic, under/briefs, hair/wisp, body/swaddle, acc/basket] }
+baby_m: { body: bm, pieces: [face/basic, under/briefs, hair/wisp, body/baby_romper], choices: { hair: blonde } }
+toddler_m: { body: tm, pieces: [face/basic, under/briefs, under/vest, hair/m/messy, body/child_farm, feet/boots] }
+toddler_f: { body: tf, pieces: [face/basic, under/briefs, under/vest, hair/f/twin_braids, body/child_rich, feet/shoes], choices: { skin: brown, hair: black } }
+teen_m: { body: ym, pieces: [face/basic, under/briefs, hair/m/short, body/leather_armor, feet/boots, weapon/longsword] }
+teen_f: { body: yf, pieces: [face/basic, under/bra, under/panties, hair/f/ponytail, body/mage_robe, feet/shoes, weapon/staff] }

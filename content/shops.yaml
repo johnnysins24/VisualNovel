@@ -1,0 +1,77 @@
+# ร้านค้าของแต่ละถิ่น (ชุด 2ข) ร้านอยู่ที่ location_tag ของถิ่นนั้น ตัวละครเข้าร้านได้ตั้งแต่อายุ 12
+# staples = ของที่มีขายทุกปี · stock = ของหมุนเวียน ปีหนึ่งวางแผง 5 ชิ้น (GEAR.shelf) สุ่มใหม่ทุกปี
+# greet = คำทักของคนขาย หนึ่งประโยคต่อปี · requires กับ closed = ร้านที่ไม่ขายให้ทุกคน
+
+- id: arvel_churchyard_market
+  name: ตลาดนัดลานโบสถ์
+  location: arvel_village
+  greet:
+    - วางตะกร้าก่อนสิ ของฉันไม่หนีไปไหนหรอก
+    - ปีนี้ข้าวสาลีได้ราคา คนเลยกล้าควักกระเป๋ากันหน่อย
+    - ดูได้ จับได้ แต่ลองใส่แล้วต้องซื้อนะ
+  staples: [boiled_bandage, pine_torch, hemp_rope, salt_meat]
+  stock:
+    [reaper_cap, brass_button_shirt, woodcutter_axe, shepherd_staff, tallow_lantern, cracked_cow_bell, knit_wool_scarf, butcher_knife, field_boots, hay_gloves, feast_crackers, ward_salt,
+    plough_trousers, wooden_sole_shoes, militia_longsword, nail_club, cowherd_bow, soup_lid_shield, isel_bowl_charm, twice_offered_ring, sheepskin_coat, village_prayer_book, onion_pot_helm, fence_maul, sister_fire_lantern, honey_bread, sling_stones, apple_liquor, jaw_trap]
+
+- id: ventras_dock_market
+  name: ตลาดท่าเรือเวนทราส
+  location: ventras
+  greet:
+    - ของลงเรือเมื่อเช้านี้เอง ยังมีกลิ่นน้ำเค็มติดอยู่เลย
+    - ราคานี้คือราคาก่อนเรือเหาะลำหน้าเข้า หลังจากนั้นฉันไม่รับปาก
+    - ทองเหลืองแท้ทุกชิ้น ไม่เชื่อเอาฟันกัดดูได้ แต่กัดแล้วต้องซื้อ
+  staples: [boiled_bandage, lamp_oil_flask, flash_powder, whetstone]
+  stock:
+    [dock_goggles, navigator_pistol, brass_spanner, clerk_long_coat, harbor_short_sword, shipping_seal_ring, oilcloth_cloak, dew_watch_lantern, marine_musket, institute_third_primer, calming_snuff, feast_crackers, temple_salve,
+    distillery_coat, rigger_gloves, navy_stripe_trousers, bark_sole_shoes, customs_baton, cadet_longsword, dew_tube_pistol, whisper_mirror_shard, paid_debt_ring, harbour_hand_bell, mooring_crossbow, runner_cap, dish_head_staff, dock_darts, lamp_blessed_water, roast_coffee, signal_flare]
+
+- id: hordun_iron_yard
+  name: ลานเหล็กตีนเขาฮอร์ดุน
+  location: hordun
+  greet:
+    - เหล็กของเราไม่ต้องพูดแทน ยกดูเอาเอง
+    - ราคานี้รวมค่าลับคมตลอดชีพ ชีพของเจ้านะ ไม่ใช่ของข้า
+    - อยากได้ของถูกก็ลงเขาไปซื้อทองเหลือง
+  staples: [boiled_bandage, whetstone, pine_torch, bone_broth]
+  stock:
+    [double_ring_mail, twice_forged_plate, seventh_level_helm, four_pound_hammer, clan_war_axe, three_joint_gauntlets, rivet_rim_shield, gate_mace, tunnel_crossbow, water_skin, hemp_rope,
+    crawl_breeches, rail_layer_boots, seven_fold_longsword, mesh_mine_lamp, arm_pattern_book, forge_hand_coat, heirless_clan_ring, ossa_door_pendant, seam_pick, furnace_keeper_gloves, goat_hair_cloak, smoked_glass_goggles, silent_hammer_gauntlets, iron_caltrops, dwarf_fire_spirit, ossa_name_candle]
+
+- id: ileth_root_stall
+  name: แผงใต้ต้นไม้ของเอลฟ์ชายป่า
+  location: ileth
+  requires: { not_wears: [black_iron] }
+  closed: "เอลฟ์ที่เฝ้าแผงมองเหล็กดำบนตัว{name} แล้วดึงผ้ามาคลุมของทั้งแผงโดยไม่พูดสักคำ"
+  greet:
+    - ไม้ทุกชิ้นบนแผงนี้ล้มเอง เราไม่ได้โค่น
+    - จับได้ แต่อย่าต่อราคา ต้นไม้ไม่เคยต่อราคากับใคร
+    - ของชิ้นนั้นรอคนซื้อมาสี่สิบปีแล้ว รออีกสักปีก็ไม่เป็นไร
+  staples: [moss_poultice, salt_meat, smoke_pot]
+  stock:
+    [deer_gut_bow, leafing_staff, bark_fibre_cloak, boar_spear, polished_root_ring, bark_dye_hood, seven_ply_bark_shield, tower_keeper_knife, star_count_pendant, star_thread_robe, hemp_rope,
+    single_deer_boots, trunk_climber_breeches, herb_picker_gloves, carved_antler_charm, star_counter_goggles, two_pillar_scarf, elder_bark_coat, old_star_ledger, firefly_root_lamp, fire_hardened_thorn, hollow_wood_clapper, young_elf_longsword, first_tree_longbow, sling_stones]
+
+- id: ashland_fort_three_market
+  name: ตลาดหลังป้อมสาม
+  location: ashland
+  greet:
+    - ซื้อแล้วอย่าบอกใครว่าซื้อที่ไหน ฉันก็จะไม่บอกใครว่าขายให้ใคร
+    - ของจากใต้เถ้า ขุดขึ้นมาเมื่อวาน ยังอุ่นอยู่เลย จับดูสิ
+    - นักบวชตะเกียงมาตรวจทุกวันพระ วันนี้ไม่ใช่วันพระ
+  staples: [water_skin, boiled_bandage, death_roll, silver_grass_tea]
+  stock:
+    [ember_edge_dagger, bored_coal_pendant, retired_warden_spear, ash_digger_hood, overseer_coal_mace, coal_fed_lantern, unmarked_cold_ring, lost_hunter_knife, ash_officer_breastplate, smoke_pot, ward_salt,
+    ash_wader_boots, coal_sack_trousers, warden_watch_breeches, horn_wrap_hood, fort_wall_shield, mage_hunter_gauntlets, cold_ring_mail, shift_change_pistol, seal_tremor_bell, warden_grey_cloak, dream_name_book, coal_chip_ring, fort_oath_blade, coal_ember, iron_caltrops]
+
+- id: kardin_junction_market
+  name: ตลาดชุมทางคาร์ดิน
+  location: kardin
+  greet:
+    - ขบวนบ่ายออกอีกครึ่งชั่วยาม ตัดสินใจให้ทันก่อนหวูดก็แล้วกัน
+    - จ่ายสดฉันไม่ลดให้ แต่ถ้าไปผ่อนกับวิหาร ฉันได้ค่านายหน้า เลือกเอาว่าอยากให้ใครรวย
+    - เหล็กแผงนี้ออกจากเตาเมื่อวานซืน ยังไม่ทันได้ขึ้นสนิมสักเม็ด
+  staples: [boiled_bandage, whetstone, lamp_oil_flask, roast_coffee]
+  stock:
+    [switchman_cap, foundry_hood, ticket_loupe_goggles, collector_shirt, rail_gang_coat, boiler_plate_vest, tong_gloves, vault_guard_gauntlets, brakeman_trousers, ballast_boots, soot_scarf,
+    sleeper_car_blanket, coupling_bar, spike_maul, furnace_poker, collector_pistol, station_hand_bell, rail_wrench, conductor_lantern, closed_debt_ledger, belek_scale_pendant, belek_contract_ring, hemp_rope, signal_flare, iron_caltrops, salt_meat]

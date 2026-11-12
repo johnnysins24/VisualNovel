@@ -1,12 +1,13 @@
 # กันพลาดก่อนพิธี อายุ 13: ชีวิตที่ยังไม่มีความโน้มเอียง (lean_*) นอกทางประจำถิ่นเลยสักทาง จะได้เรื่องนี้หนึ่งครั้ง
 # พิธีตอนอายุ 14 จึงมีทางนักผจญภัยให้เลือกอย่างน้อยสองทางเสมอ (ทางประจำถิ่น กับทางที่ได้จากเรื่องนี้)
-# น้ำหนัก 100000 เพื่อให้ชนะเรื่องอื่นของอายุ 13 แทบทุกครั้ง เนื้อเรื่องไม่ระบุถิ่น ห้ามใช้ {father} {mother}
+# must: true ทำให้ออกแน่นอนตอนอายุ 13 (น้ำหนักใช้ตัดสินเฉพาะเมื่อ must ชนกัน) เนื้อเรื่องไม่ระบุถิ่น ห้ามใช้ {father} {mother}
 # ข้อความกลางและตัวเลือกเขียนครั้งเดียวแล้วใช้ซ้ำด้วย anchor ของ YAML (&ชื่อ แล้วเรียกด้วย *ชื่อ)
 # แต่ละถิ่นตัดตัวเลือกของทางประจำถิ่นตัวเองออก เพราะทางนั้นเปิดอยู่แล้ว
 
 - id: youth.own_try_farm
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_farm]
@@ -72,6 +73,7 @@
 - id: youth.own_try_refinery
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_refinery]
@@ -96,6 +98,7 @@
 - id: youth.own_try_dwarf
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_dwarf_clan]
@@ -106,6 +109,7 @@
 - id: youth.own_try_elf
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_elf_bough]
@@ -116,6 +120,7 @@
 - id: youth.own_try_kept
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_marked_kept]
@@ -126,6 +131,7 @@
 - id: youth.own_try_hidden
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_marked_hidden]
@@ -136,6 +142,7 @@
 - id: youth.own_try_foundling
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_marked_foundling]
@@ -146,6 +153,7 @@
 - id: youth.own_try_ashland
   stage: youth
   weight: 100000
+  must: true
   when:
     age: [13, 13]
     flags: [origin_ashland]

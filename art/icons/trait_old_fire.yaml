@@ -1,0 +1,36 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: scene.fire }
+legend: { a: shape@0, b: shape@1, c: shape@2, d: shape@3, e: shape@4 }
+meta: { from: game-icons/delapouite/tiger-head.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 1, 2 ]
+      ascii: |
+        ...eed..............eec...
+        ...eddeeeed....ceeeecca...
+        ..ddddddda......eccccccc..
+        ...edddddcc....ecccccca...
+        ...dddddcca....ecccccca...
+        ....edaccaaeeeeaaccaca....
+        .ed.ea.ca..eaaa..ea.ea.ec.
+        .eaedcc.ccea..eeca.ccceaa.
+        ea.eca....eceeca....cca.ec
+        ea.ea.c...ccccca...c.ea.ca
+        d..ea.c.c..ecca..c.c.ea..c
+        ...ea.cc...ecca...ea.ca...
+        .c.c.c.cec.ecca.eea.c.c.c.
+        ea.c.cc.ea.ecca.ea.ea.c.ec
+        ea.cc.c.caecccceaa.c.ea.ea
+        ecc.cc.c..ccccca..c.ea.eca
+        eacc.cea.c.caaa.c.eea.ecaa
+        c.ecc.ca.c......c.ca.eca.b
+        ..cccc..ecc....ecc..ecba..
+        ...cccc.caac..caaa.ecba...
+        ....cccc..........ccba....
+        .....ca..c.........ba.....
+        ..........c....c..........
+        ...........cccc...........

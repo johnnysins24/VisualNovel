@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 24, 26 ]
+outline: false
+ramps: { carriage: scene.carriage, cloth: scene.cloth, cloud: scene.cloud }
+legend: { a: carriage@1, b: cloth@3, c: cloud@4 }
+meta: { from: shikashi/icons.png, cell: "448,96,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .........######.........
+        ......###bbbbbb###......
+        .....#bbbbbbbbbbbb#.....
+        ....#bbbccccccccbbb#....
+        ...#bbccbbbbbbbbccbb#...
+        ..#bbcbbbb####bbbbcbb#..
+        .#bbcbbbb#aaaa#bbbbcbb#.
+        .#bbcbbb#aaaaaa#bbbcbb#.
+        #bbcbbbc#aaaaaaa#bbbcbb#
+        #bbcbbcb#aaaaaaa#cbbcbb#
+        #bcbbcbb#c#aac#a#bcbbcb#
+        #bcbbcbb#aaaaaaa#bcbbcb#
+        #bcbbcbb#aaaaaaa#bcbbcb#
+        #bcbbcbb#aaaaaaa#bcbbcb#
+        #bcbbcbbb#aaaaa#bbcbbcb#
+        #bcbbbcbbb#aaa#bbcbbbcb#
+        #bcbbbcb###aaa###cbbbcb#
+        .#bcbb##aaaaaaaaa##bcb#.
+        .#bbc#aaaaaaaaaaaaa#bb#.
+        .#bb#aaaaaaaaaaaaaaa#b#.
+        ..#b#aaaaaaaaaaaaaaa##..
+        ...##aaaaaaaaaaaaaaa#...
+        ...##aaaaaaaaaaaaaaa#...
+        ...##aaaaaaaaaaaaaaa#...
+        ...##aaaaaaaaaaaaaaa#...
+        ....#################...

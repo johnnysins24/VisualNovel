@@ -1,17 +1,32 @@
-# Home in the Ashland: a hut of woven silver grass over a timber frame, a small hearth of ash-grey
-# stones, sleeping mats, a water jar, a window onto the grey plain.
+# Home in the Ashland: a hut of woven silver grass on a timber frame, raised off the ash on posts,
+# a low thatched ceiling, a clay fire box, sleeping mats, water jars, a window onto the grey plain.
+# The room is 6.5 m wide, its back wall 4 m behind the figures.
 interior: true
+ceiling: 2.3
+width: 6.5
 layers:
-  - wall: { y0: 0, y1: 92, mat: silver_grass, pattern: weave, beams: [40, 128, 216] }
-  - pane: { x: 160, y: 30, w: 22, h: 16 }
-  - floor: { y0: 93, mat: ash, pattern: flags, tile: 20, depth: 60 }
-  - furn: { kind: hearth, at: [60, 98], w: 26, h: 14, fire: fire }
+  - wall: { y0: 0, y1: 92, mat: silver_grass, pattern: weave, beams: [61, 104, 164, 193], skirt: wood }
+  - ceiling: { mat: wood, board_mat: thatch, board: 6, every: 0.9 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 10 }
+  - sides: { mat: silver_grass, pattern: weave, beams: 1.3, skirt: wood }
+  - pane: { at: [146], wm: 0.9, hm: 0.8, on: 1.0 }
+  - furn: { kind: door, at: [180], mat: wood }
     outline: true
-  - glow: { at: [73, 92], r: 22, colour: 'ff9a50' }
-  - furn: { kind: shelf, at: [70, 56], w: 28, h: 14, rows: 1 }
+  - furn: { kind: hearth, at: [82], wm: 1.2, chimney: false, mat: dirt, mantel: wood }
     outline: true
-  - furn: { kind: bed, at: [190, 104], w: 52, h: 10, mat: dirt }
+  - glow: { at: [82, 86], r: 24, colour: 'ff9a50' }
+  - furn: { kind: shelf, at: [122], on: 1.35, wm: 0.8, rows: 1 }
     outline: true
-  - furn: { kind: barrel, at: [22, 100], w: 10, h: 14 }
+  - furn: { kind: herbs, at: [108], on: 2.2, wm: 0.6, n: 3 }
+  - furn: { kind: bed, side: left, at: [1.05, 101], mat: dirt, frame: plank }
+    outline: true
+  - furn: { kind: barrel, side: right, at: [0.4, 99], mat: dirt, band: wood }
+    outline: true
+  - furn: { kind: sacks, side: right, at: [0.45, 103] }
+    outline: true
+  - furn: { kind: table, at: [128, 99], wm: 1.0, hm: 0.5 }
+    outline: true
+  - furn: { kind: rug, at: [128, 111], wm: 2.4, dm: 2.2, mat: dirt, trim: silver_grass }
+  - furn: { kind: barrel, side: left, at: [0.4, 109], mat: dirt, band: wood, s: 0.8 }
     outline: true
   - vignette: { strength: 0.45 }

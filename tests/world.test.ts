@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { loadContent } from '../scripts/content';
 import { lintContent } from '../src/engine/lint';
-import { applyEffects, choiceAvailable, eligible, makeGame, resolveChoice, settle } from '../src/engine/engine';
-import { humanAge, newLife, yearsPerEvent } from '../src/engine/state';
+import { applyEffects, checkModifier, choiceAvailable, eligible, makeGame, resolveChoice, settle, turnsLeft, yearlyRegen } from '../src/engine/engine';
+import { humanAge, lastRealAge, newLife, stageAge } from '../src/engine/state';
 import { Rng } from '../src/engine/rng';
 import { ContentSchema } from '../src/engine/schema';
 import { alignmentCell, bucket, clericDrifted, godDistance, hasDemonMark, situationalBonus } from '../src/engine/rules';
@@ -10,22 +10,22 @@ import { paragraphs, render } from '../src/engine/text';
 import { commitLife, newMeta } from '../src/engine/meta';
 import { migrate } from '../src/engine/save';
 import {
-  ADULT_HP_REGEN,
   ALIGN_CAP,
   CLASSES,
   CLASS_IDS,
   CLERIC_DRIFT_FLAG,
   CLERIC_WIS_BONUS,
-  DEMON_MARK_BONUS,
   EVEN_AGING_UNTIL,
   GODS,
   GOD_IDS,
+  HP_REGEN,
   RACES,
   REPUTATION_CAP,
   STAT_CAP,
   WORLD_CAP,
 } from '../src/engine/balance';
 import { maxHp } from '../src/engine/items';
+import { traitCheckBonus } from '../src/engine/traits';
 
 const game = makeGame(loadContent('tests/fixtures/content'));
 const withFlags = (flags: string[]) => settle(game, applyEffects(game, newLife(1), { flags }), new Rng(1));
@@ -45,9 +45,9 @@ describe('birth: gender, year, names', () => {
   it('when.year checks birth_year + age', () => {
     const ev = game.events.find((e) => e.id === 'youth.test_hound')!;
     const base = { ...newLife(1), age: 20, flags: [] as string[] };
-    expect(eligible({ ...base, birthYear: 250 }, ev)).toBe(false); // ปี 270 ยังไม่ถึง 280
-    expect(eligible({ ...base, birthYear: 270 }, ev)).toBe(true); // ปี 290
-    expect(eligible({ ...base, birthYear: 270, age: 10 }, ev)).toBe(false); // อายุยังไม่ถึง
+    expect(eligible(game, { ...base, birthYear: 250 }, ev)).toBe(false); // ปี 270 ยังไม่ถึง 280
+    expect(eligible(game, { ...base, birthYear: 270 }, ev)).toBe(true); // ปี 290
+    expect(eligible(game, { ...base, birthYear: 270, age: 10 }, ev)).toBe(false); // อายุยังไม่ถึง
   });
 });
 
@@ -132,7 +132,7 @@ describe('alignment and cleric', () => {
     expect(l.flags).toContain(CLERIC_DRIFT_FLAG);
     expect(situationalBonus(l, 'WIS')).toBe(0);
     const drifted = game.events.find((e) => e.id === 'youth.test_drifted')!;
-    expect(eligible(l, drifted)).toBe(true);
+    expect(eligible(game, l, drifted)).toBe(true);
     l = settle(game, applyEffects(game, l, { alignment: { law: 10, moral: 10 } }), new Rng(1));
     expect(l.flags).not.toContain(CLERIC_DRIFT_FLAG);
   });
@@ -160,22 +160,24 @@ describe('world scores, demon mark, reputation', () => {
       events: [{ id: 'youth.w', stage: 'youth', when: { world: { demon: [3, 10] } }, text: 't', choices: [{ id: 'a', label: 'a', requires: { world: { star: [1, 9] } }, effects: { gold: 1 } }] }],
     });
     const ev = c.events[0]!;
-    expect(eligible(l, ev)).toBe(true);
-    expect(eligible(newLife(1), ev)).toBe(false);
-    expect(choiceAvailable(l, ev.choices[0]!)).toBe(false);
+    expect(eligible(game, l, ev)).toBe(true);
+    expect(eligible(game, newLife(1), ev)).toBe(false);
+    expect(choiceAvailable(game, l, ev.choices[0]!)).toBe(false);
   });
-  it('demon mark helps against demon and star foes only, silently', () => {
+  it('demon mark helps against demon and star foes only, silently (numbers live in the trait registry)', () => {
     const t = withFlags(['race_tiefling']);
-    expect(situationalBonus(t, 'STR', 'demon')).toBe(DEMON_MARK_BONUS.demon);
-    expect(situationalBonus(t, 'STR', 'star')).toBe(DEMON_MARK_BONUS.star);
-    expect(situationalBonus(t, 'STR', 'nature')).toBe(0);
-    expect(situationalBonus(t, 'STR')).toBe(0);
-    expect(situationalBonus(withFlags(['race_human']), 'STR', 'demon')).toBe(0);
+    const bonus = (l: typeof t, foe?: 'demon' | 'star' | 'nature') => traitCheckBonus(l, game.traits, 'STR', foe);
+    expect(bonus(t, 'demon')).toBe(3);
+    expect(bonus(t, 'star')).toBe(5);
+    expect(bonus(t, 'nature')).toBe(0);
+    expect(bonus(t)).toBe(0);
+    expect(bonus(withFlags(['race_human']), 'demon')).toBe(0);
+    expect(checkModifier(game, t, { stat: 'STR', dc: 10, foe: 'star' })).toBe(5);
   });
   it('a check roll uses the demon mark bonus', () => {
     const t = { ...withFlags(['race_tiefling']), age: 20, currentEventId: 'youth.test_hound' };
     const { entry } = resolveChoice(game, t, 'youth.test_hound', 'fight');
-    expect(entry.roll!.mod).toBe(0 + DEMON_MARK_BONUS.demon); // STR 10 -> mod 0
+    expect(entry.roll!.mod).toBe(0 + 3); // STR 10 -> mod 0
   });
   it('reputation is capped, gates content and carries across lives', () => {
     let l = applyEffects(game, newLife(1), { reputation: { belek_bank: -99, wardens: 4 } });
@@ -184,7 +186,7 @@ describe('world scores, demon mark, reputation', () => {
       items: [],
       events: [{ id: 'youth.r', stage: 'youth', when: { min_reputation: { wardens: 3 }, max_reputation: { belek_bank: -5 } }, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }],
     }).events[0]!;
-    expect(eligible(l, ev)).toBe(true);
+    expect(eligible(game, l, ev)).toBe(true);
     const meta = commitLife(newMeta(), { ...l, alive: false });
     expect(meta.lives).toBe(1);
     const next = newLife(2, meta);
@@ -217,9 +219,9 @@ describe('save migration', () => {
     const v1 = { ...newLife(5), version: 1, gold: 9 } as Record<string, unknown>;
     for (const k of ['gender', 'birthYear', 'world', 'alignment', 'reputation', 'parents', 'classId', 'god', 'homeTag', 'raceApplied']) delete v1[k];
     const l = migrate(v1);
-    expect(l.version).toBe(2);
+    expect(l.version).toBe(3);
     expect(l.gold).toBe(9);
-    expect(l.world).toEqual({ gods: 0, demon: 0, star: 0 });
+    expect(l.world).toEqual({ gods: 0, demon: 0, star: 0, land: 0, treasury: 0, peace: 0, throne: 0 });
     expect(l.birthYear).toBe(newLife(5).birthYear);
   });
   it('rejects junk', () => expect(() => migrate({ seed: 1, version: 9 })).toThrow());
@@ -285,9 +287,11 @@ describe('child protection', () => {
       expect(l.hp).toBe(1);
     }
   });
-  it('death works from age 12 on', () => {
-    expect(applyEffects(game, { ...newLife(1), age: 12 }, { die: true }).alive).toBe(false);
-    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 }).alive).toBe(false);
+  it('death works from age 12 on: the effect marks the life as dying, with the cause', () => {
+    expect(applyEffects(game, { ...newLife(1), age: 12 }, { die: true }).dying).toBe('wound');
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 })).toMatchObject({ dying: 'wound', hp: 0, alive: true });
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { die: 'sacrifice' }).dying).toBe('sacrifice');
+    expect(applyEffects(game, { ...newLife(1), age: 30 }, { hp: -99 }, 'fight').dying).toBe('fight');
   });
 });
 
@@ -295,9 +299,9 @@ describe('requires.not_flags', () => {
   const ch = { id: 'navy', label: 'n', text: 't', requires: { min_stat: { STR: 12 }, not_flags: ['race_tiefling'] } };
   it('hides a choice when any listed flag is set', () => {
     const l = { ...newLife(1), stats: { ...newLife(1).stats, STR: 14 } };
-    expect(choiceAvailable(l, ch)).toBe(true);
-    expect(choiceAvailable({ ...l, flags: ['race_tiefling'] }, ch)).toBe(false);
-    expect(choiceAvailable({ ...l, flags: ['race_human'] }, ch)).toBe(true);
+    expect(choiceAvailable(game, l, ch)).toBe(true);
+    expect(choiceAvailable(game, { ...l, flags: ['race_tiefling'] }, ch)).toBe(false);
+    expect(choiceAvailable(game, { ...l, flags: ['race_human'] }, ch)).toBe(true);
   });
 });
 
@@ -316,8 +320,8 @@ describe('stat cap', () => {
 describe('gold: costs and debt', () => {
   const ticket = { id: 'ticket', label: 't', text: 't', requires: { min_gold: 3 }, effects: { gold: -3 } };
   it('requires.min_gold hides a paid choice until the money is there', () => {
-    expect(choiceAvailable({ ...newLife(1), gold: 2 }, ticket)).toBe(false);
-    expect(choiceAvailable({ ...newLife(1), gold: 3 }, ticket)).toBe(true);
+    expect(choiceAvailable(game, { ...newLife(1), gold: 2 }, ticket)).toBe(false);
+    expect(choiceAvailable(game, { ...newLife(1), gold: 3 }, ticket)).toBe(true);
   });
   it('a loss takes only what there is', () => {
     expect(applyEffects(game, { ...newLife(1), gold: 2 }, { gold: -5 }).gold).toBe(0);
@@ -347,11 +351,11 @@ describe('gender condition', () => {
   it('gates events and choices on the character gender', () => {
     const man = { ...newLife(1), gender: 'm' as const };
     const woman = { ...newLife(1), gender: 'f' as const };
-    expect(eligible(man, ev as never)).toBe(true);
-    expect(eligible(woman, ev as never)).toBe(false);
+    expect(eligible(game, man, ev as never)).toBe(true);
+    expect(eligible(game, woman, ev as never)).toBe(false);
     const ch = { id: 'nurse', label: 'n', text: 't', requires: { gender: 'f' as const } };
-    expect(choiceAvailable(woman, ch)).toBe(true);
-    expect(choiceAvailable(man, ch)).toBe(false);
+    expect(choiceAvailable(game, woman, ch)).toBe(true);
+    expect(choiceAvailable(game, man, ch)).toBe(false);
   });
 });
 
@@ -411,67 +415,94 @@ describe('partner', () => {
   });
 });
 
-describe('adult hp regen', () => {
+describe('hp regen by age', () => {
   const adultGame = makeGame(
     ContentSchema.parse({ items: [], events: [{ id: 'adult.rest', stage: 'adult', text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }, { id: 'hurt', label: 'b', effects: { hp: -5 } }] }] }),
   );
   const at = (age: number, hp: number) => ({ ...newLife(1), age, hp, baseMaxHp: 20 });
-  it('from 18 on, each event heals ADULT_HP_REGEN up to max', () => {
-    expect(resolveChoice(adultGame, at(18, 10), 'adult.rest', 'a').life.hp).toBe(10 + ADULT_HP_REGEN);
+  const regenAt = (h: number) => HP_REGEN.find(([from]) => h >= from)![1];
+  it('wounds close slower with age: 3 a year from 18, 2 from 50, 1 from 65, none from 80', () => {
+    expect([18, 49, 50, 64, 65, 79, 80, 95].map(regenAt)).toEqual([3, 3, 2, 2, 1, 1, 0, 0]);
+    for (const age of [18, 30, 50, 64]) expect(yearlyRegen(at(age, 1))).toBe(regenAt(age));
+    expect(resolveChoice(adultGame, at(18, 10), 'adult.rest', 'a').life.hp).toBe(13);
     expect(resolveChoice(adultGame, at(30, 19), 'adult.rest', 'a').life.hp).toBe(20);
+    expect(resolveChoice(adultGame, at(50, 10), 'adult.rest', 'a').life.hp).toBe(12);
   });
   it('children and youths do not heal', () => {
     expect(resolveChoice(adultGame, at(17, 10), 'adult.rest', 'a').life.hp).toBe(10);
+    expect(yearlyRegen(at(17, 10))).toBe(0);
+  });
+  it('an elf heals by the age of the body, not the count of years', () => {
+    expect(yearlyRegen({ ...at(140, 1), raceApplied: 'elf' })).toBe(2); // เทียบมนุษย์ 50
+    expect(yearlyRegen({ ...at(139, 1), raceApplied: 'elf' })).toBe(3); // เทียบมนุษย์ 49.9
   });
   it('the heal comes after the choice, so a hit that kills still kills', () => {
     const r = resolveChoice(adultGame, at(25, 5), 'adult.rest', 'hurt').life;
     expect(r.alive).toBe(false);
     expect(r.hp).toBe(0);
+    expect(r).toMatchObject({ endReason: 'death', deathCause: 'wound', dying: null });
   });
 });
 
-describe('race ageing', () => {
+describe('race ageing: one world clock for every race (D3)', () => {
   const at = (race: string | null, age: number) => ({ ...newLife(1), raceApplied: race, age });
-  it(`all races step one year per event until ${EVEN_AGING_UNTIL} (L15)`, () => {
+  const yearGame = makeGame(ContentSchema.parse({ items: [], events: [{ id: 'adult.year', stage: 'adult', once: false, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }] }));
+  it('every event is one year for every race, at any age', () => {
+    for (const r of ['human', 'elf', 'dwarf', 'tiefling']) {
+      for (const age of [10, 18, 39, 40, 41, 60]) {
+        const next = resolveChoice(yearGame, at(r, age), 'adult.year', 'a').life;
+        expect(next.age, `${r} ${age}`).toBe(age + 1);
+        expect(next.birthYear + next.age).toBe(at(r, age).birthYear + age + 1);
+      }
+    }
+  });
+  it(`bodies age alike until ${EVEN_AGING_UNTIL}, then elves and dwarves slow down`, () => {
     for (const r of ['human', 'elf', 'dwarf', 'tiefling']) {
       expect(humanAge(at(r, 18))).toBe(18);
       expect(humanAge(at(r, EVEN_AGING_UNTIL))).toBe(EVEN_AGING_UNTIL);
-      for (const age of [10, 17, 18, 25, EVEN_AGING_UNTIL - 1]) expect(yearsPerEvent(at(r, age))).toBe(1);
     }
-  });
-  it(`after ${EVEN_AGING_UNTIL} elves and dwarves stretch their stages`, () => {
-    expect(yearsPerEvent(at('elf', 40))).toBe(10);
-    expect(yearsPerEvent(at('dwarf', 40))).toBe(5);
-    expect(yearsPerEvent(at('human', 40))).toBe(1);
     expect(humanAge(at('elf', 140))).toBe(50); // 40 + 100/10
     expect(humanAge(at('dwarf', 90))).toBe(50);
     expect(humanAge(at(null, 60))).toBe(60);
+    expect(stageAge(at('elf', 49))).toBe(40);
+    expect(stageAge(at('elf', 50))).toBe(41);
+    expect(stageAge(at('dwarf', 44))).toBe(40);
+    expect(stageAge(at('dwarf', 45))).toBe(41);
   });
-  it('a life born in the last birth year is still in the Starlight Age at 40', () => {
+  it('lastRealAge is the last real year that still counts as a human age', () => {
+    expect(lastRealAge(30, 'elf')).toBe(30);
+    expect(lastRealAge(40, 'human')).toBe(40);
+    expect(lastRealAge(40, 'elf')).toBe(49);
+    expect(lastRealAge(41, 'elf')).toBe(59);
+    expect(lastRealAge(41, 'dwarf')).toBe(49);
     for (const r of ['human', 'elf', 'dwarf']) {
-      let l = { ...newLife(1), raceApplied: r, birthYear: 300, age: 0 };
-      while (humanAge(l) < 40) l = { ...l, age: l.age + yearsPerEvent(l) };
-      expect(l.birthYear + l.age).toBeLessThanOrEqual(340);
+      for (const h of [39, 40, 41, 55, 70]) {
+        expect(stageAge(at(r, lastRealAge(h, r)))).toBe(h);
+        expect(stageAge(at(r, lastRealAge(h, r) + 1))).toBe(h + 1);
+      }
     }
   });
   it('when.age is read in human years, so an elf reaches the same late stage at older real ages', () => {
     const ev = ContentSchema.parse({ items: [], events: [{ id: 'elder.a', stage: 'elder', when: { age: [45, 55] }, text: 't', choices: [{ id: 'a', label: 'a', text: 'x' }] }] }).events[0]!;
-    expect(eligible(at('human', 50), ev)).toBe(true);
-    expect(eligible(at('elf', 50), ev)).toBe(false); // อายุจริง 50 = 41 แบบมนุษย์
-    expect(eligible(at('elf', 120), ev)).toBe(true); // 48 ปีแบบมนุษย์
-    expect(eligible(at('elf', 200), ev)).toBe(false); // 56 ปีแบบมนุษย์
+    expect(eligible(game, at('human', 50), ev)).toBe(true);
+    expect(eligible(game, at('elf', 50), ev)).toBe(false); // อายุจริง 50 = 41 แบบมนุษย์
+    expect(eligible(game, at('elf', 120), ev)).toBe(true); // 48 ปีแบบมนุษย์
+    expect(eligible(game, at('elf', 200), ev)).toBe(false); // 56 ปีแบบมนุษย์
+    expect(turnsLeft(at('elf', 120), ev)).toBe(199 - 120); // ยังเหลืออีกหลายสิบปีจริงกว่าจะพ้นวัย 55
+    expect(turnsLeft(at('human', 50), ev)).toBe(5);
   });
-  it('an elf gets the same number of events per stage as a human but older numbers', () => {
-    const run = (race: string) => {
-      let l = { ...newLife(1), raceApplied: race, age: 18 };
+  it('an elf lives through ten times as many years (and events) per late stage as a human', () => {
+    const years = (race: string) => {
+      let l = at(race, 40);
       let n = 0;
-      while (humanAge(l) <= 60) {
-        l = { ...l, age: l.age + yearsPerEvent(l) };
+      while (stageAge(l) < 50) {
+        l = resolveChoice(yearGame, l, 'adult.year', 'a').life;
         n++;
       }
-      return { n, age: l.age };
+      return n;
     };
-    expect(run('human').n).toBe(run('elf').n);
-    expect(run('elf').age).toBeGreaterThan(run('human').age);
+    expect(years('human')).toBe(10);
+    expect(years('dwarf')).toBe(50);
+    expect(years('elf')).toBe(100);
   });
 });

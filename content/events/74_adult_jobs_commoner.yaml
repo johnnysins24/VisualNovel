@@ -220,7 +220,7 @@
 
 - id: adult.job_smith_shackles
   stage: adult
-  scene: workshop
+  scene: smithy
   weight: 45
   when:
     age: [19, 24]
@@ -261,7 +261,7 @@
         effects: { gold: -2, reputation: { lamp_church: -1 }, flags: [lamp_noted_smith] }
     - id: show_own
       label: ถอดผ้าโพกหัวออก ถามเขาว่าจะเริ่มวัดข้อมือจากใคร
-      requires: { trait: demon_mark, not_flags: [horns_sawn] }
+      requires: { trait: curse_brand, not_flags: [horns_sawn] }
       text: |
         {name}แก้ผ้าโพกหัวที่พันไว้กันประกายไฟ วางลงบนทั่งข้างกระดาษไข เขาทั้งสองข้างโค้งขึ้นมาจากผมที่ชุ่มเหงื่อ แล้ววางข้อมือตัวเองลงบนแบบ ถามว่าข้อมือแบบนี้ใหญ่ไปไหม หรือต้องเล็กกว่านี้
 
@@ -297,6 +297,7 @@
       effects: { gold: 12, alignment: { moral: -1 }, flags: [sold_grain_to_mine] }
     - id: sell_on_credit
       label: ขายเชื่อครึ่งเกวียนให้หมู่บ้าน อีกครึ่งขายบริษัท
+      habit: soft_heart
       text: |
         {name}แบ่งข้าวสองกอง กองหนึ่งให้หัวหน้าหมู่บ้าน นางให้คนเขียนชื่อ{name}กับจำนวนกระสอบลงบนแผ่นไม้ แล้วตอกแผ่นไม้ติดเสากลางลาน ให้คนทั้งหมู่บ้านเห็นว่าติดใคร ติดเท่าไร อีกกองขายให้คนของบริษัทในราคาสามเท่าเหมือนเดิม
 
@@ -304,6 +305,7 @@
       effects: { gold: 4, alignment: { moral: 1 }, flags: [hail_village_credit] }
     - id: play_them_off
       label: บอกคนของบริษัทว่ามีคนให้ราคาดีกว่า แล้วต่อราคาให้หมู่บ้าน
+      habit: sweet_tongue
       check: { stat: CHA, dc: 14 }
       success:
         text: |

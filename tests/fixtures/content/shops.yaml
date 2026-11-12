@@ -1,0 +1,6 @@
+# ร้านของชุดทดสอบ: หมวกหนึ่งใบกับของใช้แล้วหมดสองอย่าง
+- id: test_stall
+  name: "[ทดสอบ] แผงขายของ"
+  location: village
+  greet: ["[ทดสอบ] ดูของได้เลย"]
+  staples: [test_cap, test_salve, test_dart]

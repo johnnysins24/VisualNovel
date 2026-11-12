@@ -1,0 +1,33 @@
+# A railway station of Arvel: a flagged platform, the brick station house with its lamp-lit windows
+# on the left, a train standing at the platform with steam up, lamp posts, the notice board and the
+# station bell, luggage and sacks waiting. Low roofs of the town and the plain's far hills behind.
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 60, below: 46 }
+  - body: { day: [8, 14, 6], dusk: [30, 36, 9], night: [118, 10, 5] }
+  - clouds: { count: 5, y: [4, 24], seed: 21 }
+  - ridge: { mat: far, base: 56, amp: 8, scale: 0.012, seed: 14 }
+    haze: 0.4
+  - skyline: { base: 61, w: [4, 8], h: [2, 4], gap: 0.4, wall: brick, roof: slate, windows: 0.4, chimneys: 0.5 }
+    haze: 0.35
+  - floor: { y0: 61, mat: stone, pattern: flags, tile: 14 }
+  - furn: { kind: house, at: [0, 72], xm: -13, wm: 9, hm: 3.6, roof: 2.4, wall: brick, roof_mat: slate, chimney: 2.6, light: true, door: 2.2 }
+    outline: true
+  - line: { from: [[-256, 75], [512, 75]], w: 1, mat: metal }
+  - line: { from: [[-256, 77], [512, 77]], w: 1, mat: metal }
+  - furn: { kind: train, at: [0, 75], xm: 5.5, cars: 1 }
+    outline: true
+  - furn: { kind: lamppost, at: [0, 80], xm: -1.55, light: window }
+    outline: true
+  - furn: { kind: board, at: [0, 82], xm: -6.8, on: 0.9, wm: 1.3, hm: 0.95, notes: 9 }
+    outline: true
+  - furn: { kind: bell, at: [0, 86], xm: 7.2 }
+    outline: true
+  - furn: { kind: bench, at: [0, 90], xm: -6.4, wm: 1.8 }
+    outline: true
+  - furn: { kind: crates, at: [0, 94], xm: 6.2 }
+    outline: true
+  - furn: { kind: sacks, at: [0, 104], xm: -4.4 }
+    outline: true
+  - furn: { kind: barrel, at: [0, 106], xm: 4.2 }
+    outline: true

@@ -44,6 +44,7 @@
         effects: { stats: { INT: 1 }, reputation: { belek_bank: 1 }, flags: [belek_guarantor] }
     - id: refuse
       label: ไม่ค้ำ บอกเขาตรงๆ ว่าไม่กล้า
+      habit: faint_heart
       text: |
         เวลน์ไม่เถียง พยักหน้าครั้งเดียว แล้วเดินออกจากแถวไป สามวันต่อมา{name}ได้ยินว่าน้องสาวเขาอายุสิบสี่ไปลงชื่อค้ำให้แทน เสมียนไม่ได้ถามอายุ
 
@@ -131,6 +132,7 @@
         effects: { hp: -2, stats: { CON: 1 }, alignment: { law: -1 }, flags: [broke_strike_line] }
     - id: steal_ledger
       label: คืนนั้นแอบเข้าไปเอาสมุดบัญชีหักค่าแรงออกมา
+      habit: light_fingers
       check: { stat: DEX, dc: 13 }
       success:
         text: |

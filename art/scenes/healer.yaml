@@ -1,0 +1,31 @@
+# The healer's room above the salted-fish shop: three narrow beds, a curtain between two of them, a
+# shelf of bottles, herbs drying from a beam, a wash basin, a window on the street. Story: hedge
+# doctor events. The room is 8 m wide, under a low plastered ceiling.
+interior: true
+ceiling: 2.4
+width: 8
+layers:
+  - wall: { y0: 0, y1: 92, mat: plaster, beams: [46, 104, 152, 208], noise: 0.7, skirt: wood }
+  - ceiling: { mat: wood, every: 1.0 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, beams: 1.5, skirt: wood, noise: 0.6 }
+  - pane: { at: [128], wm: 1.0, hm: 1.0, on: 1.0, roofs: slate }
+  - furn: { kind: curtain, at: [128], on: 2.15, wm: 1.4, hm: 1.25, mat: plaster }
+  - furn: { kind: herbs, at: [80], on: 2.36, wm: 0.9, n: 4 }
+  - furn: { kind: shelf, at: [178], on: 1.15, wm: 1.0, rows: 2 }
+    outline: true
+  - furn: { kind: basin, at: [178, 94] }
+    outline: true
+  - furn: { kind: bed, at: [84, 95], wm: 1.9, mat: plaster }
+    outline: true
+  - furn: { kind: curtain, at: [111, 95], on: 2.1, wm: 0.56, hm: 1.9, mat: cloth }
+  - furn: { kind: bed, side: left, at: [1.0, 101], wm: 1.9, mat: plaster }
+    outline: true
+  - furn: { kind: bed, side: right, at: [1.0, 101], wm: 1.9, mat: plaster, flip: true }
+    outline: true
+  - furn: { kind: lamp, at: [148, 100], on: 2.1, glow: { r: 18, colour: 'f7d98a', only: [dusk, night] } }
+  - furn: { kind: chair, side: right, at: [2.25, 104] }
+    outline: true
+  - furn: { kind: table, side: left, at: [0.5, 110], wm: 0.8, items: pots }
+    outline: true
+  - vignette: { strength: 0.45 }

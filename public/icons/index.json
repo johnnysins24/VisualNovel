@@ -1,0 +1,950 @@
+{
+ "gear_amulet": {
+  "w": 24,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_axe": {
+  "w": 25,
+  "h": 24,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_bell": {
+  "w": 17,
+  "h": 23,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "game-icons/lorc/ringing-bell.svg"
+ },
+ "gear_boots": {
+  "w": 27,
+  "h": 22,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_bow": {
+  "w": 19,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_breeches": {
+  "w": 26,
+  "h": 23,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_cap": {
+  "w": 26,
+  "h": 22,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_cloak": {
+  "w": 22,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_crossbow": {
+  "w": 27,
+  "h": 27,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_dagger": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_gauntlets": {
+  "w": 23,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_gloves": {
+  "w": 23,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_goggles": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_hammer": {
+  "w": 26,
+  "h": 20,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_helm": {
+  "w": 20,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_hood": {
+  "w": 27,
+  "h": 31,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "dungeon-crawl/item/armor/headgear/cap_2.png"
+ },
+ "gear_lantern": {
+  "w": 20,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_leather_coat": {
+  "w": 18,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_longsword": {
+  "w": 25,
+  "h": 25,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_mace": {
+  "w": 31,
+  "h": 32,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/W_Mace004.png"
+ },
+ "gear_mail": {
+  "w": 31,
+  "h": 31,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "dungeon-crawl/item/armor/torso/chain_mail_1.png"
+ },
+ "gear_musket": {
+  "w": 32,
+  "h": 33,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "game-icons/skoll/musket.svg"
+ },
+ "gear_pistol": {
+  "w": 22,
+  "h": 32,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/W_Gun001.png"
+ },
+ "gear_plate": {
+  "w": 24,
+  "h": 21,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_ring": {
+  "w": 24,
+  "h": 16,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_robe": {
+  "w": 28,
+  "h": 29,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "dungeon-crawl/item/armor/torso/robe_1_new.png"
+ },
+ "gear_scarf": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_shield": {
+  "w": 26,
+  "h": 32,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/E_Metal04.png"
+ },
+ "gear_shirt": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_shoes": {
+  "w": 32,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/A_Shoes01.png"
+ },
+ "gear_short_sword": {
+  "w": 25,
+  "h": 25,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_spear": {
+  "w": 31,
+  "h": 31,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/W_Spear001.png"
+ },
+ "gear_staff": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_tome": {
+  "w": 22,
+  "h": 30,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "7soul-496/W_Book07.png"
+ },
+ "gear_trousers": {
+  "w": 21,
+  "h": 26,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "gear_wrench": {
+  "w": 28,
+  "h": 28,
+  "frames": [
+   "brass",
+   "black_iron",
+   "ileth_wood",
+   "star_silver",
+   "demon_coal",
+   "cold_iron"
+  ],
+  "from": "game-icons/lorc/spanner.svg"
+ },
+ "trait_boon_antler": {
+  "w": 28,
+  "h": 22,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/stag-head.svg"
+ },
+ "trait_boon_door": {
+  "w": 30,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Magic05.png"
+ },
+ "trait_boon_hearth": {
+  "w": 22,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_boon_lamp": {
+  "w": 31,
+  "h": 31,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Light02.png"
+ },
+ "trait_boon_scales": {
+  "w": 28,
+  "h": 24,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/scales.svg"
+ },
+ "trait_boon_wind": {
+  "w": 29,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/I_Feather01.png"
+ },
+ "trait_cold_blood": {
+  "w": 28,
+  "h": 27,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_cool_headed": {
+  "w": 22,
+  "h": 29,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_craft_hands": {
+  "w": 25,
+  "h": 22,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curious": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curse_bone_cold": {
+  "w": 32,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Ice02.png"
+ },
+ "trait_curse_brand": {
+  "w": 30,
+  "h": 33,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Fire07.png"
+ },
+ "trait_curse_closed_door": {
+  "w": 22,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/wooden-door.svg"
+ },
+ "trait_curse_dead_fire": {
+  "w": 23,
+  "h": 31,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Fire03.png"
+ },
+ "trait_curse_glass": {
+  "w": 26,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Ice03.png"
+ },
+ "trait_curse_hum": {
+  "w": 24,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curse_hunger": {
+  "w": 22,
+  "h": 24,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curse_lamp_out": {
+  "w": 26,
+  "h": 21,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curse_nameless": {
+  "w": 26,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Buff06.png"
+ },
+ "trait_curse_not_yet": {
+  "w": 18,
+  "h": 25,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_curse_sea": {
+  "w": 32,
+  "h": 21,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Water03.png"
+ },
+ "trait_curse_shadow": {
+  "w": 26,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/shadow-follower.svg"
+ },
+ "trait_curse_star_marks": {
+  "w": 30,
+  "h": 30,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Light01.png"
+ },
+ "trait_curse_watcher": {
+  "w": 33,
+  "h": 34,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Shadow14.png"
+ },
+ "trait_curse_woodcutter": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_empty_day": {
+  "w": 26,
+  "h": 25,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/heptagram.svg"
+ },
+ "trait_faint_heart": {
+  "w": 22,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_hero_belek": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword15.png"
+ },
+ "trait_hero_blood": {
+  "w": 23,
+  "h": 24,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_hero_isel": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword16.png"
+ },
+ "trait_hero_ossa": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword20.png"
+ },
+ "trait_hero_talis": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword19.png"
+ },
+ "trait_hero_ulwen": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword18.png"
+ },
+ "trait_hero_veras": {
+  "w": 32,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Sword17.png"
+ },
+ "trait_hot_headed": {
+  "w": 28,
+  "h": 29,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_hunter_eye": {
+  "w": 34,
+  "h": 32,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Bow09.png"
+ },
+ "trait_light_fingers": {
+  "w": 26,
+  "h": 22,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_oath_cold_iron": {
+  "w": 26,
+  "h": 25,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/nails.svg"
+ },
+ "trait_oath_wick": {
+  "w": 26,
+  "h": 25,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_old_field": {
+  "w": 28,
+  "h": 18,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/cow.svg"
+ },
+ "trait_old_fire": {
+  "w": 28,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/tiger-head.svg"
+ },
+ "trait_old_forest": {
+  "w": 20,
+  "h": 23,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/caro-asercion/deer.svg"
+ },
+ "trait_old_night": {
+  "w": 22,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/owl.svg"
+ },
+ "trait_old_river": {
+  "w": 26,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/eel.svg"
+ },
+ "trait_old_stone": {
+  "w": 27,
+  "h": 21,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/cathelineau/polar-bear.svg"
+ },
+ "trait_old_wind": {
+  "w": 27,
+  "h": 19,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/sparrow.svg"
+ },
+ "trait_soft_heart": {
+  "w": 30,
+  "h": 27,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Holy01.png"
+ },
+ "trait_stubborn": {
+  "w": 27,
+  "h": 31,
+  "frames": [
+   "main"
+  ],
+  "from": "7soul-496/S_Earth01.png"
+ },
+ "trait_sweet_tongue": {
+  "w": 26,
+  "h": 20,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_tight_fist": {
+  "w": 22,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_wound_back": {
+  "w": 26,
+  "h": 27,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/back-pain.svg"
+ },
+ "trait_wound_burn": {
+  "w": 22,
+  "h": 25,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_wound_ears": {
+  "w": 26,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/skoll/hearing-disabled.svg"
+ },
+ "trait_wound_eye": {
+  "w": 20,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/eyepatch.svg"
+ },
+ "trait_wound_fingers": {
+  "w": 25,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/hand-bandage.svg"
+ },
+ "trait_wound_knee": {
+  "w": 23,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/delapouite/knee-cap.svg"
+ },
+ "trait_wound_limp": {
+  "w": 28,
+  "h": 27,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/broken-bone.svg"
+ },
+ "trait_wound_lungs": {
+  "w": 24,
+  "h": 23,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ },
+ "trait_wound_scar": {
+  "w": 28,
+  "h": 28,
+  "frames": [
+   "main"
+  ],
+  "from": "game-icons/lorc/scar-wound.svg"
+ },
+ "trait_wound_tremor": {
+  "w": 25,
+  "h": 26,
+  "frames": [
+   "main"
+  ],
+  "from": "shikashi/icons.png"
+ }
+}

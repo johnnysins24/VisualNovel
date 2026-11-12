@@ -9,10 +9,16 @@
     "build": "npm run content && tsc --noEmit && vite build",
     "content": "tsx scripts/build-content.ts",
     "validate": "tsx scripts/validate-content.ts",
+    "audit": "tsx scripts/audit-lives.ts",
     "typecheck": "tsc --noEmit",
+    "check": "npm run validate && tsc --noEmit && vitest run --exclude 'tests/slow/**'",
     "test": "vitest run",
-    "shots": "playwright test",
-    "scenes": "node art/kit/build.mjs scenes"
+    "shots": "tsx scripts/shots.ts",
+    "scenes": "node art/kit/build.mjs scenes",
+    "studio": "vite --open /studio.html",
+    "draw": "tsx scripts/studio.ts",
+    "map": "node art/kit/map.mjs",
+    "map:poster": "node art/kit/map.mjs && node art/kit/map-poster.mjs"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",

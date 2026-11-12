@@ -1,24 +1,32 @@
-# Temple: a stone hall that serves any of the six gods, a stone altar under the great hanging lamp
-# (Verus's lamp burns in every temple), columns, tall arched windows, candles; weddings and funerals.
+# Temple: a stone hall that serves any of the six gods. A stone altar on its steps under the great
+# hanging lamp (Verus's lamp burns in every temple), tall arched windows, columns down both sides,
+# candle stands, benches either side of the aisle; weddings and funerals. The hall is 11 m wide and
+# its back wall 10 m behind the figures; the vault is above the picture.
 interior: true
+ceiling: 7
+width: 11
+back: 82
 layers:
-  - wall: { y0: 0, y1: 92, mat: bone, pattern: blocks }
-  - pane: { x: 40, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
-  - pane: { x: 200, y: 14, w: 16, h: 40, arch: true, frame: stone, frame_bg: bone }
-  - furn: { kind: banner, at: [92, 56], w: 12, h: 40, mat: cloth, sign: gold }
-  - furn: { kind: banner, at: [152, 56], w: 12, h: 40, mat: cloth, sign: gold }
-  - floor: { y0: 93, mat: stone, pattern: flags, tile: 18, depth: 90, carpet: [8, 22], carpet_mat: red_cloth }
-  - furn: { kind: column, at: [14, 92], w: 8, h: 92 }
+  - wall: { y0: 0, y1: 82, mat: stone, pattern: blocks, skirt: dark_stone }
+  - floor: { y0: 83, mat: stone, pattern: flags, tile: 14 }
+  - sides: { mat: stone, pattern: blocks, skirt: dark_stone }
+  - pane: { at: [128], wm: 1.6, hm: 3.4, on: 1.8, arch: true, frame: stone, frame_bg: stone }
+  - pane: { at: [84], wm: 1.0, hm: 2.6, on: 2.2, arch: true, frame: stone, frame_bg: stone }
+  - pane: { at: [172], wm: 1.0, hm: 2.6, on: 2.2, arch: true, frame: stone, frame_bg: stone }
+  - furn: { kind: rug, at: [128, 111], wm: 1.6, dm: 9.6, mat: red_cloth, trim: gold }
+  - furn: { kind: step, at: [128, 84], wm: 4.4, hm: 0.25, top: 3.0 }
     outline: true
-  - furn: { kind: column, at: [74, 92], w: 8, h: 92 }
+  - furn: { kind: altar, at: [128, 84], on: 0.5, wm: 1.8 }
     outline: true
-  - furn: { kind: column, at: [174, 92], w: 8, h: 92 }
+  - furn: { kind: candles, at: [104, 85] }
+  - furn: { kind: candles, at: [152, 85] }
+  - furn: { kind: lamp, at: [128, 86], on: 2.9, s: 3, mat: brass, light: fire, glow: { r: 18, colour: 'f7d98a' } }
+  - furn: { kind: column, side: left, at: [0.5, 84], along: { to: 111, every: 3.6 }, wm: 0.7 }
     outline: true
-  - furn: { kind: column, at: [234, 92], w: 8, h: 92 }
+  - furn: { kind: column, side: right, at: [0.5, 84], along: { to: 111, every: 3.6 }, wm: 0.7 }
     outline: true
-  - furn: { kind: altar, at: [112, 92], w: 32, h: 16, mat: cloth }
+  - furn: { kind: bench, side: left, at: [2.7, 89], along: { to: 104, every: 1.4 }, wm: 1.8 }
     outline: true
-  - furn: { kind: lamp, at: [127, 30], light: window }
-  - glow: { at: [128, 32], r: 22, colour: 'f7d98a' }
-  - prop: { at: [[116, 75], [137, 75]], ascii: "O\nm\nm" }
+  - furn: { kind: bench, side: right, at: [2.7, 89], along: { to: 104, every: 1.4 }, wm: 1.8 }
+    outline: true
   - vignette: { strength: 0.45 }

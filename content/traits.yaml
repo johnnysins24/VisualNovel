@@ -1,0 +1,971 @@
+# ทะเบียนสิ่งติดตัว 60 อย่าง (ชุดแรก): ผล ราคา เงื่อนไข และทางแก้ของแต่ละอย่าง
+# รหัสและชื่อต้องตรงกับ art/traits.yaml (ไอคอน public/icons/trait_<id>.png) ที่มาอยู่ในคัมภีร์โลกหัวข้อ "สิ่งติดตัวชุดแรก"
+# กติกาของโลก: พรทุกอย่างมีเงื่อนไข (costs หรือ breaks) คำสาปทุกอย่างมีของแถม (gives) ทางแก้อย่างน้อยสองทาง (cures)
+# และทางอยู่กับมัน (live_with) ตัวตรวจเนื้อหาบังคับทั้งหมดนี้
+#
+# effects คือผลที่ระบบคิดให้เอง (ดู TraitEffectSchema ใน src/engine/schema.ts)
+#   check_bonus  บวกลบแต้มทอย เจาะจง stats, foes (demon star machine nature human) หรือ locations ได้
+#   max_hp       พลังชีวิตสูงสุด      regen   พลังชีวิตที่ฟื้นต่อปี      winter  แต้มเช็คฤดูหนาว
+#   ageless      ไม่แก่               cheat_death  รอดตายหนึ่งครั้งแล้วของชิ้นนี้หมด
+# บรรทัดใน gives กับ costs ที่ระบบไม่ได้คิดให้ คือสิ่งที่เหตุการณ์ต้องเคารพเอง (เปิดหรือปิดตัวเลือกด้วย requires.trait, not_traits)
+# big: true = พรหรือคำสาปใหญ่ ชีวิตหนึ่งถือได้ไม่เกิน 2 เหตุการณ์ที่ให้ต้องมี big_room: true
+# habit: true = ลักษณะที่ก่อตัวเมื่อเลือกทางที่ติดป้าย habit: <id> ครบ 3 ครั้ง และเลือกไม่น้อยกว่าครึ่งของครั้งที่ทางนั้นมีให้เลือก ชีวิตหนึ่งมีได้ไม่เกิน 3
+# blocks: [<id นิสัย>] = คนที่ถือสิ่งนี้เลือกทางที่ติดป้ายนิสัยนั้นไม่ได้อีก (หน้าจอโชว์เป็นตัวเลือกล็อกพร้อมชื่อสิ่งติดตัว) ต้องเขียนราคานี้ใน costs
+
+# ---------- พร 21 อย่าง ----------
+
+- id: hero_veras
+  name: พรแห่งผู้กล้า สายตะเกียง
+  kind: boon
+  big: true
+  source: เวรัส
+  how: ถือของของผู้กล้าสายตะเกียงแล้วผ่านบททดสอบของเวรัส หรือเป็นสายเลือดผู้กล้าที่เวรัสเลือกเอง
+  gives:
+    - ญาณ +2 ทุกการทอย
+    - +2 เมื่อเผชิญสิ่งที่มาจากดาว
+  costs:
+    - ทางที่ต้องโกหกเพื่อเอาตัวรอดเลือกไม่ได้
+  breaks: โกหกคนที่เชื่อใจเพื่อเอาตัวรอด
+  effects:
+    - { kind: check_bonus, amount: 2, stats: [WIS] }
+    - { kind: check_bonus, amount: 2, foes: [star] }
+
+- id: hero_isel
+  name: พรแห่งผู้กล้า สายเตาไฟ
+  kind: boon
+  big: true
+  source: อีเซล
+  how: ถือของของผู้กล้าสายเตาไฟแล้วผ่านบททดสอบของอีเซล หรือเป็นสายเลือดผู้กล้าที่อีเซลเลือกเอง
+  gives:
+    - พลังชีวิตสูงสุด +4
+    - แผลหายเร็วขึ้นปีละ 1
+  costs:
+    - ไล่คนที่มาขอพึ่งไม่ได้
+  breaks: ทิ้งคนในความดูแลไว้ข้างหลัง
+  effects:
+    - { kind: max_hp, amount: 4 }
+    - { kind: regen, amount: 1 }
+
+- id: hero_talis
+  name: พรแห่งผู้กล้า สายทางลม
+  kind: boon
+  big: true
+  source: ทาลิส
+  how: ถือของของผู้กล้าสายทางลมแล้วผ่านบททดสอบของทาลิส หรือเป็นสายเลือดผู้กล้าที่ทาลิสเลือกเอง
+  gives:
+    - ว่องไว +2 ทุกการทอย
+    - เสน่ห์ +1 ทุกการทอย
+  costs:
+    - ขังหรือล่ามใครไว้ไม่ได้ แม้แต่ศัตรู
+  breaks: ขังหรือล่ามสิ่งมีชีวิตด้วยมือตัวเอง
+  effects:
+    - { kind: check_bonus, amount: 2, stats: [DEX] }
+    - { kind: check_bonus, amount: 1, stats: [CHA] }
+
+- id: hero_ossa
+  name: พรแห่งผู้กล้า สายประตู
+  kind: boon
+  big: true
+  source: ออสซา
+  how: ถือของของผู้กล้าสายประตูแล้วผ่านบททดสอบของออสซา หรือเป็นสายเลือดผู้กล้าที่ออสซาเลือกเอง
+  gives:
+    - ญาณ +1 ทุกการทอย
+    - กลับจากประตูได้หนึ่งครั้ง รอดจากความตายที่ไม่ใช่สิ้นอายุขัย แล้วพรนี้หมด
+  costs:
+    - ต้องส่งคนตายทุกคนที่พบระหว่างทาง
+  breaks: ปลุกคนตาย หรือขวางคนที่ถึงเวลา
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [WIS] }
+    - { kind: cheat_death, flag: cheated_death }
+
+- id: hero_ulwen
+  name: พรแห่งผู้กล้า สายเขากวาง
+  kind: boon
+  big: true
+  source: อุลเวน
+  how: ถือของของผู้กล้าสายเขากวางแล้วผ่านบททดสอบของอุลเวน หรือเป็นสายเลือดผู้กล้าที่อุลเวนเลือกเอง
+  gives:
+    - กำลัง +1 และว่องไว +1 ทุกการทอย
+    - +2 เมื่อเผชิญสัตว์และของป่า
+  costs:
+    - ล่าเกินกินไม่ได้
+  breaks: ฆ่าสัตว์ที่ไม่ได้จะกิน
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [STR, DEX] }
+    - { kind: check_bonus, amount: 2, foes: [nature] }
+
+- id: hero_belek
+  name: พรแห่งผู้กล้า สายตาชั่ง
+  kind: boon
+  big: true
+  source: เบเลค
+  how: ถือของของผู้กล้าสายตาชั่งแล้วผ่านบททดสอบของเบเลค หรือเป็นสายเลือดผู้กล้าที่เบเลคเลือกเอง
+  gives:
+    - เสน่ห์ +2 ทุกการทอย
+    - +2 เมื่อเผชิญคน
+  costs:
+    - สัญญาที่ลงชื่อแล้วต้องทำตามทุกข้อ
+  breaks: ผิดสัญญาที่ลงชื่อ
+  becomes: curse_bone_cold
+  effects:
+    - { kind: check_bonus, amount: 2, stats: [CHA] }
+    - { kind: check_bonus, amount: 2, foes: [human] }
+
+- id: boon_lamp
+  name: พรตะเกียง
+  kind: boon
+  hidden: true
+  source: เวรัส
+  how: รักษาคำสาบานข้อหนึ่งไว้ได้ ทั้งที่ต้องเสียของรักไปเพราะมัน
+  gives:
+    - ญาณ +1 ทุกการทอย
+  breaks: ผิดคำสาบานข้อนั้น
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [WIS] }
+
+- id: boon_hearth
+  name: พรเตาไฟ
+  kind: boon
+  hidden: true
+  source: อีเซล
+  how: เลี้ยงเด็กที่ไม่ใช่ลูกตัวเองจนโต
+  gives:
+    - ผ่านฤดูหนาวง่ายขึ้น +2
+    - แผลหายเร็วขึ้นปีละ 1
+  breaks: ไล่เด็กออกจากบ้าน
+  effects:
+    - { kind: winter, amount: 2 }
+    - { kind: regen, amount: 1 }
+
+- id: boon_wind
+  name: พรทางลม
+  kind: boon
+  hidden: true
+  source: ทาลิส
+  how: ปล่อยคนหรือสัตว์ที่ถูกขังครบสามครั้ง โดยไม่ได้อะไรตอบแทน
+  gives:
+    - ว่องไว +1 ทุกการทอย
+  breaks: ขังหรือล่ามใครด้วยมือตัวเอง
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [DEX] }
+
+- id: boon_door
+  name: พรประตู
+  kind: boon
+  hidden: true
+  source: ออสซา
+  how: ส่งคนตายอย่างถูกต้องครบสามครั้ง
+  gives:
+    - กลับจากประตูได้หนึ่งครั้ง รอดจากความตายที่ไม่ใช่สิ้นอายุขัย
+  costs:
+    - ใช้แล้วพรนี้หมด และออสซานับไว้
+  breaks: ใช้ไปแล้วหนึ่งครั้ง
+  effects:
+    - { kind: cheat_death, flag: cheated_death }
+
+- id: boon_scales
+  name: พรตาชั่ง
+  kind: boon
+  hidden: true
+  source: เบเลค
+  how: ใช้หนี้ก้อนใหญ่จนหมดด้วยมือตัวเอง ไม่ขาดสักงวด
+  gives:
+    - เสน่ห์ +1 ทุกการทอย
+  breaks: ก่อหนี้ใหม่แล้วเบี้ยว
+  becomes: curse_bone_cold
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [CHA] }
+
+- id: boon_antler
+  name: พรเขากวาง
+  kind: boon
+  hidden: true
+  source: อุลเวน
+  how: ล่าเท่าที่กิน และแบ่งของที่ล่าได้ให้คนแปลกหน้าตลอดฤดูหนาวหนึ่งฤดู
+  gives:
+    - +2 เมื่อเผชิญสัตว์และของป่า
+  breaks: ล่าเพื่อขายหนังหรือเขา
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [nature] }
+
+- id: oath_wick
+  name: คำปฏิญาณไส้ตะเกียง
+  kind: boon
+  source: หน่วยไส้ตะเกียงของศาสนจักร
+  how: สาบานตนเข้าหน่วยไส้ตะเกียง
+  gives:
+    - +2 เมื่อเผชิญสิ่งที่มาจากดาว
+    - พลังชีวิตสูงสุด +2
+  costs:
+    - ต้องไปเมื่อหน่วยเรียก ไม่ว่ากำลังทำอะไรอยู่
+  breaks: ผิดคำปฏิญาณ
+  becomes: curse_lamp_out
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [star] }
+    - { kind: max_hp, amount: 2 }
+
+- id: oath_cold_iron
+  name: คำสาบานเหล็กเย็น
+  kind: boon
+  source: ภาคีเหล็กเย็น
+  how: สาบานว่าจะไม่ร่ายเวท ไม่รับพร และไม่ใช้ของอาบเวทอีก
+  gives:
+    - +2 เมื่อเผชิญฝ่ายจอมมาร
+    - +1 เมื่อเผชิญสิ่งที่มาจากดาว
+    - พลังชีวิตสูงสุด +2
+  costs:
+    - รับพรใหม่ไม่ได้ และใช้ของอาบเวทไม่ได้
+  breaks: ร่ายเวท รับพร หรือใช้ของอาบเวท
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [demon] }
+    - { kind: check_bonus, amount: 1, foes: [star] }
+    - { kind: max_hp, amount: 2 }
+
+- id: old_forest
+  name: พรแห่งป่าไม้
+  kind: boon
+  hidden: true
+  source: กวางไม่มีเขา
+  how: รักษาข้อห้ามของป่ามาตั้งแต่เด็ก
+  gives:
+    - +2 ทุกการทอยในป่าไอเลธ
+    - +1 เมื่อเผชิญสัตว์และของป่า ที่ไหนก็ตาม
+  costs:
+    - ห้ามโค่นไม้เป็น
+    - ห้ามพกเหล็กดำเข้าป่า
+  breaks: โค่นไม้เป็น
+  becomes: curse_woodcutter
+  effects:
+    - { kind: check_bonus, amount: 2, locations: [ileth] }
+    - { kind: check_bonus, amount: 1, foes: [nature] }
+
+- id: old_river
+  name: พรท้องน้ำ
+  kind: boon
+  hidden: true
+  source: แม่น้ำเฒ่า
+  how: โยนเหรียญแรกของปีลงน้ำทุกปี และไม่เคยเทของเสียลงน้ำตอนกลางคืน
+  gives:
+    - แผลหายเร็วขึ้นปีละ 1
+    - ผ่านฤดูหนาวง่ายขึ้น +1
+  breaks: เทของเสียลงน้ำตอนกลางคืน
+  effects:
+    - { kind: regen, amount: 1 }
+    - { kind: winter, amount: 1 }
+
+- id: old_field
+  name: พรรวงสุดท้าย
+  kind: boon
+  hidden: true
+  source: วัวใต้ทุ่ง
+  how: เว้นรวงสุดท้ายไว้ในนาทุกฤดูเกี่ยว และไถอ้อมเนินมาทั้งชีวิต
+  gives:
+    - พลังชีวิตสูงสุด +3
+    - +1 ทุกการทอยในหมู่บ้านอาร์เวล
+  breaks: เกี่ยวรวงสุดท้าย หรือไถข้ามเนิน
+  effects:
+    - { kind: max_hp, amount: 3 }
+    - { kind: check_bonus, amount: 1, locations: [arvel_village] }
+
+- id: old_fire
+  name: พรไฟยืม
+  kind: boon
+  hidden: true
+  source: แม่เสือไฟ
+  how: คืนไฟที่ยืมมาก่อนรุ่งทุกครั้ง และไม่เคยดับเตาด้วยน้ำ
+  gives:
+    - กำลัง +1 ทุกการทอย
+    - ผ่านฤดูหนาวง่ายขึ้น +1
+  breaks: ยืมไฟแล้วไม่คืน หรือดับเตาด้วยน้ำ
+  becomes: curse_dead_fire
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [STR] }
+    - { kind: winter, amount: 1 }
+
+- id: old_stone
+  name: พรหินสามเคาะ
+  kind: boon
+  hidden: true
+  source: ยายหมีหิน
+  how: เคาะหินสามครั้งก่อนเจาะมาตลอดชีวิตคนเหมือง
+  gives:
+    - +2 ทุกการทอยในฮอร์ดุน
+    - พลังชีวิตสูงสุด +2
+  breaks: เจาะหินโดยไม่เคาะก่อน
+  effects:
+    - { kind: check_bonus, amount: 2, locations: [hordun] }
+    - { kind: max_hp, amount: 2 }
+
+- id: old_wind
+  name: พรหน้าต่างเปิด
+  kind: boon
+  hidden: true
+  source: ฝูงนกไม่มีรัง
+  how: เปิดหน้าต่างไว้บานหนึ่งให้คนตายทุกคนในบ้าน และไม่เคยขังนกป่า
+  gives:
+    - ญาณ +1 ทุกการทอย
+  breaks: ขังนกป่า หรือปิดหน้าต่างใส่คนตาย
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [WIS] }
+
+- id: old_night
+  name: พรคืนเดือนดับ
+  kind: boon
+  hidden: true
+  source: เค้ากลางคืน
+  how: ไปถึงเค้ากลางคืนในแดนเถ้า แล้วฟังเรื่องสัญญาหลับจนจบโดยไม่ชี้ดาวสักดวง
+  gives:
+    - +2 เมื่อเผชิญสิ่งที่มาจากดาว
+    - +1 ทุกการทอยในแดนเถ้า
+  costs:
+    - ห้ามชี้ดาวด้วยนิ้ว
+  breaks: ชี้ดาวด้วยนิ้ว
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [star] }
+    - { kind: check_bonus, amount: 1, locations: [ashland] }
+
+# ---------- คำสาป 15 อย่าง ----------
+
+- id: curse_closed_door
+  name: ประตูปิด
+  kind: curse
+  big: true
+  source: ออสซา
+  how: โกงความตายสองครั้ง ออสซาจึงปิดประตูใส่ คนนอกเรียกมันว่าคำสาปแห่งความอมตะ
+  gives:
+    - ไม่แก่ ร่างกายไม่โรย และไม่ต้องผ่านฤดูหนาว
+  costs:
+    - แผลไม่หายเอง
+    - คนรอบตัวแก่และจากไปก่อนเสมอ
+  cures:
+    - ไปยืนหน้าวิหารออสซาในวันที่คนที่รักที่สุดตาย แล้วขอตามเข้าไป
+    - ส่งคนตายอย่างถูกต้องครบร้อยคน ออสซาจะเปิดประตูให้อีกครั้ง
+  live_with: อยู่ต่อไปเป็นพยานของบ้าน ดูแลหลุมของทุกคนที่ไปก่อน
+  effects:
+    - { kind: ageless }
+    - { kind: regen, amount: -3 }
+
+- id: curse_bone_cold
+  name: หนาวเข้ากระดูก
+  kind: curse
+  source: เบเลค
+  how: ผิดสัญญาที่ลงชื่อต่อหน้าเบเลค
+  gives:
+    - ไม่มีใครโกหกต่อหน้าได้เต็มปาก +1 เมื่อเผชิญคน
+  costs:
+    - ผ่านฤดูหนาวยากขึ้น −2
+    - แผลหายช้าลงปีละ 1
+  cures:
+    - ใช้หนี้ตามสัญญาเดิมจนครบ พร้อมดอกทุกเหรียญ
+    - หาคนมารับสัญญาแทนโดยสมัครใจ และรู้ว่ากำลังรับอะไร
+  live_with: ย้ายไปอยู่ที่อุ่น ก่อไฟทั้งปี แล้วยอมรับว่าหน้าหนาวจะยาวกว่าของคนอื่น
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [human] }
+    - { kind: winter, amount: -2 }
+    - { kind: regen, amount: -1 }
+
+- id: curse_brand
+  name: ตราร้อน
+  kind: curse
+  source: จอมมาร
+  how: รอยจอมมารที่ตื่น ทีฟลิ่งมีมาแต่เกิด คนเผ่าอื่นได้จากข้อตกลงกับจอมมาร ตราลึกขึ้นเมื่อรับข้อเสนอของเขาซ้ำ หรือพกหินถ่านมารติดตัวหลายปี
+  cures:
+    - "คนเผ่าอื่น: คืนของที่ได้จากข้อตกลง แล้วให้นักบวชเวรัสลบตราด้วยไฟตะเกียง"
+    - "คนเผ่าอื่น: ทำตามข้อตกลงจนครบ ตราจะเย็นลงเอง"
+  live_with: ทีฟลิ่งเกิดมากับมัน จึงไม่มีทางแก้ หลายคนเลื่อยเขาหรือพันผ้าปิดตรา แล้วใช้ชีวิตต่อ ตราที่ลึกขึ้นทำให้เย็นกลับลงมาได้ แต่ไม่ต่ำกว่าที่เกิดมา
+  steps:
+    - gives: [ฝ่ายจอมมารลังเล +3 เมื่อเผชิญฝ่ายจอมมาร, สิ่งที่มาจากดาวมองไม่เห็น +5 เมื่อเผชิญสิ่งที่มาจากดาว]
+      costs: [คนแปลกหน้าเห็นแล้วระแวง, ตราร้อนขึ้นทุกครั้งที่ฝ่ายจอมมารอยู่ใกล้]
+      effects:
+        - { kind: check_bonus, amount: 3, foes: [demon] }
+        - { kind: check_bonus, amount: 5, foes: [star] }
+    - name: ตราที่ไม่เย็น
+      gives: [+4 เมื่อเผชิญฝ่ายจอมมาร, +5 เมื่อเผชิญสิ่งที่มาจากดาว, ตัวอุ่นทั้งหน้าหนาว ผ่านฤดูหนาวง่ายขึ้น +1]
+      costs: [โมโหง่ายขึ้นทุกปี ญาณ −1 ทุกการทอย, ผ้าพันปิดไม่มิดอีกแล้ว เสน่ห์ −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 4, foes: [demon] }
+        - { kind: check_bonus, amount: 5, foes: [star] }
+        - { kind: winter, amount: 1 }
+        - { kind: check_bonus, amount: -1, stats: [WIS, CHA] }
+    - name: ตราที่ลุกเอง
+      gives: [+5 เมื่อเผชิญฝ่ายจอมมาร, +5 เมื่อเผชิญสิ่งที่มาจากดาว, ผ่านฤดูหนาวง่ายขึ้น +2, กำลัง +1 ทุกการทอย]
+      costs: [ญาณ −2 ทุกการทอย, เสน่ห์ −2 ทุกการทอย, เนื้อรอบตราไหม้ พลังชีวิตสูงสุด −2, อีกขั้นเดียวคือเสียงทุ้มเรียกชื่อ]
+      effects:
+        - { kind: check_bonus, amount: 5, foes: [demon] }
+        - { kind: check_bonus, amount: 5, foes: [star] }
+        - { kind: winter, amount: 2 }
+        - { kind: check_bonus, amount: 1, stats: [STR] }
+        - { kind: check_bonus, amount: -2, stats: [WIS, CHA] }
+        - { kind: max_hp, amount: -2 }
+
+- id: curse_woodcutter
+  name: คนตัดไม้
+  kind: curse
+  source: กวางไม่มีเขา
+  how: ถือพรแห่งป่าไม้แล้วโค่นไม้เป็น
+  gives:
+    - มือที่จับขวานไม่เคยล้า กำลัง +1 ทุกการทอย
+  costs:
+    - −2 ทุกการทอยในป่าไอเลธ
+    - สัตว์ป่าเข้าหาก่อนเสมอ −1 เมื่อเผชิญสัตว์และของป่า
+  cures:
+    - ปลูกไม้ร้อยต้นด้วยมือตัวเอง แล้วอยู่ดูจนต้นแรกสูงท่วมหัว
+    - คืนขวานให้ป่า แล้วไม่จับของมีคมอีกเจ็ดปี
+  live_with: ออกจากป่าไปอยู่เมือง ที่นั่นไม่มีต้นไม้มากพอจะจำหน้าใครได้
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [STR] }
+    - { kind: check_bonus, amount: -2, locations: [ileth] }
+    - { kind: check_bonus, amount: -1, foes: [nature] }
+
+- id: curse_lamp_out
+  name: ตะเกียงดับ
+  kind: curse
+  source: เวรัส
+  how: ผิดคำปฏิญาณไส้ตะเกียง เวรัสเอาแสงคืน
+  gives:
+    - ไม่มีแสงก็เดินได้ ว่องไว +1 ทุกการทอย
+  costs:
+    - ญาณ −2 ทุกการทอย
+    - ตะเกียงในมือดับเองทุกคืน
+  cures:
+    - กลับไปรับโทษที่หน่วยไส้ตะเกียง แล้วสาบานใหม่
+    - จุดตะเกียงให้คนหลงทางครบร้อยคืน โดยไม่บอกชื่อตัวเองสักคืน
+  live_with: หัดเดินในความมืด คนแดนเถ้าทำแบบนั้นกันมาทั้งชีวิต
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [DEX] }
+    - { kind: check_bonus, amount: -2, stats: [WIS] }
+
+- id: curse_watcher
+  name: ตาที่หลับไม่ลง
+  kind: curse
+  source: ผู้มองลงมา
+  how: มองดาวดวงใหม่นานจนมีอะไรมองกลับ
+  cures:
+    - ไม่เงยมองฟ้าตอนกลางคืนเลยครบหนึ่งปีเต็ม
+    - ให้หมอที่หอนับดาวเย็บเปลือกตาด้วยด้ายเงินดาวหนึ่งคืน
+  live_with: เอาคืนที่ไม่หลับไปทำงานกะดึก ยามกับคนเฝ้าเตาหลายคนก็เป็นแบบนี้
+  steps:
+    - gives: [ญาณ +1 ทุกการทอย]
+      costs: [หลับยาก แผลหายช้าลงปีละ 1]
+      effects:
+        - { kind: check_bonus, amount: 1, stats: [WIS] }
+        - { kind: regen, amount: -1 }
+    - gives: [ญาณ +2 ทุกการทอย]
+      costs: [แผลหายช้าลงปีละ 2, สบตาคนได้ไม่นาน เสน่ห์ −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 2, stats: [WIS] }
+        - { kind: regen, amount: -2 }
+        - { kind: check_bonus, amount: -1, stats: [CHA] }
+    - gives: [ญาณ +3 ทุกการทอย]
+      costs: [ไม่หลับอีกเลย แผลไม่หายเอง, เสน่ห์ −2 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 3, stats: [WIS] }
+        - { kind: regen, amount: -3 }
+        - { kind: check_bonus, amount: -2, stats: [CHA] }
+
+- id: curse_hum
+  name: เสียงหึ่งในหู
+  kind: curse
+  hidden: true
+  source: เสียงหึ่ง
+  how: อยู่ใกล้โรงกลั่นน้ำค้างดาวหลายปี
+  cures:
+    - ย้ายไปอยู่ไกลจากโรงกลั่นเกินสามวันเดิน แล้วอยู่ให้ครบสามปี
+    - ให้ช่างคนแคระหล่อจุกหูตะกั่ว แล้วใส่นอนทุกคืน
+  live_with: ฮัมเพลงทับมัน คนงานกะดึกในเวนทราสฮัมกันทั้งโรง
+  steps:
+    - gives: [ได้ยินเครื่องก่อนมันพัง +1 เมื่อเผชิญจักรกล]
+      costs: [เสียงแทรกตอนคิด ปัญญา −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 1, foes: [machine] }
+        - { kind: check_bonus, amount: -1, stats: [INT] }
+    - gives: [+2 เมื่อเผชิญจักรกล]
+      costs: [ปัญญา −1 ทุกการทอย, ฟังคนพูดไม่ถนัด เสน่ห์ −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 2, foes: [machine] }
+        - { kind: check_bonus, amount: -1, stats: [INT, CHA] }
+    - gives: [+3 เมื่อเผชิญจักรกล]
+      costs: [ปัญญา −2 ทุกการทอย, เสน่ห์ −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 3, foes: [machine] }
+        - { kind: check_bonus, amount: -2, stats: [INT] }
+        - { kind: check_bonus, amount: -1, stats: [CHA] }
+
+- id: curse_glass
+  name: ผิวแก้ว
+  kind: curse
+  source: ผิวแก้ว
+  how: จับของที่ตกจากฟ้าด้วยมือเปล่า หรือได้แผลจากคนแก้ว
+  cures:
+    - หมอแก้วที่หอนับดาวขูดออกได้ ถ้ายังไม่ถึงขั้นสาม
+    - ฝังของที่ตกจากฟ้าชิ้นนั้นคืนลงดินลึกเท่าตัวคน ในคืนเดือนดับ
+  live_with: พันผ้าทั้งตัวแล้วทำงานในที่มืด เหมืองรับคนผิวแก้วเสมอ
+  steps:
+    - gives: [มองเห็นในที่มืด ญาณ +1 ทุกการทอย]
+      costs: [ผิวเริ่มใสจนซ่อนไม่ได้ เสน่ห์ −1 ทุกการทอย]
+      effects:
+        - { kind: check_bonus, amount: 1, stats: [WIS] }
+        - { kind: check_bonus, amount: -1, stats: [CHA] }
+    - gives: [ญาณ +2 ทุกการทอย]
+      costs: [เสน่ห์ −1 ทุกการทอย, ผิวเปราะ พลังชีวิตสูงสุด −2]
+      effects:
+        - { kind: check_bonus, amount: 2, stats: [WIS] }
+        - { kind: check_bonus, amount: -1, stats: [CHA] }
+        - { kind: max_hp, amount: -2 }
+    - gives: [ญาณ +3 ทุกการทอย]
+      costs: [เสน่ห์ −2 ทุกการทอย, พลังชีวิตสูงสุด −4, อีกขั้นเดียวคือกลายเป็นคนแก้ว]
+      effects:
+        - { kind: check_bonus, amount: 3, stats: [WIS] }
+        - { kind: check_bonus, amount: -2, stats: [CHA] }
+        - { kind: max_hp, amount: -4 }
+
+- id: curse_not_yet
+  name: เมื่อวานปนพรุ่งนี้
+  kind: curse
+  hidden: true
+  source: วันที่ยังไม่มา
+  how: ได้ยินเสียงของตกก่อนของจะตก แล้วเลือกฟังต่อ
+  gives:
+    - รู้ก่อนครึ่งลมหายใจ ว่องไว +2 ทุกการทอย
+  costs:
+    - เมื่อวานกับพรุ่งนี้ปนกัน ปัญญา −1 ทุกการทอย
+    - บางวันทักคนด้วยเรื่องที่ยังไม่เกิด
+  cures:
+    - จดทุกวันลงสมุด แล้วอ่านย้อนทุกเช้าให้ครบหนึ่งปี
+    - ปล่อยให้ของชิ้นหนึ่งตกแตกทั้งที่รู้ก่อน แล้วไม่ฟังเสียงนั้นอีก
+  live_with: ให้คนในบ้านบอกวันที่ทุกเช้า แล้วเชื่อเขามากกว่าเชื่อตัวเอง
+  effects:
+    - { kind: check_bonus, amount: 2, stats: [DEX] }
+    - { kind: check_bonus, amount: -1, stats: [INT] }
+
+- id: curse_sea
+  name: คลื่นเรียก
+  kind: curse
+  hidden: true
+  source: ทะเลข้างบน
+  how: ดื่มน้ำฝนเค็ม หรือรอดจากการจมในบ่อที่น้ำขึ้นลงตามดาว
+  cures:
+    - ไม่แตะน้ำฝนเลยให้ครบสามฤดูฝน
+    - ให้คนที่รักเรียกชื่อจนตื่นในคืนที่เดินออกไป ครบสามคืน
+  live_with: ผูกข้อเท้ากับเสาเตียงทุกคืนที่ฝนตก
+  steps:
+    - gives: [กลั้นหายใจได้นาน พลังชีวิตสูงสุด +2]
+      costs: [ได้ยินคลื่นทุกครั้งที่ฝนตก ญาณ −1 ทุกการทอย]
+      effects:
+        - { kind: max_hp, amount: 2 }
+        - { kind: check_bonus, amount: -1, stats: [WIS] }
+    - gives: [พลังชีวิตสูงสุด +3]
+      costs: [ญาณ −1 ทุกการทอย, ขาหนักเหมือนเดินในน้ำ ว่องไว −1 ทุกการทอย]
+      effects:
+        - { kind: max_hp, amount: 3 }
+        - { kind: check_bonus, amount: -1, stats: [WIS, DEX] }
+    - gives: [พลังชีวิตสูงสุด +4]
+      costs: [ญาณ −2 ทุกการทอย, ว่องไว −1 ทุกการทอย, คืนฝนตกจะเดินออกไปหาน้ำเอง]
+      effects:
+        - { kind: max_hp, amount: 4 }
+        - { kind: check_bonus, amount: -2, stats: [WIS] }
+        - { kind: check_bonus, amount: -1, stats: [DEX] }
+
+- id: curse_nameless
+  name: ชื่อหาย
+  kind: curse
+  hidden: true
+  source: ผู้ยืมรูป
+  how: ผีไร้ชื่อเอาชื่อไป หรือยอมขายชื่อให้ผู้ยืมรูป
+  gives:
+    - คนจำหน้าไม่ได้ ตามตัวไม่ถูก +2 เมื่อเผชิญคน
+  costs:
+    - คนลืมว่าเพิ่งคุยด้วย เสน่ห์ −2 ทุกการทอย
+    - คนที่รักต้องถูกเตือนทุกเช้าว่านี่คือใคร
+  cures:
+    - ให้คนสามคนที่รู้จักกันมาตั้งแต่เด็กเรียกชื่อเดิมพร้อมกันตอนรุ่ง
+    - ตามไปเอาชื่อคืนจากผู้ยืมรูป ต้องรู้ก่อนว่ามันใช้ชื่อนั้นอยู่ที่ไหน
+  live_with: ตั้งชื่อใหม่ให้ตัวเอง แล้วเริ่มชีวิตที่ไม่มีใครรู้จัก
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [human] }
+    - { kind: check_bonus, amount: -2, stats: [CHA] }
+
+- id: curse_shadow
+  name: เงาเกิน
+  kind: curse
+  source: ผู้ยืมรูป
+  how: รอดจากเงาเกินมาได้โดยไม่มีแสงไฟ
+  gives:
+    - เงาอีกเงาเฝ้าหลังให้ ว่องไว +1 ทุกการทอย
+  costs:
+    - เงาขยับเองเมื่อมีแสงดวงเดียว คนเห็นแล้วถอย เสน่ห์ −1 ทุกการทอย
+    - พลังชีวิตสูงสุด −1
+  cures:
+    - ยืนกลางแสงสามทางพร้อมกันจนเหลือเงาเดียว ต้องทนให้ถึงรุ่ง
+    - ยกเงาเกินให้ของชิ้นหนึ่ง แล้วฝังของชิ้นนั้น
+  live_with: จุดไฟสองดวงเสมอ เงาสองเงาจะได้ดูมีเหตุผล
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [DEX] }
+    - { kind: check_bonus, amount: -1, stats: [CHA] }
+    - { kind: max_hp, amount: -1 }
+
+- id: curse_hunger
+  name: ท้องกลวง
+  kind: curse
+  hidden: true
+  source: ความหิว
+  how: กินผลไม้ที่ข้างในกลวง หรือรับข้อเสนอว่าจะไม่ต้องเหนื่อยอีก
+  cures:
+    - อดอาหารสามวันสามคืนข้างคนที่หิวจริง แล้วให้เขากินก่อน
+    - คืนข้อเสนอ ด้วยการทำงานที่เหนื่อยที่สุดในชีวิตให้จบด้วยมือตัวเอง
+  live_with: กินให้น้อยลงทุกวัน ยอมผอม และอย่าเชื่อตัวเองเวลารู้สึกว่าไม่เหนื่อย
+  steps:
+    - gives: [ไม่รู้จักเหนื่อย กำลัง +1 ทุกการทอย]
+      costs: [กินเท่าไรก็ไม่อิ่ม พลังชีวิตสูงสุด −1]
+      effects:
+        - { kind: check_bonus, amount: 1, stats: [STR] }
+        - { kind: max_hp, amount: -1 }
+    - gives: [กำลัง +2 ทุกการทอย]
+      costs: [พลังชีวิตสูงสุด −3]
+      effects:
+        - { kind: check_bonus, amount: 2, stats: [STR] }
+        - { kind: max_hp, amount: -3 }
+    - gives: [กำลัง +3 ทุกการทอย]
+      costs: [พลังชีวิตสูงสุด −5, แผลไม่หายเอง]
+      effects:
+        - { kind: check_bonus, amount: 3, stats: [STR] }
+        - { kind: max_hp, amount: -5 }
+        - { kind: regen, amount: -3 }
+
+- id: curse_dead_fire
+  name: ไฟไม่ติด
+  kind: curse
+  source: แม่เสือไฟ
+  how: ยืมไฟแล้วไม่คืน หรือดับเตาด้วยน้ำซ้ำแล้วซ้ำอีก
+  gives:
+    - ไฟไม่ไหม้มือ +1 เมื่อเผชิญฝ่ายจอมมาร
+  costs:
+    - จุดไฟเองไม่ติด ผ่านฤดูหนาวยากขึ้น −2
+  cures:
+    - ยืมไฟจากเจ็ดบ้าน แล้วคืนให้ครบทุกดวงก่อนรุ่งในคืนเดียว
+    - เฝ้าเตาของคนอื่นไม่ให้ดับตลอดฤดูหนาวหนึ่งฤดู
+  live_with: อยู่กับคนที่จุดไฟให้ได้ และอย่าอยู่คนเดียวหน้าหนาว
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [demon] }
+    - { kind: winter, amount: -2 }
+
+- id: curse_star_marks
+  name: รอยดาว
+  kind: curse
+  source: ดาวดวงใหม่
+  how: ถือเงินดาวติดตัวหลายปี หรือเข้าวงฟังดาว
+  cures:
+    - ทิ้งเงินดาวทุกชิ้น แล้วอยู่ใต้หลังคาทุกคืนให้ครบหนึ่งปี
+    - ให้ช่างเงินดาวที่หอนับดาวดึงรอยออกทีละจุด ทั้งเจ็บและแพง
+  live_with: ใส่เสื้อแขนยาว แล้วใช้ปัญญาที่ได้มาให้คุ้ม นักวิชาการครึ่งหอก็เป็นแบบนี้
+  steps:
+    - gives: [ปัญญา +1 ทุกการทอย]
+      costs: [มันเห็นรอย −1 เมื่อเผชิญสิ่งที่มาจากดาว]
+      effects:
+        - { kind: check_bonus, amount: 1, stats: [INT] }
+        - { kind: check_bonus, amount: -1, foes: [star] }
+    - gives: [ปัญญา +2 ทุกการทอย]
+      costs: [−2 เมื่อเผชิญสิ่งที่มาจากดาว, พลังชีวิตสูงสุด −1]
+      effects:
+        - { kind: check_bonus, amount: 2, stats: [INT] }
+        - { kind: check_bonus, amount: -2, foes: [star] }
+        - { kind: max_hp, amount: -1 }
+    - gives: [ปัญญา +3 ทุกการทอย]
+      costs: [−3 เมื่อเผชิญสิ่งที่มาจากดาว, พลังชีวิตสูงสุด −3, รอยเรืองแสงตอนกลางคืน ซ่อนไม่ได้, อีกขั้นเดียวคือฟ้าเรียกตัว]
+      effects:
+        - { kind: check_bonus, amount: 3, stats: [INT] }
+        - { kind: check_bonus, amount: -3, foes: [star] }
+        - { kind: max_hp, amount: -3 }
+
+# ---------- ลักษณะ 14 อย่าง ----------
+
+- id: empty_day
+  name: เกิดวันว่าง
+  kind: trait
+  hidden: true
+  how: เกิดในวันอัสเทล วันที่ไม่มีใครทำงานและไม่มีใครฉลอง
+  gives:
+    - ไม่มีเทพองค์ไหนนับเป็นของตัว +1 เมื่อเผชิญฝ่ายจอมมาร และ +1 เมื่อเผชิญสิ่งที่มาจากดาว
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [demon, star] }
+
+- id: hero_blood
+  name: เลือดผู้กล้า
+  kind: trait
+  hidden: true
+  heritable: true
+  how: เกิดในสายของหนึ่งในผู้กล้าทั้งหก ส่วนมากไม่รู้ตัว ตกถึงลูก
+  gives:
+    - พลังชีวิตสูงสุด +2
+    - ของของผู้กล้าจำเลือดนี้ได้
+  effects:
+    - { kind: max_hp, amount: 2 }
+
+- id: hot_headed
+  name: ใจร้อน
+  kind: trait
+  habit: true
+  excludes: [cool_headed]
+  blocks: [cool_headed]
+  how: ลงมือก่อนคิดจนเป็นนิสัย
+  gained: ถึงตอนนี้{name}เลิกนับแล้วว่ากี่ครั้งที่มือไปก่อนความคิด คนรอบตัวเริ่มถอยครึ่งก้าวเวลา{เขา|เธอ}เงียบ
+  gives:
+    - กำลัง +1 ทุกการทอย
+  costs:
+    - ทางที่ต้องรอดูท่าทีบางทางเลือกไม่ได้
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [STR] }
+
+- id: cool_headed
+  name: ใจเย็น
+  kind: trait
+  habit: true
+  excludes: [hot_headed]
+  blocks: [hot_headed]
+  how: รอดูท่าทีก่อนจนเป็นนิสัย
+  gained: "{name}รอได้ รอจนอีกฝ่ายทนไม่ไหวแล้วเผยไพ่เอง มันกลายเป็นวิธีของ{เขา|เธอ}ไปแล้ว"
+  gives:
+    - ญาณ +1 ทุกการทอย
+  costs:
+    - ทางที่ต้องชิงลงมือบางทางเลือกไม่ได้
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [WIS] }
+
+- id: light_fingers
+  name: มือเบา
+  kind: trait
+  hidden: true
+  habit: true
+  how: หยิบของคนอื่นจนเป็นนิสัยโดยไม่มีใครจับได้
+  gained: ของชิ้นเล็กมักมาอยู่ในกระเป๋า{name}ก่อนที่{เขา|เธอ}จะทันตัดสินใจ นิ้วมันจำทางได้เอง
+  gives:
+    - ว่องไว +1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [DEX] }
+
+- id: sweet_tongue
+  name: ปากหวาน
+  kind: trait
+  habit: true
+  how: เอาตัวรอดด้วยคำพูดจนเป็นนิสัย
+  gained: "{name}รู้แล้วว่าคำไหนเปิดประตูบานไหน และพูดมันออกไปได้โดยที่หน้าไม่เปลี่ยน"
+  gives:
+    - +2 เมื่อเผชิญคน
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [human] }
+
+- id: stubborn
+  name: หัวแข็ง
+  kind: trait
+  habit: true
+  excludes: [faint_heart]
+  blocks: [faint_heart]
+  how: ไม่ยอมถอยจนเป็นนิสัย ทั้งที่ควรถอย
+  gained: มีคนบอกให้{name}ถอยมาแล้วหลายครั้ง ทุกครั้ง{เขา|เธอ}ยังยืนอยู่ที่เดิม เดี๋ยวนี้ไม่มีใครบอกอีก
+  gives:
+    - พลังชีวิตสูงสุด +2
+  costs:
+    - ทางถอยบางทางเลือกไม่ได้
+  effects:
+    - { kind: max_hp, amount: 2 }
+
+- id: faint_heart
+  name: ขวัญอ่อน
+  kind: trait
+  habit: true
+  excludes: [stubborn]
+  how: เลือกหนีจนเป็นนิสัย
+  gained: ขาของ{name}รู้ทางหนีก่อนตาจะเห็นภัย {เขา|เธอ}เลิกอายเรื่องนี้ไปนานแล้ว คนที่มัวอายส่วนมากไม่ได้อยู่เล่า
+  gives:
+    - ขาไปก่อนเสมอ ว่องไว +1 ทุกการทอย
+  costs:
+    - มือสั่นตอนต้องสู้ กำลัง −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [DEX] }
+    - { kind: check_bonus, amount: -1, stats: [STR] }
+
+- id: curious
+  name: ขี้สงสัย
+  kind: trait
+  habit: true
+  how: เปิดดู ถามต่อ หรือเดินตามเสียงจนเป็นนิสัย
+  gained: ประตูที่แง้มอยู่ กล่องที่ปิดฝาไม่สนิท ประโยคที่คนพูดค้างไว้ {name}ปล่อยผ่านไม่เป็นสักอย่าง
+  gives:
+    - ปัญญา +1 ทุกการทอย
+  costs:
+    - เดินผ่านประตูที่แง้มอยู่เฉยๆ ไม่ได้
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [INT] }
+
+- id: soft_heart
+  name: ใจอ่อน
+  kind: trait
+  habit: true
+  excludes: [cold_blood]
+  blocks: [cold_blood]
+  how: ช่วยคนที่ไม่มีอะไรจะให้ตอบแทนจนเป็นนิสัย
+  gained: คนที่ไม่มีอะไรจะให้มักหา{name}เจอเสมอ เหมือนมีใครไปบอกต่อกันว่าบ้านนี้ไม่เคยปิดประตูใส่
+  gives:
+    - เสน่ห์ +1 ทุกการทอย
+  costs:
+    - ทางที่ต้องทิ้งคนไว้ข้างหลังบางทางเลือกไม่ได้
+  effects:
+    - { kind: check_bonus, amount: 1, stats: [CHA] }
+
+- id: cold_blood
+  name: เลือดเย็น
+  kind: trait
+  habit: true
+  excludes: [soft_heart]
+  how: ปล่อยให้คนเจ็บหรือตายจนเป็นนิสัย ทั้งที่ช่วยได้
+  gained: "{name}มองคนล้มแล้วเดินต่อได้โดยที่จังหวะก้าวไม่เปลี่ยน ครั้งแรกมันยาก ครั้งที่สามไม่ยากแล้ว"
+  gives:
+    - มือไม่สั่น +1 ทุกครั้งที่เผชิญศัตรู ไม่ว่าฝ่ายไหน
+  costs:
+    - เสน่ห์ −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [demon, star, machine, nature, human] }
+    - { kind: check_bonus, amount: -1, stats: [CHA] }
+
+- id: craft_hands
+  name: มือช่าง
+  kind: trait
+  habit: true
+  how: ซ่อมหรือสร้างของด้วยมือตัวเองจนเป็นนิสัย
+  gained: ของพังอยู่ในมือ{name}ได้ไม่นาน นิ้วของ{เขา|เธอ}เริ่มแกะหาสาเหตุก่อนที่เจ้าของจะเล่าจบ
+  gives:
+    - +2 เมื่อเผชิญจักรกล
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [machine] }
+
+- id: hunter_eye
+  name: ตาพราน
+  kind: trait
+  habit: true
+  how: ตามรอยหรือเอาตัวรอดในป่าจนเป็นนิสัย
+  gained: กิ่งหักใหม่ ขนติดหนาม โคลนที่ยังไม่แห้ง {name}อ่านพื้นดินได้เหมือนที่คนอื่นอ่านป้ายร้าน
+  gives:
+    - +2 เมื่อเผชิญสัตว์และของป่า
+  effects:
+    - { kind: check_bonus, amount: 2, foes: [nature] }
+
+- id: tight_fist
+  name: ขี้เหนียว
+  kind: trait
+  habit: true
+  how: เลือกเก็บเงินแทนที่จะจ่ายจนเป็นนิสัย
+  gained: เหรียญที่เข้ากระเป๋า{name}แล้วไม่ค่อยได้ออกมา {เขา|เธอ}นับมันทุกคืน ไม่ใช่เพราะกลัวหาย แต่เพราะชอบเสียงของมัน
+  gives:
+    - มีของตุนไว้เสมอ ผ่านฤดูหนาวง่ายขึ้น +1
+  effects:
+    - { kind: winter, amount: 1 }
+
+# ---------- แผล 10 อย่าง ----------
+
+- id: wound_knee
+  name: เข่าที่ปวดทุกหน้าฝน
+  kind: wound
+  how: เสียพลังชีวิตเกินครึ่งในการปะทะครั้งเดียว หรือล้มหนักตอนที่เข่าไม่หนุ่มแล้ว
+  gives:
+    - รู้ล่วงหน้าหนึ่งวันว่าฝนจะมา
+  costs:
+    - ว่องไว −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -1, stats: [DEX] }
+
+- id: wound_scar
+  name: แผลเป็นที่หน้า
+  kind: wound
+  how: แพ้การปะทะกับของมีคมหรือกรงเล็บ
+  gives:
+    - หน้าแบบนี้ไม่ต้องขู่ซ้ำ +1 เมื่อเผชิญคน
+  costs:
+    - เสน่ห์ −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [human] }
+    - { kind: check_bonus, amount: -1, stats: [CHA] }
+
+- id: wound_eye
+  name: ตาบอดข้างหนึ่ง
+  kind: wound
+  how: แพ้การปะทะกับฝ่ายดาว หรือหลอดน้ำค้างดาวแตกใส่หน้า
+  gives:
+    - ตาข้างที่บอดเห็นสิ่งที่ตาดีมองไม่เห็น +1 เมื่อเผชิญสิ่งที่มาจากดาว
+  costs:
+    - ว่องไว −1 ทุกการทอย
+    - ญาณ −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [star] }
+    - { kind: check_bonus, amount: -1, stats: [DEX, WIS] }
+
+- id: wound_fingers
+  name: นิ้วด้วน
+  kind: wound
+  how: เครื่องจักรโรงงาน หรือคนทวงหนี้บางคน
+  costs:
+    - ว่องไว −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -1, stats: [DEX] }
+
+- id: wound_lungs
+  name: ปอดฝุ่นเหมือง
+  kind: wound
+  hidden: true
+  how: ทำงานเหมืองเกินสิบปี
+  costs:
+    - พลังชีวิตสูงสุด −2
+    - ผ่านฤดูหนาวยากขึ้น −1
+  effects:
+    - { kind: max_hp, amount: -2 }
+    - { kind: winter, amount: -1 }
+
+- id: wound_back
+  name: หลังช่าง
+  kind: wound
+  how: งานแบกหรืองานก้มเกินสิบปี
+  costs:
+    - กำลัง −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -1, stats: [STR] }
+
+- id: wound_ears
+  name: หูอื้อโรงงาน
+  kind: wound
+  hidden: true
+  how: ทำงานโรงงานหรือโรงหลอมเกินสิบปี
+  costs:
+    - ญาณ −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -1, stats: [WIS] }
+
+- id: wound_limp
+  name: ขาเป๋
+  kind: wound
+  how: กระดูกหักที่ต่อไม่ดี จากการตกหรือเหมืองถล่ม
+  costs:
+    - ว่องไว −2 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -2, stats: [DEX] }
+
+- id: wound_burn
+  name: แผลไฟไหม้
+  kind: wound
+  how: ไฟ ถ่านมาร หรือลูกเสือไฟ
+  gives:
+    - ไม่กลัวไฟอีกแล้ว +1 เมื่อเผชิญฝ่ายจอมมาร
+  costs:
+    - พลังชีวิตสูงสุด −1
+    - เสน่ห์ −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: 1, foes: [demon] }
+    - { kind: max_hp, amount: -1 }
+    - { kind: check_bonus, amount: -1, stats: [CHA] }
+
+- id: wound_tremor
+  name: มือสั่น
+  kind: wound
+  how: ความแก่ หรือใช้เวทวิชาเกินตัวหลายครั้ง
+  costs:
+    - ว่องไว −1 ทุกการทอย
+  effects:
+    - { kind: check_bonus, amount: -1, stats: [DEX] }

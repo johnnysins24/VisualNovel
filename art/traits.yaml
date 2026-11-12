@@ -1,0 +1,64 @@
+# สิ่งติดตัวชุดแรก 60 อย่าง (แผน "ทางออกของไอเดียเจ็ดข้อ" ข้อ 1): รหัส ชื่อ และชนิด เรียงตามลำดับที่แสดงในภาพรวม
+# ไอคอนของ <id> คือ art/icons/trait_<id>.yaml สร้างเป็น public/icons/trait_<id>.png ด้วย npm run draw -- build
+# ชนิด: boon พร, curse คำสาป, trait ลักษณะ, wound แผล ที่มาของแต่ละอย่างอยู่ในคัมภีร์โลกหัวข้อ "สิ่งติดตัวชุดแรก"
+# ผล เงื่อนไข และทางแก้เป็นงานของทะเบียนสิ่งติดตัวในชุด 1 (content/)
+hero_veras: { name: พรแห่งผู้กล้า สายตะเกียง, kind: boon }
+hero_isel: { name: พรแห่งผู้กล้า สายเตาไฟ, kind: boon }
+hero_talis: { name: พรแห่งผู้กล้า สายทางลม, kind: boon }
+hero_ossa: { name: พรแห่งผู้กล้า สายประตู, kind: boon }
+hero_ulwen: { name: พรแห่งผู้กล้า สายเขากวาง, kind: boon }
+hero_belek: { name: พรแห่งผู้กล้า สายตาชั่ง, kind: boon }
+boon_lamp: { name: พรตะเกียง, kind: boon }
+boon_hearth: { name: พรเตาไฟ, kind: boon }
+boon_wind: { name: พรทางลม, kind: boon }
+boon_door: { name: พรประตู, kind: boon }
+boon_scales: { name: พรตาชั่ง, kind: boon }
+boon_antler: { name: พรเขากวาง, kind: boon }
+oath_wick: { name: คำปฏิญาณไส้ตะเกียง, kind: boon }
+oath_cold_iron: { name: คำสาบานเหล็กเย็น, kind: boon }
+old_forest: { name: พรแห่งป่าไม้, kind: boon }
+old_river: { name: พรท้องน้ำ, kind: boon }
+old_field: { name: พรรวงสุดท้าย, kind: boon }
+old_fire: { name: พรไฟยืม, kind: boon }
+old_stone: { name: พรหินสามเคาะ, kind: boon }
+old_wind: { name: พรหน้าต่างเปิด, kind: boon }
+old_night: { name: พรคืนเดือนดับ, kind: boon }
+curse_closed_door: { name: ประตูปิด, kind: curse }
+curse_bone_cold: { name: หนาวเข้ากระดูก, kind: curse }
+curse_brand: { name: ตราร้อน, kind: curse }
+curse_woodcutter: { name: คนตัดไม้, kind: curse }
+curse_lamp_out: { name: ตะเกียงดับ, kind: curse }
+curse_watcher: { name: ตาที่หลับไม่ลง, kind: curse }
+curse_hum: { name: เสียงหึ่งในหู, kind: curse }
+curse_glass: { name: ผิวแก้ว, kind: curse }
+curse_not_yet: { name: เมื่อวานปนพรุ่งนี้, kind: curse }
+curse_sea: { name: คลื่นเรียก, kind: curse }
+curse_nameless: { name: ชื่อหาย, kind: curse }
+curse_shadow: { name: เงาเกิน, kind: curse }
+curse_hunger: { name: ท้องกลวง, kind: curse }
+curse_dead_fire: { name: ไฟไม่ติด, kind: curse }
+curse_star_marks: { name: รอยดาว, kind: curse }
+empty_day: { name: เกิดวันว่าง, kind: trait }
+hero_blood: { name: เลือดผู้กล้า, kind: trait }
+hot_headed: { name: ใจร้อน, kind: trait }
+cool_headed: { name: ใจเย็น, kind: trait }
+light_fingers: { name: มือเบา, kind: trait }
+sweet_tongue: { name: ปากหวาน, kind: trait }
+stubborn: { name: หัวแข็ง, kind: trait }
+faint_heart: { name: ขวัญอ่อน, kind: trait }
+curious: { name: ขี้สงสัย, kind: trait }
+soft_heart: { name: ใจอ่อน, kind: trait }
+cold_blood: { name: เลือดเย็น, kind: trait }
+craft_hands: { name: มือช่าง, kind: trait }
+hunter_eye: { name: ตาพราน, kind: trait }
+tight_fist: { name: ขี้เหนียว, kind: trait }
+wound_knee: { name: เข่าที่ปวดทุกหน้าฝน, kind: wound }
+wound_scar: { name: แผลเป็นที่หน้า, kind: wound }
+wound_eye: { name: ตาบอดข้างหนึ่ง, kind: wound }
+wound_fingers: { name: นิ้วด้วน, kind: wound }
+wound_lungs: { name: ปอดฝุ่นเหมือง, kind: wound }
+wound_back: { name: หลังช่าง, kind: wound }
+wound_ears: { name: หูอื้อโรงงาน, kind: wound }
+wound_limp: { name: ขาเป๋, kind: wound }
+wound_burn: { name: แผลไฟไหม้, kind: wound }
+wound_tremor: { name: มือสั่น, kind: wound }

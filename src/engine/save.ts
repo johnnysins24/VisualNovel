@@ -1,5 +1,9 @@
 import type { LifeState } from './state';
 import { newLife } from './state';
+import { TRAIT_RENAMES } from './balance';
+import { estimateBorn } from './people';
+import { syncJobOrgs } from './orgs';
+import { syncCity } from './cities';
 import type { Meta } from './meta';
 import { newMeta } from './meta';
 
@@ -46,9 +50,26 @@ export function importCode(code: string): LifeState {
   return migrate(JSON.parse(new TextDecoder().decode(bytes)));
 }
 
-/** เซฟเก่า (v1) ไม่มีเพศ ปีเกิด และค่าโลก เติมค่าเริ่มต้นจาก seed เดิม */
+/**
+ * เซฟเก่าเติมค่าที่ยังไม่มีจาก seed เดิม: v1 ไม่มีเพศ ปีเกิด และค่าโลก v2 ไม่มีปีเกิดของคนรอบตัว ขั้นของสิ่งติดตัว และตัวแสดง
+ * รหัสสิ่งติดตัวรุ่นเก่า (demon_mark, born_empty_day) เปลี่ยนเป็นรหัสในทะเบียน
+ * เซฟก่อนมีระบบองค์กร: คนที่ทำงานในป้อมผู้เฝ้าผนึกอยู่แล้วเป็นสมาชิกภาคีที่ยศแรก
+ * เซฟก่อนมีระบบเมือง: ไม่มีเมือง ที่อยู่ ชั้นของคนเมือง และสภาพเมือง ค่าตั้งต้นมาจาก newLife แล้วให้เมืองตรงกับถิ่นที่อยู่
+ * เซฟก่อนชุด 4: ไม่มีคะแนนแผ่นดิน รอยของข้อห้าม และเส้นเรื่องยาว เริ่มนับจากศูนย์
+ * เซฟก่อนชุด อ: ไม่มีสภาพของอาณาจักร (คลัง ความสงบ ความชอบธรรมของราชวงศ์) เริ่มนับจากศูนย์
+ * เซฟก่อนชุด 6: ศิษย์ (id pupil) อยู่ในผังเป็นเพื่อน เปลี่ยนเป็นความสัมพันธ์แบบศิษย์
+ */
 export function migrate(raw: unknown): LifeState {
   const old = raw as Partial<Omit<LifeState, 'version'>> & { version?: number };
-  if (!old || typeof old.seed !== 'number' || (old.version !== 1 && old.version !== 2)) throw new Error('รหัสเซฟไม่ถูกต้อง');
-  return { ...newLife(old.seed), ...old, version: 2 } as LifeState;
+  if (!old || typeof old.seed !== 'number' || (old.version !== 1 && old.version !== 2 && old.version !== 3)) throw new Error('รหัสเซฟไม่ถูกต้อง');
+  const fresh = newLife(old.seed);
+  const life = { ...fresh, ...old, version: 3 } as LifeState;
+  // เซฟก่อนชุด 4 กับชุด อ: คะแนนโลกยังไม่มีค่าแผ่นดินและสภาพของอาณาจักร (ข้อห้ามกับเส้นเรื่องยาวได้ค่าว่างจาก newLife)
+  life.world = { ...fresh.world, ...(old.world ?? {}) };
+  life.traits = [...new Set((life.traits ?? []).map((t) => TRAIT_RENAMES[t] ?? t))];
+  life.people = (life.people ?? []).map((p) => (p.born === undefined ? { ...p, born: estimateBorn(p, life) } : p));
+  // เซฟก่อนชุด 6: ศิษย์ของเส้นเรื่องศิษย์เคยอยู่ในผังเป็นเพื่อน
+  life.people = life.people.map((p) => (p.id === 'pupil' && p.bond === 'friend' ? { ...p, bond: 'pupil' as const } : p));
+  // เซฟก่อนมีระบบเมือง: คนที่อยู่ถิ่นที่มีเมืองหลัก (เวนทราส ทุนดาร์) ถือว่าอยู่เมืองนั้น ชั้นของคนเมืองเริ่มนับจากวันที่โหลด
+  return syncCity(syncJobOrgs(life));
 }

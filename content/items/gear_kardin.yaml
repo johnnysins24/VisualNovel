@@ -1,0 +1,250 @@
+# ตลาดชุมทางคาร์ดิน (ชุด ม): ของเมืองเหล็ก ราง และเงินกู้ กติกาของระดับ งบ และราคาเหมือน gear_shops.yaml
+
+# ---------- หัว ----------
+- id: switchman_cap
+  name: หมวกผ้าคนสับราง ติดเลขรางทองเหลือง
+  slot: head
+  pattern: cap
+  material: brass
+  price: 2
+  stats: { WIS: 1 }
+  lore: แผ่นทองเหลืองหน้าหมวกตอกเลขรางที่เจ้าของเคยประจำ คนสับรางที่เลิกงานไปสิบปียังหันตามเสียงหวูดทุกครั้ง
+
+- id: foundry_hood
+  name: ผ้าคลุมหัวช่างเทเหล็ก ขอบถักลวดเหล็กดำ
+  slot: head
+  pattern: hood
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  lore: ผ้าใบชุบน้ำเกลือจนแข็ง สะเก็ดไฟตกใส่แล้วดับเอง ลวดที่ขอบกันไม่ให้ผ้าพับลงมาปิดตาตอนก้มเทเบ้า
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: ticket_loupe_goggles
+  name: แว่นขยายคนตรวจตั๋วเงิน กรอบทองเหลือง
+  slot: head
+  pattern: goggles
+  material: brass
+  rarity: uncommon
+  price: 6
+  lore: เลนส์ซ้ายขยายห้าเท่าไว้ดูลายน้ำ เลนส์ขวาเป็นกระจกเปล่า เสมียนถนนสมุดบัญชีสอนกันว่าตาอีกข้างต้องมองหน้าคนยื่นตั๋วไว้เสมอ
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+# ---------- ตัว ----------
+- id: collector_shirt
+  name: เสื้อคอแข็งของคนทวงหนี้ กระดุมข้อมือทองเหลืองรูปตาชั่ง
+  slot: body
+  pattern: shirt
+  material: brass
+  price: 3
+  stats: { CHA: 1 }
+  lore: คอเสื้อลงแป้งจนตั้ง คนทวงหนี้ของวิหารไม่ขึ้นเสียงและไม่นั่งเก้าอี้ที่ลูกหนี้ยกให้ ยืนเฉยๆ ในเสื้อตัวนี้ก็พอ
+
+- id: rail_gang_coat
+  name: เสื้อหนังคนวางราง ตอกหมุดเหล็กดำที่บ่า
+  slot: body
+  pattern: leather_coat
+  material: black_iron
+  rarity: uncommon
+  price: 7
+  stats: { STR: 1, CON: 1 }
+  lore: หมุดที่บ่ามีไว้รองไม้หมอน คนวางรางแบกท่อนละสองคน เสื้อตัวนี้บ่าขวาสึกกว่าบ่าซ้ายหนึ่งชั้นหนัง
+
+- id: boiler_plate_vest
+  name: เกราะอกตัดจากแผ่นหม้อน้ำหัวรถจักร
+  slot: body
+  pattern: plate
+  material: black_iron
+  rarity: rare
+  price: 18
+  stats: { STR: 1 }
+  lore: รูหมุดย้ำของเดิมยังเรียงเป็นแถวตามขอบ ช่างคาร์ดินไม่ตีเกราะใหม่ถ้ายังมีหม้อน้ำเก่าให้ตัด เหล็กที่ทนไอน้ำมายี่สิบปีไม่สะเทือนกับดาบ
+  passive:
+    description: เสียพลังชีวิตน้อยลง 2 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 2 }
+
+# ---------- มือ ----------
+- id: tong_gloves
+  name: ถุงมือหนังสองชั้นของคนคีบเบ้า บุแผ่นเหล็กดำหลังมือ
+  slot: hands
+  pattern: gloves
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  stats: { STR: 1 }
+  lore: ชั้นในหนังแพะ ชั้นนอกหนังวัวรมควัน จับเหล็กแดงได้นานเท่าที่นับถึงสาม คนคีบเบ้าทุกคนนับเร็ว
+
+- id: vault_guard_gauntlets
+  name: ปลอกมือเหล็กเย็นของยามห้องนิรภัย
+  slot: hands
+  pattern: gauntlets
+  material: cold_iron
+  rarity: rare
+  price: 14
+  stats: { STR: 1 }
+  lore: สัญญาที่ผูกด้วยเวทของเบเลคจับมือที่อยู่ในเหล็กนี้ไม่ได้ ธนาคารจึงให้ยามทุกคนถอดปลอกมือลงชื่อด้วยมือเปล่าก่อนเข้ากะ
+  passive:
+    description: เสียพลังชีวิตน้อยลง 1 ทุกครั้งที่พลาดในการปะทะ
+    effect: { kind: armor, amount: 1 }
+
+# ---------- ขา เท้า ----------
+- id: brakeman_trousers
+  name: กางเกงผ้าใบคนห้ามล้อ หัวเข็มขัดทองเหลือง
+  slot: legs
+  pattern: trousers
+  material: brass
+  price: 2
+  stats: { DEX: 1 }
+  lore: ขาแคบและสั้นเหนือตาตุ่ม กันชายผ้าเกี่ยวข้อต่อขบวน คนห้ามล้อวิ่งบนหลังคาตู้ทั้งที่รถยังไม่หยุด
+
+- id: ballast_boots
+  name: รองเท้าบูตหัวเหล็กดำของคนเดินตรวจราง
+  slot: feet
+  pattern: boots
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  stats: { CON: 1 }
+  lore: พื้นตอกตะปูหัวกลมไว้เกาะหินโรยทาง หัวเหล็กข้างขวาบุบเข้าไปหนึ่งรอย เจ้าของคนก่อนยังเดินได้ปกติ
+
+# ---------- ผ้าคลุม ----------
+- id: soot_scarf
+  name: ผ้าพันคอกรองเขม่า เข็มกลัดทองเหลืองเลขกะ
+  slot: cloak
+  pattern: scarf
+  material: brass
+  price: 2
+  stats: { CON: 1 }
+  lore: ทอสองชั้น ชุบน้ำก่อนพันปิดจมูก คนย่านเตาหลอมถอดออกมาบิดตอนเลิกกะ น้ำที่ไหลลงรางระบายดำเท่าหมึก
+
+- id: sleeper_car_blanket
+  name: ผ้าห่มขนแกะของตู้นอนชั้นสาม กลัดหมุดไม้ไอเลธ
+  slot: cloak
+  pattern: cloak
+  material: ileth_wood
+  rarity: uncommon
+  price: 6
+  lore: ทางรถไฟให้ยืมคืนละผืนแล้วเก็บคืนที่ปลายทาง ผืนนี้ไม่มีใครเก็บ คนขายไม่ยอมบอกว่ามาจากขบวนไหน
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+# ---------- อาวุธ ----------
+- id: coupling_bar
+  name: ชะแลงงัดข้อต่อขบวนของยามชุมทาง
+  slot: weapon
+  pattern: mace
+  material: black_iron
+  tags: [blunt]
+  price: 3
+  stats: { STR: 1 }
+  lore: ปลายหนึ่งแบน ปลายหนึ่งงอ ยามชุมทางพกไว้งัดข้อต่อที่ค้าง และไว้คุยกับคนที่แอบขึ้นตู้สินค้า
+
+- id: spike_maul
+  name: ค้อนตอกหมุดรางด้ามยาว
+  slot: weapon
+  pattern: hammer
+  material: black_iron
+  rarity: uncommon
+  tags: [blunt]
+  price: 7
+  stats: { STR: 2 }
+  lore: หัวค้อนแคบเท่าหัวหมุด คนวางรางตอกหมุดหนึ่งตัวให้จมในสามที ใครใช้เกินสามทีต้องเลี้ยงเหล้าทั้งกอง
+
+- id: furnace_poker
+  name: เหล็กแหย่เตายาวสองช่วงแขน
+  slot: weapon
+  pattern: spear
+  material: black_iron
+  rarity: uncommon
+  tags: [pierce]
+  price: 5
+  stats: { DEX: 1 }
+  lore: ปลายเหล็กบิดเป็นเกลียวจากความร้อนของเตาที่ไม่เคยดับ ช่างเตาใช้เขี่ยตะกรัน และใช้ไล่ลูกเสือไฟให้กลับเข้าเตา
+
+- id: collector_pistol
+  name: ปืนพกลำกล้องคู่ของคนทวงหนี้วิหาร
+  slot: weapon
+  pattern: pistol
+  material: brass
+  rarity: rare
+  tags: [ranged, noise]
+  price: 14
+  stats: { DEX: 1, CHA: 1 }
+  lore: ด้ามสลักเลขสัญญาของลูกหนี้คนแรกที่เจ้าของไปทวง คนทวงหนี้ของเบเลคแทบไม่เคยยิง แค่วางปืนไว้บนโต๊ะข้างตั๋ว
+
+# ---------- มือรอง ----------
+- id: station_hand_bell
+  name: ระฆังมือทองเหลืองของนายสถานี
+  slot: offhand
+  pattern: bell
+  material: brass
+  tags: [noise]
+  price: 1
+  lore: ตีสองครั้งคือขบวนเข้า ตีสามครั้งคือขบวนออก ตีรัวไม่หยุดมีความหมายเดียว ทั้งย่านชุมทางรู้
+
+- id: rail_wrench
+  name: ประแจขันน็อตรางยาวศอกครึ่ง
+  slot: offhand
+  pattern: wrench
+  material: black_iron
+  tags: [tool]
+  price: 3
+  stats: { STR: 1 }
+  lore: ปากประแจสึกเป็นรูปน็อตหกเหลี่ยมขนาดเดียว รางทุกเส้นจากคาร์ดินถึงเวนทราสขันด้วยน็อตขนาดนี้
+
+- id: conductor_lantern
+  name: ตะเกียงนายตรวจขบวน มีกระจกแดงเลื่อนครอบ
+  slot: offhand
+  pattern: lantern
+  material: brass
+  rarity: uncommon
+  tags: [light]
+  price: 5
+  stats: { WIS: 1 }
+  lore: เลื่อนกระจกแดงลงครอบเปลวคือสั่งหยุด ยกขึ้นคือไปได้ คนขับรถจักรดูตะเกียงดวงนี้มากกว่าดูหน้าคนถือ
+
+- id: closed_debt_ledger
+  name: สมุดบัญชีลูกหนี้เล่มที่ปิดแล้วของสาขาชุมทาง
+  slot: offhand
+  pattern: tome
+  material: brass
+  rarity: rare
+  price: 15
+  stats: { INT: 1 }
+  lore: มุมปกหุ้มทองเหลือง ทุกหน้าประทับว่าชำระแล้ว ยกเว้นหน้าสุดท้าย คนที่เปิดเจอชื่อปู่ตัวเองในเล่มนี้มีมากกว่าที่วิหารอยากให้รู้
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }
+
+# ---------- เครื่องประดับ ----------
+- id: belek_scale_pendant
+  name: สร้อยตาชั่งเหล็กคล้องโซ่ของคนไหว้เบเลค
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  price: 5
+  stats: { CHA: 1 }
+  lore: จานข้างหนึ่งหนักกว่าอีกข้างเสมอ ช่างบอกว่าหล่อให้เป็นอย่างนั้น เพราะไม่มีสัญญาฉบับไหนที่สองฝ่ายได้เท่ากัน
+
+- id: belek_contract_ring
+  name: แหวนสัญญาเหล็กดำของวิหารเบเลค
+  slot: accessory
+  pattern: ring
+  material: black_iron
+  rarity: enchanted
+  price: 40
+  stats: { CHA: 1, INT: 1 }
+  needs: { min_reputation: { belek_bank: 2 } }
+  needs_text: คนขายพลิกสมุดรายชื่อลูกค้าของวิหารสองหน้า ไม่เจอชื่อ{name} แล้วปิดฝากล่องกำมะหยี่
+  toll: { alignment: { law: 2 } }
+  lore: นักบวชเบเลคสวมให้คู่สัญญาทั้งสองฝ่ายตอนลงชื่อ แล้วเก็บคืนเมื่อหนี้หมด วงนี้เจ้าของเดิมใช้หนี้ครบก่อนกำหนด วิหารจึงขายทอดตลาดด้วยความไม่พอใจ
+  caveat: แหวนรัดนิ้วแน่นขึ้นทุกครั้งที่คนสวมรับปากใคร และไม่คลายจนกว่าจะทำตามคำ
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }

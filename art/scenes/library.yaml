@@ -1,0 +1,48 @@
+# The institute's library: bookcases to the ceiling round three walls, an iron gallery with more
+# shelves above, the barred alcove of the locked shelf in the middle of the back wall, two reading
+# tables under star-dew lamps. The hall is 10 m wide, its back wall 6 m behind the figures.
+interior: true
+ceiling: 5.2
+width: 10
+back: 86
+layers:
+  - wall: { y0: 0, y1: 86, mat: plaster, wainscot: [74, wood], skirt: wood }
+  - ceiling: { mat: wood, every: 1.5 }
+  - floor: { y0: 87, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, wainscot: [1.0, wood], skirt: wood }
+  - furn: { kind: bookcase, at: [46], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [66], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [86], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [170], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [190], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [210], wm: 1.1, hm: 2.5 }
+    outline: true
+  - furn: { kind: bookcase, at: [116], wm: 1.0, hm: 2.3 }
+  - furn: { kind: bookcase, at: [140], wm: 1.0, hm: 2.3 }
+  - furn: { kind: grille, at: [128, 87], wm: 2.6, from: 0, hm: 2.5, mat: dark_stone }
+  - furn: { kind: bookcase, at: [56], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [80], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [104], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [128], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [152], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [176], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: bookcase, at: [200], on: 2.9, wm: 1.1, hm: 1.9 }
+  - furn: { kind: catwalk, at: [128, 86], on: 2.9, wm: 9.6 }
+    outline: true
+  - furn: { kind: bookcase, side: left, at: [0.3, 88], along: { to: 104, every: 1.1 }, hm: 2.6 }
+    outline: true
+  - furn: { kind: bookcase, side: right, at: [0.3, 88], along: { to: 104, every: 1.1 }, hm: 2.6 }
+    outline: true
+  - furn: { kind: table, side: left, at: [2.2, 97], wm: 2.0, items: books }
+    outline: true
+  - furn: { kind: table, side: right, at: [2.2, 97], wm: 2.0, items: books }
+    outline: true
+  - furn: { kind: lamp, at: [108, 97], on: 2.2, light: star_dew, glow: { r: 13, colour: 'aad6fb', only: [dusk, night] } }
+  - furn: { kind: lamp, at: [148, 97], on: 2.2, light: star_dew, glow: { r: 13, colour: 'aad6fb', only: [dusk, night] } }
+  - furn: { kind: rug, at: [128, 111], wm: 2.6, dm: 4.0, mat: red_cloth, trim: gold }
+  - vignette: { strength: 0.45 }

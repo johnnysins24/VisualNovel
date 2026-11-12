@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 28, 28 ]
+outline: true
+ramps: { shape: scene.brick }
+legend: { a: shape@0, b: shape@1, c: shape@2, d: shape@3, e: shape@4 }
+meta: { from: game-icons/delapouite/knee-cap.svg, size: 28 }
+frames:
+  main:
+    - layer: main
+      at: [ 1, 1 ]
+      ascii: |
+        d.........dd.........
+        eed.........c........
+        dddd.........cc......
+        .daded........cc.....
+        ...dddd.........c....
+        ....dadec........c...
+        ......dccc........c..
+        d......cacec......cc.
+        dd.......cccec.....c.
+        .dd.......ccccec.c..c
+        ..dc.......eccca..c.c
+        ....c......eccca..c.c
+        .....cc....ccca.....c
+        ......cc....ca..c...c
+        ........c.....eecc..c
+        .........c..ceccca..c
+        .........c...cacca..c
+        .........c..c..cca..c
+        .........c..cc..ea..c
+        .........c...c..ea..c
+        .............c..ea..c
+        ........c....c..ea..b
+        ........c....c..ea.b.
+        ........c....c..ea.b.
+        .............c..ea.b.
+        .........c...c..ba.b.

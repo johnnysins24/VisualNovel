@@ -331,7 +331,9 @@
 - id: adult.life_at_forty
   stage: adult
   weight: 100000
+  must: true
   scene: home
+  mark: อายุครบสี่สิบ
   when:
     age: [40, 40]
   text: |
@@ -375,7 +377,7 @@
       effects: { flags: [forty_counted_the_unit] }
     - id: horns_cool
       label: เอามือแตะโคนเขา ปล่อยให้ลมกลางคืนพัดผ่าน
-      requires: { trait: demon_mark, not_flags: [has_child, war_veteran] }
+      requires: { trait: curse_brand, not_flags: [has_child, war_veteran] }
       text: |
         ลมกลางคืนเย็น โคนเขาเย็นตาม {name}เคยได้ยินคนพูดกันมาทั้งชีวิต ว่าดาวดวงใหม่มองลงมา นั่งดูนานๆ แล้วจะรู้สึกว่ามีอะไรมองกลับ คืนนี้{name}นั่งดูนานกว่าทุกคืน
 

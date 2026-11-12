@@ -1,0 +1,43 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 23, 31 ]
+outline: false
+ramps: { ash: scene.ash }
+legend: { a: ash@0, b: ash@1, c: ash@3, d: ash@4 }
+meta: { from: 7soul-496/S_Fire03.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ............#..........
+        ...........#a#.........
+        .........#.#a#.........
+        ........#a#.#..#..#....
+        ....#...#a#...#a##a#...
+        ...#a#.#aa#...#aaba#...
+        ...#aa#aaba#.#aaabaa#..
+        ..#aaababba#.#aabbba#..
+        ..#aaabbbbaa##bbcbbaa#.
+        ..#ababbcbaaaabbccbaa#.
+        .#abbbaccbbaaabcccaca#.
+        .#abcbaccbbbbbbccdbcba#
+        .#abcbbcccbbbbbdcdbcba#
+        #aabccbcddcbbcbdddccba#
+        #aabccbcddcbcccdddcdba#
+        #abcdcccddcccdcdddcdbb#
+        #abcdcccddcccdcdddcdbb#
+        #abcddccddccddcddccdbb#
+        #abcddcccdccddcddcddbb#
+        #abcdddccdcdddcddddcbb#
+        #abcddddcdcddddddddcba#
+        .#bccddddddddddddddcb#.
+        .#bbddddddddddddddcbb#.
+        .#abcdddddddddddddcba#.
+        ..#bbdddddddddddddbb#..
+        ..#abcdddddddddddcbb#..
+        ...#bbcdddddddddcbb#...
+        ....#bbcdddddddcbb#....
+        .....#bbbcccccbbb#.....
+        ......##bbbbbbb##......
+        ........#######........

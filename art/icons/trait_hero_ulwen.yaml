@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 32, 32 ]
+outline: false
+ramps: { grass: scene.grass, dye_moss: dye_moss, field: scene.field, snow: scene.snow, carriage: scene.carriage }
+legend: { a: grass@1, b: grass@4, c: dye_moss@1, d: field@4, e: snow@4, f: carriage@1 }
+meta: { from: 7soul-496/S_Sword18.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .##############################.
+        #ccccccaccccccaaaaabbdddddddddd#
+        #accccccbaaccaaaaabbdddeeeeeeed#
+        #caccccaabaaaaaabbbddeedaaaaaed#
+        #ccacccaaabaaaabbbddedaacfffaed#
+        #cccbaacaaadbbbbbddeaacf###faed#
+        #cccabaacaabddddddeacf#####faed#
+        #cccaabaacabbdeddeacf######caed#
+        #acacaadaaabbddeeacf######faded#
+        #cbaacaadbbbbddeacf#######caedd#
+        #cabaacabdddddeacf#######fadedd#
+        #caabaaabdeddeacf#######fcaeddb#
+        #ccaabbbbddeeacf#######fcaeddbb#
+        #caaabdbbddeacf#######fcaeddbba#
+        #aabbbbeddeacf#######fcaeddbbaa#
+        #abdeeddeeacf#######fcaeddbbbaa#
+        #adaaaadeacf#######fcaeeddbbaaa#
+        #aea#fcaacf#######fcaeddedbaaaa#
+        #aea##fccf#######fcaedddddbaaac#
+        #adaf##ff#######fcaeddbbbdbaacc#
+        #adacf#########fcaeeddbbbbdaacc#
+        #aedacf#######fcaeddedbaaaabaac#
+        #aeedac######fcaedddddbacaaabac#
+        #aedacf#####fcaeedbbbbdaacaaabc#
+        #aeacf######fcaddebbaaadaacaaca#
+        #adcf###fcf##fcadbdbacaabaacccc#
+        #adf###fcacf##faebbbaacaabacccc#
+        #adf##fcadacf##aebaabaacaabcccc#
+        #adcffcadedaaaaadbaaabaacccaccc#
+        #adddddeeeeddeedbaacaabcccccacc#
+        #aaaaaaaaaaaaaaaaacccccacccccac#
+        .##############################.

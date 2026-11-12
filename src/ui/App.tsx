@@ -1,11 +1,13 @@
 import { useEffect } from 'preact/hooks';
-import { CharacterPanel, DebugPanel, Equipment, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { CharacterPanel, DebugPanel, MorePanel, SlotGrid, StatGrid, WorldMap, WorldPanel } from './Panels';
+import { BagStrip } from './Gear';
 import { CloseList, PeoplePage } from './People';
-import { RollDialog } from './Endings';
+import { BiographyPage, RollDialog, bioOpen } from './Endings';
+import { TraitsStrip } from './Traits';
 import { Icon } from './icons';
 import { BottomNav, Scene, StatRow, TopBar } from './Hud';
-import { ChoiceSheet, StoryLog, playableChoices } from './Story';
-import { bigRoll, choose, life, tab } from '../store';
+import { ChoiceSheet, StoryLog, hotkeyActions } from './Story';
+import { bigRoll, endReasonOf, life, tab } from '../store';
 import { revealNext, revealing, scrolledBack } from './reading';
 
 const PAGES = { character: CharacterPanel, people: PeoplePage, world: WorldPanel, more: MorePanel } as const;
@@ -25,10 +27,10 @@ function useHotkeys() {
       }
       const n = Number(e.key);
       if (!Number.isInteger(n) || n < 1 || n > 9) return;
-      const c = playableChoices()[n - 1];
-      if (c) {
+      const act = hotkeyActions()[n - 1];
+      if (act) {
         e.preventDefault();
-        choose(c.id);
+        act();
       }
     };
     addEventListener('keydown', onKey);
@@ -38,31 +40,46 @@ function useHotkeys() {
 
 /**
  * DOM ชุดเดียว จัดวาง 3 แบบด้วย CSS grid (styles.css):
- * มือถือแนวตั้ง · มือถือแนวนอน (เมนูเป็นแถบซ้าย) · เดสก์ท็อป 3 คอลัมน์
+ * มือถือแนวตั้ง · มือถือแนวนอน (เมนูเป็นแถบซ้าย) · เดสก์ท็อป 2 คอลัมน์ (เวทีซ้าย หนังสือขวา)
  */
 export function App() {
   useHotkeys();
   const t = tab.value;
   const Page = t === 'story' ? null : PAGES[t];
+  // ชีวิตที่จบแล้ว: หน้าชีวประวัติเปิดแทนบันทึกในแท็บเรื่องราว (ฉากและแถวค่าสถานะหลบให้เหมือนหน้ารอง)
+  const bio = t === 'story' && bioOpen.value && endReasonOf(life.value) === 'death';
   return (
-    <main class="game" data-tab={t} data-back={t === 'story' && scrolledBack.value ? '' : undefined}>
+    <main class="game" data-tab={bio ? 'bio' : t} data-back={t === 'story' && !bio && scrolledBack.value ? '' : undefined}>
       <TopBar />
-      <Scene />
       <StatRow />
-      <aside class="side left" aria-label="ตัวละคร">
-        <section class="sec">
-          <h3>ค่าสถานะ</h3>
-          <StatGrid />
-        </section>
-        <section class="sec">
-          <h3>สวมใส่</h3>
-          <SlotGrid />
-        </section>
-        <Equipment />
-      </aside>
+      {/* เวที: ฉาก ค่าสถานะ ผู้คน (เดสก์ท็อปเป็นคอลัมน์ซ้าย มือถือแตกเป็นแถวของ grid หลัก) */}
+      <div class="stage">
+        <Scene />
+        <aside class="side left" aria-label="ตัวละคร">
+          <section class="sec">
+            <h3>ค่าสถานะ</h3>
+            <StatGrid />
+          </section>
+          <section class="sec">
+            <h3>สวมใส่</h3>
+            <SlotGrid />
+          </section>
+          <BagStrip />
+          <TraitsStrip />
+        </aside>
+        <aside class="side right" aria-label="ผู้คนและโลก">
+          <CloseList />
+          <section class="sec">
+            <h3><Icon name="place" />ที่อยู่</h3>
+            <WorldMap here={life.value.locationTag} small />
+          </section>
+        </aside>
+      </div>
       <section class="read">
         {Page ? (
           <div class="page"><Page /></div>
+        ) : bio ? (
+          <div class="page"><BiographyPage /></div>
         ) : (
           <>
             <StoryLog />
@@ -70,13 +87,6 @@ export function App() {
           </>
         )}
       </section>
-      <aside class="side right" aria-label="ผู้คนและโลก">
-        <CloseList />
-        <section class="sec">
-          <h3><Icon name="place" />ที่อยู่</h3>
-          <WorldMap here={life.value.locationTag} small />
-        </section>
-      </aside>
       <BottomNav />
       <RollDialog />
       {new URLSearchParams(location.search).has('debug') && <DebugPanel />}

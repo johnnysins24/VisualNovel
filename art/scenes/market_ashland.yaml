@@ -1,10 +1,26 @@
-# Market in the Ashland: tents and trade carts outside the fort walls on the grey plain.
-base: { scene: ashland, layers: 9 }
+# Market in the Ashland: tents and trade carts outside the fort walls on the grey plain, a stall or
+# two under canvas, braziers against the cold. The plain behind is ashland. Tents and stalls keep to
+# the sides; the middle stays open for the figures, with a trade cart far off between them.
+base: { scene: ashland, layers: 8 }
 layers:
-  - ground: { y: 92, mat: ash, noise: 1.2, tufts: 40, tuft: silver_grass }
-  - furn: { kind: tent, at: [4, 104], w: 44, h: 24, mat: dirt }
+  - wall: { y0: 52, y1: 64, x: [-256, 250], mat: stone, pattern: brick, battlements: [0.8, 1.8] }
+    haze: 0.25
+  - furn: { kind: tower, at: [240, 64], wm: 6, hm: 13, flag: red_cloth }
+    haze: 0.25
+  - furn: { kind: cart, at: [0, 68], xm: -0.6, horse: grey, load: canvas }
     outline: true
-  - furn: { kind: stall, at: [206, 104], w: 42, h: 30, mat: red_cloth }
+  - furn: { kind: tent, at: [0, 72], xm: -8.4 }
     outline: true
-  - furn: { kind: cart, at: [56, 106], w: 34, h: 13, load: silver_grass }
+  - furn: { kind: tent, at: [0, 70], xm: 9.6, wm: 3.4 }
+    outline: true
+  - furn: { kind: stall, at: [0, 90], xm: -5.8, mat: canvas, back: ash }
+    outline: true
+  - furn: { kind: fire_bowl, at: [0, 100], xm: -3.0 }
+    outline: true
+  - glow: { at: [51, 74], r: 12, colour: 'f39a45' }
+  - furn: { kind: stall, at: [0, 94], xm: 4.6, mat: red_cloth, back: ash, goods: pots }
+    outline: true
+  - furn: { kind: sacks, at: [0, 106], xm: -3.9 }
+    outline: true
+  - furn: { kind: crates, at: [0, 108], xm: 3.8 }
     outline: true

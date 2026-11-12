@@ -84,6 +84,7 @@
         effects: { stats: { CON: 1 }, flags: [sat_with_veteran] }
     - id: take_his_knife
       label: ท้าเขาว่าจะชิงมีดที่เอวเขามาให้ได้ ถ้าได้ให้สอนวิชามีด
+      habit: hot_headed
       check: { stat: DEX, dc: 14 }
       success:
         text: |
@@ -276,6 +277,7 @@
       effects: { stats: { STR: 1, WIS: 1 }, flags: [bought_music_box] }
     - id: slip_it_away
       label: รอให้คนเฝ้าร้านก้มนับเหรียญ แล้วหยิบใส่เสื้อ
+      habit: light_fingers
       check: { stat: DEX, dc: 14 }
       success:
         text: |
@@ -358,6 +360,7 @@
   choices:
     - id: hit_first
       label: ต่อยเขาก่อนที่เขาจะต่อย
+      habit: hot_headed
       check: { stat: STR, dc: 13 }
       success:
         text: |
@@ -388,6 +391,7 @@
         effects: { hp: -1, stats: { DEX: 1 }, flags: [pulled_the_girl] }
     - id: floor_coins
       label: ก้มเก็บเหรียญที่กระจายอยู่บนพื้นระหว่างที่ทุกคนกำลังต่อยกัน
+      habit: light_fingers
       check: { stat: DEX, dc: 13 }
       success:
         text: |

@@ -1,0 +1,38 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 20, 26 ]
+outline: false
+ramps: { main: metal_iron }
+legend: { a: main@0, b: main@1, c: main@2, d: main@3, e: main@4 }
+meta: { from: shikashi/icons.png, cell: "32,224,32,32" }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ........####........
+        ......##dddd##......
+        .....#dddddddd#.....
+        ....#dddddddddd#....
+        ...#dddddddddddd#...
+        ..#dddddddddddddd#..
+        .#dddddddddddddddd#.
+        #dddddddddddddddddc#
+        #dddddddddddddddddc#
+        #dddddddddddddddddc#
+        .#ddd#ddddddddd#dc#.
+        .#cdd##bccdccb##dc#.
+        .#cdd#ee#####ee#dc#.
+        .#bddb##a#.#a##bdb#.
+        .#cdddc###.###cddb#.
+        .#cddddcc#.#ccdddb#.
+        .#cdddddb#.#cddddb#.
+        .#ddddddb#.#cddddb#.
+        #dddddddb#.#bddddcb#
+        #dddddddb#.#cdddccb#
+        #dddddddb#.#cdddccb#
+        .#ccdddcb#.#cddccbb#
+        ..##bbccb#.#cdcbb##.
+        ....##bcb#.#ccb##...
+        ......#bb#.#cb#.....
+        .......##...##......

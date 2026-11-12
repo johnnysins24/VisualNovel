@@ -1,0 +1,34 @@
+# Home in Kardin: a rented room over the junction, soot-dark brick, an iron stove, a narrow bed, a
+# table with the month's papers, a wall of pigeonholes for bills, a window onto roofs and stacks. The
+# room is 6.5 m wide, its back wall 4 m behind the figures.
+interior: true
+ceiling: 2.5
+width: 6.5
+layers:
+  - wall: { y0: 0, y1: 92, mat: brick, pattern: brick, skirt: dark_stone }
+  - ceiling: { mat: wood, every: 0.8 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: brick, pattern: brick, skirt: dark_stone }
+  - pane: { at: [128], wm: 1.1, hm: 1.1, roofs: slate, frame: metal }
+  - furn: { kind: door, at: [184], mat: wood }
+    outline: true
+  - furn: { kind: drawers, at: [74], on: 0.9, wm: 1.2, hm: 0.9 }
+    outline: true
+  - furn: { kind: stove, at: [150, 94] }
+    outline: true
+  - glow: { at: [150, 87], r: 15, colour: 'ffb060' }
+  - furn: { kind: bed, side: left, at: [1.0, 101], mat: slate }
+    outline: true
+  - furn: { kind: table, side: right, at: [0.7, 101], wm: 1.1, items: ledger }
+    outline: true
+  - furn: { kind: chair, side: right, at: [1.4, 101] }
+    outline: true
+  - furn: { kind: lamp, at: [108, 100], on: 1.9, light: lamp, glow: { r: 15, colour: 'f7d98a', only: [dusk, night] } }
+  - furn: { kind: crate, at: [106, 97], wm: 0.5 }
+    outline: true
+  - furn: { kind: rug, at: [128, 111], wm: 2.0, dm: 1.8, mat: cloth, trim: slate }
+  - furn: { kind: crates, side: left, at: [0.7, 110] }
+    outline: true
+  - furn: { kind: barrel, side: right, at: [0.4, 109] }
+    outline: true
+  - vignette: { strength: 0.5 }

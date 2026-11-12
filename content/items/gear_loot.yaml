@@ -1,0 +1,74 @@
+# ของที่ได้จากศัตรูเท่านั้น (ชุด 2ข): ไม่มีร้านไหนวางขาย แต่มีราคา จึงขายให้ร้านได้
+# ของจากสัตว์และของจากฝ่ายดาวไม่มีวัสดุ ไอคอนมาจากชุดภาพฟรี (art/adopted.yaml)
+
+- id: wolf_pelt_mantle
+  name: หนังหมาป่าทั้งผืนคลุมไหล่
+  slot: cloak
+  rarity: uncommon
+  price: 4
+  lore: ถลกเองกลางทุ่งและยังไม่ได้ฟอก หมาบ้านทุกตัวหมอบลงกับพื้นเมื่อคนที่คลุมหนังผืนนี้เดินผ่าน
+  passive:
+    description: ทอยฤดูหนาวได้ +1 ในวัยชรา
+    effect: { kind: winter, amount: 1 }
+
+- id: bear_fang_cord
+  name: เขี้ยวหมีร้อยเชือกหนัง
+  slot: accessory
+  rarity: uncommon
+  price: 5
+  stats: { STR: 1 }
+  lore: เขี้ยวยาวเท่านิ้วกลาง โคนเขี้ยวยังมีคราบที่ล้างไม่ออก พรานแก่ในอาร์เวลเห็นแล้วเลื่อนเก้าอี้ให้นั่งโดยไม่ถามชื่อ
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: hundred_eye_lens
+  name: ลูกตาที่ยังกลอกได้ของตาร้อยดวง
+  slot: accessory
+  rarity: rare
+  price: 14
+  stats: { INT: 1, WIS: 1 }
+  lore: ดวงตาขนาดเท่าไข่นกกระทา แข็งเหมือนแก้ว แต่ม่านตายังหดขยายตามแสง คนที่พกไว้รู้สึกเสมอว่ามีอะไรมองออกมาจากกระเป๋าเสื้อ
+  passive:
+    description: ทอยปัญญาได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: INT, amount: 1 }
+
+- id: old_wood_heart_staff
+  name: ไม้เท้าแก่นไม้เฒ่า
+  slot: weapon
+  pattern: staff
+  material: ileth_wood
+  rarity: rare
+  tags: [blunt]
+  price: 15
+  stats: { WIS: 1, CON: 1 }
+  lore: แก่นกลางลำต้นของไม้เฒ่าที่ล้มแล้ว หนักกว่าไม้ไอเลธทั่วไปสามเท่า เคาะลงบนพื้นป่าแล้วรากไม้รอบตัวขยับตอบ
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+- id: sentry_chest_plate
+  name: แผ่นอกหุ่นยามที่ถือแทนโล่
+  slot: offhand
+  pattern: shield
+  material: brass
+  rarity: uncommon
+  price: 6
+  stats: { CON: 1 }
+  lore: แผ่นทองเหลืองหนาครึ่งนิ้ว ตราโรงงานกับเลขประจำหุ่นยังอ่านได้ชัด ด้านในมีรอยขีดเรียงเป็นระเบียบสี่ร้อยกว่าขีด ช่างคนไหนก็บอกไม่ได้ว่าหุ่นนับอะไร
+  passive:
+    description: กันการเสียพลังชีวิตได้หนึ่งครั้งต่อการปะทะ
+    effect: { kind: shield }
+
+- id: fallen_star_nugget
+  name: ก้อนเงินดาวดิบร้อยเชือก
+  slot: accessory
+  pattern: amulet
+  material: star_silver
+  rarity: uncommon
+  price: 7
+  stats: { WIS: 1 }
+  lore: เศษที่เหลืออยู่เมื่อดาวร่วงดับลง ยังไม่ผ่านมือช่าง ผิวขรุขระเหมือนตะกรันเตา เย็นจนไอน้ำเกาะเป็นหยดในวันอากาศชื้น
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }

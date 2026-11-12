@@ -1,0 +1,67 @@
+name: Deploy
+# push main → deploy ขึ้น Worker หลัก
+# PR → อัปโหลดเวอร์ชันทดลอง ได้ลิงก์ pr-<เลข>-visualnovel.<subdomain>.workers.dev แล้วคอมเมนต์ลิงก์ใน PR
+# ต้องมี secret CLOUDFLARE_API_TOKEN (account id อยู่ใน wrangler.jsonc) ถ้ายังไม่มี job นี้จะข้ามไปเฉยๆ
+on:
+  push:
+    branches: [main]
+  pull_request:
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HAS_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN != '' }}
+    steps:
+      - name: ยังไม่ได้ตั้ง secret
+        if: env.HAS_TOKEN != 'true'
+        run: echo "::notice::ข้าม deploy เพราะยังไม่มี CLOUDFLARE_API_TOKEN"
+      - uses: actions/checkout@v4
+        if: env.HAS_TOKEN == 'true'
+      - uses: actions/setup-node@v4
+        if: env.HAS_TOKEN == 'true'
+        with: { node-version: 22, cache: npm }
+      - if: env.HAS_TOKEN == 'true'
+        run: npm ci
+      - if: env.HAS_TOKEN == 'true'
+        run: npm run build
+      - name: Deploy main
+        if: env.HAS_TOKEN == 'true' && github.event_name == 'push'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: '4'
+          command: deploy
+      - name: Upload PR preview
+        id: preview
+        if: env.HAS_TOKEN == 'true' && github.event_name == 'pull_request'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          wranglerVersion: '4'
+          command: versions upload --preview-alias pr-${{ github.event.number }}
+      - name: Comment preview link
+        if: env.HAS_TOKEN == 'true' && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          OUT: ${{ steps.preview.outputs.command-output }}
+        with:
+          script: |
+            const out = process.env.OUT || '';
+            const alias = out.match(/Version Preview Alias URL:\s*(\S+)/)?.[1];
+            const ver = out.match(/Version Preview URL:\s*(\S+)/)?.[1];
+            const url = alias || ver;
+            if (!url) { core.warning('ไม่เจอลิงก์ preview ใน output'); return; }
+            const marker = '<!-- cf-preview -->';
+            const body = `${marker}\nลองเล่นเวอร์ชันของ PR นี้: ${url}\n(commit ${context.sha.slice(0, 7)})`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number });
+            const old = comments.find((c) => c.body?.includes(marker));
+            if (old) await github.rest.issues.updateComment({ owner, repo, comment_id: old.id, body });
+            else await github.rest.issues.createComment({ owner, repo, issue_number, body });

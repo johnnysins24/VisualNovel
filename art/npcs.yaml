@@ -231,10 +231,10 @@ named:
       choices: { skin: porcelain, hair: blonde, eyes: blue }
       colors: { cloth: dye_purple, trim: dye_mustard, fitting: metal_silver }
   loven:
-    name: โลเวน (คู่แข่งสายนักบวช)
+    name: โลเวน (คู่แข่งสายนักบวช หญิงผมเกล้าสูง)
     look:
-      body: m
-      pieces: [face/basic, under/briefs, hair/m/short, body/cleric_robe, feet/sandals, acc/holy_symbol, weapon/mace, offhand/tome]
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, body/cleric_robe, feet/sandals, acc/holy_symbol, offhand/tome]
       choices: { skin: honey, hair: dark_brown, eyes: brown }
       colors: { cloth: dye_white, trim: dye_wine, fitting: metal_brass }
   hasken:
@@ -294,3 +294,307 @@ named:
       pieces: [face/basic, under/bra, under/panties, hair/f/bun, body/dress, feet/shoes, cloak/fur, head/crown, acc/holy_symbol]
       choices: { skin: porcelain, hair: dark_brown, eyes: grey }
       colors: { cloth: dye_grey, trim: dye_black, fitting: metal_black }
+  # people of story batch 3 (ages 41-64): the Fang House branch, Fort Three of the Wardens, and the
+  # neighbours of the five places a life can move to. Looks follow what the events say about them.
+  orris:
+    name: ออร์ริส (เจ้าโต๊ะชั่งของโรงรับเขี้ยว หญิงร่างใหญ่อดีตช่างฟอกหนัง)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, body/farmer, over/apron, feet/boots]
+      choices: { skin: brown, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_earth, trim: dye_grey, leather: leather_black }
+  findel:
+    name: ฟินเดล (เสมียนหนุ่มของโรงรับเขี้ยว)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, body/doublet, feet/shoes, offhand/tome]
+      choices: { skin: peach, hair: brown, eyes: brown }
+      colors: { cloth: dye_grey, trim: dye_black }
+  yarek:
+    name: ยาเรค (นักล่าคู่แข่ง หัวเราะดัง)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/messy, beard/m/moustache_handlebar, body/leather_armor, feet/boots, cloak/travel, weapon/crossbow]
+      choices: { skin: honey, hair: auburn, eyes: green }
+      colors: { cloth: dye_moss, trim: dye_earth }
+  azrith:
+    name: อาซริธ (นักล่าหญิงมีเขา พันเขาด้วยเส้นหนัง)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, horns/curved, tail/tiefling, body/leather_armor, feet/boots, weapon/spear]
+      choices: { skin: brown, hair: black, eyes: amber }
+      colors: { cloth: dye_earth, trim: dye_mustard }
+  bronka:
+    name: บรอนกา (ผู้เฒ่าป้อมสาม คนแคระตระกูลบันไดลึก ไม้เท้าเหล็ก)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, mark/wrinkles, body/chainmail, over/tabard, feet/iron_boots, weapon/staff]
+      choices: { skin: honey, hair: silver, eyes: grey }
+      colors: { metal: metal_black, weapon/staff.wood: metal_black, weapon/staff.fitting: metal_iron }
+  estrin:
+    name: เอสทริน (นายคลังป้อมสาม แขนซ้ายเป็นขอเหล็ก)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bob, body/longcoat, over/tabard, feet/boots, arm/hook]
+      choices: { skin: peach, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_grey }
+  bertal:
+    name: เบอร์ทัล (คนครัวป้อมสาม ถือกระบวยเหล็ก)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/bald, beard/m/moustache_thin, mark/wrinkles, body/farmer, over/apron, feet/shoes, acc/knee_cloth, offhand/ladle]
+      choices: { skin: brown, hair: silver, eyes: brown }
+      colors: { cloth: dye_white, trim: dye_grey, offhand/ladle.metal: metal_iron }
+  vessa:
+    name: เวสซา (ผู้เฝ้าหญิงมีเขาจากป้อมสาม ผมตัดสั้น)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/pixie, horns/curved, tail/tiefling, body/chainmail, over/tabard, feet/iron_boots, cloak/travel]
+      choices: { skin: deep, hair: dark_brown, eyes: amber }
+      colors: { metal: metal_black, cloak/travel.cloth: dye_grey }
+  yoran:
+    name: โยแรน (ผู้ถือกุญแจป้อมห้า ชายแก่หนวดขาว)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_walrus, mark/wrinkles, body/longcoat, over/tabard, feet/boots, acc/purse]
+      choices: { skin: porcelain, hair: silver, eyes: blue }
+      colors: { cloth: dye_grey }
+  talmas:
+    name: ทัลมาส (เจ้าถิ่นของงานในย่านใหม่ที่เวนทราส เสื้อกั๊กน้ำเงิน)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, beard/m/moustache_thin, body/doublet, feet/shoes]
+      choices: { skin: honey, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_white, trim: dye_navy, fitting: metal_brass }
+  odil:
+    name: ออดิล (หญิงม่ายตัวสูง อบขนมปังขายทั้งหมู่บ้าน)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, head/kerchief, body/dress, over/apron, feet/shoes]
+      choices: { skin: peach, hair: brown, eyes: green }
+      colors: { cloth: dye_moss, trim: dye_white, head/kerchief.cloth: dye_white }
+  athel:
+    name: อาเธล (ชายแก่หลังตรงที่เอลฟ์ตั้งชื่อให้ คุมเชือกลานตะกร้า)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/long, mark/wrinkles, body/farmer, cloak/shawl, feet/boots]
+      choices: { skin: honey, hair: silver, eyes: green }
+      colors: { cloth: dye_moss, trim: dye_earth }
+  kromda:
+    name: ครอมดา (ผู้คุมทางเดินตระกูลรางเหล็ก ผมเปียหนา)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, body/overalls, feet/boots, acc/gloves, offhand/lantern]
+      choices: { skin: honey, hair: copper, eyes: brown }
+      colors: { cloth: dye_wine, trim: dye_grey }
+  fa_thiang:
+    name: ฟ้าเที่ยง (หญิงมีเขา คุมเวรกวาดเถ้าของบ้านหญ้าขม)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/ponytail, horns/small, tail/tiefling, body/farmer, over/apron, feet/boots]
+      choices: { skin: peach, hair: copper, eyes: amber }
+      colors: { cloth: dye_grey, trim: dye_earth }
+  # recurring people of the secret organisations and the kingdom (story batch อ)
+  osric:
+    name: ออสริค (ผู้จุดของหน่วยไส้ตะเกียง อดีตอัศวิน ถือตะเกียงดำ)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, mark/scar_brow, body/chainmail, over/tabard, feet/iron_boots, acc/gloves, offhand/lantern]
+      choices: { skin: honey, hair: dark_brown, eyes: grey }
+      colors: { metal: metal_black, over/tabard.cloth: dye_black, over/tabard.trim: dye_mustard, offhand/lantern.fitting: metal_black }
+  sywel:
+    name: ไซเวล (ผู้ดับ หญิงชราที่จำชื่อเดิมของตัวเองไม่ได้)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, mark/wrinkles, body/cleric_robe, head/veil, feet/sandals]
+      choices: { skin: porcelain, hair: silver, eyes: blue }
+      colors: { cloth: dye_grey, trim: dye_mustard, head/veil.cloth: dye_black, head/veil.trim: dye_black }
+  torben:
+    name: ทอร์เบน (นายโรงน้ำมันหลังวิหารเวรัส)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/bald, beard/m/moustache_walrus, body/farmer, over/apron, feet/boots, offhand/ladle]
+      choices: { skin: brown, hair: brown, eyes: brown }
+      colors: { cloth: dye_earth, trim: dye_black, offhand/ladle.metal: metal_brass }
+  gredis:
+    name: เกรดิส (ผู้เฒ่าเตาของภาคีเหล็กเย็น หญิงช่างเกือกม้า)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, mark/wrinkles, body/farmer, over/apron, feet/boots, acc/gloves, weapon/hammer]
+      choices: { skin: honey, hair: silver, eyes: grey }
+      colors: { cloth: dye_grey, trim: dye_earth, over/apron.cloth: dye_earth, weapon/hammer.metal: metal_black }
+  dorek:
+    name: โดเรค (คนถือค้อน ทหารผ่านศึกที่ใส่ขอเหล็กแทนแขนกล)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_walrus, body/longcoat, feet/boots, arm/hook, weapon/hammer]
+      choices: { skin: peach, hair: brown, eyes: blue }
+      colors: { cloth: dye_earth, trim: dye_grey, weapon/hammer.metal: metal_black, arm/hook.metal: metal_black }
+  edrin:
+    name: เอดริน (คนถือกระดิ่ง หญิงสาวที่ออกจากสถาบันเวทหลวงตอนปีสาม)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/ponytail, body/doublet, cloak/travel, feet/boots, acc/bell]
+      choices: { skin: porcelain, hair: auburn, eyes: green }
+      colors: { cloth: dye_grey, trim: dye_black, acc/bell.fitting: metal_black }
+  hestan:
+    name: เฮสทัน (เสมียนจากถนนสมุดบัญชี ใส่ถุงมือสีเทา)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, acc/glasses, body/doublet, feet/shoes, acc/gloves, acc/purse]
+      choices: { skin: peach, hair: black, eyes: brown }
+      colors: { cloth: dye_grey, trim: dye_black, fitting: metal_black, acc/gloves.leather: dye_grey }
+  weldis:
+    name: เวลดิส (ผู้ปิดหีบของผู้ทวงตำรา หญิงผมขาวที่เขียนได้สองมือ)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, mark/wrinkles, acc/glasses, body/mage_robe, feet/shoes, offhand/tome]
+      choices: { skin: porcelain, hair: silver, eyes: grey }
+      colors: { cloth: dye_grey, trim: dye_grey, fitting: metal_brass }
+  lisen:
+    name: ลีเซน (คนถือตราทวง หญิงในเสื้อคลุมเรียบ)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bob, body/longcoat, cloak/travel, feet/boots, acc/satchel]
+      choices: { skin: honey, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_grey, trim: dye_grey, cloak/travel.cloth: dye_grey }
+  owes:
+    name: โอเวส (เสมียนแก่ผู้คัดสำเนาสมุดบัญชีหาย)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/bald, mark/wrinkles, acc/glasses, body/doublet, feet/shoes, offhand/tome]
+      choices: { skin: peach, hair: silver, eyes: blue }
+      colors: { cloth: dye_earth, trim: dye_grey }
+  pendis:
+    name: เพนดิส (พ่อค้าของหลุดในตลาดมืดของเวนทราส)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, beard/m/moustache_handlebar, body/doublet, head/tophat, feet/shoes, acc/purse]
+      choices: { skin: honey, hair: black, eyes: green }
+      colors: { cloth: dye_wine, trim: dye_mustard }
+  harlen:
+    name: ฮาร์เลน (ชายเล็บสะอาดในเสื้อคนงานเหมืองสีจาง คนของลัทธิเถ้า)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, body/overalls, feet/boots, acc/purse]
+      choices: { skin: porcelain, hair: brown, eyes: grey }
+      colors: { cloth: dye_grey, trim: dye_white }
+  branwel:
+    name: บรานเวล (คนเปิดหลังคาของวงฟังดาว อดีตอาจารย์สำนักดาราศาสตร์)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, mark/wrinkles, acc/glasses, body/mage_robe, feet/shoes, acc/lens, acc/gloves]
+      choices: { skin: peach, hair: silver, eyes: blue }
+      colors: { cloth: dye_navy, trim: dye_sky, fitting: metal_silver, acc/gloves.leather: dye_white }
+  wardel:
+    name: วาร์เดล (นายอำเภอร่างท้วม)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_walrus, body/doublet, cloak/cape, feet/shoes, acc/purse]
+      choices: { skin: peach, hair: brown, eyes: brown }
+      colors: { cloth: dye_navy, trim: dye_mustard, fitting: metal_brass }
+  tesmin:
+    name: เทสมิน (เสมียนใหญ่ของศาลาอำเภอ นับเตามาตั้งแต่ก่อนสงครามถ่าน)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, mark/wrinkles, acc/glasses, body/dress, feet/shoes, offhand/tome]
+      choices: { skin: brown, hair: silver, eyes: brown }
+      colors: { cloth: dye_grey, trim: dye_white }
+  holric:
+    name: ฮอลริค (คนขี่ม้าของคลัง ถือกุญแจดอกที่สาม)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/ponytail, body/longcoat, cloak/travel, head/cap, feet/boots, acc/satchel]
+      choices: { skin: honey, hair: dark_brown, eyes: grey }
+      colors: { cloth: dye_navy, trim: dye_grey, cloak/travel.cloth: dye_earth }
+  mores:
+    name: โมเรส (ขุนคลังที่อยู่โต๊ะนานที่สุด ถือสมุดหนี้ของบัลลังก์)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_thin, mark/wrinkles, body/doublet, cloak/cape, feet/shoes, offhand/tome]
+      choices: { skin: porcelain, hair: silver, eyes: grey }
+      colors: { cloth: dye_black, trim: dye_grey, fitting: metal_silver }
+  ravek:
+    name: ราเวค (นายร้อยของกองทหารหลวง)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_thin, body/halfplate, feet/iron_boots, weapon/saber]
+      choices: { skin: honey, hair: dark_brown, eyes: brown }
+      colors: { cloth: dye_wine, trim: dye_grey }
+  roden:
+    name: โรเดน (นายสิบครูฝึก เสียงแหบ)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/undercut, beard/m/moustache_handlebar, mark/scar_cheek, body/chainmail, over/tabard, feet/iron_boots, weapon/staff, offhand/shield]
+      choices: { skin: brown, hair: black, eyes: brown }
+      colors: { over/tabard.cloth: dye_wine, over/tabard.trim: dye_grey }
+  kolwen:
+    name: โคลเวน (นายบัญชีของกอง)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, acc/glasses, body/longcoat, feet/shoes, offhand/tome]
+      choices: { skin: peach, hair: brown, eyes: green }
+      colors: { cloth: dye_wine, trim: dye_grey }
+  garrick:
+    name: การ์ริค (แม่ทัพที่แก่ที่สุดในห้าคน)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_walrus, mark/wrinkles, mark/scar_brow, body/halfplate, cloak/cape, feet/iron_boots, weapon/longsword]
+      choices: { skin: honey, hair: silver, eyes: grey }
+      colors: { cloth: dye_wine, trim: dye_mustard }
+  eldris:
+    name: เอลดริส (ท่านหญิงผู้ดูแลห้องชั้นในของวัง)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/bun, mark/wrinkles, body/dress, cloak/cape, feet/shoes]
+      choices: { skin: porcelain, hair: dark_brown, eyes: green }
+      colors: { cloth: dye_purple, trim: dye_grey, fitting: metal_silver }
+  darwel:
+    name: ดาร์เวล (มหาดเล็กรุ่นพี่)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/slicked, body/doublet, feet/shoes]
+      choices: { skin: brown, hair: black, eyes: brown }
+      colors: { cloth: dye_white, trim: dye_navy, fitting: metal_brass }
+  ilsen:
+    name: อิลเซน (เสมียนของทางเสมียน เฝ้าโต๊ะกระดาษตราเดียว)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, acc/glasses, body/doublet, feet/shoes, offhand/tome]
+      choices: { skin: honey, hair: copper, eyes: blue }
+      colors: { cloth: dye_grey, trim: dye_white }
+  bruda:
+    name: บรูดา (ผู้ถือค้อนสภา คนแคระตระกูลสิ่วยาว)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/braid, mark/wrinkles, body/dress, cloak/fur, feet/boots, weapon/hammer]
+      choices: { skin: honey, hair: silver, eyes: grey }
+      colors: { cloth: dye_wine, trim: dye_mustard, weapon/hammer.metal: metal_brass }
+  mardok:
+    name: มาร์โดก (นายเตาหนุ่มของชั้นโรงหลอม คนแคระตระกูลลิ่มเหล็ก)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/topknot, beard/m/braided, body/overalls, over/apron, feet/boots, acc/gloves, weapon/hammer]
+      choices: { skin: honey, hair: copper, eyes: brown }
+      colors: { cloth: dye_wine, trim: dye_grey, over/apron.cloth: dye_earth }
+  bruka:
+    name: บรูกา (คนแคระตระกูลตะเกียงต่ำ ผู้พูดแทนตระกูลที่จนที่สุด)
+    look:
+      body: f
+      pieces: [face/basic, under/bra, under/panties, hair/f/twin_braids, body/farmer, cloak/shawl, feet/boots, offhand/lantern]
+      choices: { skin: brown, hair: dark_brown, eyes: amber }
+      colors: { cloth: dye_earth, trim: dye_grey, offhand/lantern.metal: metal_iron, offhand/lantern.fitting: metal_iron }
+  naveth:
+    name: นาเวธ (เอลฟ์รุ่นหนุ่มผู้นำคนกิ่งล่าง)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/long, ears/elf, body/elf, cloak/ranger, feet/boots, weapon/bow]
+      choices: { skin: porcelain, hair: blonde, eyes: green }
+      colors: { cloth: dye_moss, trim: dye_earth }
+  surel:
+    name: ซูเรล (ข้าหลวงป่าไม้ที่เวนทราสส่งมาอยู่ลานโคนต้น)
+    look:
+      body: m
+      pieces: [face/basic, under/briefs, hair/m/short, beard/m/moustache_thin, body/longcoat, head/cap, feet/boots, offhand/tome]
+      choices: { skin: peach, hair: auburn, eyes: brown }
+      colors: { cloth: dye_moss, trim: dye_mustard, head/cap.cloth: dye_moss }

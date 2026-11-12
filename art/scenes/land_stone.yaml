@@ -1,0 +1,25 @@
+# ยายหมีหิน (the Stone Bear Grandmother): the crag over the old drifts of Hordun. Slate lies on her in
+# slabs like a coat and the snow never leaves her back. The miners at her flank knock three times
+# before they cut, and stay out in the coldest month. Ossa's sky pillar stands behind her shoulder.
+# The crag is a studio drawing (art/props/land_bear.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 60, below: 40 }
+  - body: { day: [222, 10, 6], dusk: [30, 26, 9], night: [226, 10, 5] }
+  - clouds: { count: 4, y: [2, 14], seed: 5 }
+  - ridge: { mat: far, base: 44, amp: 40, scale: 0.016, seed: 61, jag: 0.7, snow: 26 }
+    haze: 0.45
+  - pillar: { x: 148, w: 6, base: 30 }
+    haze: 0.45
+  - ground: { y: 62, mat: snow, noise: 0.5 }
+  - drawing: { art: land_bear, at: [0, 66] }
+    haze: 0.08
+  - trees: { kind: pine, mat: pine, base: 68, everym: 5, hm: [5, 8], seed: 8, x: [-256, 30] }
+  - trees: { kind: pine, mat: pine, base: 68, everym: 5, hm: [5, 8], seed: 9, x: [252, 511] }
+  - road: { y: [66, 111], wm: 3.0, mat: stone }
+  - furn: { kind: rail_cart, at: [0, 84], xm: -6.2 }
+    outline: true
+  - furn: { kind: crates, at: [0, 88], xm: 6.6 }
+    outline: true
+  - furn: { kind: fire_bowl, at: [0, 92], xm: -5.4 }
+    outline: true

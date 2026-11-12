@@ -1,0 +1,115 @@
+# ของจากองค์กร (ชุด 3 ไฟล์ 88_org_*) ได้จาก effects.items ในฉากขึ้นยศ ซื้อขายไม่ได้ ไอคอนมาจากแบบกับวัสดุ
+
+- id: wardens_fort_key
+  name: กุญแจเหล็กดำด้ามเว้าของอูเลส
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { CON: 1 }
+  lore: กุญแจป้อมสามที่คนเลี้ยงล่อทีฟลิ่งห้อยคอไว้ใต้เสื้อจนวันตาย ร้อยเชือกหนังที่ต่อด้วยเงื่อนตายเจ็ดเงื่อน ด้ามสึกเป็นรอยเว้าตรงกลาง เว้าแบบที่ไม่ได้เกิดจากการไขประตู
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: fang_brass_tag
+  name: ป้ายทองเหลืองตอกเลขของโรงรับเขี้ยว
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: uncommon
+  stats: { WIS: 1 }
+  lore: ป้ายกลมขนาดเหรียญที่ออร์ริสตอกเลขเองทีละตัวด้วยค้อนหัวเล็ก เลขที่ได้เคยเป็นของนักล่าที่ตายไปแล้ว ด้านหลังยังมีรอยขีดนับของเจ้าของเก่าที่ขัดไม่ออก คนในเหมืองเห็นป้ายนี้แขวนเข็มขัดแล้วจะหลีกทางให้ครึ่งก้าว
+
+- id: fang_black_iron_tag
+  name: ป้ายเหล็กดำไม่มีเลขของโรงรับเขี้ยว
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { DEX: 1 }
+  lore: ป้ายเหล็กดำผิวด้าน ไม่มีเลข ไม่มีชื่อ มีแค่รอยตะไบเป็นเส้นขวางเส้นเดียวตรงขอบ คนที่ถือป้ายนี้เข้าห้องหลังโรงได้โดยไม่ต้องเคาะ
+  passive:
+    description: พลังชีวิตสูงสุด +2
+    effect: { kind: max_hp, amount: 2 }
+
+# ---------- ชุด อ: ของประจำยศขององค์กรลับและสายงานของอาณาจักร ----------
+- id: iron_clapperless_bell
+  name: กระดิ่งเหล็กเย็นไม่มีลูกตุ้ม ห่วงหนังเก่า
+  slot: accessory
+  pattern: bell
+  material: cold_iron
+  rarity: uncommon
+  stats: { WIS: 1 }
+  lore: ใบเล็กกว่ากำปั้น ข้างในกลวง สั่นเองเมื่ออยู่ห่างของมีเวทไม่ถึงสิบก้าว คนถือรู้สึกที่สะโพกก่อนหูจะได้ยิน กระดิ่งไม่บอกว่าของนั้นเป็นของใคร ไม่บอกว่าดีหรือร้าย
+  passive:
+    description: ทอยญาณได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: WIS, amount: 1 }
+
+- id: iron_halvins_hammer
+  name: ค้อนด้ามดำของฮัลวิน
+  slot: weapon
+  pattern: hammer
+  material: cold_iron
+  rarity: rare
+  tags: [blunt]
+  stats: { STR: 1, DEX: 1 }
+  lore: หัวเหล็กสีเทาด้าน เล็กกว่าค้อนตีเกือกม้า หนักกว่าที่ขนาดบอก เพชฌฆาตขายให้พ่อค้าเศษเหล็กหลังเจ้าของโดนแขวนคอ เตาซื้อกลับมาสองเหรียญ แล้วแขวนไว้เหนือประตูโรงไม้จนมีคนถือคนใหม่
+
+- id: reclaim_brass_seal
+  name: ตราทวงทองเหลืองรูปตะเกียง สลักเลขทะเบียน
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: uncommon
+  stats: { INT: 1 }
+  lore: หน้าตราเป็นตะเกียงของสถาบัน ใต้ตะเกียงมีเลขของตราเอง ถ้าหายก็ลงสมุดบัญชีหายเหมือนของชิ้นอื่น คนของนายอำเภอเห็นตรานี้แล้วถอยให้หนึ่งก้าวเสมอ
+  passive:
+    description: ทอยเสน่ห์ได้ +1 ในทุกเหตุการณ์
+    effect: { kind: check_bonus, stat: CHA, amount: 1 }
+
+- id: office_second_key
+  name: กุญแจดอกที่สองของหีบภาษี ร้อยเชือกหนังดำ
+  slot: accessory
+  pattern: amulet
+  material: black_iron
+  rarity: uncommon
+  stats: { INT: 1 }
+  lore: ดอกนี้อยู่กับปลัดอำเภอ เชือกหนังดำเป็นมันเพราะผ่านคอปลัดมาหลายคน คนที่นอนตะแคงทับจะตื่นมาพร้อมรอยฟันกุญแจบนหน้าอก
+
+- id: office_district_seal
+  name: ตราอำเภอในกล่องไม้บุผ้าแดงซีด
+  slot: accessory
+  pattern: amulet
+  material: brass
+  rarity: rare
+  stats: { CHA: 1, WIS: 1 }
+  lore: ตรานี้เปิดยุ้งหลวง ปิดยุ้งหลวง และรับรองใบเกณฑ์คน ผ้าบุกล่องเคยแดง ตอนนี้ซีดเป็นสีชมพู หมึกตราแห้งคาร่องลายจนล้างไม่ออกมาสามนายอำเภอแล้ว
+
+- id: wick_black_lamp
+  name: ตะเกียงดำฝาบุบสองรอยของหน่วยไส้ตะเกียง
+  slot: offhand
+  pattern: lantern
+  material: black_iron
+  rarity: rare
+  tags: [light]
+  stats: { WIS: 1, CON: 1 }
+  lore: เหล็กรมดำจนไม่สะท้อนแสงอะไร ไส้ชุบผงที่ทั้งอาณาจักรห้ามพก จุดแล้วได้แสงแดงคล้ำที่ทำให้ทุกอย่างในห้องดูเก่าลง ทั้งอาณาจักรมีสี่สิบเก้าดวง แต่ละดวงมีหน้ากระดาษของตัวเองในสมุดปกเหล็กที่ล่ามโซ่ไว้กับโต๊ะ ชื่อคนถือเรียงลงมาทีละบรรทัด ลายมือไม่ซ้ำกันสักบรรทัด
+
+- id: ashcult_coal_tin
+  name: ตลับถ่านที่ไม่เคยมอดของคนถือถ่าน
+  slot: accessory
+  pattern: amulet
+  material: demon_coal
+  rarity: rare
+  stats: { CON: 1, CHA: 1 }
+  lore: ตลับเหล็กเท่าตลับยาเส้น ฝาอุ่นอยู่ตลอด ข้างในมีถ่านก้อนเท่าข้อนิ้วโป้ง แดงอยู่ตรงกลาง ไม่มีควัน ไม่มีเถ้าร่วง คนของกองว่าก้อนนี้ไม่เคยมอดมาตั้งแต่ก่อนทุกคนในกองจะเกิด เปิดฝาให้กองอื่นดูแล้วไม่ต้องอธิบายอะไรอีก
+
+- id: listeners_blue_notebook
+  name: สมุดปกผ้าหมึกน้ำเงินของคนจดคำตอบ
+  slot: offhand
+  pattern: tome
+  material: star_silver
+  rarity: rare
+  stats: { INT: 1, WIS: 1 }
+  lore: เล่มบางพอสอดใต้เสื้อได้ มุมปกเย็บหมุดเงินดาวเจ็ดแฉกเล็กเท่าเมล็ดงา ทุกหน้าเขียนด้วยหมึกน้ำเงิน ตัวหนังสือเอียงซ้ายเหมือนกันทุกบรรทัด ไม่ว่าคนจดจะเคยเขียนเอียงทางไหนมาก่อน

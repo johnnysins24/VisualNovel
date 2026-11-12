@@ -1,5 +1,6 @@
 import { computed, effect, signal } from '@preact/signals';
 import { paragraphs, render } from '../engine/text';
+import type { LifeState, LogEntry } from '../engine/state';
 import { currentEvent, lastEntry, life, revealed } from '../store';
 
 /** ค่าที่จำไว้ในเครื่อง (อ่าน/เขียนพังได้ เช่นโหมดส่วนตัว จึงห่อ try ไว้) */
@@ -40,13 +41,33 @@ export function cycleSpeed() {
   setSpeed(SPEEDS[(SPEEDS.indexOf(autoSpeed.value as 1) + 1) % SPEEDS.length]!);
 }
 
-/** ย่อหน้าใหม่ตามลำดับที่ผู้อ่านจะเห็น: ผลของตัวเลือกล่าสุด แล้วต่อด้วยเหตุการณ์ปัจจุบัน */
+/**
+ * ย่อหน้าหลังตัวเลือกของเหตุการณ์หนึ่ง: ผลของตัวเลือก (เติมชื่อด้วยตัวแสดงของเหตุการณ์นั้น)
+ * แล้วต่อด้วยประโยคสิ้นปีที่ระบบเติม (ร่างกายโรย ฤดูหนาว ข่าวคนรอบตัว)
+ */
+export const aftermath = (e: LogEntry, l: LifeState): string[] => [
+  // การปะทะที่เพิ่งจบ: ผลของจังหวะสุดท้ายมาก่อนข้อความปิด
+  ...paragraphs(render(e.encounter?.records.at(-1)?.text ?? '', l, e.cast ?? {})),
+  ...(e.text ? paragraphs(render(e.text, l, e.cast ?? {}, e.span ?? 1)) : []),
+  ...(e.year?.lines ?? []),
+];
+
+/**
+ * ย่อหน้าใหม่ตามลำดับที่ผู้อ่านจะเห็น: ผลของตัวเลือกล่าสุด แล้วต่อด้วยเหตุการณ์ปัจจุบัน
+ * ระหว่างการปะทะ ของใหม่คือผลของจังหวะล่าสุดกับสัญญาณของจังหวะถัดไป (ตอนเริ่มคือข้อความของเหตุการณ์กับสัญญาณแรก)
+ */
 export const fresh = computed(() => {
   const l = life.value;
   const last = lastEntry.value;
-  const after = last && l.log[l.log.length - 1] === last && last.text ? paragraphs(render(last.text, l)) : [];
   const ev = currentEvent.value;
-  const now = ev ? paragraphs(render(ev.text, l)) : [];
+  const st = ev?.encounter ? l.encounter : undefined;
+  const mid = !!st?.records.length;
+  const after = !mid && last && l.log[l.log.length - 1] === last ? aftermath(last, l) : [];
+  let now = ev ? paragraphs(render(ev.text, l)) : [];
+  if (ev?.encounter && st) {
+    const lead = mid ? paragraphs(render(st.records.at(-1)!.text ?? '', l)) : now;
+    now = [...lead, ...paragraphs(render(ev.encounter.beats[st.beat]?.text ?? '', l))];
+  }
   return { after, now, total: after.length + now.length };
 });
 
@@ -66,6 +87,19 @@ export function revealNext() {
 export function revealAll() {
   revealed.value = null;
 }
+
+/**
+ * กันแตะเลย: คนอ่านแตะ "อ่านต่อ" เป็นจังหวะ พอย่อหน้าสุดท้ายเปิด แผ่นตัวเลือกขึ้นมาแทนตรงที่นิ้วอยู่พอดี
+ * การแตะที่ตามมาติดๆ จึงไม่นับเป็นการเลือก (ปุ่มลัดบนแป้นไม่เกี่ยว)
+ */
+const TAP_GUARD_MS = 300;
+// ยังไม่เคยแตะอ่านต่อ = ไม่มีอะไรให้กัน (ถ้าตั้งต้นเป็น 0 การเลือกใน 300 มิลลิวินาทีแรกหลังเปิดหน้าจะถูกทิ้ง เพราะ performance.now() นับจากตอนเปิดหน้า)
+let lastReadTap = -Infinity;
+export function tapNext() {
+  lastReadTap = performance.now();
+  revealNext();
+}
+export const justRead = () => performance.now() - lastReadTap < TAP_GUARD_MS;
 
 /** ผู้เล่นเลื่อนขึ้นไปอ่านของเก่า: ย่อฉากลงให้มีที่อ่าน (U1) */
 export const scrolledBack = signal(false);

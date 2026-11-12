@@ -1,0 +1,40 @@
+# A students' room in the institute's dormitory: five narrow beds under a low plank ceiling, a trunk
+# at each foot, a small iron stove, one window, pegs and a shelf, one lamp for the room. The room is
+# 7 m wide, its back wall 4 m behind the figures.
+interior: true
+ceiling: 2.5
+width: 7
+layers:
+  - wall: { y0: 0, y1: 92, mat: plaster, wainscot: [80, plank], skirt: wood }
+  - ceiling: { mat: wood, every: 0.8 }
+  - floor: { y0: 93, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: plaster, wainscot: [0.9, plank], skirt: wood }
+  - pane: { at: [126], wm: 1.0, hm: 1.0, on: 1.1, frame: wood, roofs: slate }
+  - furn: { kind: curtain, at: [126], on: 2.15, wm: 1.4, hm: 1.1, mat: cloth }
+  - furn: { kind: shelf, at: [62], on: 1.55, wm: 1.2, rows: 1 }
+    outline: true
+  - furn: { kind: shelf, at: [194], on: 1.55, wm: 1.2, rows: 1 }
+    outline: true
+  - furn: { kind: bed, at: [84, 94], mat: cloth }
+    outline: true
+  - furn: { kind: bed, at: [172, 94], mat: cloth, flip: true }
+    outline: true
+  - furn: { kind: stove, at: [150, 94] }
+    outline: true
+  - glow: { at: [150, 87], r: 13, colour: 'ffb060' }
+  - furn: { kind: bed, side: left, at: [1.05, 100], mat: cloth }
+    outline: true
+  - furn: { kind: bed, side: right, at: [1.05, 100], mat: cloth, flip: true }
+    outline: true
+  - furn: { kind: crate, at: [112, 97], wm: 0.5 }
+    outline: true
+  - furn: { kind: crate, at: [136, 97], wm: 0.5 }
+    outline: true
+  - furn: { kind: lamp, at: [108, 100], on: 1.95, light: lamp, glow: { r: 15, colour: 'f7d98a', only: [dusk, night] } }
+  - furn: { kind: bed, side: left, at: [1.05, 105], mat: cloth }
+    outline: true
+  - furn: { kind: crate, side: right, at: [0.4, 109] }
+    outline: true
+  - furn: { kind: stool, side: right, at: [1.1, 110] }
+    outline: true
+  - vignette: { strength: 0.5 }

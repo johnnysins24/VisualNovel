@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 30, 32 ]
+outline: false
+ramps: { thatch: scene.thatch, plank: scene.plank, field: scene.field, metal_demoncoal: metal_demoncoal, fire: scene.fire }
+legend: { a: thatch@4, b: plank@1, c: plank@2, d: plank@4, e: field@4, f: metal_demoncoal@2, g: metal_demoncoal@3, h: fire@1, i: fire@4 }
+meta: { from: 7soul-496/S_Magic05.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ...........##################.
+        ..........#eeeeeeeeeeeeeeeeee#
+        ..........#edddddddddddddddda#
+        ..........#edeeeeeeeeeeeeeeda#
+        ..........#edeaddddddddddaada#
+        ..........#edeadeeeeeeeedaada#
+        ..........#edeadeaaaaaaadaada#
+        ..........#edeadeaaaaaaacaada#
+        ..........#edeadeaaaaaaadaada#
+        ..........#e##adeaaaaaaacaada#
+        ..........#e#e#deaaaaaaadaada#
+        .############ie#eaaaaaaacaada#
+        #iiiiiiiiiiiigge#ddcdcdccaaca#
+        #iffffffhfhfhhhge#aaaaaaaadda#
+        #iffhhhhhhhhhhhhge#dddddddeba#
+        #ifhgggggggggggggge#eeeedeeba#
+        #ifhggggggggggggge#aaaaacbbba#
+        #ifhgggggggggggge#dcdcdccadda#
+        #iiiiiiiiiiiigge#aaaaaaaaaaca#
+        .############ie#dddddddddaada#
+        ..........#e#e#deeeeeeeedaaca#
+        ..........#e##adeaaaaaaadaada#
+        ..........#edeadeaaaaaaacaaca#
+        ..........#edeadeaaaaaaadaada#
+        ..........#edeadeaaaaaaacaaca#
+        ..........#edeadeaaaaaaadaada#
+        ..........#edeadeaaaaaaacaaca#
+        ..........#edeaddddcdcdccaada#
+        ..........#edeaaaaaaaaaaaaaca#
+        ..........#eddddddcdcdcdcdcca#
+        ..........#eaaaaaaaaaaaaaaaaa#
+        ...........##################.

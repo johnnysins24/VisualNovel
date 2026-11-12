@@ -47,8 +47,9 @@
 
 - id: adult.love_meets
   stage: adult
-  weight: 10
+  weight: 45
   when:
+    not_orgs: [wick]
     age: [19, 24]
     not_flags: [has_partner]
   text: |
@@ -93,6 +94,7 @@
   choices:
     - id: answer_straight
       label: บอกตัวเลขจริง แล้วบอกว่าเก็บเงินได้เดือนละเท่าไร
+      habit: tight_fist
       check: { stat: CHA, dc: 13 }
       success:
         text: |
@@ -129,7 +131,7 @@
   when:
     age: [20, 24]
     flags: [has_partner]
-    trait: demon_mark
+    trait: curse_brand
   text: |
     {partner}พา{name}ไปกินข้าวเย็นที่บ้านครอบครัวของ{p:เขา|เธอ}เป็นครั้งแรก {p:เขา|เธอ}บอกทุกคนในบ้านเรื่องเขาบนหัว{name}ไปก่อนแล้วตั้งแต่สามวันก่อน บอกครบทุกอย่าง ไม่ได้ปิดไว้สักเรื่อง
 
@@ -238,6 +240,7 @@
       effects: { stats: { WIS: 1 }, alignment: { moral: 1 }, flags: [told_mother_truth] }
     - id: tell_good_only
       label: เล่าแต่เรื่องดี เรื่องไม่ดีเก็บไว้
+      habit: sweet_tongue
       text: |
         {name}เล่าแต่เรื่องที่ได้ค่าแรงเพิ่ม เรื่องที่นายชม เรื่องห้องเช่าที่มีหน้าต่าง {mother}ยิ้มฟังจนจบ แล้วบอกว่าดีแล้ว ดีแล้ว พูดคำนี้ซ้ำสามรอบ
 
@@ -264,6 +267,7 @@
   choices:
     - id: save
       label: ฝากห้าเหรียญ เปิดบัญชีออม
+      habit: tight_fist
       requires: { min_gold: 5 }
       text: |
         {name}ฝากห้าเหรียญ เสมียนเขียนชื่อลงสมุดบัญชีเล่มหนาด้วยลายมือที่ไม่มีวันผิด ยื่นแผ่นไม้ประทับตราเบเลคให้หนึ่งแผ่น บอกว่าห้าปีให้นับจากวันนี้ ถ้าแผ่นไม้หาย เงินไม่หาย เพราะเบเลคจำได้ทุกชื่อ
@@ -331,6 +335,7 @@
         effects: { hp: -1, flags: [rode_airship] }
     - id: watch_below
       label: เก็บเงินไว้ ยืนดูเรือลอยขึ้นจากถนน
+      habit: tight_fist
       text: |
         {name}ยืนดูจากถนนหน้าหอท่า เรือลอยขึ้นช้าๆ เงาของถุงลมคลุมถนนทั้งสายจนมืดไปครู่หนึ่ง เด็กๆ วิ่งตามเงาไปจนสุดถนน
 
@@ -381,7 +386,7 @@
         effects: { alignment: { law: -1 }, reputation: { lamp_church: -1 }, flags: [lamp_preacher_saw_you] }
     - id: stand_beside_her
       label: ถอดผ้าโพกหัวของตัวเองออก ไปยืนขายไข่ข้างนาง
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         {name}ปลดผ้าที่คลุมหัวออก แล้วเดินไปยืนข้างกระจาดไข่ ให้ทุกคนในลานเห็นว่าหัวของ{name}เป็นแบบไหน คนที่ถือไข่ยืนนิ่ง มองหัวของ{name} มองหัวของเด็กหญิง แล้วมองไข่ในมือตัวเอง
 
@@ -389,6 +394,7 @@
       effects: { stats: { CHA: 1 }, alignment: { moral: 1 }, reputation: { lamp_church: -1 }, flags: [stood_with_egg_girl, on_lamp_list] }
     - id: look_away
       label: เดินผ่านไป ไม่ใช่เรื่องของตัวเอง
+      habit: cold_blood
       text: |
         {name}เดินผ่านลานไปทางร้านขายผ้า ได้ยินเสียงไข่แตกตามหลังมาสองฟอง แล้วเสียงคนหัวเราะ แล้วเสียงนักเทศน์ดังขึ้นอีกเหมือนมีคนเติมน้ำมันตะเกียง
 

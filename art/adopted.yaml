@@ -1,0 +1,67 @@
+# Item icons adopted from the free packs in art/thirdparty/ (licences: CREDITS.md at the repo root).
+# Key = item id (content/items/). from = path under art/thirdparty/; cell = [x, y, w, h] for a sprite sheet;
+# drop = exact colours to clear before adopting. SVGs are drawn at `size` px and filled with `ramp` from art/palette.yaml.
+# Build: node art/kit/adopt.mjs (writes art/adopted/<id>.png and art/preview/adopted.png).
+
+healer_satchel: { from: shikashi/icons.png, cell: [0, 320, 32, 32] }
+navy_saber: { from: shikashi/icons.png, cell: [160, 160, 32, 32] }
+bullet_charm: { from: shikashi/icons.png, cell: [0, 192, 32, 32] }
+thick_lamp_glass: { from: shikashi/icons.png, cell: [32, 608, 32, 32] }
+flour_sack_scrap: { from: 7soul-496/I_Fabric.png }
+silver_saw_case: { from: game-icons/delapouite/hand-saw.svg, ramp: metal_silver, size: 30 }
+unit_tag: { from: game-icons/delapouite/price-tag.svg, ramp: wood }
+kedra_sword: { from: shikashi/icons.png, cell: [32, 160, 32, 32] }
+finnick_picks: { from: game-icons/delapouite/lockpicks.svg, ramp: metal_iron }
+black_music_box: { from: dungeon-crawl/item/misc/misc_box.png, drop: ['000000'] }
+blind_astronomer_notes: { from: shikashi/icons.png, cell: [256, 416, 32, 32] }
+hasken_longbow: { from: shikashi/icons.png, cell: [96, 192, 32, 32] }
+navy_star_pistol: { from: 7soul-496/W_Gun001.png }
+warden_grass_scarf: { from: shikashi/icons.png, cell: [224, 544, 32, 32] }
+haldan_goggles: { from: shikashi/icons.png, cell: [64, 352, 32, 32] }
+healer_oak_staff: { from: shikashi/icons.png, cell: [224, 192, 32, 32] }
+garven_lantern: { from: shikashi/icons.png, cell: [288, 320, 32, 32] }
+hunter_long_rifle: { from: 7soul-496/W_Gun003.png }
+grandma_knee_cloth: { from: shikashi/icons.png, cell: [480, 288, 32, 32] }
+miner_lamp_helmet: { from: shikashi/icons.png, cell: [64, 224, 32, 32] }
+smith_dwarf_hammer: { from: shikashi/icons.png, cell: [128, 320, 32, 32] }
+clerk_reading_lens: { from: shikashi/icons.png, cell: [256, 320, 32, 32] }
+wedding_clay_bowl: { from: shikashi/icons.png, cell: [384, 352, 32, 32] }
+cradle_bell: { from: game-icons/lorc/ringing-bell.svg, ramp: metal_brass, size: 30 }
+mother_shawl: { from: shikashi/icons.png, cell: [448, 224, 32, 32] }
+toren_oil_ladle: { from: game-icons/delapouite/ladle.svg, ramp: metal_iron }
+back_brace: { from: shikashi/icons.png, cell: [480, 224, 32, 32] }
+dim_night_vial: { from: shikashi/icons.png, cell: [96, 608, 32, 32] }
+# ของใช้แล้วหมด (ชุด 2ข)
+boiled_bandage: { from: shikashi/icons.png, cell: [480, 288, 32, 32] }
+temple_salve: { from: shikashi/icons.png, cell: [384, 352, 32, 32] }
+moss_poultice: { from: shikashi/icons.png, cell: [416, 352, 32, 32] }
+pine_torch: { from: shikashi/icons.png, cell: [320, 320, 32, 32] }
+lamp_oil_flask: { from: shikashi/icons.png, cell: [224, 608, 32, 32] }
+water_skin: { from: 7soul-496/I_Water.png }
+smoke_pot: { from: shikashi/icons.png, cell: [384, 320, 32, 32] }
+feast_crackers: { from: shikashi/icons.png, cell: [384, 480, 32, 32] }
+salt_meat: { from: shikashi/icons.png, cell: [32, 480, 32, 32] }
+flash_powder: { from: shikashi/icons.png, cell: [352, 640, 32, 32] }
+whetstone: { from: shikashi/icons.png, cell: [32, 544, 32, 32] }
+hemp_rope: { from: shikashi/icons.png, cell: [416, 320, 32, 32] }
+death_roll: { from: shikashi/icons.png, cell: [352, 416, 32, 32] }
+calming_snuff: { from: shikashi/icons.png, cell: [32, 640, 32, 32] }
+ward_salt: { from: shikashi/icons.png, cell: [320, 480, 32, 32] }
+# ของใช้แล้วหมดชุดสอง และของที่ได้จากศัตรู (ชุด 2ข)
+dock_darts: { from: 7soul-496/W_Throw002.png }
+sling_stones: { from: 7soul-496/I_Rock01.png }
+iron_caltrops: { from: 7soul-496/W_Throw003.png }
+jaw_trap: { from: shikashi/icons.png, cell: [448, 320, 32, 32] }
+silver_grass_tea: { from: shikashi/icons.png, cell: [448, 480, 32, 32] }
+dwarf_fire_spirit: { from: 7soul-496/P_Orange06.png }
+honey_bread: { from: 7soul-496/I_C_Bread.png }
+lamp_blessed_water: { from: 7soul-496/P_Blue05.png }
+roast_coffee: { from: shikashi/icons.png, cell: [352, 480, 32, 32] }
+ossa_name_candle: { from: shikashi/icons.png, cell: [352, 320, 32, 32] }
+bone_broth: { from: shikashi/icons.png, cell: [288, 480, 32, 32] }
+apple_liquor: { from: shikashi/icons.png, cell: [480, 416, 32, 32] }
+signal_flare: { from: 7soul-496/S_Fire05.png }
+coal_ember: { from: 7soul-496/I_Coal.png }
+wolf_pelt_mantle: { from: 7soul-496/I_WolfFur.png }
+bear_fang_cord: { from: 7soul-496/I_Fang.png }
+hundred_eye_lens: { from: 7soul-496/I_Eye.png }

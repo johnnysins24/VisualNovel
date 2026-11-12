@@ -1,0 +1,31 @@
+# แม่น้ำเฒ่า (the Old River): the water steps of Ventras before the lamps go out. The far bank is the
+# city, Verus's sky pillar behind it. In the river lies a back as long as the reach, a brow and two
+# whiskers on the water; further out the same back shows again. Boatmen throw the year's first coin
+# here and nobody empties slops into the water after dark.
+# The fish is a studio drawing (art/props/land_catfish.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 50 }
+  - body: { day: [44, 12, 6], dusk: [214, 40, 9], night: [48, 13, 5] }
+  - clouds: { count: 4, y: [4, 22], seed: 17 }
+  - pillar: { x: 58, w: 6, base: 58 }
+    haze: 0.4
+  - furn: { kind: tower, at: [0, 60.6], xm: 60, wm: 8, hm: 50 }
+    haze: 0.4
+  - skyline: { base: 60, w: [4, 9], h: [5, 15], gap: 0, wall: brick, roof: slate, windows: 0.5, chimneys: 0.5, dishes: 0.2 }
+    haze: 0.4
+  - water: { y0: 61, y1: 98, ripples: 70 }
+  - line: { from: [[10, 65], [118, 64]], mat: slate, w: 2 }
+    haze: 0.3
+  - line: { from: [[146, 63], [222, 63]], mat: slate, w: 1 }
+    haze: 0.4
+  - drawing: { art: land_catfish, at: [0, 95] }
+  - floor: { y0: 99, mat: stone, pattern: flags, tile: 12 }
+  - rect: { x: -256, y: 96, w: 768, h: 1, mat: stone, lvl: 4 }
+  - rect: { x: -256, y: 97, w: 768, h: 2, mat: stone, lvl: 1.4 }
+  - furn: { kind: lamppost, at: [22, 102] }
+    outline: true
+  - furn: { kind: barrel, at: [44, 102] }
+    outline: true
+  - furn: { kind: sack, at: [56, 103] }
+    outline: true

@@ -3,3 +3,6 @@ dist
 src/generated
 test-results
 shots
+.wrangler
+.studio
+public/items

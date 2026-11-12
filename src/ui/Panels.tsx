@@ -5,26 +5,19 @@ import { modifier } from '../engine/state';
 import { GODS, REPUTATION_CAP, STAT_TH, type FactionId, type GodId } from '../engine/balance';
 import { alignmentCell } from '../engine/rules';
 import { worldYear } from '../engine/state';
-import { equip, exportLife, game, importLife, life, meta, startLife, tab } from '../store';
+import { exportLife, game, importLife, life, meta, startLife, tab } from '../store';
 import { Icon, STAT_ICON } from './icons';
 import { SpriteView } from './SpriteView';
-import { PLACE_TH, signed } from './Hud';
+import { WorldMap } from './WorldMap';
+import { signed } from './Hud';
 import { setTheme, theme, type ThemeChoice } from './theme';
 import { SPEEDS, autoSpeed, revealMode, setRevealMode, setSpeed } from './reading';
-
-const FACTION_TH: Record<FactionId, string> = {
-  crown: 'ราชสำนักอาร์เวล',
-  lamp_church: 'ศาสนจักรตะเกียง',
-  belek_bank: 'ธนาคารเบเลค',
-  royal_institute: 'สถาบันเวทหลวง',
-  distillers: 'สมาคมโรงกลั่น',
-  dwarf_council: 'สภาตระกูลคนแคระ',
-  star_hall: 'หอนับดาว',
-  wardens: 'ภาคีผู้เฝ้าผนึก',
-  dock_rats: 'หนูท่า',
-  ash_cult: 'ลัทธิเถ้า',
-  star_listeners: 'ผู้ฟังดาว',
-};
+import { CREDITS } from './credits';
+import { TraitsSection } from './Traits';
+import { BagSection, ItemIcon, SLOT_TH, ShopSection, WornCard, isOpenItem, openItem, showItem } from './Gear';
+import { FACTION_TH, OrgSection } from './Orgs';
+import { EraSection } from './Era';
+import { CitySection } from './City';
 
 export function StatGrid() {
   const eff = effectiveStats(life.value, game.items);
@@ -42,46 +35,24 @@ export function StatGrid() {
   );
 }
 
-export function Equipment() {
-  const l = life.value;
-  return (
-    <section class="sec" aria-label="กระเป๋า">
-      <h3><Icon name="bag" />กระเป๋า <span class="num">{l.inventory.length}</span></h3>
-      {l.inventory.length === 0 && <p class="muted">ยังไม่มีของ</p>}
-      <ul class="items">
-        {l.inventory.map((id) => {
-          const it = game.items.get(id);
-          if (!it) return null;
-          const on = l.equipped[it.slot] === id;
-          return (
-            <li key={id}>
-              <button class={`item ${on ? 'on' : ''}`} onClick={() => equip(id)} aria-pressed={on} title={it.passive?.description}>
-                {it.name}
-              </button>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
-const SLOT_TH: Record<Slot, string> = {
-  head: 'หัว', body: 'ตัว', hands: 'มือ', legs: 'ขา', feet: 'เท้า',
-  weapon: 'อาวุธ', offhand: 'มือรอง', cloak: 'ผ้าคลุม', accessory: 'เครื่องประดับ',
-};
 const LEFT: Slot[] = ['head', 'body', 'hands', 'legs', 'feet'];
 const RIGHT: Slot[] = ['weapon', 'offhand', 'cloak', 'accessory'];
 
+/** ช่องสวมใส่หนึ่งช่อง: ของที่สวมอยู่ขึ้นรูปของชิ้นนั้นในกรอบสีตามระดับ แตะแล้วเปิดการ์ดของ ช่องว่างเป็นไอคอนของช่อง */
 function SlotBox({ slot }: { slot: Slot }) {
-  const l = life.value;
-  const id = l.equipped[slot];
+  const id = life.value.equipped[slot];
   const it = id ? game.items.get(id) : undefined;
   const label = `${SLOT_TH[slot]}: ${it?.name ?? 'ว่าง'}`;
+  if (!it) return <div class="slot empty" title={label} aria-label={label} role="img"><Icon name={slot} /></div>;
   return (
-    <div class={`slot ${it ? 'on' : 'empty'}`} title={it?.passive?.description ? `${label} · ${it.passive.description}` : label} aria-label={label} role="img">
-      <Icon name={slot} />
-    </div>
+    <button
+      class={`slot on r-${it.rarity} ${isOpenItem(it.id) ? 'open' : ''}`}
+      title={label}
+      aria-label={label}
+      onClick={() => (isOpenItem(it.id) && tab.value === 'character' ? (openItem.value = null) : showItem(it.id))}
+    >
+      <ItemIcon item={it} />
+    </button>
   );
 }
 
@@ -101,9 +72,14 @@ export function SlotGrid({ doll }: { doll?: boolean }) {
 
 export function CharacterPanel() {
   const l = life.value;
+  // ลำดับ: ตัวละครกับช่องสวมใส่ สิ่งติดตัว ของในกระเป๋า ร้านของถิ่นนี้ แล้วค่าสถานะ (ค่าสถานะมีอยู่บนหน้าเรื่องราวแล้ว)
   return (
     <div class="panel-page">
       <SlotGrid doll />
+      <WornCard />
+      <TraitsSection />
+      <BagSection />
+      <ShopSection />
       <section class="sec">
         <h3>ค่าสถานะ</h3>
         <StatGrid />
@@ -114,7 +90,6 @@ export function CharacterPanel() {
           <p>{GODS[l.god as GodId]?.th ?? l.god}</p>
         </section>
       )}
-      <Equipment />
     </div>
   );
 }
@@ -125,10 +100,12 @@ export function WorldPanel() {
   return (
     <div class="panel-page">
       <section class="sec">
-        <h3><Icon name="place" />ที่อยู่</h3>
+        <h3><Icon name="world" />แผนที่</h3>
         <WorldMap here={l.locationTag} />
-        <p>{PLACE_TH[l.locationTag] ?? 'ยังไม่รู้'} · ปี <span class="num">{worldYear(l)}</span></p>
       </section>
+      <EraSection />
+      <CitySection />
+      <OrgSection />
       <section class="sec">
         <h3><Icon name="flag" />ชื่อเสียง</h3>
         {reps.length === 0 && <p class="muted">ยังไม่มีใครรู้จักชื่อนี้</p>}
@@ -147,36 +124,8 @@ export function WorldPanel() {
   );
 }
 
-/** แผนที่ลายเส้นเรียบของ 4 แคว้น (ตำแหน่งตามคัมภีร์โลก) จุดแดงคือที่อยู่ */
-const REGIONS = [
-  { id: 'ileth', th: 'ป่าไอเลธ', d: 'M30 40 Q70 10 130 30 Q150 70 120 100 Q60 110 30 80Z', tone: 'forest', at: [80, 62] },
-  { id: 'hordun', th: 'ฮอร์ดุน', d: 'M160 20 Q230 5 290 30 Q300 80 250 90 Q180 95 160 60Z', tone: 'stone', at: [225, 52] },
-  { id: 'arvel', th: 'อาร์เวล', d: 'M60 110 Q130 95 200 110 Q220 160 170 185 Q90 190 60 150Z', tone: 'field', at: [130, 145] },
-  { id: 'ashland', th: 'แดนเถ้า', d: 'M220 110 Q280 100 300 130 Q300 180 250 185 Q215 160 220 110Z', tone: 'ash', at: [260, 148] },
-] as const;
-const DOT: Record<string, [number, number]> = { arvel_village: [110, 160], ventras: [160, 172], ileth: [80, 75], hordun: [225, 65], ashland: [260, 160] };
-
-export function WorldMap({ here, small }: { here: string; small?: boolean }) {
-  const dot = DOT[here];
-  return (
-    <div class={`map ${small ? 'small' : ''}`}>
-      <svg viewBox="0 0 320 200" role="img" aria-label={`แผนที่ · ${PLACE_TH[here] ?? ''}`}>
-        {REGIONS.map((r) => (
-          <g key={r.id}>
-            <path class={`region ${r.tone}`} d={r.d} />
-            {!small && <text x={r.at[0]} y={r.at[1]}>{r.th}</text>}
-          </g>
-        ))}
-        {dot && (
-          <g class="here">
-            <circle cx={dot[0]} cy={dot[1]} r="10" class="halo" />
-            <circle cx={dot[0]} cy={dot[1]} r="5" />
-          </g>
-        )}
-      </svg>
-    </div>
-  );
-}
+/** แผนที่โลกอยู่ใน WorldMap.tsx (ภาพพิกเซลจาก public/map) ส่งต่อชื่อเดิมให้ App ใช้ได้เหมือนเดิม */
+export { WorldMap };
 
 const THEMES: { id: ThemeChoice; th: string }[] = [
   { id: 'auto', th: 'ตามเครื่อง' },
@@ -237,6 +186,17 @@ export function MorePanel() {
         <textarea id="save-code" rows={3} value={code} onInput={(e) => setCode((e.target as HTMLTextAreaElement).value)} placeholder="วางรหัสเซฟที่นี่" aria-label="รหัสเซฟ" />
         {msg && <p class="muted">{msg}</p>}
       </section>
+      <details class="sec credits">
+        <summary><h3><Icon name="book" />เครดิต</h3></summary>
+        <ul>
+          {CREDITS.map((c) => (
+            <li key={c.what}>
+              <a href={c.url} target="_blank" rel="noopener noreferrer">{c.what}</a>
+              <span class="muted"> · {c.by} · <a href={c.licenceUrl} target="_blank" rel="noopener noreferrer">{c.licence}</a></span>
+            </li>
+          ))}
+        </ul>
+      </details>
       <section class="sec">
         <button class="primary" onClick={() => { startLife(); tab.value = 'story'; }}>
           <Icon name="reborn" />เริ่มชีวิตใหม่

@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 32, 32 ]
+outline: false
+ramps: { roof_red: scene.roof_red, thatch: scene.thatch, field: scene.field, bay: scene.bay }
+legend: { a: roof_red@1, b: roof_red@3, c: roof_red@4, d: thatch@3, e: field@4, f: bay@1 }
+meta: { from: 7soul-496/S_Sword15.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .##############################.
+        #aaaaaabaaaaaabbbbbccdddddddddd#
+        #baaaaaacbbaabbbbbccdddeeeeeeed#
+        #abaaaabbcbbbbbbcccddeedbbbbbed#
+        #aabaaabbbcbbbbcccddedbbafffbed#
+        #aaacbbabbbdcccccddebbaf###fbed#
+        #aaabcbbabbcddddddebaf#####fbed#
+        #aaabbcbbabccdeddebaf######abed#
+        #bababbdbbbccddeebaf######fbded#
+        #acbbabbdccccddebaf#######abedd#
+        #abcbbabcdddddebaf#######fbdedd#
+        #abbcbbbcdeddebaf#######fabeddc#
+        #aabbccccddeebaf#######fabeddcc#
+        #abbbcdccddebaf#######fabeddccb#
+        #bbcccceddebaf#######fabeddccbb#
+        #bcdeeddeebaf#######fabeddcccbb#
+        #bdbbbbdebaf#######fabeeddccbbb#
+        #beb#fabbaf#######fabeddedcbbbb#
+        #beb##faaf#######fabedddddcbbba#
+        #bdbf##ff#######fabeddcccdcbbaa#
+        #bdbaf#########fabeeddccccdbbaa#
+        #bedbaf#######fabeddedcbbbbcbba#
+        #beedba######fabedddddcbabbbcba#
+        #bedbaf#####fabeedccccdbbabbbca#
+        #bebaf######fabddeccbbbdbbabbab#
+        #bdaf###faf##fabdcdcbabbcbbaaaa#
+        #bdf###fabaf##fbecccbbabbcbaaaa#
+        #bdf##fabdbaf##becbbcbbabbcaaaa#
+        #bdaffabdedbbbbbdcbbbcbbaaabaaa#
+        #bdddddeeeeddeedcbbabbcaaaaabaa#
+        #bbbbbbbbbbbbbbbbbaaaaabaaaaaba#
+        .##############################.

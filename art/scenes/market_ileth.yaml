@@ -1,8 +1,14 @@
-# Market in Ileth: a clearing between the great trees, stalls with leaf-green awnings, lamps.
-base: { scene: ileth, layers: 13 }
+# Market in Ileth: the clearing between the great trees, stalls with leaf-green awnings, blue
+# lanterns hanging, ferns. The trees and the bridges behind are ileth.
+base: { scene: ileth, layers: 18 }
 layers:
-  - ground: { y: 86, mat: grass, tufts: 40, tuft: leaf }
-  - furn: { kind: stall, at: [10, 104], w: 40, h: 30, mat: elf_leaf }
+  - furn: { kind: stall, at: [0, 72], xm: -2.8, mat: elf_leaf, goods: produce }
     outline: true
-  - furn: { kind: stall, at: [204, 104], w: 40, h: 30, mat: cloth }
+  - furn: { kind: stall, at: [0, 72], xm: 2.8, mat: elf_leaf, goods: pots, flip: true }
     outline: true
+  - furn: { kind: stall, at: [0, 92], xm: -4.0, mat: plaster, back: elf_leaf, goods: books }
+    outline: true
+  - furn: { kind: stall, at: [0, 94], xm: 4.0, mat: elf_leaf, goods: produce }
+    outline: true
+  - furn: { kind: fern, at: [0, 110], xm: -3.2, hm: 1.0, mat: elf_leaf }
+  - furn: { kind: fern, at: [0, 110], xm: 3.3, hm: 0.9, mat: elf_leaf }

@@ -4,7 +4,7 @@
 
 - id: adult.job_artificer_hand
   stage: adult
-  scene: workshop
+  scene: golem_shop
   weight: 45
   when:
     age: [19, 24]
@@ -110,7 +110,7 @@
 
 - id: adult.job_hedge_doctor_glass
   stage: adult
-  scene: workshop
+  scene: healer
   weight: 45
   when:
     age: [19, 24]
@@ -205,7 +205,7 @@
         effects: { stats: { CON: 1 }, alignment: { moral: 1 }, flags: [carried_horned_baby] }
     - id: show_her_own
       label: ถอดผ้าคลุมหัว ให้นางเห็นว่าเด็กแบบนี้โตมาเป็นอะไรได้
-      requires: { trait: demon_mark }
+      requires: { trait: curse_brand }
       text: |
         {name}ปลดผ้าคลุมหัวออกช้าๆ ให้นางเห็นเขาบนหัวในแสงเทียน หญิงคนนั้นถอยไปครึ่งก้าว แล้วหยุด มองหัวของ{name} มองเสื้อนักบวช มองแท่นหินของ{god} แล้วกลับมามองห่อผ้าในอ้อมแขนตัวเอง
 
@@ -227,6 +227,7 @@
   choices:
     - id: go_inside
       label: ให้แกะแผ่นไม้ออก แล้วเข้าไปดูแลคนข้างในเอง
+      habit: soft_heart
       check: { stat: CON, dc: 13 }
       success:
         text: |
@@ -294,6 +295,7 @@
         effects: { stats: { CON: 1 }, flags: [lost_rosven, wrote_rosven_letter] }
     - id: ease_him
       label: ไม่สวดขอรักษา นั่งจับมือเขาจนถึงตอนสุดท้าย
+      habit: soft_heart
       text: |
         {name}นั่งข้างเตียง จับมือรอสเวนไว้ ตอบชื่อทุกชื่อที่เขาเรียกเหมือนเป็นคนคนนั้นเอง แม่ น้องสาว เพื่อนบ้านชื่อดาวิค ครูฝึกที่ป้อมสาม เขาคุยกับทุกคนครบ ขอโทษบางคน ขอบใจบางคน แล้วเงียบไปตอนใกล้สาง
 

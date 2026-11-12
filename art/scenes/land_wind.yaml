@@ -1,0 +1,25 @@
+# ฝูงนกไม่มีรัง (the Nestless Flock): the bare down above the forest of Ileth, where the wind never
+# stops and Talis's sky pillar stands in the trees below. The flock has never come down. From here it
+# is one bird, gliding, and every feather of her is a bird. Nobody cages a wild bird in this country,
+# and a house with a death in it leaves one window open.
+# The flock is a studio drawing (art/props/land_flock.yaml).
+layers:
+  - sky: { horizon: 60 }
+  - stars: { count: 70, below: 50 }
+  - body: { day: [236, 12, 6], dusk: [20, 46, 9], night: [238, 12, 5] }
+  - clouds: { count: 11, y: [4, 46], seed: 2, size: 52 }
+  - pillar: { x: 212, w: 5, base: 59 }
+    haze: 0.5
+  - ridge: { mat: mid, base: 62, amp: 7, scale: 0.02, seed: 14 }
+    haze: 0.4
+  - trees: { kind: round, mat: elf_leaf, base: 63, everym: 7, hm: [10, 16], seed: 15 }
+    haze: 0.35
+  - drawing: { art: land_flock, at: [2, 60] }
+  - ground: { y: 64, mat: grass, tufts: 50 }
+  - road: { y: [64, 111], wm: 1.6, mat: dirt }
+  - furn: { kind: house, at: [0, 72], xm: -15, wm: 5, hm: 2.6, roof: 2.4, wall: plank, roof_mat: thatch, gable: true, light: true }
+    outline: true
+  - furn: { kind: fence, at: [0, 86], xm: -3.0, along: { to: 111, every: 2.5 } }
+    outline: true
+  - furn: { kind: fern, at: [0, 104], xm: 3.4, hm: 0.7, mat: grass }
+  - furn: { kind: fern, at: [0, 110], xm: 4.2, hm: 0.8, mat: grass }

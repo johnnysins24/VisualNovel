@@ -7,11 +7,15 @@
   stage: adult
   scene: market
   weight: 60
+  must: true
+  mark: ถูกเรียกไปสงครามถ่าน
   when:
     age: [19, 24]
     year: [296, 300]
     gender: m
-    not_flags: [race_dwarf, race_elf, race_tiefling, origin_ashland, job_navy, job_wardens, job_fort_priest]
+    not_flags: [race_dwarf, race_elf, race_tiefling, origin_ashland, job_navy, job_wardens, job_fort_priest, institute_student]
+    # คนของไส้ตะเกียงกับคนในสายงานของอาณาจักรไม่อยู่ในสมุดเกณฑ์ ทหารประจำการไปสงครามกับกองของตัวเอง (adult.army_coal_war ชุด อ)
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     ทหารม้าสองนายกับเสมียนหนึ่งคนมาถึงลานกลางถิ่นตอนสาย เสมียนคลี่ประกาศอ่านเสียงดัง ราชอาณาจักรอาร์เวลทำศึกกับสภาตระกูลคนแคระ ผู้ชายอายุสิบแปดถึงสี่สิบห้าที่ยังไม่ได้ไปต้องไปรายงานตัวที่ค่ายภายในเจ็ดวัน แล้วอ่านรายชื่อจากสมุดวิหารทีละชื่อ
 
@@ -41,6 +45,7 @@
         effects: { gold: 2, flags: [went_to_coal_war] }
     - id: hide
       label: หนีไปซ่อนตัวจนกว่าทหารจะเลิกตามหา
+      habit: faint_heart
       check: { stat: DEX, dc: 15 }
       success:
         text: |
@@ -64,6 +69,7 @@
     year: [297, 300]
     gender: f
     not_flags: [race_dwarf, race_elf, race_tiefling, origin_ashland, job_navy, job_wardens, job_fort_priest]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     ปีที่สองของสงคราม ผู้ชายในถิ่นไปเกือบหมดแล้ว ประกาศที่ติดหน้าวิหารเป็นประกาศใหม่ กองเสบียงกับกองพยาบาลของราชนาวีรับผู้หญิงที่สมัครเอง ค่าจ้างเท่าทหาร ส่งเงินกลับบ้านได้ทุกสองเดือน
 
@@ -88,6 +94,7 @@
   stage: adult
   scene: fort
   weight: 60
+  must: true
   when:
     age: [19, 25]
     year: [296, 301]
@@ -147,10 +154,14 @@
   stage: adult
   scene: clan_hall
   weight: 60
+  must: true
   when:
     age: [19, 24]
     year: [296, 301]
     flags: [origin_dwarf_clan]
+    # นักเรียนสถาบันอยู่เวนทราส ไม่ได้ยินกลองของสภาตระกูล (ชุด ม) คนที่กินเบี้ยของอาร์เวลก็เหมือนกัน (ชุด อ)
+    not_flags: [institute_student]
+    not_orgs: [wick, crown_office, crown_army, crown_court]
   text: |
     สภาตระกูลตีกลองเรียกทุกคนที่อายุครบตั้งแต่ก่อนรุ่งสาง ทหารอาร์เวลเดินขึ้นทางรถไฟไต่เขามาถึงประตูเหล็กชั้นล่างของเมืองแล้ว พวกเขาลากปืนใหญ่ถ่านมารมาด้วยสองกระบอก ปากกระบอกแดงตั้งแต่ยังไม่ได้ยิง
 

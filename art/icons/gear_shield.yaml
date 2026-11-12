@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 26, 32 ]
+outline: false
+ramps: { main: metal_iron }
+legend: { a: main@0, b: main@1, c: main@2, d: main@3, e: main@4 }
+meta: { from: 7soul-496/E_Metal04.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        ..........######..........
+        .........#eeeedd#.........
+        ........#eedccccb#........
+        .....###eeeddcccbb###.....
+        ..###eeeeeddcccccbcdd###..
+        .#eeeeeedddddcccccdddddd#.
+        #eedddddddedcccccccccccab#
+        #edebedededddccccccceacab#
+        #edb#dededddcccccccca#cab#
+        #ededededddddccccccccccab#
+        #eddededddddcccccccccccab#
+        #ededededddddccccccccccab#
+        #eddedddddddcccccccccccab#
+        #edddddddddddccccccccccab#
+        #ededdddddddcccccccccccab#
+        #edcdcdcdcdcdcbcbcbcbcbab#
+        #ecccccccccccbcbcbcbcbcab#
+        #ecceaccccccbcbbbbbbeaaab#
+        .#dca#cccccccbbbbbbba#ab#.
+        .#ecccccccccbcbbbbbbbbab#.
+        .#eccccccccccbbbbbbbbbab#.
+        ..#dccccccccbcbbbbbbbab#..
+        ..#ecccccccccbbbbbbbbab#..
+        ...#dccceaccbcbbeabbab#...
+        ....#dcca#cccbbba#bab#....
+        .....#dcccccbcbbbbab#.....
+        ......#dcccccbbbbab#......
+        .......#dcccebbbab#.......
+        ........#dccb#bab#........
+        .........#dcbaab#.........
+        ..........#ccbb#..........
+        ...........####...........

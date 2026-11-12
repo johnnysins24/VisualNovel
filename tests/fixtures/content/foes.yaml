@@ -1,0 +1,13 @@
+# ศัตรูสำหรับทดสอบระบบเท่านั้น ไม่ใช่ lore (ใช้รหัสของศัตรูจริงเพื่อให้มีภาพใน public/foes/)
+- id: ash_hound
+  name: "[ทดสอบ] หมาเถ้า"
+  side: demon
+  threat: 1
+  morale: 2
+  weak: [pierce]
+  strong: [fire]
+  lethal: false
+  lore: "[ทดสอบ] ต้องแทงให้ถึงถ่านในอก"
+  strike: ["[ทดสอบ] {foe}งับ{name}", "[ทดสอบ] {foe}ชน{name}"]
+  hurt: ["[ทดสอบ] {foe}ถอย", "[ทดสอบ] {foe}เซ"]
+  wounds: []

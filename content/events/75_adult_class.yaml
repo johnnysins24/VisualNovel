@@ -7,6 +7,7 @@
   stage: adult
   scene: tavern
   weight: 30
+  people: [{ id: kedra, name: เคดรา, gender: f, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: warrior
@@ -34,19 +35,20 @@
         effects: { hp: -2, stats: { CON: 1 }, gold: 2, flags: [rival_warrior, lost_to_kedra] }
     - id: fight_dirty
       label: เตะดินใส่หน้านาง แล้วฟันตอนนางหลับตา
+      habit: cold_blood
       check: { stat: DEX, dc: 13 }
       success:
         text: |
           ดินลานโรงเตี๊ยมแห้งและเป็นฝุ่น {name}เขี่ยปลายเท้าทีเดียว ฝุ่นเต็มหน้าเคดรา นางหลับตาไปครึ่งลมหายใจ ดาบไม้ของ{name}ก็แตะคอนางแล้ว
 
           พ่อค้าหัวเราะจนสำลักข้าว เขาบอกว่าโจรก็สู้แบบนี้ คนคุมขบวนต้องรู้ทางโจร เคดราเช็ดฝุ่นออกจากตา ไม่ยอมจับมือ{name} นางเดินออกจากลานไปโดยไม่เอาดาบไม้คืน
-        effects: { stats: { DEX: 1 }, gold: 4, alignment: { law: -1 }, flags: [rival_warrior, beat_kedra, kedra_grudge] }
+        effects: { stats: { DEX: 1 }, gold: 4, alignment: { law: -1 }, people: [{ id: kedra, closeness: -1 }], flags: [rival_warrior, beat_kedra, kedra_grudge] }
       failure:
         text: |
           เคดราหลับตาตอนที่ฝุ่นลอยขึ้นมา แต่ดาบไม้ของนางไม่หยุด นางฟันลงมาตรงที่เสียงเท้าของ{name}อยู่ ลงตรงสันจมูก เลือดไหลลงคางก่อนที่{name}จะรู้ตัวว่าดาบไม้ลงมาแล้ว
 
           นางลืมตาขึ้นมาเห็นเลือด แล้วบอกว่าพ่อของนางสอนว่าคนที่เล่นฝุ่นก่อนมักลืมว่าหูของคู่ต่อสู้ยังใช้ได้ พ่อค้าจ้างนาง
-        effects: { hp: -3, alignment: { law: -1 }, flags: [rival_warrior, lost_to_kedra, kedra_grudge] }
+        effects: { hp: -3, alignment: { law: -1 }, people: [{ id: kedra, closeness: -1 }], flags: [rival_warrior, lost_to_kedra, kedra_grudge] }
     - id: offer_to_split
       label: บอกพ่อค้าว่าขบวนสิบสองเล่มต้องใช้สองคน แบ่งกันคนละครึ่งขบวน
       check: { stat: CHA, dc: 13 }
@@ -55,7 +57,7 @@
           {name}วางดาบไม้ลงบนพื้น แล้วนับเกวียนให้พ่อค้าฟังทีละเล่ม สิบสองเล่มต่อกันยาวหลายร้อยก้าว โจรตีหัวขบวน หางขบวนก็หายไปก่อนหัวหน้าจะวิ่งไปถึง คนเดียวคุมไม่ได้ ต่อให้เป็นคนเก่งที่สุดในลานนี้
 
           พ่อค้าเกาคางอยู่ครู่หนึ่ง แล้วจ้างทั้งสองคนในราคาคนละสองในสาม เคดราได้หัวขบวน {name}ได้หางขบวน ตลอดทางนางขี่ม้ากลับมาดูหางขบวนวันละสองรอบ ทุกรอบนางบอกว่าแค่มาดูเฉยๆ
-        effects: { stats: { CHA: 1 }, gold: 3, alignment: { moral: 1 }, flags: [rival_warrior, kedra_partner] }
+        effects: { stats: { CHA: 1 }, gold: 3, alignment: { moral: 1 }, people: [{ id: kedra, bond: friend, closeness: 2 }], flags: [rival_warrior, kedra_partner] }
       failure:
         text: |
           พ่อค้าฟัง{name}จนจบ แล้วบอกว่าเขาจ้างหัวหน้าหนึ่งคน ไม่ได้จ้างคนนับเกวียน เคดราไม่รอให้{name}หยิบดาบไม้ขึ้นมา นางฟันลงที่ไหล่ทีเดียว พ่อค้าก็ตัดสินแล้ว
@@ -124,6 +126,7 @@
 - id: adult.rogue_rival_finnick
   stage: adult
   weight: 30
+  people: [{ id: finnick, name: ฟินนิค, gender: m, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: rogue
@@ -151,6 +154,7 @@
         effects: { stats: { DEX: 1 }, alignment: { law: -1 }, flags: [rival_rogue, lost_to_finnick] }
     - id: snatch_it_back
       label: ล้วงถุงคืนจากเสื้อเขาเดี๋ยวนี้ ตอนเขากำลังพูด
+      habit: light_fingers
       check: { stat: DEX, dc: 15 }
       success:
         text: |
@@ -218,6 +222,7 @@
 - id: adult.wizard_rival_severin
   stage: adult
   weight: 30
+  people: [{ id: severin, name: เซเวริน, gender: m, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: wizard
@@ -250,6 +255,7 @@
       effects: { gold: 4, alignment: { moral: 1 }, items: [thick_lamp_glass], flags: [rival_wizard, warned_severin] }
     - id: steal_his_trick
       label: ระหว่างพัก แอบดูไส้ตะเกียงของเขา เอาส่วนที่ดีมาใส่ของตัวเอง
+      habit: light_fingers
       check: { stat: DEX, dc: 13 }
       success:
         text: |
@@ -318,6 +324,7 @@
   stage: adult
   scene: temple
   weight: 30
+  people: [{ id: loven, name: โลเวน, gender: f, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: cleric
@@ -360,19 +367,20 @@
         effects: { stats: { INT: 1 }, flags: [rival_cleric, lost_to_lowen] }
     - id: expose_her
       label: บอกต่อหน้าทุกคนว่าคำตอบของโลเวนมาจากหนังสือในห้องสมุด
+      habit: cold_blood
       check: { stat: CHA, dc: 14 }
       success:
         text: |
           {name}บอกชื่อหนังสือ เลขชั้น และหน้าที่ประโยคเหล่านั้นอยู่ นักบวชอาวุโสส่งเด็กวิหารไปเอาหนังสือมา เปิดดูตรงหน้าทุกคน แล้วขีดเส้นในสมุดใต้ชื่อโลเวน
 
           โลเวนไม่ได้ย้าย {name}ได้ย้ายแทน ตอนออกจากห้อง นางเดินผ่าน{name}ไปโดยไม่หันมา ในมือยังถือหนังสือเล่มนั้นไว้ นางขอยืมกลับไปอ่านอีกรอบ
-        effects: { stats: { CHA: 1 }, alignment: { law: 1, moral: -1 }, flags: [rival_cleric, exposed_lowen, lowen_grudge] }
+        effects: { stats: { CHA: 1 }, alignment: { law: 1, moral: -1 }, people: [{ id: loven, closeness: -1 }], flags: [rival_cleric, exposed_lowen, lowen_grudge] }
       failure:
         text: |
           โลเวนหันมามอง{name} แล้วบอกนักบวชอาวุโสว่าใช่ นางท่องมาจากหนังสือเล่มนั้น เพราะนางยังไม่เคยเห็นใครตายโดยไม่มีใครช่วย คำตอบที่ดีที่สุดที่นางมีจึงเป็นคำตอบของคนอื่น
 
           นักบวชอาวุโสจดคำพูดนั้นลงสมุดแทนคำตอบแรก โลเวนได้ย้าย ส่วนคำถามของ{name} นักบวชอาวุโสเลื่อนไปถามปีหน้า เพราะเวลาหมดแล้ว
-        effects: { alignment: { moral: -1 }, flags: [rival_cleric, lost_to_lowen, lowen_grudge] }
+        effects: { alignment: { moral: -1 }, people: [{ id: loven, closeness: -1 }], flags: [rival_cleric, lost_to_lowen, lowen_grudge] }
     - id: say_dont_know
       label: บอกว่าไม่รู้
       text: |
@@ -436,6 +444,7 @@
   stage: adult
   scene: tavern
   weight: 30
+  people: [{ id: hasken, name: ฮัสเกน, gender: m, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: ranger
@@ -452,7 +461,7 @@
           หมูป่าพุ่งออกมาจากพงหญ้าตอนที่{name}เดินเข้าไปได้แปดก้าว {name}กระโดดหลบขึ้นโขดหิน หมูวิ่งเลยไปถึงลำธาร หันข้างให้ฮัสเกนพอดี ลูกธนูดอกที่สามของเขาเข้าใต้รักแร้ตรงที่หนังบางที่สุด
 
           ฮัสเกนบอกว่าค่าหัวแบ่งครึ่ง เพราะคนล่อกับคนยิงสำคัญเท่ากัน แล้วบอกว่าคราวหน้าเขาจะล่อเอง {name}ยิง จะได้รู้ว่าใครยิงดีกว่า
-        effects: { stats: { DEX: 1 }, gold: 4, flags: [rival_ranger, hasken_partner] }
+        effects: { stats: { DEX: 1 }, gold: 4, people: [{ id: hasken, bond: friend, closeness: 2 }], flags: [rival_ranger, hasken_partner] }
       failure:
         text: |
           หมูป่าพุ่งออกมาเร็วกว่าที่{name}คิด {name}กระโดดหลบได้ครึ่งตัว เขี้ยวมันเกี่ยวน่องขวาไปทั้งแถบ ฮัสเกนยิงดอกที่สามเข้าใต้รักแร้ มันวิ่งต่อไปได้อีกสิบก้าวแล้วล้ม
@@ -510,6 +519,7 @@
         effects: { stats: { WIS: 1 }, flags: [lost_far_bounty] }
     - id: track_by_eye
       label: ตามรอยด้วยตาอย่างเดียว เหมือนพรานที่ไม่มีเวทเขาทำกัน
+      habit: hunter_eye
       check: { stat: WIS, dc: 14, foe: nature }
       success:
         text: |
@@ -536,6 +546,7 @@
   stage: adult
   scene: tavern
   weight: 30
+  people: [{ id: liran, name: ลีราน, gender: f, bond: rival, closeness: -1 }]
   when:
     age: [19, 22]
     class: bard

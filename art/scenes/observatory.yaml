@@ -1,0 +1,32 @@
+# The dome of the stars school: a round stone room with the shutter of the dome open on the sky, a
+# long brass telescope on its mount, star charts, the counting desk with its ledger and an orrery,
+# blue lamps kept low. The room is 9 m wide, its back wall 5 m behind the figures.
+interior: true
+ceiling: 5.6
+width: 9
+back: 88
+layers:
+  - wall: { y0: 0, y1: 88, mat: stone, pattern: blocks, skirt: dark_stone }
+  - ceiling: { mat: metal, board_mat: dark_stone, board: 18, every: 1.2 }
+  - floor: { y0: 89, mat: plank, pattern: boards, board: 9 }
+  - sides: { mat: stone, pattern: blocks, rails: [1.1], rail_mat: brass, skirt: dark_stone }
+  - pane: { at: [128], wm: 2.6, hm: 3.6, on: 1.5, arch: true, frame: brass, frame_bg: stone, cross: false }
+  - furn: { kind: chart, at: [78], on: 2.3, dm: 1.5, mat: slate }
+    outline: true
+  - furn: { kind: chart, at: [178], on: 2.3, dm: 1.5, mat: slate }
+    outline: true
+  - furn: { kind: sconce, at: [52], on: 1.7, light: star_dew, glow: { r: 11, colour: 'bad8fa' } }
+  - furn: { kind: sconce, at: [204], on: 1.7, light: star_dew, glow: { r: 11, colour: 'bad8fa' } }
+  - furn: { kind: step, at: [128, 90], wm: 3.2, hm: 0.25, mat: stone }
+    outline: true
+  - furn: { kind: telescope, at: [118, 90], on: 0.25, s: 1.4 }
+    outline: true
+  - furn: { kind: table, side: right, at: [1.0, 100], wm: 1.6, items: ledger }
+    outline: true
+  - furn: { kind: orrery, side: right, at: [0.6, 100], on: 0.77 }
+  - furn: { kind: stool, side: right, at: [2.0, 101] }
+    outline: true
+  - furn: { kind: bookcase, side: left, at: [0.3, 92], along: { to: 103, every: 1.1 }, hm: 2.2 }
+    outline: true
+  - furn: { kind: rug, at: [128, 111], wm: 3.0, dm: 3.0, mat: slate, trim: brass }
+  - vignette: { strength: 0.45 }

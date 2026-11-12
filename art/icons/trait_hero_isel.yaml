@@ -1,0 +1,44 @@
+# ภาพจากห้องวาด (แก้ด้วย npm run studio หรือ npm run draw) . ว่าง, # เส้นขอบ, ตัวอักษรอื่นดูที่ legend
+kind: icon
+size: [ 32, 32 ]
+outline: false
+ramps: { fire: scene.fire, metal_demoncoal: metal_demoncoal, field: scene.field }
+legend: { a: fire@1, b: fire@2, c: fire@3, d: metal_demoncoal@0, e: metal_demoncoal@4, f: field@4 }
+meta: { from: 7soul-496/S_Sword16.png }
+frames:
+  main:
+    - layer: main
+      at: [ 0, 0 ]
+      ascii: |
+        .##############################.
+        #aaaaaabaaaaaabbbbbcceeeeeeeeee#
+        #baaaaaacbbaabbbbbcceeefffffffe#
+        #abaaaabbcbbbbbbccceeffebbbbbfe#
+        #aabaaabbbcbbbbccceefebbadddbfe#
+        #aaacbbabbbeccccceefbbad###dbfe#
+        #aaabcbbabbceeeeeefbad#####dbfe#
+        #aaabbcbbabccefeefbad######abfe#
+        #bababbebbbcceeffbad######dbefe#
+        #acbbabbecccceefbad#######abfee#
+        #abcbbabceeeeefbad#######dbefee#
+        #abbcbbbcefeefbad#######dabfeec#
+        #aabbcccceeffbad#######dabfeecc#
+        #abbbcecceefbad#######dabfeeccb#
+        #bbccccfeefbad#######dabfeeccbb#
+        #bceffeeffbad#######dabfeecccbb#
+        #bebbbbefbad#######dabffeeccbbb#
+        #bfb#dabbad#######dabfeefecbbbb#
+        #bfb##daad#######dabfeeeeecbbba#
+        #bebd##dd#######dabfeecccecbbaa#
+        #bebad#########dabffeeccccebbaa#
+        #bfebad#######dabfeefecbbbbcbba#
+        #bffeba######dabfeeeeecbabbbcba#
+        #bfebad#####dabffeccccebbabbbca#
+        #bfbad######dabeefccbbbebbabbab#
+        #bead###dad##dabececbabbcbbaaaa#
+        #bed###dabad##dbfcccbbabbcbaaaa#
+        #bed##dabebad##bfcbbcbbabbcaaaa#
+        #beaddabefebbbbbecbbbcbbaaabaaa#
+        #beeeeeffffeeffecbbabbcaaaaabaa#
+        #bbbbbbbbbbbbbbbbbaaaaabaaaaaba#
+        .##############################.

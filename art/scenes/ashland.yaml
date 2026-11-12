@@ -1,26 +1,19 @@
-# The Ashland (world bible scene 6): grey ash plain with silver grass, a Seal Warden fort, the row of
-# seal stones, demon-coal seams glowing in the ground and the broken stump of Astel's pillar on the
-# horizon.
+# The Ashland: a grey plain of ash and silver grass under a low sky, ember glowing in the cracks,
+# a line of the Seal Wardens' standing stones (human height) running away across the plain, and the
+# broken stump of the dead god's pillar on the horizon.
 layers:
-  - sky: { horizon: 72 }
-  - stars: { count: 110, below: 66 }
-  - body: { day: [200, 20, 6], dusk: [60, 64, 10], night: [206, 20, 5] }
-  - clouds: { count: 3, y: [10, 30], seed: 4, size: 30 }
-  - pillar: { x: 176, w: 12, base: 70, top: 34 }
-    haze: 0.4
-  - ridge: { mat: ash, base: 72, amp: 8, scale: 0.03, seed: 5 }
-    haze: 0.35
-  - prop: { art: fort, at: [30, 80] }
+  - sky: { horizon: 60 }
+  - stars: { count: 50, below: 50 }
+  - body: { day: [200, 18, 6], dusk: [40, 52, 9], night: [190, 20, 5] }
+  - clouds: { count: 9, y: [2, 30], seed: 9, size: 30 }
+  - pillar: { x: 74, w: 7, base: 59, top: 16 }
+    haze: 0.45
+  - ridge: { mat: far, base: 61, amp: 4, scale: 0.02, seed: 21 }
+    haze: 0.5
+  - ground: { y: 61, mat: ash, tufts: 70, tuft: silver_grass }
+  - cracks: { y: [64, 111], count: 16, seed: 2 }
+  - furn: { kind: seal_stone, at: [150, 64], along: { to: [12, 104], every: 14 } }
     outline: true
-  - ridge: { mat: ash, base: 82, amp: 5, scale: 0.06, seed: 6 }
-    haze: 0.1
-  - prop: { art: seal_stone, at: [[130, 84], [150, 86], [172, 88], [196, 90], [222, 92]] }
-    outline: true
-  - trees: { kind: pine, mat: dark_stone, base: 92, every: 70, h: [10, 14], x: [100, 256], seed: 9 }
-    outline: true
-  - ground: { y: 92, mat: ash, noise: 1.2, tufts: 60, tuft: silver_grass }
-  - glow: { at: [40, 100], r: 8, colour: 'e0742f' }
-  - glow: { at: [236, 106], r: 7, colour: 'e0742f' }
-  - rect: { x: 36, y: 100, w: 8, h: 1, mat: fire, lvl: 3 }
-  - rect: { x: 232, y: 106, w: 7, h: 1, mat: fire, lvl: 3 }
-  - road: { y: [92, 111], top: [116, 128], bottom: [98, 150], mat: dirt }
+  - furn: { kind: fern, at: [0, 84], xm: 5.5, hm: 0.45, mat: silver_grass }
+  - furn: { kind: fern, at: [0, 96], xm: -4.2, hm: 0.4, mat: silver_grass }
+  - furn: { kind: fern, at: [0, 109], xm: 3.4, hm: 0.5, mat: silver_grass }

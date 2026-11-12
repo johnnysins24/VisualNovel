@@ -113,6 +113,7 @@
   choices:
     - id: nurse_fever
       label: กอดเด็กไว้ข้างเตาทั้งคืน ไม่วางลง
+      habit: soft_heart
       check: { stat: WIS, dc: 13 }
       success:
         text: |

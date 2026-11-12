@@ -19,7 +19,7 @@
   slot: accessory
   rarity: uncommon
   passive:
-    description: เลือดสูงสุด +2
+    description: พลังชีวิตสูงสุด +2
     effect: { kind: max_hp, amount: 2 }
 
 - id: thick_lamp_glass
